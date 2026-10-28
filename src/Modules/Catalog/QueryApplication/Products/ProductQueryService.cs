@@ -13,8 +13,7 @@ public sealed class ProductQueryService(EwaysVNextDbContext db) : IProductQueryS
         var snapshot = await db.Products.AsNoTracking()
             .Where(product => product.Id == id)
             .Select(product => new ProductSnapshot(product.Id, product.Name,
-                product.Price.Amount, product.Price.Currency,
-                product.Stock - product.ReservedStock))
+                product.Price.Amount, product.Price.Currency))
             .FirstOrDefaultAsync(ct);
         return snapshot is null
             ? Result.Failure<ProductSnapshot>(new Error("PRODUCT_NOT_FOUND", "Product was not found."))
@@ -28,8 +27,7 @@ public sealed class ProductQueryService(EwaysVNextDbContext db) : IProductQueryS
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(product => new ProductSnapshot(product.Id, product.Name,
-                product.Price.Amount, product.Price.Currency,
-                product.Stock - product.ReservedStock))
+                product.Price.Amount, product.Price.Currency))
             .ToListAsync(ct);
 
     public async Task<IReadOnlyList<ProductAdminRow>> GetProductRowsAsync(
@@ -51,9 +49,7 @@ public sealed class ProductQueryService(EwaysVNextDbContext db) : IProductQueryS
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(product => new ProductAdminRow(product.Id, product.Sku.Value,
-                product.Name, product.Price.Amount, product.Price.Currency,
-                product.Stock, product.ReservedStock,
-                product.Stock - product.ReservedStock, product.IsActive))
+                product.Name, product.Price.Amount, product.Price.Currency, product.IsActive))
             .ToListAsync(ct);
     }
 }

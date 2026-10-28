@@ -79,7 +79,7 @@ public class EventDispatchingTests
         var repo = Substitute.For<IProductRepository>();
         var uow = Substitute.For<IUnitOfWork>();
 
-        var product = Product.Create(productId, Sku.Create($"T-{Guid.NewGuid():N}"[..12]), "P", Money.Create(5m), TestTime.Now, 10);
+        var product = Product.Create(productId, Sku.Create($"T-{Guid.NewGuid():N}"[..12]), "P", Money.Create(5m), TestTime.Now);
         repo.GetByIdAsync(productId, Arg.Any<CancellationToken>()).Returns(product);
 
         var sut = new CatalogAdminService(

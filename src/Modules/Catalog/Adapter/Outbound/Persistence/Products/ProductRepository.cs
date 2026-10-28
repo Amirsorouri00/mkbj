@@ -31,15 +31,4 @@ internal sealed class ProductRepository : EfCoreRepository<ProductEntity, long>,
         => await _db.Products.OrderByDescending(p => p.CreatedAt)
             .Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
 
-    public async Task<IReadOnlyList<ProductEntity>> FindWithReclaimableReservationsAsync(
-        DateTimeOffset utcNow, TimeSpan committedRetention, CancellationToken ct = default)
-    {
-        var pruneBefore = utcNow - committedRetention;
-        return await _db.Products
-            .Where(p => p.Reservations.Any(r =>
-                (!r.IsCommitted && r.ExpiresAt <= utcNow)
-                || (r.IsCommitted && r.CommittedAt != null && r.CommittedAt <= pruneBefore)))
-            .ToListAsync(ct);
-    }
-
 }

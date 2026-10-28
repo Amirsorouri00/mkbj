@@ -13,17 +13,14 @@ public sealed class CatalogAdminService(
     IClock clock) : ICatalogAdminService
 {
     public async Task<Result<long>> CreateProductAsync(string sku, string name, decimal price, string currency,
-        int initialStock, string? description, CancellationToken ct = default)
+        string? description, CancellationToken ct = default)
     {
-        var result = await products.CreateProductAsync(sku, name, price, currency, initialStock, description, ct);
+        var result = await products.CreateProductAsync(sku, name, price, currency, description, ct);
         return result.IsSuccess ? Result.Success(result.Value!.Id.Value) : Result.Failure<long>(result.Error!);
     }
 
     public Task<Result> ChangePriceAsync(long productId, decimal newPrice, string currency, CancellationToken ct = default)
         => products.ChangePriceAsync(productId, newPrice, currency, ct);
-
-    public Task<Result> AdjustStockAsync(long productId, int delta, CancellationToken ct = default)
-        => products.AdjustStockAsync(productId, delta, ct);
 
     public async Task<Result> DeactivateProductAsync(long productId, CancellationToken ct = default)
     {

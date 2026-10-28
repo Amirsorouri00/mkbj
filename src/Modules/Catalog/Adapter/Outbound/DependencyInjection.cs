@@ -22,7 +22,6 @@ public static class DependencyInjection
         services.AddScoped<IAttributeBlueprintDependencyGateway, UnavailableAttributeBlueprintDependencyGateway>();
         services.AddScoped<ICategoryAttributeAssignmentRepository, CategoryAttributeAssignmentRepository>();
         services.AddScoped<ICategoryAttributeExclusionRepository, CategoryAttributeExclusionRepository>();
-        services.AddHostedService<ReservationExpirationService>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ICategoryProductRepository, CategoryProductRepository>();
         services.AddScoped<ICatalogProductLookup, CatalogProductLookup>();

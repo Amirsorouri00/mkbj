@@ -20,7 +20,6 @@ public static class DependencyInjection
             provider => provider.GetRequiredService<ProductService>());
         services.AddScoped<CreateProductValidator>();
         services.AddScoped<ChangePriceValidator>();
-        services.AddScoped<ReserveStockValidator>();
         services.AddScoped<ICatalogAdminService, CatalogAdminService>();
 
         return services;

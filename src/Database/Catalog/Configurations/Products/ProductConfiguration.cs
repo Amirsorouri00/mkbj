@@ -8,11 +8,7 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
     {
-        builder.ToTable("Product", table =>
-        {
-            table.HasCheckConstraint("CK_Product_ReservedStock_NonNegative", "[ReservedStock] >= 0");
-            table.HasCheckConstraint("CK_Product_Stock_NonNegative", "[Stock] >= 0");
-        });
+        builder.ToTable("Product");
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id).ValueGeneratedNever();
 
@@ -31,8 +27,6 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             m.WithOwner();
         });
 
-        builder.Property(p => p.Stock).IsRequired();
-        builder.Property(p => p.ReservedStock).IsRequired();
         builder.Property(p => p.IsActive).IsRequired();
         builder.Property(p => p.CreatedAt).IsRequired();
         builder.Property(p => p.UpdatedAt);

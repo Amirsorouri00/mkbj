@@ -57,10 +57,8 @@ public class SnowflakeIdJsonTests
     {
         var options = HttpJsonOptions();
 
-        JsonSerializer.Serialize(new ProductSnapshot(SampleId, "Pen", 1m, "IRR", 3), options)
+        JsonSerializer.Serialize(new ProductSnapshot(SampleId, "Pen", 1m, "USD"), options)
             .Should().Contain("\"id\":\"96521147829043201\"");
-        JsonSerializer.Serialize(new ReservationSnapshot(SampleId, SampleId + 1, 2, TestTime.Now), options)
-            .Should().Contain("\"reservationId\":\"96521147829043201\"").And.Contain("\"productId\":\"96521147829043202\"");
     }
 
     private sealed record Sample(
