@@ -1,4 +1,4 @@
-﻿<Solution>
+<Solution>
 
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />
@@ -112,6 +112,25 @@
     <Project Path="src/Modules/Customer/Installer/EwaysVNext.Modules.Customer.Installer.csproj" />
   </Folder>
   <Folder Name="/src/Modules/" />
+
+  <Folder Name="/src/Modules/Partners/" />
+  <Folder Name="/src/Modules/Partners/Application/">
+    <Project Path="src/Modules/Partners/Application/EwaysVNext.Modules.Partners.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Partners/Adapter/Outbound/">
+    <Project Path="src/Modules/Partners/Adapter/Outbound/EwaysVNext.Modules.Partners.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Partners/Adapter/" />
+  <Folder Name="/src/Modules/Partners/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Partners/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Partners/Adapter/Inbound/Rest/EwaysVNext.Modules.Partners.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Partners/QueryApplication/">
+    <Project Path="src/Modules/Partners/QueryApplication/EwaysVNext.Modules.Partners.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Partners/Installer/">
+    <Project Path="src/Modules/Partners/Installer/EwaysVNext.Modules.Partners.Installer.csproj" />
+  </Folder>
 
 
 

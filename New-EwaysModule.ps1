@@ -190,12 +190,20 @@ Write-Host ''
 
 # Existing BuildingBlocks projects that the new module's projects will reference.
 # Adjust these paths if your BuildingBlocks project names differ.
+# The building blocks as they exist today. Framework, DDD, SharedKernel, Contracts and
+# Infrastructure.Persistence were all removed in the Postgres rebuild; a module scaffolded
+# against those names silently got no references at all, because Add-ProjectReferenceSafe only
+# warns when a target is missing.
 $bb = @{
-    Framework                 = Join-Path $SolutionRoot 'src\BuildingBlocks\Framework\EwaysVNext.Framework.csproj'
-    DDD                       = Join-Path $SolutionRoot 'src\BuildingBlocks\DDD\EwaysVNext.DDD.csproj'
-    SharedKernel              = Join-Path $SolutionRoot 'src\BuildingBlocks\SharedKernel\EwaysVNext.SharedKernel.csproj'
-    Contracts                 = Join-Path $SolutionRoot 'src\BuildingBlocks\Contracts\EwaysVNext.Contracts.csproj'
-    InfrastructurePersistence = Join-Path $SolutionRoot 'src\BuildingBlocks\Infrastructure.Persistence\EwaysVNext.Infrastructure.Persistence.csproj'
+    Domain              = Join-Path $SolutionRoot 'src\BuildingBlocks\Domain\EwaysVNext.Domain.csproj'
+    Outcomes            = Join-Path $SolutionRoot 'src\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj'
+    Persistence         = Join-Path $SolutionRoot 'src\BuildingBlocks\Persistence\EwaysVNext.Persistence.csproj'
+    QueriesApplication  = Join-Path $SolutionRoot 'src\BuildingBlocks\Queries\Application\EwaysVNext.Queries.Application.csproj'
+    EventsApplication   = Join-Path $SolutionRoot 'src\BuildingBlocks\Events\Application\EwaysVNext.Events.Application.csproj'
+    CoreApplication     = Join-Path $SolutionRoot 'src\BuildingBlocks\Core\Application\EwaysVNext.Core.Application.csproj'
+    PresentationEndpoint = Join-Path $SolutionRoot 'src\BuildingBlocks\Presentation.Endpoint\EwaysVNext.Presentation.Endpoint.csproj'
+    DependencyInjection = Join-Path $SolutionRoot 'src\BuildingBlocks\DependencyInjection\EwaysVNext.DependencyInjection.csproj'
+    Database            = Join-Path $SolutionRoot 'src\Database\EwaysVNext.Database.csproj'
 }
 
 # Definition of every project to create for the module, mirroring the Catalog module.
@@ -225,30 +233,38 @@ if (-not $SkipReferences) {
     Write-Host ''
     Write-Host 'Wiring project references...' -ForegroundColor Cyan
 
-    # Application -> domain / shared building blocks
-    Add-ProjectReferenceSafe -FromCsproj $created.Application -ToCsproj $bb.DDD -Label 'Application -> DDD'
-    Add-ProjectReferenceSafe -FromCsproj $created.Application -ToCsproj $bb.SharedKernel -Label 'Application -> SharedKernel'
-    Add-ProjectReferenceSafe -FromCsproj $created.Application -ToCsproj $bb.Contracts -Label 'Application -> Contracts'
+    # Application: the hexagon. Domain primitives, the Result type, the unit of work and the
+    # security principals - and deliberately NOT EF Core or any adapter (AGENTS.md rules 1 and 2,
+    # enforced by Application_Depends_On_No_Adapter_And_No_EfCore).
+    Add-ProjectReferenceSafe -FromCsproj $created.Application -ToCsproj $bb.Domain -Label 'Application -> Domain'
+    Add-ProjectReferenceSafe -FromCsproj $created.Application -ToCsproj $bb.Outcomes -Label 'Application -> Outcomes'
+    Add-ProjectReferenceSafe -FromCsproj $created.Application -ToCsproj $bb.Persistence -Label 'Application -> Persistence'
+    Add-ProjectReferenceSafe -FromCsproj $created.Application -ToCsproj $bb.CoreApplication -Label 'Application -> Core.Application'
+    Add-ProjectReferenceSafe -FromCsproj $created.Application -ToCsproj $bb.EventsApplication -Label 'Application -> Events.Application'
 
-    # Outbound adapter -> implements Application's outbound ports + persistence
+    # Outbound adapter: implements the Application's outbound ports against the one shared context.
     Add-ProjectReferenceSafe -FromCsproj $created.AdapterOutbound -ToCsproj $created.Application -Label 'Adapter.Outbound -> Application'
-    Add-ProjectReferenceSafe -FromCsproj $created.AdapterOutbound -ToCsproj $bb.InfrastructurePersistence -Label 'Adapter.Outbound -> Infrastructure.Persistence'
+    Add-ProjectReferenceSafe -FromCsproj $created.AdapterOutbound -ToCsproj $created.QueryApplication -Label 'Adapter.Outbound -> QueryApplication'
+    Add-ProjectReferenceSafe -FromCsproj $created.AdapterOutbound -ToCsproj $bb.Persistence -Label 'Adapter.Outbound -> Persistence'
+    Add-ProjectReferenceSafe -FromCsproj $created.AdapterOutbound -ToCsproj $bb.Database -Label 'Adapter.Outbound -> Database'
 
-    # Inbound REST adapter -> calls into Application (commands) + QueryApplication (reads)
+    # Inbound REST adapter: calls Application for writes and QueryApplication for reads.
     Add-ProjectReferenceSafe -FromCsproj $created.AdapterInboundRest -ToCsproj $created.Application -Label 'Adapter.Inbound.Rest -> Application'
     Add-ProjectReferenceSafe -FromCsproj $created.AdapterInboundRest -ToCsproj $created.QueryApplication -Label 'Adapter.Inbound.Rest -> QueryApplication'
+    Add-ProjectReferenceSafe -FromCsproj $created.AdapterInboundRest -ToCsproj $bb.PresentationEndpoint -Label 'Adapter.Inbound.Rest -> Presentation.Endpoint'
+    Add-ProjectReferenceSafe -FromCsproj $created.AdapterInboundRest -ToCsproj $bb.Outcomes -Label 'Adapter.Inbound.Rest -> Outcomes'
 
-    # QueryApplication (CQRS read side) -> shared kernel / contracts / persistence
-    Add-ProjectReferenceSafe -FromCsproj $created.QueryApplication -ToCsproj $bb.SharedKernel -Label 'QueryApplication -> SharedKernel'
-    Add-ProjectReferenceSafe -FromCsproj $created.QueryApplication -ToCsproj $bb.Contracts -Label 'QueryApplication -> Contracts'
-    Add-ProjectReferenceSafe -FromCsproj $created.QueryApplication -ToCsproj $bb.InfrastructurePersistence -Label 'QueryApplication -> Infrastructure.Persistence'
+    # QueryApplication: the read side, projecting straight from the shared context.
+    Add-ProjectReferenceSafe -FromCsproj $created.QueryApplication -ToCsproj $bb.Outcomes -Label 'QueryApplication -> Outcomes'
+    Add-ProjectReferenceSafe -FromCsproj $created.QueryApplication -ToCsproj $bb.QueriesApplication -Label 'QueryApplication -> Queries.Application'
+    Add-ProjectReferenceSafe -FromCsproj $created.QueryApplication -ToCsproj $bb.Database -Label 'QueryApplication -> Database'
 
     # Installer (module composition root) -> everything it needs to register in DI
     Add-ProjectReferenceSafe -FromCsproj $created.Installer -ToCsproj $created.Application -Label 'Installer -> Application'
     Add-ProjectReferenceSafe -FromCsproj $created.Installer -ToCsproj $created.AdapterOutbound -Label 'Installer -> Adapter.Outbound'
     Add-ProjectReferenceSafe -FromCsproj $created.Installer -ToCsproj $created.AdapterInboundRest -Label 'Installer -> Adapter.Inbound.Rest'
     Add-ProjectReferenceSafe -FromCsproj $created.Installer -ToCsproj $created.QueryApplication -Label 'Installer -> QueryApplication'
-    Add-ProjectReferenceSafe -FromCsproj $created.Installer -ToCsproj $bb.Framework -Label 'Installer -> Framework'
+    Add-ProjectReferenceSafe -FromCsproj $created.Installer -ToCsproj $bb.DependencyInjection -Label 'Installer -> DependencyInjection'
 }
 else {
     Write-Host 'Skipping reference wiring (-SkipReferences).' -ForegroundColor Yellow

@@ -16,7 +16,7 @@ public sealed class HexagonalBoundaryTests
 {
     // Final set (later phases append as they create each module):
     // Catalog, Customer, Partners, Settings, Pricing, Sales, Sourcing, Admin.
-    public static readonly string[] ModuleNames = ["Catalog", "Customer"];
+    public static readonly string[] ModuleNames = ["Catalog", "Customer", "Partners"];
 
     /// <summary>
     /// Rows are (consumerModule, providerModule): `EwaysVNext.Modules.{consumer}.Adapter.Outbound`

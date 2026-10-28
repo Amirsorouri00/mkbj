@@ -1,0 +1,6 @@
+{
+  "ApiKeys": {
+    "RotationOverlap": "1.00:00:00",
+    "MaxRotationOverlap": "30.00:00:00"
+  }
+}

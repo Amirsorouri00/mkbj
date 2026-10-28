@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Application\EwaysVNext.Modules.Partners.Application.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\EwaysVNext.Modules.Partners.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\Rest\EwaysVNext.Modules.Partners.Adapter.Inbound.Rest.csproj" />
+    <ProjectReference Include="..\QueryApplication\EwaysVNext.Modules.Partners.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\DependencyInjection\EwaysVNext.DependencyInjection.csproj" />
+  </ItemGroup>
+</Project>

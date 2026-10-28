@@ -72,6 +72,22 @@ public sealed partial class BuildDirectoryTests
             "a realm export is committed, so every secret in it must be substituted at import time");
 
     [Fact]
+    public void Ci_Env_Values_Satisfy_The_Minimums_The_App_Enforces()
+    {
+        // ci.env is a working configuration, not a template: `docker compose config` interpolates
+        // it, and CI starts the stack from it. A placeholder shorter than the pepper's 32-char
+        // minimum passes interpolation and then fails at startup, which reads as a code fault.
+        var values = EnvLines("build/compose/ci.env")
+            .Select(line => line.Split('=', 2))
+            .Where(parts => parts.Length == 2)
+            .ToDictionary(parts => parts[0], parts => parts[1], StringComparer.Ordinal);
+
+        values.Should().ContainKey("API_KEYS_PEPPER");
+        values["API_KEYS_PEPPER"].Length.Should().BeGreaterThanOrEqualTo(32,
+            "ApiKeyPepper.FromConfiguration refuses anything shorter");
+    }
+
+    [Fact]
     public void Roles_Script_Contains_No_Literal_Password() =>
         File.ReadAllText(Path.Combine(Root, "build/postgres/init/01-roles.sql"))
             .Should().NotMatchRegex(@"PASSWORD\s+'", "passwords come from the environment via \\getenv");
