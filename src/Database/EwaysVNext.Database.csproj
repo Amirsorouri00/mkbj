@@ -25,6 +25,7 @@
   <ItemGroup>
     <Folder Include="Migrations\" />
     <ProjectReference Include="..\BuildingBlocks\Jobs\Implementation\EwaysVNext.Jobs.Implementation.csproj" />
+    <ProjectReference Include="..\BuildingBlocks\Audit\Implementation\EwaysVNext.Audit.Implementation.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Scripts\*.sql" />

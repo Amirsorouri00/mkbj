@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EwaysVNext.Database.Migrations
 {
     [DbContext(typeof(EwaysVNextDbContext))]
-    [Migration("20261028132346_init")]
+    [Migration("20261028134719_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -26,6 +26,91 @@ namespace EwaysVNext.Database.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "unaccent");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("EwaysVNext.Audit.Implementation.AuditEvent", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("action");
+
+                    b.Property<string>("ActorRole")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("actor_role");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actor_user_id");
+
+                    b.Property<string>("After")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("after");
+
+                    b.Property<string>("Before")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("before");
+
+                    b.Property<string>("CorrelationId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("correlation_id");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<string>("TargetId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("target_id");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("target_type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_audit_events");
+
+                    b.HasIndex("ActorUserId", "OccurredAt")
+                        .HasDatabaseName("ix_audit_events_actor_user_id_occurred_at");
+
+                    b.HasIndex("TargetType", "TargetId", "OccurredAt")
+                        .HasDatabaseName("ix_audit_events_target_type_target_id_occurred_at");
+
+                    b.ToTable("audit_events", "audit");
+                });
+
+            modelBuilder.Entity("EwaysVNext.Audit.Implementation.AuditSeal", b =>
+                {
+                    b.Property<long>("EventId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("event_id");
+
+                    b.Property<byte[]>("Hash")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("hash");
+
+                    b.Property<DateTimeOffset>("SealedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sealed_at");
+
+                    b.HasKey("EventId")
+                        .HasName("pk_audit_seals");
+
+                    b.ToTable("audit_seals", "audit");
+                });
 
             modelBuilder.Entity("EwaysVNext.Jobs.Implementation.JobRecord", b =>
                 {

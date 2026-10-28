@@ -43,6 +43,7 @@
   </Folder>
   <Folder Name="/src/BuildingBlocks/Audit/">
     <Project Path="src/BuildingBlocks/Audit/Application/EwaysVNext.Audit.Application.csproj" />
+    <Project Path="src/BuildingBlocks/Audit/Implementation/EwaysVNext.Audit.Implementation.csproj" />
   </Folder>
   <Folder Name="/src/BuildingBlocks/Jobs/">
     <Project Path="src/BuildingBlocks/Jobs/Application/EwaysVNext.Jobs.Application.csproj" />

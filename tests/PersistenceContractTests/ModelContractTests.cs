@@ -67,7 +67,7 @@ public sealed class ModelContractTests
         using var context = Providers.Npgsql<EwaysVNextDbContext>();
 
         Providers.Model(context).GetEntityTypes().Select(e => e.GetSchema())
-            .Should().OnlyContain(s => s == "catalog" || s == "jobs");
+            .Should().OnlyContain(s => s == "catalog" || s == "jobs" || s == "audit");
     }
 
     [Fact]

@@ -15,6 +15,9 @@ namespace EwaysVNext.Database.Migrations
                 name: "catalog");
 
             migrationBuilder.EnsureSchema(
+                name: "audit");
+
+            migrationBuilder.EnsureSchema(
                 name: "jobs");
 
             migrationBuilder.AlterDatabase()
@@ -39,6 +42,41 @@ namespace EwaysVNext.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_attribute_blueprints", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "audit_events",
+                schema: "audit",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false),
+                    occurred_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    actor_user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    actor_role = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    action = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    target_type = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    target_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    before = table.Column<string>(type: "jsonb", nullable: true),
+                    after = table.Column<string>(type: "jsonb", nullable: true),
+                    correlation_id = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_audit_events", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "audit_seals",
+                schema: "audit",
+                columns: table => new
+                {
+                    event_id = table.Column<long>(type: "bigint", nullable: false),
+                    hash = table.Column<byte[]>(type: "bytea", nullable: false),
+                    sealed_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_audit_seals", x => x.event_id);
                 });
 
             migrationBuilder.CreateTable(
@@ -260,6 +298,18 @@ namespace EwaysVNext.Database.Migrations
                 filter: "deleted_at IS NULL");
 
             migrationBuilder.CreateIndex(
+                name: "ix_audit_events_actor_user_id_occurred_at",
+                schema: "audit",
+                table: "audit_events",
+                columns: new[] { "actor_user_id", "occurred_at" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_audit_events_target_type_target_id_occurred_at",
+                schema: "audit",
+                table: "audit_events",
+                columns: new[] { "target_type", "target_id", "occurred_at" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_categories_parent_id_normalized_name",
                 schema: "catalog",
                 table: "categories",
@@ -369,6 +419,14 @@ namespace EwaysVNext.Database.Migrations
             migrationBuilder.DropTable(
                 name: "attribute_blueprint_option",
                 schema: "catalog");
+
+            migrationBuilder.DropTable(
+                name: "audit_events",
+                schema: "audit");
+
+            migrationBuilder.DropTable(
+                name: "audit_seals",
+                schema: "audit");
 
             migrationBuilder.DropTable(
                 name: "category_attribute_assignments",

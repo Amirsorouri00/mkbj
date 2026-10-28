@@ -29,6 +29,12 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
     public DbSet<EwaysVNext.Jobs.Implementation.RecurringJobRecord> RecurringJobs
         => Set<EwaysVNext.Jobs.Implementation.RecurringJobRecord>();
 
+    public DbSet<EwaysVNext.Audit.Implementation.AuditEvent> AuditEvents
+        => Set<EwaysVNext.Audit.Implementation.AuditEvent>();
+
+    public DbSet<EwaysVNext.Audit.Implementation.AuditSeal> AuditSeals
+        => Set<EwaysVNext.Audit.Implementation.AuditSeal>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(EwaysVNextDbContext).Assembly);

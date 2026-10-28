@@ -9,6 +9,7 @@ using EwaysVNext.Outcomes;
 using EwaysVNext.Modules.Catalog;
 using EwaysVNext.Modules.Customer;
 using EwaysVNext.Presentation.Endpoint;
+using EwaysVNext.Audit.Implementation;
 using EwaysVNext.Jobs.Implementation;
 using EwaysVNext.Storage.Implementation;
 using EwaysVNext.Presentation.Endpoint.GraphQL;
@@ -44,6 +45,7 @@ builder.Services
 builder.Services.AddUnifiedDatabase(builder.Configuration, builder.Environment.IsDevelopment());
 builder.Services.AddObjectStorage(builder.Configuration);
 builder.Services.AddJobs(builder.Configuration);
+builder.Services.AddAudit();
 builder.Services.AddAuthorizationSystem(builder.Configuration);
 
 builder.Services.AddMultiRealmKeycloakAuthentication(builder.Configuration);
