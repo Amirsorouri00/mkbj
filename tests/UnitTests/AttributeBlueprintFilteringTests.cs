@@ -1,4 +1,4 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 using AwesomeAssertions;
 using EwaysVNext.Database;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
@@ -399,7 +399,7 @@ public sealed class AttributeBlueprintFilteringTests
         services.AddDbContext<EwaysVNextDbContext>(options =>
         {
             if (sqlServer)
-                options.UseSqlServer("Server=127.0.0.1;Database=TranslationOnly;Integrated Security=true;TrustServerCertificate=true")
+                options.UseNpgsql("Host=127.0.0.1;Port=1;Database=translation_only;Username=probe;Password=probe;Timeout=1").UseSnakeCaseNamingConvention()
                     .AddInterceptors(new StopBeforeConnectionInterceptor());
             else
                 options.UseInMemoryDatabase(Guid.NewGuid().ToString());

@@ -161,7 +161,7 @@ internal sealed class CategoryProductRepository(EwaysVNextDbContext db)
     }
 
     private static bool IsUniqueViolation(Exception error) =>
-        error is Microsoft.Data.SqlClient.SqlException { Number: 2601 or 2627 }
+        error is System.Data.Common.DbException { SqlState: "23505" }
         || error.InnerException is not null && IsUniqueViolation(error.InnerException);
 
     public async Task AddAsync(CategoryProduct assignment, CancellationToken token)

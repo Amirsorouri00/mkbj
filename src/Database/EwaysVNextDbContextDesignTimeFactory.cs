@@ -16,18 +16,22 @@ public sealed class EwaysVNextDbContextDesignTimeFactory
             .AddEnvironmentVariables()
             .Build();
 
-        var connectionString = configuration.GetConnectionString("Default");
-        if (string.IsNullOrWhiteSpace(connectionString))
-            throw new InvalidOperationException(EwaysVNextDbContextDesignTimeFactoryMessages.ConnectionStringNotConfigured);
+        // `dotnet ef migrations add` builds the relational model without ever connecting, so a
+        // placeholder is correct here: requiring a real connection string would make generating a
+        // migration depend on having a database.
+        var connectionString = configuration.GetConnectionString("Default") is { Length: > 0 } configured
+            ? configured
+            : "Host=localhost;Database=eways_design;Username=design;Password=design";
 
         var options = new DbContextOptionsBuilder<EwaysVNextDbContext>()
-            .UseSqlServer(
+            .UseNpgsql(
                 connectionString,
-                sql =>
+                npgsql =>
                 {
-                    sql.MigrationsAssembly(typeof(EwaysVNextDbContext).Assembly.FullName);
-                    sql.MigrationsHistoryTable("__EFMigrationsHistory");
+                    npgsql.MigrationsAssembly(typeof(EwaysVNextDbContext).Assembly.FullName);
+                    npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "public");
                 })
+            .UseSnakeCaseNamingConvention()
             .Options;
 
         return new EwaysVNextDbContext(options);

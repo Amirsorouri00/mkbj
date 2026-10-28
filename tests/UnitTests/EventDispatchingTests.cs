@@ -23,9 +23,22 @@ public class EventDispatchingTests
 
     private sealed record TestEvent : DomainEvent;
 
-    private sealed class TestDbContext(DbContextOptions<TestDbContext> options) : ModuleDbContextBase(options, "test")
+    private sealed class TestDbContext(DbContextOptions<TestDbContext> options) : DbContext(options)
     {
         public DbSet<TestAggregate> Aggregates => Set<TestAggregate>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // InMemory has no xmin: keep RowVersion an inert property, as EwaysVNextDbContext does.
+            foreach (var property in modelBuilder.Model.GetEntityTypes()
+                         .SelectMany(e => e.GetProperties()).Where(p => p.Name == "RowVersion"))
+            {
+                property.IsConcurrencyToken = false;
+                property.ValueGenerated = Microsoft.EntityFrameworkCore.Metadata.ValueGenerated.Never;
+            }
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 
     private static TestDbContext CreateContext()

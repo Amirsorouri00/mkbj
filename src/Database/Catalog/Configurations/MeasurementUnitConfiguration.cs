@@ -1,4 +1,4 @@
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
+﻿using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,7 +8,7 @@ internal sealed class MeasurementUnitConfiguration : IEntityTypeConfiguration<Me
 {
     public void Configure(EntityTypeBuilder<MeasurementUnit> builder)
     {
-        builder.ToTable("MeasurementUnits");
+        
         builder.HasKey(unit => unit.Id);
         builder.Property(unit => unit.Id).ValueGeneratedNever();
         builder.Property(unit => unit.Name)
@@ -20,6 +20,5 @@ internal sealed class MeasurementUnitConfiguration : IEntityTypeConfiguration<Me
         builder.HasIndex(unit => unit.Name).IsUnique();
         builder.HasIndex(unit => unit.Symbol).IsUnique();
         builder.Ignore(unit => unit.DomainEvents);
-        builder.Property(unit => unit.RowVersion).IsRowVersion();
     }
 }

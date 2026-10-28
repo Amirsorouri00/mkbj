@@ -1,4 +1,4 @@
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
+﻿using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,7 +8,7 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {
     public void Configure(EntityTypeBuilder<Category> builder)
     {
-        builder.ToTable("Category");
+        
         builder.HasKey(category => category.Id);
         builder.Property(category => category.Id)
             .HasColumnType("bigint")
@@ -36,18 +36,14 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Navigation(category => category.Children)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.HasIndex(category => new
-            { category.ParentId, category.Status, category.DisplayOrder, category.Id })
-            .HasDatabaseName("IX_Category_Hierarchy");
+            { category.ParentId, category.Status, category.DisplayOrder, category.Id });
         builder.HasIndex(category => new { category.ParentId, category.NormalizedName })
-            .HasDatabaseName("IX_Category_ParentId_NormalizedName")
             .IsUnique()
-            .HasFilter("[Status] <> 2");
+            .HasFilter("status <> 2");
         builder.HasIndex(category => category.Slug)
-            .HasDatabaseName("IX_Category_Slug")
             .IsUnique()
-            .HasFilter("[Status] <> 2");
+            .HasFilter("status <> 2");
 
         builder.Ignore(category => category.DomainEvents);
-        builder.Property(category => category.RowVersion).IsRowVersion();
     }
 }

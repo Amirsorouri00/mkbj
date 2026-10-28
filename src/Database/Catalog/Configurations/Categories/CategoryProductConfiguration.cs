@@ -1,4 +1,4 @@
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
+﻿using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,7 +8,7 @@ internal sealed class CategoryProductConfiguration : IEntityTypeConfiguration<Ca
 {
     public void Configure(EntityTypeBuilder<CategoryProduct> builder)
     {
-        builder.ToTable("CategoryProduct");
+        
         builder.HasKey(assignment => new { assignment.CategoryId, assignment.ProductId });
         builder.Property(assignment => assignment.CategoryId).HasColumnType("bigint");
         builder.Property(assignment => assignment.ProductId).HasColumnType("bigint");
@@ -19,7 +19,6 @@ internal sealed class CategoryProductConfiguration : IEntityTypeConfiguration<Ca
             .WithMany()
             .HasForeignKey(assignment => assignment.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
-        builder.HasIndex(assignment => new { assignment.ProductId, assignment.CategoryId })
-            .HasDatabaseName("IX_CategoryProduct_ProductId_CategoryId");
+        builder.HasIndex(assignment => new { assignment.ProductId, assignment.CategoryId });
     }
 }

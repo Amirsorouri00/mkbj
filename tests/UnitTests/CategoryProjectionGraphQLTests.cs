@@ -22,7 +22,7 @@ public sealed class CategoryProjectionGraphQLTests
         services.AddLogging();
         services.AddAuthorization();
         services.AddDbContext<EwaysVNextDbContext>(options => options
-            .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=CategoryProjectionProbe;Trusted_Connection=True")
+            .UseNpgsql("Host=127.0.0.1;Port=1;Database=category_projection_probe;Username=probe;Password=probe;Timeout=1").UseSnakeCaseNamingConvention()
             .AddInterceptors(new SuppressConnectionOpeningInterceptor(), commandCapture));
         services.AddScoped<ICategoryAdminQueries, CategoryAdminQueries>();
         services.AddCatalogGraphQL();

@@ -1,4 +1,4 @@
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
+﻿using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,7 +8,7 @@ internal sealed class CategoryAttributeAssignmentConfiguration : IEntityTypeConf
 {
     public void Configure(EntityTypeBuilder<CategoryAttributeAssignment> builder)
     {
-        builder.ToTable("CategoryAttributeAssignments");
+        
         builder.HasKey(a => a.Id);
         builder.Property(a => a.Id).ValueGeneratedNever();
 
@@ -30,16 +30,13 @@ internal sealed class CategoryAttributeAssignmentConfiguration : IEntityTypeConf
 
         builder.HasIndex(a => new { a.CategoryId, a.AttributeBlueprintId })
             .IsUnique()
-            .HasFilter("[RemovedAt] IS NULL")
-            .HasDatabaseName("IX_CategoryAttributeAssignments_Category_Attribute_Active");
+            .HasFilter("removed_at IS NULL");
 
-        builder.HasIndex(a => a.CategoryId).HasDatabaseName("IX_CategoryAttributeAssignments_CategoryId");
+        builder.HasIndex(a => a.CategoryId);
 
         builder.HasIndex(a => new { a.CategoryId, a.IsPrimary })
-            .HasFilter("[RemovedAt] IS NULL AND [IsPrimary] = 1")
-            .HasDatabaseName("IX_CategoryAttributeAssignments_Category_Primary_Active");
+            .HasFilter("removed_at IS NULL AND is_primary");
 
         builder.Ignore(p => p.DomainEvents);
-        builder.Property(a => a.RowVersion).IsRowVersion();
     }
 }

@@ -29,12 +29,12 @@ public static class DependencyInjection
                 throw new InvalidOperationException(DependencyInjectionMessages.ConnectionStringNotConfigured);
             }
 
-            options.UseSqlServer(connectionString, sql =>
+            options.UseNpgsql(connectionString, npgsql =>
             {
-                sql.MigrationsAssembly(typeof(AuthorizationDbContext).Assembly.FullName);
-                sql.MigrationsHistoryTable("__AuthorizationMigrationsHistory", "authorization");
-                sql.EnableRetryOnFailure(3, TimeSpan.FromSeconds(2), null);
-            });
+                npgsql.MigrationsAssembly(typeof(AuthorizationDbContext).Assembly.FullName);
+                npgsql.MigrationsHistoryTable("__AuthorizationMigrationsHistory", "authorization");
+                npgsql.EnableRetryOnFailure(3, TimeSpan.FromSeconds(2), null);
+            }).UseSnakeCaseNamingConvention();
         });
 
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AuthorizationDbContext>());

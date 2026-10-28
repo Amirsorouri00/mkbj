@@ -1,4 +1,4 @@
-using AuthorizationService.Application.Entities;
+﻿using AuthorizationService.Application.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,7 +10,6 @@ internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
 
     public void Configure(EntityTypeBuilder<Role> builder)
     {
-        builder.ToTable("Roles");
         builder.HasKey(r => r.Id);
         builder.Property(r => r.Id).ValueGeneratedNever();
 

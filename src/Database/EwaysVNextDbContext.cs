@@ -27,6 +27,11 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(EwaysVNextDbContext).Assembly);
 
+        modelBuilder.HasPostgresExtension("pg_trgm");
+        modelBuilder.HasPostgresExtension("unaccent");
+
+        var isInMemory = Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory";
+
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             var rootEntityType = entityType;
@@ -35,36 +40,50 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
                 rootEntityType = ownership.PrincipalEntityType;
             }
 
-            var namespaceName = rootEntityType.ClrType?.Namespace ?? string.Empty;
-            entityType.SetSchema(ResolveModuleSchema(namespaceName) ?? "dbo");
-        }
+            entityType.SetSchema(ResolveSchema(rootEntityType.ClrType));
 
-        modelBuilder.HasDefaultSchema("dbo");
-
-        if (Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
-        {
-            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-                foreach (var property in entityType.GetProperties().Where(p => p.Name == "RowVersion"))
+            foreach (var property in entityType.GetProperties().Where(p => p.Name == "RowVersion"))
+            {
+                if (isInMemory)
                 {
+                    // InMemory has no xmin and no concurrency story; keep it an inert property.
                     property.IsConcurrencyToken = false;
                     property.ValueGenerated = Microsoft.EntityFrameworkCore.Metadata.ValueGenerated.Never;
                 }
+                else
+                {
+                    property.SetColumnName("xmin");
+                    property.SetColumnType("xid");
+                    property.ValueGenerated = Microsoft.EntityFrameworkCore.Metadata.ValueGenerated.OnAddOrUpdate;
+                    property.IsConcurrencyToken = true;
+                }
+            }
         }
     }
 
-    private static string? ResolveModuleSchema(string namespaceName)
+    /// <summary>
+    /// Schema per module, derived from the aggregate's CLR namespace. There is deliberately no
+    /// fallback: a type whose home cannot be named would otherwise land in a shared default schema
+    /// silently, which is how two modules end up sharing a table nobody meant to share.
+    /// </summary>
+    private static string ResolveSchema(Type? clrType)
     {
+        var namespaceName = clrType?.Namespace ?? string.Empty;
+
         const string marker = "Modules.";
         var markerIndex = namespaceName.IndexOf(marker, StringComparison.Ordinal);
-        if (markerIndex < 0)
+        if (markerIndex >= 0)
         {
-            return null;
+            var afterMarker = namespaceName[(markerIndex + marker.Length)..];
+            var dotIndex = afterMarker.IndexOf('.');
+            return (dotIndex < 0 ? afterMarker : afterMarker[..dotIndex]).ToLowerInvariant();
         }
 
-        var afterMarker = namespaceName[(markerIndex + marker.Length)..];
-        var dotIndex = afterMarker.IndexOf('.');
-        var moduleName = dotIndex < 0 ? afterMarker : afterMarker[..dotIndex];
+        if (namespaceName.StartsWith("EwaysVNext.Jobs", StringComparison.Ordinal)) return "jobs";
+        if (namespaceName.StartsWith("EwaysVNext.Audit", StringComparison.Ordinal)) return "audit";
 
-        return moduleName.ToLowerInvariant();
+        throw new InvalidOperationException(
+            $"No schema is defined for '{clrType?.FullName ?? "<unknown>"}'. Entities belong to a module " +
+            "(EwaysVNext.Modules.{Module}.*), to EwaysVNext.Jobs or to EwaysVNext.Audit.");
     }
 }

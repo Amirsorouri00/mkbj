@@ -1,4 +1,4 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Domain.Common;
 using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
 using EwaysVNext.Modules.Catalog.Contracts.Categories;
@@ -44,7 +44,7 @@ public sealed class CategoryDomainTests
         category.DeletedAt.Should().BeNull();
         category.CreatedAt.Should().Be(CreatedAt);
         category.UpdatedAt.Should().BeNull();
-        category.RowVersion.Should().BeEmpty();
+        category.RowVersion.Should().Be(0u);
         category.DomainEvents.Should().ContainSingle().Which
             .Should().BeOfType<CategoryCreatedDomainEvent>();
     }

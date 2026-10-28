@@ -1,4 +1,4 @@
-using AuthorizationService.Application.Entities;
+﻿using AuthorizationService.Application.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,7 +10,6 @@ internal sealed class ScopeConfiguration : IEntityTypeConfiguration<Scope>
 
     public void Configure(EntityTypeBuilder<Scope> builder)
     {
-        builder.ToTable("Scopes");
         builder.HasKey(s => s.Id);
         builder.Property(s => s.Id).ValueGeneratedNever();
 

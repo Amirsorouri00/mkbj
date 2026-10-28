@@ -1,4 +1,4 @@
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
+﻿using EwaysVNext.Modules.Catalog.Application.Products.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,7 +8,7 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
     {
-        builder.ToTable("Product");
+        
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id).ValueGeneratedNever();
 
@@ -22,8 +22,8 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.OwnsOne(p => p.Price, m =>
         {
-            m.Property(mm => mm.Amount).HasColumnName("PriceAmount").HasPrecision(18, 2);
-            m.Property(mm => mm.Currency).HasColumnName("PriceCurrency").HasMaxLength(3);
+            m.Property(mm => mm.Amount).HasPrecision(18, 2);
+            m.Property(mm => mm.Currency).HasMaxLength(3);
             m.WithOwner();
         });
 
@@ -31,9 +31,8 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.CreatedAt).IsRequired();
         builder.Property(p => p.UpdatedAt);
 
-        builder.HasIndex(p => p.CreatedAt).HasDatabaseName("IX_Product_CreatedAt");
+        builder.HasIndex(p => p.CreatedAt);
 
         builder.Ignore(p => p.DomainEvents);
-        builder.Property(p => p.RowVersion).IsRowVersion();
     }
 }

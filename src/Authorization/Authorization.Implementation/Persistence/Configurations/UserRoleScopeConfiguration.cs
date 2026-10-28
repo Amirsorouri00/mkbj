@@ -1,4 +1,4 @@
-using AuthorizationService.Application.Entities;
+﻿using AuthorizationService.Application.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,7 +8,6 @@ internal sealed class UserRoleScopeConfiguration : IEntityTypeConfiguration<User
 {
     public void Configure(EntityTypeBuilder<UserRoleScope> builder)
     {
-        builder.ToTable("UserRoleScopes");
         builder.HasKey(a => a.Id);
         builder.Property(a => a.Id).ValueGeneratedNever();
 

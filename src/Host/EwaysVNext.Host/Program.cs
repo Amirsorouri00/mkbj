@@ -142,7 +142,7 @@ if (args.Contains("--migrate"))
     if (db.Database.IsInMemory())
         Console.WriteLine(MessageFormat.Format(ProgramMessages.MigrateSkippedFormat, db.Database.ProviderName));
     else
-        await db.Database.MigrateAsync();
+        await DatabaseMigrator.MigrateAsync(scope.ServiceProvider);
 
     var authorizationDb = scope.ServiceProvider.GetRequiredService<AuthorizationDbContext>();
     if (authorizationDb.Database.IsInMemory())

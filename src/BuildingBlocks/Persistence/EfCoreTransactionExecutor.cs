@@ -1,7 +1,7 @@
 using EwaysVNext.Outcomes;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Data.Common;
 
 namespace EwaysVNext.Persistence;
 
@@ -86,10 +86,7 @@ public sealed class EfCoreTransactionExecutor<TDbContext>(
 
     private static Error ToError(DbUpdateException error)
     {
-        if (error.InnerException is SqlException
-            {
-                Number: 2601 or 2627
-            })
+        if (error.InnerException is DbException { SqlState: "23505" })
         {
             return Error.Conflict;
         }

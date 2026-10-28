@@ -3,8 +3,8 @@ using System;
 using AuthorizationService.Implementation.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -19,108 +19,134 @@ namespace AuthorizationService.Implementation.Persistence.Migrations
             modelBuilder
                 .HasDefaultSchema("authorization")
                 .HasAnnotation("ProductVersion", "10.0.11")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("AuthorizationService.Application.Entities.Permission", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("code");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
 
                     b.Property<DateTime>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_permissions");
 
                     b.HasIndex("Code")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("ix_permissions_code");
 
-                    b.ToTable("Permissions", "authorization");
+                    b.ToTable("permissions", "authorization");
                 });
 
             modelBuilder.Entity("AuthorizationService.Application.Entities.PermissionRule", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<Guid>("PermissionId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("permission_id");
 
                     b.Property<Guid?>("RoleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("role_id");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_permission_rules");
 
-                    b.HasIndex("PermissionId");
+                    b.HasIndex("PermissionId")
+                        .HasDatabaseName("ix_permission_rules_permission_id");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("RoleId")
+                        .HasDatabaseName("ix_permission_rules_role_id");
 
-                    b.ToTable("PermissionRules", "authorization");
+                    b.ToTable("permission_rules", "authorization");
                 });
 
             modelBuilder.Entity("AuthorizationService.Application.Entities.PermissionRuleScope", b =>
                 {
                     b.Property<Guid>("PermissionRuleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("permission_rule_id");
 
                     b.Property<Guid>("ScopeId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("scope_id");
 
-                    b.HasKey("PermissionRuleId", "ScopeId");
+                    b.HasKey("PermissionRuleId", "ScopeId")
+                        .HasName("pk_permission_rule_scopes");
 
-                    b.HasIndex("ScopeId");
+                    b.HasIndex("ScopeId")
+                        .HasDatabaseName("ix_permission_rule_scopes_scope_id");
 
-                    b.ToTable("PermissionRuleScopes", "authorization");
+                    b.ToTable("permission_rule_scopes", "authorization");
                 });
 
             modelBuilder.Entity("AuthorizationService.Application.Entities.Role", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("code");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
 
                     b.Property<int>("Rank")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("rank");
 
                     b.Property<DateTime>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_roles");
 
                     b.HasIndex("Code")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("ix_roles_code");
 
-                    b.ToTable("Roles", "authorization");
+                    b.ToTable("roles", "authorization");
 
                     b.HasData(
                         new
@@ -155,30 +181,37 @@ namespace AuthorizationService.Implementation.Persistence.Migrations
             modelBuilder.Entity("AuthorizationService.Application.Entities.Scope", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("code");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
 
                     b.Property<DateTime>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_scopes");
 
                     b.HasIndex("Code")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("ix_scopes_code");
 
-                    b.ToTable("Scopes", "authorization");
+                    b.ToTable("scopes", "authorization");
 
                     b.HasData(
                         new
@@ -210,30 +243,39 @@ namespace AuthorizationService.Implementation.Persistence.Migrations
             modelBuilder.Entity("AuthorizationService.Application.Entities.UserRoleScope", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
 
                     b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("role_id");
 
                     b.Property<Guid>("ScopeId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("scope_id");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_user_role_scopes");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("RoleId")
+                        .HasDatabaseName("ix_user_role_scopes_role_id");
 
-                    b.HasIndex("ScopeId");
+                    b.HasIndex("ScopeId")
+                        .HasDatabaseName("ix_user_role_scopes_scope_id");
 
                     b.HasIndex("UserId", "RoleId", "ScopeId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_role_scopes_user_id_role_id_scope_id");
 
-                    b.ToTable("UserRoleScopes", "authorization");
+                    b.ToTable("user_role_scopes", "authorization");
                 });
 
             modelBuilder.Entity("AuthorizationService.Application.Entities.PermissionRule", b =>
@@ -242,12 +284,14 @@ namespace AuthorizationService.Implementation.Persistence.Migrations
                         .WithMany("Rules")
                         .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_permission_rules_permissions_permission_id");
 
                     b.HasOne("AuthorizationService.Application.Entities.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_permission_rules_roles_role_id");
 
                     b.Navigation("Permission");
 
@@ -260,13 +304,15 @@ namespace AuthorizationService.Implementation.Persistence.Migrations
                         .WithMany("Scopes")
                         .HasForeignKey("PermissionRuleId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_permission_rule_scopes_permission_rules_permission_rule_id");
 
                     b.HasOne("AuthorizationService.Application.Entities.Scope", "Scope")
                         .WithMany()
                         .HasForeignKey("ScopeId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_permission_rule_scopes_scopes_scope_id");
 
                     b.Navigation("PermissionRule");
 
@@ -279,13 +325,15 @@ namespace AuthorizationService.Implementation.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_user_role_scopes_roles_role_id");
 
                     b.HasOne("AuthorizationService.Application.Entities.Scope", "Scope")
                         .WithMany()
                         .HasForeignKey("ScopeId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_user_role_scopes_scopes_scope_id");
 
                     b.Navigation("Role");
 

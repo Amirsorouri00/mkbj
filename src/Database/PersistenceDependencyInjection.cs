@@ -17,12 +17,12 @@ public static class PersistenceDependencyInjection
             var connectionString = configuration.GetConnectionString("Default");
             if (!string.IsNullOrWhiteSpace(connectionString))
             {
-                options.UseSqlServer(connectionString, sql =>
+                options.UseNpgsql(connectionString, npgsql =>
                 {
-                    sql.MigrationsAssembly(typeof(EwaysVNextDbContext).Assembly.FullName);
-                    sql.MigrationsHistoryTable("__EFMigrationsHistory");
-                    sql.EnableRetryOnFailure(3, TimeSpan.FromSeconds(2), null);
-                });
+                    npgsql.MigrationsAssembly(typeof(EwaysVNextDbContext).Assembly.FullName);
+                    npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "public");
+                    npgsql.EnableRetryOnFailure(3, TimeSpan.FromSeconds(2), null);
+                }).UseSnakeCaseNamingConvention();
             }
             else if (isDevelopment)
             {
@@ -35,6 +35,10 @@ public static class PersistenceDependencyInjection
 
             options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
         });
+
+        // Jobs and Audit (Tasks 10-13) reach the one context as a plain DbContext, so neither
+        // building block has to reference EwaysVNext.Database.
+        services.AddScoped<DbContext>(sp => sp.GetRequiredService<EwaysVNextDbContext>());
 
         services.AddHealthChecks().AddDbContextCheck<EwaysVNextDbContext>("Database", tags: ["ready"]);
 

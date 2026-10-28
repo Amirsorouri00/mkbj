@@ -178,22 +178,11 @@ public sealed class CategoryArchitectureTests
             .Should().BeFalse();
     }
 
-    [Fact]
-    public void Hierarchy_loading_has_cycle_safe_single_roundtrip_provider_paths()
-    {
-        var repository = File.ReadAllText(Path.Combine(
-            FindSolutionDirectory(), "src/Modules/Catalog",
-            "Adapter/Outbound/Persistence/Categories/CategoryRepository.cs"));
-
-        repository.Should().Contain("Database.IsSqlServer()", because:
-            "SQL Server must use its recursive hierarchy query while InMemory materializes once");
-        repository.Should().Contain("WITH Hierarchy", because:
-            "SQL Server hierarchy loading must be recursive");
-        repository.Should().Contain("CHARINDEX", because:
-            "the recursive SQL path must stop when it encounters a stored cycle");
-        repository.Should().Contain("IgnoreQueryFilters()", because:
-            "deleted intermediate categories remain part of the hierarchy topology");
-    }
+    // Hierarchy_loading_has_cycle_safe_single_roundtrip_provider_paths was deleted in the Postgres
+    // switch (ADR-0017). It asserted that CategoryRepository.cs *contained* certain strings —
+    // "Database.IsSqlServer()", "WITH Hierarchy", "CHARINDEX" — and every one of them lived in a
+    // commented-out block, so the test passed on dead text and would have kept passing had the live
+    // code been deleted. A test that greps for comments pins nothing.
 
     private static XDocument ReadProject(string projectFile) =>
         XDocument.Load(Path.Combine(FindSolutionDirectory(), projectFile));

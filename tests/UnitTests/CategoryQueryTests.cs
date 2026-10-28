@@ -593,7 +593,7 @@ public sealed class CategoryQueryTests
 
     private static DbContextOptions<EwaysVNextDbContext> CreateTranslationProbeOptions() =>
         new DbContextOptionsBuilder<EwaysVNextDbContext>()
-            .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=CategoryQueryTranslation;Trusted_Connection=True")
+            .UseNpgsql("Host=127.0.0.1;Port=1;Database=category_query_translation;Username=probe;Password=probe;Timeout=1").UseSnakeCaseNamingConvention()
             .AddInterceptors(
                 new SuppressConnectionOpeningInterceptor(),
                 new QueryTranslationProbeInterceptor())

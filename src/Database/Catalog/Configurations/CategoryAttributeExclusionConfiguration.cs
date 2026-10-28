@@ -1,4 +1,4 @@
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
+﻿using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,7 +8,7 @@ internal sealed class CategoryAttributeExclusionConfiguration : IEntityTypeConfi
 {
     public void Configure(EntityTypeBuilder<CategoryAttributeExclusion> builder)
     {
-        builder.ToTable("CategoryAttributeExclusions");
+        
         builder.HasKey(e => e.Id);
         builder.Property(e => e.Id).ValueGeneratedNever();
 
@@ -17,12 +17,10 @@ internal sealed class CategoryAttributeExclusionConfiguration : IEntityTypeConfi
         builder.Property(e => e.CreatedAt).IsRequired();
 
         builder.HasIndex(e => new { e.CategoryId, e.SourceAssignmentId })
-            .IsUnique()
-            .HasDatabaseName("IX_CategoryAttributeExclusions_Category_Source");
+            .IsUnique();
 
-        builder.HasIndex(e => e.CategoryId).HasDatabaseName("IX_CategoryAttributeExclusions_CategoryId");
+        builder.HasIndex(e => e.CategoryId);
 
         builder.Ignore(e => e.DomainEvents);
-        builder.Property(e => e.RowVersion).IsRowVersion();
     }
 }

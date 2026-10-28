@@ -16,18 +16,20 @@ public sealed class AuthorizationDbContextDesignTimeFactory
             .AddEnvironmentVariables()
             .Build();
 
-        var connectionString = configuration.GetConnectionString("Default");
-        if (string.IsNullOrWhiteSpace(connectionString))
-            throw new InvalidOperationException(AuthorizationDbContextDesignTimeFactoryMessages.ConnectionStringNotConfigured);
+        // See EwaysVNextDbContextDesignTimeFactory: `migrations add` never connects.
+        var connectionString = configuration.GetConnectionString("Default") is { Length: > 0 } configured
+            ? configured
+            : "Host=localhost;Database=eways_design;Username=design;Password=design";
 
         var options = new DbContextOptionsBuilder<AuthorizationDbContext>()
-            .UseSqlServer(
+            .UseNpgsql(
                 connectionString,
-                sql =>
+                npgsql =>
                 {
-                    sql.MigrationsAssembly(typeof(AuthorizationDbContext).Assembly.FullName);
-                    sql.MigrationsHistoryTable("__AuthorizationMigrationsHistory", "authorization");
+                    npgsql.MigrationsAssembly(typeof(AuthorizationDbContext).Assembly.FullName);
+                    npgsql.MigrationsHistoryTable("__AuthorizationMigrationsHistory", "authorization");
                 })
+            .UseSnakeCaseNamingConvention()
             .Options;
 
         return new AuthorizationDbContext(options);

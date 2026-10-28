@@ -1,4 +1,4 @@
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
+﻿using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,7 +8,7 @@ internal sealed class AttributeBlueprintConfiguration : IEntityTypeConfiguration
 {
     public void Configure(EntityTypeBuilder<AttributeBlueprint> builder)
     {
-        builder.ToTable("AttributeBlueprints");
+        
         builder.HasKey(blueprint => blueprint.Id);
         builder.Property(blueprint => blueprint.Id).ValueGeneratedNever();
 
@@ -18,7 +18,7 @@ internal sealed class AttributeBlueprintConfiguration : IEntityTypeConfiguration
 
         builder.HasIndex(blueprint => blueprint.Name)
             .IsUnique()
-            .HasFilter("[DeletedAt] IS NULL");
+            .HasFilter("deleted_at IS NULL");
 
         builder.Property(blueprint => blueprint.DataType).IsRequired();
         builder.Property(blueprint => blueprint.Status).IsRequired();
@@ -29,7 +29,7 @@ internal sealed class AttributeBlueprintConfiguration : IEntityTypeConfiguration
 
         builder.OwnsMany(blueprint => blueprint.Options, option =>
         {
-            option.ToTable("AttributeBlueprintOptions");
+            
             option.WithOwner().HasForeignKey(value => value.AttributeBlueprintId);
             option.HasKey(value => value.Id);
             option.Property(value => value.Id).ValueGeneratedNever();
@@ -37,20 +37,16 @@ internal sealed class AttributeBlueprintConfiguration : IEntityTypeConfiguration
                 .HasMaxLength(1000)
                 .IsRequired();
             option.Property(value => value.MeasurementUnitId);
-            option.HasIndex(value => value.AttributeBlueprintId)
-                .HasDatabaseName("IX_AttributeBlueprintOptions_AttributeBlueprintId");
-            option.HasIndex(value => value.MeasurementUnitId)
-                .HasDatabaseName("IX_AttributeBlueprintOptions_MeasurementUnitId");
+            option.HasIndex(value => value.AttributeBlueprintId);
+            option.HasIndex(value => value.MeasurementUnitId);
             option.HasOne<MeasurementUnit>()
                 .WithMany()
                 .HasForeignKey(value => value.MeasurementUnitId)
                 .OnDelete(DeleteBehavior.Restrict);
             option.Ignore(value => value.DomainEvents);
-            option.Property(value => value.RowVersion).IsRowVersion();
         });
 
         builder.HasQueryFilter(blueprint => !blueprint.DeletedAt.HasValue);
         builder.Ignore(blueprint => blueprint.DomainEvents);
-        builder.Property(blueprint => blueprint.RowVersion).IsRowVersion();
     }
 }

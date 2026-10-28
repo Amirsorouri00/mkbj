@@ -12,7 +12,17 @@ public abstract class Entity<TId> : IHasDomainEvents where TId : notnull
 {
     public TId Id { get; protected set; } = default!;
 
-    public byte[] RowVersion { get; protected set; } = Array.Empty<byte>();
+    /// <summary>
+    /// Optimistic-concurrency token, mapped to Postgres's system column <c>xmin</c> (ADR-0017):
+    /// the database assigns it, nothing here ever writes it, and no migration creates a column for it.
+    /// <para>
+    /// It is a real token only on aggregate ROOTS. Every entity inherits the property, but a child
+    /// or owned row can only be written through its root, so the root's token is the one that
+    /// matters — that is the correct DDD granularity, not an oversight. Do not read the presence of
+    /// this property on a child as a promise of child-level concurrency checking.
+    /// </para>
+    /// </summary>
+    public uint RowVersion { get; protected set; }
 
     private readonly List<IDomainEvent> _domainEvents = new();
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();

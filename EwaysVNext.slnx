@@ -121,6 +121,9 @@
   <Folder Name="/tests/ArchitectureTests/">
     <Project Path="tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj" />
   </Folder>
+  <Folder Name="/tests/PersistenceContractTests/">
+    <Project Path="tests/PersistenceContractTests/EwaysVNext.PersistenceContractTests.csproj" />
+  </Folder>
   <Folder Name="/tests/UnitTests/">
     <Project Path="tests/UnitTests/EwaysVNext.UnitTests.csproj" />
   </Folder>

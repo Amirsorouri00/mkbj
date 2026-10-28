@@ -5,12 +5,12 @@ using Xunit;
 
 namespace EwaysVNext.IntegrationTests;
 
-[Collection(LocalDbSuite.Name)]
+[Collection(PostgresSuite.Name)]
 public sealed class CategoryAttributeAssignmentAdminGraphQLTests
 {
-    private readonly LocalDbFixture _fixture;
+    private readonly PostgresFixture _fixture;
 
-    public CategoryAttributeAssignmentAdminGraphQLTests(LocalDbFixture fixture) => _fixture = fixture;
+    public CategoryAttributeAssignmentAdminGraphQLTests(PostgresFixture fixture) => _fixture = fixture;
 
     [Fact]
     public async Task AssignCategoryAttribute_Links_An_Attribute_To_A_Category()

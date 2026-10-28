@@ -3,8 +3,8 @@ using System;
 using EwaysVNext.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -17,1147 +17,376 @@ namespace EwaysVNext.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("dbo")
                 .HasAnnotation("ProductVersion", "10.0.11")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "unaccent");
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprint", b =>
                 {
                     b.Property<long>("Id")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
 
                     b.Property<int>("DataType")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("data_type");
 
                     b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
 
                     b.Property<int?>("PreviousStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("previous_status");
 
-                    b.Property<byte[]>("RowVersion")
+                    b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_attribute_blueprints");
 
                     b.HasIndex("Name")
                         .IsUnique()
-                        .HasFilter("[DeletedAt] IS NULL");
+                        .HasDatabaseName("ix_attribute_blueprints_name")
+                        .HasFilter("deleted_at IS NULL");
 
-                    b.ToTable("AttributeBlueprints", "catalog");
+                    b.ToTable("attribute_blueprints", "catalog");
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.MeasurementUnit", b =>
                 {
                     b.Property<long>("Id")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
 
-                    b.Property<byte[]>("RowVersion")
+                    b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<string>("Symbol")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("symbol");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_measurement_units");
 
                     b.HasIndex("Name")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("ix_measurement_units_name");
 
                     b.HasIndex("Symbol")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("ix_measurement_units_symbol");
 
-                    b.ToTable("MeasurementUnits", "catalog");
+                    b.ToTable("measurement_units", "catalog");
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Categories.Domain.Category", b =>
                 {
                     b.Property<long>("Id")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
 
                     b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
 
                     b.Property<int>("DisplayOrder")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("integer")
+                        .HasColumnName("display_order");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(60)
-                        .HasColumnType("nvarchar(60)");
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("name");
 
                     b.Property<string>("NormalizedName")
                         .IsRequired()
                         .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("normalized_name");
 
                     b.Property<long?>("ParentId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("parent_id");
 
-                    b.Property<byte[]>("RowVersion")
+                    b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("slug");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_categories");
 
                     b.HasIndex("Slug")
                         .IsUnique()
-                        .HasDatabaseName("IX_Category_Slug")
-                        .HasFilter("[IsDeleted] = 0");
+                        .HasDatabaseName("ix_categories_slug")
+                        .HasFilter("status <> 2");
 
                     b.HasIndex("ParentId", "NormalizedName")
                         .IsUnique()
-                        .HasDatabaseName("IX_Category_ParentId_NormalizedName")
-                        .HasFilter("[IsDeleted] = 0");
+                        .HasDatabaseName("ix_categories_parent_id_normalized_name")
+                        .HasFilter("status <> 2");
 
-                    b.HasIndex("ParentId", "IsDeleted", "IsActive", "DisplayOrder", "Id")
-                        .HasDatabaseName("IX_Category_Hierarchy");
+                    b.HasIndex("ParentId", "Status", "DisplayOrder", "Id")
+                        .HasDatabaseName("ix_categories_parent_id_status_display_order_id");
 
-                    b.ToTable("Category", "catalog");
+                    b.ToTable("categories", "catalog");
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Categories.Domain.CategoryProduct", b =>
                 {
                     b.Property<long>("CategoryId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("category_id");
 
                     b.Property<long>("ProductId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("product_id");
 
                     b.Property<DateTimeOffset>("AssignedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("assigned_at");
 
                     b.Property<Guid?>("AssignedByUserId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid")
+                        .HasColumnName("assigned_by_user_id");
 
-                    b.HasKey("CategoryId", "ProductId");
+                    b.HasKey("CategoryId", "ProductId")
+                        .HasName("pk_category_products");
 
                     b.HasIndex("ProductId", "CategoryId")
-                        .HasDatabaseName("IX_CategoryProduct_ProductId_CategoryId");
+                        .HasDatabaseName("ix_category_products_product_id_category_id");
 
-                    b.ToTable("CategoryProduct", "catalog");
+                    b.ToTable("category_products", "catalog");
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain.CategoryAttributeAssignment", b =>
                 {
                     b.Property<long>("Id")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     b.Property<long>("AttributeBlueprintId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("attribute_blueprint_id");
 
                     b.Property<long>("CategoryId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("category_id");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
 
                     b.Property<bool>("IsFilterable")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_filterable");
 
                     b.Property<bool>("IsInTitle")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_in_title");
 
                     b.Property<bool>("IsPrimary")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_primary");
 
                     b.Property<bool>("IsRequired")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_required");
 
                     b.Property<bool>("IsSearchable")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_searchable");
 
                     b.Property<bool>("IsVariantGenerating")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_variant_generating");
 
                     b.Property<DateTimeOffset?>("RemovedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("removed_at");
 
-                    b.Property<byte[]>("RowVersion")
+                    b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<int?>("TitleOrder")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("title_order");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_category_attribute_assignments");
 
                     b.HasIndex("CategoryId")
-                        .HasDatabaseName("IX_CategoryAttributeAssignments_CategoryId");
+                        .HasDatabaseName("ix_category_attribute_assignments_category_id");
 
                     b.HasIndex("CategoryId", "AttributeBlueprintId")
                         .IsUnique()
-                        .HasDatabaseName("IX_CategoryAttributeAssignments_Category_Attribute_Active")
-                        .HasFilter("[RemovedAt] IS NULL");
+                        .HasDatabaseName("ix_category_attribute_assignments_category_id_attribute_bluepr")
+                        .HasFilter("removed_at IS NULL");
 
                     b.HasIndex("CategoryId", "IsPrimary")
-                        .HasDatabaseName("IX_CategoryAttributeAssignments_Category_Primary_Active")
-                        .HasFilter("[RemovedAt] IS NULL AND [IsPrimary] = 1");
+                        .HasDatabaseName("ix_category_attribute_assignments_category_id_is_primary")
+                        .HasFilter("removed_at IS NULL AND is_primary");
 
-                    b.ToTable("CategoryAttributeAssignments", "catalog");
+                    b.ToTable("category_attribute_assignments", "catalog");
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Domain.CategoryAttributeExclusion", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<long>("CategoryId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("category_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<long>("SourceAssignmentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("source_assignment_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_category_attribute_exclusions");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_category_attribute_exclusions_category_id");
+
+                    b.HasIndex("CategoryId", "SourceAssignmentId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_category_attribute_exclusions_category_id_source_assignment");
+
+                    b.ToTable("category_attribute_exclusions", "catalog");
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Products.Domain.Product", b =>
                 {
                     b.Property<long>("Id")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
 
                     b.Property<string>("Description")
                         .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
 
-                    b.Property<int>("ReservedStock")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("RowVersion")
+                    b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<string>("Sku")
                         .IsRequired()
                         .HasMaxLength(32)
-                        .HasColumnType("nvarchar(32)");
-
-                    b.Property<int>("Stock")
-                        .HasColumnType("int");
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("sku");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_products");
 
                     b.HasIndex("CreatedAt")
-                        .HasDatabaseName("IX_Product_CreatedAt");
+                        .HasDatabaseName("ix_products_created_at");
 
                     b.HasIndex("Sku")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("ix_products_sku");
 
-                    b.ToTable("Product", "catalog", t =>
-                        {
-                            t.HasCheckConstraint("CK_Product_ReservedStock_NonNegative", "[ReservedStock] >= 0");
-
-                            t.HasCheckConstraint("CK_Product_Stock_NonNegative", "[Stock] >= 0");
-                        });
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Products.Domain.ProductReservation", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTimeOffset?>("CommittedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("IsCommitted")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("ProductId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("IsCommitted", "CommittedAt")
-                        .HasDatabaseName("IX_ProductReservation_IsCommitted_CommittedAt");
-
-                    b.HasIndex("IsCommitted", "ExpiresAt")
-                        .HasDatabaseName("IX_ProductReservation_IsCommitted_ExpiresAt");
-
-                    b.ToTable("ProductReservation", "catalog");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.Customer", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateOnly?>("BirthDate")
-                        .HasColumnType("date");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("date");
-
-                    b.Property<string>("EconomicCode")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("FirstName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int?>("Gender")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("IdentityUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("IntaCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("INTACode");
-
-                    b.Property<string>("LastName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("MobileNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("NationalCode")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("RoleCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("SecondaryPhoneNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int?>("StatusId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("date");
-
-                    b.Property<int?>("VerificationStatusId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MobileNumber")
-                        .IsUnique();
-
-                    b.HasIndex("StatusId");
-
-                    b.HasIndex("VerificationStatusId");
-
-                    b.ToTable("Customer", "customer");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.CustomerAddress", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("AddressId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CustomerId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.ToTable("CustomerAddress", "customer");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.CustomerJobType", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CustomerId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("JobTypeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("JobTypeId");
-
-                    b.HasIndex("CustomerId", "JobTypeId")
-                        .IsUnique();
-
-                    b.ToTable("CustomerJobType", "customer");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.CustomerStatus", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CustomerStatus", "customer");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Active"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Inactive"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Suspended"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "PendingApproval"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Approved"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Rejected"
-                        });
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.CustomerVerification", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateOnly>("BirthDate")
-                        .HasColumnType("date");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2(3)")
-                        .HasDefaultValueSql("sysutcdatetime()");
-
-                    b.Property<long>("CustomerId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int?>("ExpertId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("NationalCardReceived")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime?>("NationalCardReviewedAt")
-                        .HasColumnType("datetime2(3)");
-
-                    b.Property<string>("NationalId")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Reason")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("ShahkarReference")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2(3)");
-
-                    b.Property<int?>("VerificationMethod")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("VerifiedAt")
-                        .HasColumnType("datetime2(3)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId")
-                        .IsUnique();
-
-                    b.HasIndex("VerificationMethod");
-
-                    b.ToTable("CustomerVerification", "customer");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.CustomerVerificationDetails", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2(3)")
-                        .HasDefaultValueSql("sysutcdatetime()");
-
-                    b.Property<string>("Fathername")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Firstname")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("Gender")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Lastname")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool>("Liveness")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("VerificationId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("VerificationId")
-                        .IsUnique();
-
-                    b.ToTable("CustomerVerificationDetail", "customer");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.JobType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("JobType", "customer");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "دفتر پیشخوان"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "فروشگاه موبایل و تعمیرات"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "دفتر فنی"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "کافی نت"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "لوازم التحریر"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "خدمات کامپیوتری"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "فروشگاه کارت شارژ"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "نمایندگی اپراتورها"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Name = "سایر"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Name = "روستایی ICT"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Name = "DRP"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Name = "انجمن دفاتر پیشخوان استان تهران"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            Name = "B2C"
-                        });
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.LegalInformation", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("CeoMobileNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("CeoName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("CompanyName")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)");
-
-                    b.Property<long>("CustomerId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("DecidedAt")
-                        .HasColumnType("datetime2(3)");
-
-                    b.Property<int?>("EditableFieldsMask")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Fax")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("LandlineNumber")
-                        .IsRequired()
-                        .HasMaxLength(11)
-                        .HasColumnType("nvarchar(11)");
-
-                    b.Property<string>("NationalId")
-                        .IsRequired()
-                        .HasMaxLength(11)
-                        .HasColumnType("nvarchar(11)");
-
-                    b.Property<DateOnly>("RegistrationDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("RegistrationNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("RejectionReason")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<long?>("ReviewerId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("StatusId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("SubmittedAt")
-                        .HasColumnType("datetime2(3)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2(3)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId")
-                        .IsUnique();
-
-                    b.HasIndex("ReviewerId");
-
-                    b.ToTable("LegalInformation", "customer");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.LegalInformationDocument", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(260)
-                        .HasColumnType("nvarchar(260)");
-
-                    b.Property<long>("LegalInformationId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("SizeBytes")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("StorageKey")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LegalInformationId", "Type")
-                        .IsUnique();
-
-                    b.ToTable("LegalInformationDocument", "customer");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.VerificationMethod", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("VerificationMethod", "customer");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "None"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Shahkar"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Agent"
-                        });
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.VerificationStatus", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("VerificationStatus", "customer");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "NotVerified"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Verified"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "VerifiedByAgent"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Pending"
-                        });
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.TeamMembers.TeamMember", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateOnly>("DateOfBirth")
-                        .HasColumnType("date");
-
-                    b.Property<string>("Department")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("Gender")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("IdentityUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("JobTitle")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("MobileNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("NationalCode")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("PersonnelCode")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MobileNumber")
-                        .IsUnique();
-
-                    b.HasIndex("NationalCode")
-                        .IsUnique();
-
-                    b.HasIndex("PersonnelCode")
-                        .IsUnique();
-
-                    b.ToTable("TeamMember", "customer");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Location.Application.Domain.Locations.Address", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("AddressText")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<int>("CityId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
-
-                    b.Property<int?>("DistrictId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsPrimary")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("PostalCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("RecipientMobile")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("RecipientName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("StatusId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StatusId");
-
-                    b.ToTable("Address", "location");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Location.Application.Domain.Locations.AddressStatus", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AddressStatus", "location");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Active"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Inactive"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Deleted"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Archived"
-                        });
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Location.Application.Domain.Locations.City", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("ProvinceId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProvinceId", "Name")
-                        .IsUnique();
-
-                    b.ToTable("City", "location");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Location.Application.Domain.Locations.District", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CityId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Code")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CityId", "Name")
-                        .IsUnique();
-
-                    b.ToTable("District", "location");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Location.Application.Domain.Locations.Province", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Province", "location");
+                    b.ToTable("products", "catalog");
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprint", b =>
@@ -1165,42 +394,49 @@ namespace EwaysVNext.Database.Migrations
                     b.OwnsMany("EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprintOption", "Options", b1 =>
                         {
                             b1.Property<long>("Id")
-                                .HasColumnType("bigint");
+                                .HasColumnType("bigint")
+                                .HasColumnName("id");
 
                             b1.Property<long>("AttributeBlueprintId")
-                                .HasColumnType("bigint");
+                                .HasColumnType("bigint")
+                                .HasColumnName("attribute_blueprint_id");
 
                             b1.Property<long?>("MeasurementUnitId")
-                                .HasColumnType("bigint");
+                                .HasColumnType("bigint")
+                                .HasColumnName("measurement_unit_id");
 
-                            b1.Property<byte[]>("RowVersion")
+                            b1.Property<uint>("RowVersion")
                                 .IsConcurrencyToken()
-                                .IsRequired()
                                 .ValueGeneratedOnAddOrUpdate()
-                                .HasColumnType("rowversion");
+                                .HasColumnType("xid")
+                                .HasColumnName("xmin");
 
                             b1.Property<string>("Value")
                                 .IsRequired()
                                 .HasMaxLength(1000)
-                                .HasColumnType("nvarchar(1000)");
+                                .HasColumnType("character varying(1000)")
+                                .HasColumnName("value");
 
-                            b1.HasKey("Id");
+                            b1.HasKey("Id")
+                                .HasName("pk_attribute_blueprint_option");
 
                             b1.HasIndex("AttributeBlueprintId")
-                                .HasDatabaseName("IX_AttributeBlueprintOptions_AttributeBlueprintId");
+                                .HasDatabaseName("ix_attribute_blueprint_option_attribute_blueprint_id");
 
                             b1.HasIndex("MeasurementUnitId")
-                                .HasDatabaseName("IX_AttributeBlueprintOptions_MeasurementUnitId");
+                                .HasDatabaseName("ix_attribute_blueprint_option_measurement_unit_id");
 
-                            b1.ToTable("AttributeBlueprintOptions", "catalog");
+                            b1.ToTable("attribute_blueprint_option", "catalog");
 
                             b1.WithOwner()
-                                .HasForeignKey("AttributeBlueprintId");
+                                .HasForeignKey("AttributeBlueprintId")
+                                .HasConstraintName("fk_attribute_blueprint_option_attribute_blueprints_attribute_b");
 
                             b1.HasOne("EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.MeasurementUnit", null)
                                 .WithMany()
                                 .HasForeignKey("MeasurementUnitId")
-                                .OnDelete(DeleteBehavior.Restrict);
+                                .OnDelete(DeleteBehavior.Restrict)
+                                .HasConstraintName("fk_attribute_blueprint_option_measurement_units_measurement_un");
                         });
 
                     b.Navigation("Options");
@@ -1211,7 +447,8 @@ namespace EwaysVNext.Database.Migrations
                     b.HasOne("EwaysVNext.Modules.Catalog.Application.Categories.Domain.Category", "Parent")
                         .WithMany("Children")
                         .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_categories_categories_parent_id");
 
                     b.Navigation("Parent");
                 });
@@ -1222,7 +459,8 @@ namespace EwaysVNext.Database.Migrations
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_category_products_categories_category_id");
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Products.Domain.Product", b =>
@@ -1230,214 +468,36 @@ namespace EwaysVNext.Database.Migrations
                     b.OwnsOne("EwaysVNext.Domain.ValueObjects.Money", "Price", b1 =>
                         {
                             b1.Property<long>("ProductId")
-                                .HasColumnType("bigint");
+                                .HasColumnType("bigint")
+                                .HasColumnName("id");
 
                             b1.Property<decimal>("Amount")
                                 .HasPrecision(18, 2)
-                                .HasColumnType("decimal(18,2)")
-                                .HasColumnName("PriceAmount");
+                                .HasColumnType("numeric(18,2)")
+                                .HasColumnName("price_amount");
 
                             b1.Property<string>("Currency")
                                 .IsRequired()
                                 .HasMaxLength(3)
-                                .HasColumnType("nvarchar(3)")
-                                .HasColumnName("PriceCurrency");
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("price_currency");
 
                             b1.HasKey("ProductId");
 
-                            b1.ToTable("Product", "catalog");
+                            b1.ToTable("products", "catalog");
 
                             b1.WithOwner()
-                                .HasForeignKey("ProductId");
+                                .HasForeignKey("ProductId")
+                                .HasConstraintName("fk_products_products_id");
                         });
 
                     b.Navigation("Price")
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Products.Domain.ProductReservation", b =>
-                {
-                    b.HasOne("EwaysVNext.Modules.Catalog.Application.Products.Domain.Product", null)
-                        .WithMany("Reservations")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.Customer", b =>
-                {
-                    b.HasOne("EwaysVNext.Modules.Customer.Application.Domain.Customers.CustomerStatus", "CustomerStatusNavigation")
-                        .WithMany()
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("EwaysVNext.Modules.Customer.Application.Domain.Customers.VerificationStatus", "VerificationStatusNavigation")
-                        .WithMany()
-                        .HasForeignKey("VerificationStatusId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("CustomerStatusNavigation");
-
-                    b.Navigation("VerificationStatusNavigation");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.CustomerAddress", b =>
-                {
-                    b.HasOne("EwaysVNext.Modules.Location.Application.Domain.Locations.Address", null)
-                        .WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("EwaysVNext.Modules.Customer.Application.Domain.Customers.Customer", null)
-                        .WithMany("Addresses")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.CustomerJobType", b =>
-                {
-                    b.HasOne("EwaysVNext.Modules.Customer.Application.Domain.Customers.Customer", null)
-                        .WithMany("JobTypes")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EwaysVNext.Modules.Customer.Application.Domain.Customers.JobType", null)
-                        .WithMany()
-                        .HasForeignKey("JobTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.CustomerVerification", b =>
-                {
-                    b.HasOne("EwaysVNext.Modules.Customer.Application.Domain.Customers.Customer", "Customer")
-                        .WithOne("Verification")
-                        .HasForeignKey("EwaysVNext.Modules.Customer.Application.Domain.Customers.CustomerVerification", "CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("EwaysVNext.Modules.Customer.Application.Domain.Customers.VerificationMethod", "VerificationMethodNavigation")
-                        .WithMany()
-                        .HasForeignKey("VerificationMethod")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("VerificationMethodNavigation");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.CustomerVerificationDetails", b =>
-                {
-                    b.HasOne("EwaysVNext.Modules.Customer.Application.Domain.Customers.CustomerVerification", "Verification")
-                        .WithOne("Details")
-                        .HasForeignKey("EwaysVNext.Modules.Customer.Application.Domain.Customers.CustomerVerificationDetails", "VerificationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Verification");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.LegalInformation", b =>
-                {
-                    b.HasOne("EwaysVNext.Modules.Customer.Application.Domain.Customers.Customer", "Customer")
-                        .WithOne("LegalInformation")
-                        .HasForeignKey("EwaysVNext.Modules.Customer.Application.Domain.Customers.LegalInformation", "CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("EwaysVNext.Modules.Customer.Application.Domain.TeamMembers.TeamMember", null)
-                        .WithMany()
-                        .HasForeignKey("ReviewerId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Customer");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.LegalInformationDocument", b =>
-                {
-                    b.HasOne("EwaysVNext.Modules.Customer.Application.Domain.Customers.LegalInformation", null)
-                        .WithMany("Documents")
-                        .HasForeignKey("LegalInformationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Location.Application.Domain.Locations.Address", b =>
-                {
-                    b.HasOne("EwaysVNext.Modules.Location.Application.Domain.Locations.AddressStatus", "AddressStatusNavigation")
-                        .WithMany()
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("AddressStatusNavigation");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Location.Application.Domain.Locations.City", b =>
-                {
-                    b.HasOne("EwaysVNext.Modules.Location.Application.Domain.Locations.Province", "Province")
-                        .WithMany("Cities")
-                        .HasForeignKey("ProvinceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Province");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Location.Application.Domain.Locations.District", b =>
-                {
-                    b.HasOne("EwaysVNext.Modules.Location.Application.Domain.Locations.City", "City")
-                        .WithMany("Districts")
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("City");
-                });
-
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Categories.Domain.Category", b =>
                 {
                     b.Navigation("Children");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Products.Domain.Product", b =>
-                {
-                    b.Navigation("Reservations");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.Customer", b =>
-                {
-                    b.Navigation("Addresses");
-
-                    b.Navigation("JobTypes");
-
-                    b.Navigation("LegalInformation");
-
-                    b.Navigation("Verification")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.CustomerVerification", b =>
-                {
-                    b.Navigation("Details");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Domain.Customers.LegalInformation", b =>
-                {
-                    b.Navigation("Documents");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Location.Application.Domain.Locations.City", b =>
-                {
-                    b.Navigation("Districts");
-                });
-
-            modelBuilder.Entity("EwaysVNext.Modules.Location.Application.Domain.Locations.Province", b =>
-                {
-                    b.Navigation("Cities");
                 });
 #pragma warning restore 612, 618
         }

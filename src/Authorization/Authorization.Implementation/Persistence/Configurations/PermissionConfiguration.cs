@@ -1,4 +1,4 @@
-using AuthorizationService.Application.Entities;
+﻿using AuthorizationService.Application.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,7 +8,6 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
 {
     public void Configure(EntityTypeBuilder<Permission> builder)
     {
-        builder.ToTable("Permissions");
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id).ValueGeneratedNever();
 

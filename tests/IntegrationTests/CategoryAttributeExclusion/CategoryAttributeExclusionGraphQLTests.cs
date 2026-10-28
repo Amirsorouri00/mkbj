@@ -8,12 +8,12 @@ using Xunit;
 
 namespace EwaysVNext.IntegrationTests;
 
-[Collection(LocalDbSuite.Name)]
+[Collection(PostgresSuite.Name)]
 public sealed class CategoryAttributeExclusionGraphQLTests
 {
-    private readonly LocalDbFixture _fixture;
+    private readonly PostgresFixture _fixture;
 
-    public CategoryAttributeExclusionGraphQLTests(LocalDbFixture fixture) => _fixture = fixture;
+    public CategoryAttributeExclusionGraphQLTests(PostgresFixture fixture) => _fixture = fixture;
 
     [Fact]
     public async Task ExcludeInheritedCategoryAttribute_Excludes_A_Grandparent_Attribute_From_The_Category_Listing()
