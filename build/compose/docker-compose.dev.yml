@@ -92,8 +92,12 @@ services:
       KC_SMTP_FROM: ${KC_SMTP_FROM:-no-reply@localhost}
       KC_SMTP_USER: ${KC_SMTP_USER:-dev}
       KC_SMTP_PASSWORD: ${KC_SMTP_PASSWORD:-dev}
-      SHOP_REDIRECT_URI: ${SHOP_REDIRECT_URI:-http://localhost:3000/*}
-      BACKOFFICE_REDIRECT_URI: ${BACKOFFICE_REDIRECT_URI:-http://localhost:5173/*}
+      KC_SMTP_FROM_DISPLAY_NAME: ${KC_SMTP_FROM_DISPLAY_NAME:-Eways (dev)}
+      # mailpit accepts plaintext on 1025 and never forwards anything.
+      KC_SMTP_STARTTLS: ${KC_SMTP_STARTTLS:-false}
+      KC_SHOP_WEB_ORIGIN: ${KC_SHOP_WEB_ORIGIN:-http://localhost:3000}
+      KC_ADMIN_WEB_ORIGIN: ${KC_ADMIN_WEB_ORIGIN:-http://localhost:5173}
+      KC_API_PUBLIC_URL: ${KC_API_PUBLIC_URL:-http://localhost:8080}
     volumes:
       - ../keycloak:/opt/keycloak/data/import:ro
     healthcheck:
@@ -107,6 +111,17 @@ services:
       timeout: 5s
       retries: 30
       start_period: 30s
+
+  # Catches every mail Keycloak sends and forwards none of it, so a verification or reset link
+  # is one click away in the UI instead of being delivered to a real address by accident.
+  mailpit:
+    image: axllent/mailpit:v1.21
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_UI_PORT:-8025}:8025"
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "true"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "true"
 
 volumes:
   pg_data:

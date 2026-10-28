@@ -188,8 +188,14 @@ services:
       KC_SMTP_FROM: ${KC_SMTP_FROM:?set KC_SMTP_FROM in .env}
       KC_SMTP_USER: ${KC_SMTP_USER:?set KC_SMTP_USER in .env}
       KC_SMTP_PASSWORD: ${KC_SMTP_PASSWORD:?set KC_SMTP_PASSWORD in .env}
-      SHOP_REDIRECT_URI: ${SHOP_REDIRECT_URI:?set SHOP_REDIRECT_URI in .env}
-      BACKOFFICE_REDIRECT_URI: ${BACKOFFICE_REDIRECT_URI:?set BACKOFFICE_REDIRECT_URI in .env}
+      KC_SMTP_FROM_DISPLAY_NAME: ${KC_SMTP_FROM_DISPLAY_NAME:?set KC_SMTP_FROM_DISPLAY_NAME in .env}
+      # "true" for a submission relay on 587. A relay on 465 is implicit TLS, not STARTTLS.
+      KC_SMTP_STARTTLS: ${KC_SMTP_STARTTLS:?set KC_SMTP_STARTTLS in .env}
+      # Where each front end and the API are reachable from a browser. These become the clients'
+      # redirect URIs and web origins, so a wrong value is an open redirect or a broken login.
+      KC_SHOP_WEB_ORIGIN: ${KC_SHOP_WEB_ORIGIN:?set KC_SHOP_WEB_ORIGIN in .env}
+      KC_ADMIN_WEB_ORIGIN: ${KC_ADMIN_WEB_ORIGIN:?set KC_ADMIN_WEB_ORIGIN in .env}
+      KC_API_PUBLIC_URL: ${KC_API_PUBLIC_URL:?set KC_API_PUBLIC_URL in .env}
     volumes:
       - ../keycloak:/opt/keycloak/data/import:ro
     healthcheck:

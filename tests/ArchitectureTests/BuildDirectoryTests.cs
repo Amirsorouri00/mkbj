@@ -94,8 +94,12 @@ public sealed partial class BuildDirectoryTests
                 case JsonValueKind.Object:
                     foreach (var property in element.EnumerateObject())
                     {
-                        var isSecret = property.Name.Contains("password", StringComparison.OrdinalIgnoreCase)
-                                       || property.Name.Contains("secret", StringComparison.OrdinalIgnoreCase);
+                        // "passwordPolicy" names the rules a password must satisfy; it is public
+                        // configuration, not a credential, and excluding it by name keeps the
+                        // substring match from having to understand Keycloak's schema.
+                        var isSecret = property.Name is not "passwordPolicy"
+                                       && (property.Name.Contains("password", StringComparison.OrdinalIgnoreCase)
+                                           || property.Name.Contains("secret", StringComparison.OrdinalIgnoreCase));
 
                         if (isSecret && property.Value.ValueKind == JsonValueKind.String)
                             yield return property.Value.GetString()!;

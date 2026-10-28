@@ -1,56 +1,119 @@
 {
   "realm": "Backoffice",
-  "enabled": true,
   "displayName": "Eways Backoffice",
+  "enabled": true,
 
   "registrationAllowed": false,
+  "registrationEmailAsUsername": false,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
-  "verifyEmail": true,
+  "verifyEmail": false,
   "resetPasswordAllowed": true,
   "rememberMe": false,
+  "editUsernameAllowed": false,
 
-  "accessTokenLifespan": 900,
-  "ssoSessionIdleTimeout": 1800,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "failureFactor": 5,
+  "waitIncrementSeconds": 120,
+  "maxFailureWaitSeconds": 1800,
+  "quickLoginCheckMilliSeconds": 1000,
+  "minimumQuickLoginWaitSeconds": 120,
+  "maxDeltaTimeSeconds": 43200,
+
+  "passwordPolicy": "length(14) and notEmail and notUsername",
+
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 900,
   "ssoSessionMaxLifespan": 28800,
-
-  "smtpServer": {
-    "host": "${KC_SMTP_HOST}",
-    "port": "${KC_SMTP_PORT}",
-    "from": "${KC_SMTP_FROM}",
-    "user": "${KC_SMTP_USER}",
-    "password": "${KC_SMTP_PASSWORD}",
-    "auth": "true",
-    "starttls": "true"
-  },
+  "offlineSessionIdleTimeout": 604800,
+  "accessCodeLifespan": 60,
+  "accessCodeLifespanUserAction": 300,
+  "actionTokenGeneratedByUserLifespan": 300,
 
   "roles": {
     "realm": [
       {
         "name": "super_admin",
-        "description": "Partners and API keys, FX overrides, currency enablement, settings, refunds and credit notes."
+        "description": "Partners, FX, currencies, settings, refunds and admin accounts."
       },
       {
         "name": "staff",
-        "description": "Catalog, imports, customers, orders and website payment confirmation."
+        "description": "Catalog, imports, customers, orders and payment confirmation."
       }
     ]
   },
 
+  "requiredActions": [
+    {
+      "alias": "CONFIGURE_TOTP",
+      "name": "Configure OTP",
+      "providerId": "CONFIGURE_TOTP",
+      "enabled": true,
+      "defaultAction": true,
+      "priority": 10,
+      "config": {}
+    },
+    {
+      "alias": "UPDATE_PASSWORD",
+      "name": "Update Password",
+      "providerId": "UPDATE_PASSWORD",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 30,
+      "config": {}
+    },
+    {
+      "alias": "UPDATE_PROFILE",
+      "name": "Update Profile",
+      "providerId": "UPDATE_PROFILE",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 40,
+      "config": {}
+    }
+  ],
+
   "clients": [
     {
       "clientId": "backoffice-console",
-      "name": "Admin console",
+      "name": "Backoffice console",
       "enabled": true,
+      "protocol": "openid-connect",
       "publicClient": true,
       "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
-      "redirectUris": ["${BACKOFFICE_REDIRECT_URI}"],
-      "webOrigins": ["+"],
+      "frontchannelLogout": true,
+      "redirectUris": [
+        "${KC_ADMIN_WEB_ORIGIN}/*",
+        "${KC_API_PUBLIC_URL}/scalar/*"
+      ],
+      "webOrigins": [
+        "${KC_ADMIN_WEB_ORIGIN}"
+      ],
       "attributes": {
-        "pkce.code.challenge.method": "S256"
-      }
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "${KC_ADMIN_WEB_ORIGIN}/*"
+      },
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles"
+      ],
+      "optionalClientScopes": []
     }
-  ]
+  ],
+
+  "smtpServer": {
+    "host": "${KC_SMTP_HOST}",
+    "port": "${KC_SMTP_PORT}",
+    "from": "${KC_SMTP_FROM}",
+    "fromDisplayName": "${KC_SMTP_FROM_DISPLAY_NAME}",
+    "auth": "true",
+    "user": "${KC_SMTP_USER}",
+    "password": "${KC_SMTP_PASSWORD}",
+    "starttls": "${KC_SMTP_STARTTLS}"
+  }
 }

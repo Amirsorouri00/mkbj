@@ -1,7 +1,7 @@
 {
   "realm": "Shop",
-  "enabled": true,
   "displayName": "Eways Shop",
+  "enabled": true,
 
   "registrationAllowed": true,
   "registrationEmailAsUsername": true,
@@ -10,35 +10,99 @@
   "verifyEmail": true,
   "resetPasswordAllowed": true,
   "rememberMe": true,
+  "editUsernameAllowed": false,
 
-  "accessTokenLifespan": 900,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "failureFactor": 10,
+  "waitIncrementSeconds": 60,
+  "maxFailureWaitSeconds": 900,
+  "quickLoginCheckMilliSeconds": 1000,
+  "minimumQuickLoginWaitSeconds": 60,
+  "maxDeltaTimeSeconds": 43200,
+
+  "passwordPolicy": "length(10) and notEmail and notUsername",
+
+  "accessTokenLifespan": 300,
   "ssoSessionIdleTimeout": 1800,
   "ssoSessionMaxLifespan": 36000,
+  "offlineSessionIdleTimeout": 2592000,
+  "accessCodeLifespan": 60,
+  "accessCodeLifespanUserAction": 300,
+  "actionTokenGeneratedByUserLifespan": 300,
+
+  "requiredActions": [
+    {
+      "alias": "VERIFY_EMAIL",
+      "name": "Verify Email",
+      "providerId": "VERIFY_EMAIL",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 50,
+      "config": {}
+    },
+    {
+      "alias": "UPDATE_PASSWORD",
+      "name": "Update Password",
+      "providerId": "UPDATE_PASSWORD",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 30,
+      "config": {}
+    },
+    {
+      "alias": "UPDATE_PROFILE",
+      "name": "Update Profile",
+      "providerId": "UPDATE_PROFILE",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 40,
+      "config": {}
+    }
+  ],
+
+  "clients": [
+    {
+      "clientId": "modular-monolith",
+      "name": "Shop storefront",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": true,
+      "redirectUris": [
+        "${KC_SHOP_WEB_ORIGIN}/*",
+        "${KC_API_PUBLIC_URL}/scalar/*"
+      ],
+      "webOrigins": [
+        "${KC_SHOP_WEB_ORIGIN}"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "${KC_SHOP_WEB_ORIGIN}/*"
+      },
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles"
+      ],
+      "optionalClientScopes": [
+        "offline_access"
+      ]
+    }
+  ],
 
   "smtpServer": {
     "host": "${KC_SMTP_HOST}",
     "port": "${KC_SMTP_PORT}",
     "from": "${KC_SMTP_FROM}",
+    "fromDisplayName": "${KC_SMTP_FROM_DISPLAY_NAME}",
+    "auth": "true",
     "user": "${KC_SMTP_USER}",
     "password": "${KC_SMTP_PASSWORD}",
-    "auth": "true",
-    "starttls": "true"
-  },
-
-  "clients": [
-    {
-      "clientId": "modular-monolith",
-      "name": "Storefront",
-      "enabled": true,
-      "publicClient": true,
-      "standardFlowEnabled": true,
-      "directAccessGrantsEnabled": false,
-      "serviceAccountsEnabled": false,
-      "redirectUris": ["${SHOP_REDIRECT_URI}"],
-      "webOrigins": ["+"],
-      "attributes": {
-        "pkce.code.challenge.method": "S256"
-      }
-    }
-  ]
+    "starttls": "${KC_SMTP_STARTTLS}"
+  }
 }
