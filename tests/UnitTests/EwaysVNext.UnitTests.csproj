@@ -32,6 +32,7 @@
     <ProjectReference Include="..\..\src\BuildingBlocks\Events\Application\EwaysVNext.Events.Application.csproj" />
     <ProjectReference Include="..\..\src\BuildingBlocks\Events\Implementation\EwaysVNext.Events.Implementation.csproj" />
     <ProjectReference Include="..\..\src\BuildingBlocks\Persistence\EwaysVNext.Persistence.csproj" />
+    <ProjectReference Include="..\..\src\BuildingBlocks\Storage\Implementation\EwaysVNext.Storage.Implementation.csproj" />
     <ProjectReference Include="..\..\src\Database\EwaysVNext.Database.csproj" />
     <ProjectReference Include="..\..\src\Modules\Catalog\Application\EwaysVNext.Modules.Catalog.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Catalog\QueryApplication\EwaysVNext.Modules.Catalog.QueryApplication.csproj" />

@@ -7,7 +7,10 @@ FROM ${DOTNET_REGISTRY}/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Build files first: these change rarely, so restore stays cached across source edits.
-COPY global.json nuget.config Directory.Build.props Directory.Build.targets Directory.Packages.props EwaysVNext.slnx ./
+# .editorconfig carries the analyzer severities, and TreatWarningsAsErrors is on in Release —
+# leave it out and the image build enforces a different rule set than `dotnet build -c Release`
+# does locally, so the image fails on code that passed CI.
+COPY global.json nuget.config .editorconfig Directory.Build.props Directory.Build.targets Directory.Packages.props EwaysVNext.slnx ./
 COPY EwaysVNext.Modules.Catalog.Contracts/ EwaysVNext.Modules.Catalog.Contracts/
 COPY src/ src/
 

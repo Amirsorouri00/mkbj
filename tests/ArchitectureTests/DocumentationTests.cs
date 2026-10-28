@@ -10,6 +10,10 @@ namespace EwaysVNext.ArchitectureTests;
 /// </summary>
 public sealed class DocumentationTests
 {
+    /// <summary>Modules the documentation used to describe, all of them now gone.</summary>
+    private static readonly string[] RemovedModules =
+        ["Identity", "Orders", "Supplier", "Brand", "Payment", "Location", "Notification"];
+
     [Fact]
     public void Agents_Md_Bolds_Exactly_The_Existing_Modules()
     {
@@ -17,8 +21,7 @@ public sealed class DocumentationTests
 
         HexagonalBoundaryTests.ModuleNames.Should().OnlyContain(module => agents.Contains($"**{module}**"));
 
-        new[] { "Identity", "Orders", "Supplier", "Brand", "Payment", "Location", "Notification" }
-            .Should().OnlyContain(module => !agents.Contains($"**{module}**"),
+        RemovedModules.Should().OnlyContain(module => !agents.Contains($"**{module}**"),
                 "a module in bold reads as one that exists");
 
         agents.Should().NotContain("LocalDB").And.NotContain("SQL Server");

@@ -89,15 +89,17 @@ Verified there today:
 
 - **Performance.** There is no load test. Nothing here measures throughput or latency, and no
   number in any document is measured. The composition simulator and k6 script arrive in phase 8.
-- **MinIO specifically.** The storage tests run against LocalStack's S3, because the `minio/minio`
-  image could not be pulled in this environment. The adapter speaks plain S3 and MinIO implements
-  S3, so the adapter is exercised — a MinIO-specific quirk would not be caught until deploy.
-- **The production image and compose stack.** Both were written but never built or started: the
-  Docker daemon lost registry access during the work. `docker compose config` validates the YAML,
-  variable interpolation and fail-fast behaviour; nothing has run. See the commands in the
-  `build:` commits before trusting either.
-- **Keycloak.** The realm exports are stubs with placeholder secrets; phase 1 fills them. No test
-  authenticates a human.
+- **MinIO specifically.** The storage tests run against LocalStack's S3. MinIO no longer publishes
+  anonymously pullable images — `docker.io/minio/minio` and `quay.io/minio/minio` both refuse an
+  unauthenticated pull — so the dev stack runs an archived mirror of the same AGPL server. The
+  adapter speaks plain S3 and MinIO implements S3, so the adapter is exercised; a MinIO-specific
+  quirk would not be caught until deploy.
+- **The production image and compose stack beyond a first run.** The image now builds and its
+  `--probe` mode works, and the dev stack starts, migrates, seeds and serves `/health` 200. That
+  is one run on one machine, not a deployment: nothing exercises the production compose end to
+  end, restarts, upgrades, volume persistence or the Caddy TLS path.
+- **Keycloak beyond discovery.** Both realms import and serve `.well-known/openid-configuration`,
+  but their secrets are still placeholders and phase 1 fills them. No test authenticates a human.
 - **Anything in a later phase.** Pricing, the composition engine, orders, invoices, imports and
   the admin surface do not exist yet, so nothing covers them.
 
@@ -108,6 +110,11 @@ has seen fail is not known to work. And check the mutation actually changed the 
 replacement that silently matched nothing produces a "passing" mutation run that proves exactly
 nothing. That happened here, on the audit-grant check, and was caught only by querying the real
 grants.
+
+**Assert against the world, not against your own string.** The first version of the realm-name
+check passed immediately: it compared a file name spelled in the test against itself, and Windows
+matched the real file case-insensitively. A test that reads the directory failed at once. Prefer
+enumerating what exists over asserting a name you also wrote.
 
 **Run Release before claiming a build is green.** `TreatWarningsAsErrors` is on in Release only.
 The Release build was broken for a long time while Debug CI stayed green, which meant the

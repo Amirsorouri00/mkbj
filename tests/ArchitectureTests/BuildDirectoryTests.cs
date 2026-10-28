@@ -11,34 +11,62 @@ namespace EwaysVNext.ArchitectureTests;
 /// </summary>
 public sealed partial class BuildDirectoryTests
 {
+    private static readonly string[] RequiredArtefacts =
+    [
+        "build/docker/api.Dockerfile",
+        "build/compose/docker-compose.yml",
+        "build/compose/docker-compose.dev.yml",
+        "build/compose/.env.example",
+        "build/compose/caddy/Caddyfile",
+        "build/keycloak/Shop-realm.json",
+        "build/keycloak/Backoffice-realm.json",
+        "build/postgres/init/01-roles.sql",
+    ];
+
+    private static readonly string[] SupersededRootFiles =
+        ["Dockerfile", "Dockerfile.ci", "docker-compose.yml", ".env.example"];
+
     [Fact]
     public void Spec_Build_Layout_Exists() =>
-        new[]
-        {
-            "build/docker/api.Dockerfile",
-            "build/compose/docker-compose.yml",
-            "build/compose/docker-compose.dev.yml",
-            "build/compose/.env.example",
-            "build/compose/caddy/Caddyfile",
-            "build/keycloak/shop-realm.json",
-            "build/keycloak/backoffice-realm.json",
-            "build/postgres/init/01-roles.sql",
-        }
-        .Where(path => !File.Exists(Path.Combine(Root, path))).Should().BeEmpty();
+        RequiredArtefacts.Where(path => !File.Exists(Path.Combine(Root, path))).Should().BeEmpty();
 
     [Fact]
     public void Root_Docker_Files_Are_Gone() =>
-        new[] { "Dockerfile", "Dockerfile.ci", "docker-compose.yml", ".env.example" }
-            .Where(path => File.Exists(Path.Combine(Root, path))).Should().BeEmpty();
+        SupersededRootFiles.Where(path => File.Exists(Path.Combine(Root, path))).Should().BeEmpty();
 
     [Fact]
     public void Env_Example_Has_No_Values() =>
         EnvLines("build/compose/.env.example").Should().OnlyContain(line => line.EndsWith('='),
             "the template names the variables; a value in it is a secret in git");
 
+    /// <summary>
+    /// Keycloak refuses to start when an import file is not named after the realm inside it
+    /// ("File name / realm name mismatch"), and --import-realm makes that a crash loop rather
+    /// than a warning. The name is part of the contract, so assert it rather than discovering it
+    /// from a container that will not come up.
+    /// </summary>
+    [Fact]
+    public void Realm_Exports_Are_Named_After_The_Realms_They_Contain()
+    {
+        // Enumerate the directory rather than assert against a path spelled here: Windows
+        // matches a path case-insensitively, so a hard-coded name would compare the string in
+        // this file against itself and pass over a file actually named differently on disk.
+        var mismatched = Directory.GetFiles(Path.Combine(Root, "build", "keycloak"), "*-realm.json")
+            .Select(path =>
+            {
+                using var document = JsonDocument.Parse(File.ReadAllText(path));
+                var expected = Path.GetFileName(path).Replace("-realm.json", string.Empty, StringComparison.Ordinal);
+                return (File: Path.GetFileName(path), Realm: document.RootElement.GetProperty("realm").GetString(), Expected: expected);
+            })
+            .Where(x => !string.Equals(x.Realm, x.Expected, StringComparison.Ordinal))
+            .ToList();
+
+        mismatched.Should().BeEmpty("Keycloak refuses to start on a file name / realm name mismatch");
+    }
+
     [Theory]
-    [InlineData("build/keycloak/shop-realm.json")]
-    [InlineData("build/keycloak/backoffice-realm.json")]
+    [InlineData("build/keycloak/Shop-realm.json")]
+    [InlineData("build/keycloak/Backoffice-realm.json")]
     public void Realm_Secrets_Are_Placeholders(string file) =>
         SecretValues(file).Should().OnlyContain(value => PlaceholderPattern().IsMatch(value),
             "a realm export is committed, so every secret in it must be substituted at import time");
@@ -54,7 +82,7 @@ public sealed partial class BuildDirectoryTests
             .Where(line => line.Length > 0 && !line.StartsWith('#'));
 
     /// <summary>Every JSON string whose key mentions a password or a secret, at any depth.</summary>
-    private static IEnumerable<string> SecretValues(string file)
+    private static List<string> SecretValues(string file)
     {
         using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(Root, file)));
         return Walk(document.RootElement).ToList();

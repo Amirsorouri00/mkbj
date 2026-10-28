@@ -14,6 +14,12 @@
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.11" />
     <PackageVersion Include="Testcontainers.LocalStack" Version="4.16.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.11" />
+    <!--
+      The Npgsql provider is built against EF Core 10.0.4, so without this pin a project that
+      references it resolves Relational 10.0.4 while Core stays at 10.0.11 (MSB3277). EF Core
+      expects Core and Relational to move together; unify them upward.
+    -->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.11" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.11" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.11" />

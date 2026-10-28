@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace EwaysVNext.Storage.Implementation;
 
@@ -15,7 +16,13 @@ public static class DependencyInjection
             {
                 if (string.IsNullOrWhiteSpace(options.PublicEndpoint))
                     options.PublicEndpoint = options.Endpoint;
-            });
+            })
+            // ValidateOnStart, so a misconfigured deployment refuses to start rather than serving
+            // 500s from /health. See MinioOptionsValidator for what used to happen instead.
+            .ValidateOnStart();
+
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IValidateOptions<MinioOptions>, MinioOptionsValidator>());
 
         // Singleton: the S3 client is thread-safe and holds a connection pool worth reusing.
         services.TryAddSingleton<IObjectStorage, S3ObjectStorage>();

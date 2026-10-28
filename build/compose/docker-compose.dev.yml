@@ -9,7 +9,9 @@ services:
     image: postgres:17-alpine
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      # Overridable: a Postgres installed on the host wins the bind and the app silently
+      # connects to the wrong server. Set POSTGRES_PORT if 5432 is taken.
+      - "${POSTGRES_PORT:-5432}:5432"
     environment:
       POSTGRES_DB: eways
       POSTGRES_USER: postgres
@@ -26,26 +28,36 @@ services:
       timeout: 5s
       retries: 10
 
+  # MinIO no longer publishes anonymously pullable images: docker.io/minio/minio and
+  # quay.io/minio/minio both refuse an unauthenticated pull. MINIO_IMAGE/MINIO_MC_IMAGE default
+  # to an archived mirror of the same AGPL server so `docker compose up` works with no account.
+  # Point them back at minio/minio once you hold credentials — nothing else here changes, and the
+  # entrypoint override below runs the same binary with the same arguments either way.
   minio:
-    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    image: ${MINIO_IMAGE:-bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c}
     restart: unless-stopped
+    # The official image runs as root; the mirror runs as uid 1001 and cannot write a freshly
+    # created named volume. Matching the official image keeps the two interchangeable.
+    user: "0"
+    entrypoint: ["/bin/sh", "-c", "exec $$(command -v minio || echo /opt/bitnami/minio/bin/minio) \"$$@\"", "--"]
     command: server /data --console-address :9001
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-dev-minio}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-dev-minio-password}
     volumes:
       - minio_data:/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      # The official image has mc on PATH; the mirror keeps it under /opt/bitnami.
+      test: ["CMD-SHELL", "$$(command -v mc || echo /opt/bitnami/minio-client/bin/mc) ready local"]
       interval: 10s
       timeout: 5s
       retries: 10
 
   minio-init:
-    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
+    image: ${MINIO_MC_IMAGE:-bitnamilegacy/minio-client:latest}
     restart: "no"
     depends_on:
       minio:
@@ -58,9 +70,10 @@ services:
       - -c
       - |
         set -e
-        mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"
-        mc mb --ignore-existing local/catalog-media local/import-staging local/documents
-        mc anonymous set download local/catalog-media
+        MC=$$(command -v mc || echo /opt/bitnami/minio-client/bin/mc)
+        "$$MC" alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"
+        "$$MC" mb --ignore-existing local/catalog-media local/import-staging local/documents
+        "$$MC" anonymous set download local/catalog-media
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.4
@@ -68,7 +81,7 @@ services:
     # start-dev: in-memory H2 and no TLS requirement. Never use this mode in production.
     command: ["start-dev", "--import-realm"]
     ports:
-      - "8081:8080"
+      - "${KEYCLOAK_PORT:-8081}:8080"
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:-admin}
