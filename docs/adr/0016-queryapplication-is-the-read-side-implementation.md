@@ -1,10 +1,12 @@
 # ADR-0016: QueryApplication Is the Read-Side Implementation; Contracts Is the Public API
 
 ## Status
-Proposed — 2026-09-30.
+Accepted — 2026-10-28. (Proposed 2026-09-30; accepted as part of the MVP platform work, because
+every module built from here follows it: `QueryApplication` holds the projections and injects
+`EwaysVNextDbContext` directly.)
 
 Supersedes [ADR-0012](0012-queryapplication-is-the-public-contract.md) and
-[ADR-0013](0013-narrow-queryapplication-to-actual-contracts.md) once accepted. Amends
+[ADR-0013](0013-narrow-queryapplication-to-actual-contracts.md). Amends
 [ADR-0003](0003-query-application-separation.md) and
 [ADR-0008](0008-read-optimized-cqs-terminology.md): the read/write separation and the
 "reads bypass aggregate hydration" guarantee they record still hold; only *which project* does

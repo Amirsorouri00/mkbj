@@ -138,16 +138,17 @@ deliberate; do not assume the codebase is uniform here.
   code, converting a rounding limitation into an availability problem. The trade-off is that an
   exotic non-2dp currency missing from the list would still be mis-rounded — extend the list,
   do not assume it is complete.
-- **`RowVersion` is a concurrency token only on aggregate ROOTS.** Every entity inherits the
-  property from `Entity<TId>`, but only root configurations call `IsRowVersion()`. Child and
-  owned tables (`ProductReservations`, `OrderLines`, `Customer.Addresses`,
-  `Customer.PaymentMethods`, `Supplier.Agreements`) carry a plain `varbinary NOT NULL` that EF
-  fills with an empty array and never compares. **This is the correct DDD granularity** — the
-  consistency boundary is the aggregate, and a child can only be written through its root — but
-  the column looks like protection and is not. Two practical consequences: a hand-written
-  `INSERT` into a child table must supply `RowVersion` (`0x` will do), and nobody should read
-  its presence as a promise of child-level concurrency. Full reasoning is on the property itself
-  in `Entity.cs`.
+- **`RowVersion` is a concurrency token only on aggregate ROOTS, and it is not a column.** The
+  property is a `uint` on `Entity<TId>` mapped to PostgreSQL's system column `xmin` — Postgres
+  maintains it, no migration creates it, and an `INSERT` neither can nor needs to supply it.
+  Only root configurations map it (`.Property(x => x.RowVersion).IsRowVersion()` against
+  `xmin`); child and owned tables leave the inherited property unmapped entirely, so there is no
+  misleading column on them at all. **This is the correct DDD granularity** — the consistency
+  boundary is the aggregate, and a child can only be written through its root. Two practical
+  consequences: mutating a child must also touch its root (see `RecordChildChanged`) or the
+  concurrent writer is never detected, and EF InMemory has no `xmin`, so the token is explicitly
+  disabled there and no InMemory test can see a concurrency conflict. Full reasoning is on the
+  property itself in `Entity.cs`.
 - **The failure report and analytics refuse a mixed-currency range instead of answering it.**
   `REPORT_CURRENCY_MISMATCH` / `ANALYTICS_CURRENCY_MISMATCH` (both 409). Adding a currency
   filter would make such a range answerable; that is a capability, not a correctness fix, and is

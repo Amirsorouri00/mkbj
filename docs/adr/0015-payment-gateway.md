@@ -2,6 +2,17 @@
 
 ## Status
 
+**Superseded by [ADR-0018](0018-sales-aggregate-owns-order-lifecycle.md) — 2026-10-28.**
+
+The Payment module this describes was deleted with the rest of the Iran-market code
+([ADR-0022](0022-remove-iran-specific-modules.md)). The MVP has no payment gateway at all: website
+orders are paid outside the system and confirmed by an admin, and partner orders are reported paid
+by the partner. Payment status now lives on the `Order` aggregate.
+
+Kept for history. Nothing below describes code that exists.
+
+---
+
 Accepted and implemented in the Payment module. This is the single maintained
 guide for gateway architecture, provider policies, validation ownership, and
 provider onboarding.
