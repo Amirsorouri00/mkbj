@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>EwaysVNext.Audit.Implementation</RootNamespace>
@@ -12,5 +12,6 @@
     <ProjectReference Include="..\Application\EwaysVNext.Audit.Application.csproj" />
     <ProjectReference Include="..\..\Domain\EwaysVNext.Domain.csproj" />
     <ProjectReference Include="..\..\Core\Application\EwaysVNext.Core.Application.csproj" />
+    <ProjectReference Include="..\..\Jobs\Implementation\EwaysVNext.Jobs.Implementation.csproj" />
   </ItemGroup>
 </Project>
