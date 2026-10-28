@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>EwaysVNext.Jobs.Implementation</RootNamespace>
@@ -11,9 +11,11 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Application\EwaysVNext.Jobs.Application.csproj" />
     <ProjectReference Include="..\..\Domain\EwaysVNext.Domain.csproj" />
+    <ProjectReference Include="..\..\Core\Application\EwaysVNext.Core.Application.csproj" />
   </ItemGroup>
 </Project>

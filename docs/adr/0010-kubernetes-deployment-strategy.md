@@ -7,6 +7,13 @@ Accepted — 2026-08-28.
 Supersedes nothing. Amends the operational assumptions of ADR-0005 (saga crash semantics) and
 records the deployment context that ADR-0004's outbox amendment depends on.
 
+**Superseded in part by [ADR-0019](0019-postgres-backed-job-queue.md) (2026-10-28)**: D1's
+`strategy: Recreate` and D3's CronJob exist to stop an in-process `BackgroundService` running once
+per replica. Background work now goes through a Postgres job queue whose `FOR UPDATE SKIP LOCKED`
+claim makes several workers safe by construction, so neither the single-replica constraint nor the
+CronJob is needed. The reaper those decisions were written for was deleted with Catalog's stock
+(ADR-0022).
+
 **Amended (2026-09-01)**: `CrossModuleSaga` (D5) and the outbox migration path ADR-0004
 describes are both gone — see
 [ADR-0011](0011-simplify-back-to-a-broker-free-bus-free-architecture.md). D5's compensation-token

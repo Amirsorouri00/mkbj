@@ -61,7 +61,9 @@ public sealed class PostgresFixture : IAsyncLifetime
     public const string StorageAccessKey = "test";
     public const string StorageSecretKey = "test";
 
-    public WebApplicationFactory<Program> CreateFactory(IReadOnlyDictionary<string, string?>? overrides = null)
+    public WebApplicationFactory<Program> CreateFactory(
+        IReadOnlyDictionary<string, string?>? overrides = null,
+        Action<IServiceCollection>? configureServices = null)
     {
         var settings = new Dictionary<string, string?>
         {
@@ -84,6 +86,8 @@ public sealed class PostgresFixture : IAsyncLifetime
 
             builder.ConfigureTestServices(services =>
             {
+                configureServices?.Invoke(services);
+
                 services.AddAuthentication(options =>
                 {
                     options.DefaultScheme = TestScheme;
