@@ -38,12 +38,8 @@
     <ProjectReference Include="..\..\src\Modules\Customer\Application\EwaysVNext.Modules.Customer.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Customer\Adapter\Outbound\EwaysVNext.Modules.Customer.Adapter.Outbound.csproj" />
     <ProjectReference Include="..\..\src\Modules\Customer\Adapter\Inbound\GraphQL\EwaysVNext.Modules.Customer.Adapter.Inbound.GraphQL.csproj" />
-    <ProjectReference Include="..\..\src\Modules\Location\Application\EwaysVNext.Modules.Location.Application.csproj" />
-    <ProjectReference Include="..\..\src\Modules\Location\Adapter\Outbound\EwaysVNext.Modules.Location.Adapter.Outbound.csproj" />
-    <ProjectReference Include="..\..\src\Modules\Location\Adapter\Inbound\GraphQL\EwaysVNext.Modules.Location.Adapter.Inbound.GraphQL.csproj" />
     <ProjectReference Include="..\..\src\Database\EwaysVNext.Database.csproj" />
     <ProjectReference Include="..\..\src\Authorization\Authorization.Endpoints\Authorization.Endpoints.csproj" />
-    <ProjectReference Include="..\..\src\Modules\Notification\Application\EwaysVNext.Modules.Notification.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Catalog\Adapter\Outbound\EwaysVNext.Modules.Catalog.Adapter.Outbound.csproj" />
     <ProjectReference Include="..\..\src\Modules\Catalog\Adapter\Inbound\GraphQL\EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.csproj" />
     <ProjectReference Include="..\..\src\Modules\Catalog\Installer\EwaysVNext.Modules.Catalog.Installer.csproj" />

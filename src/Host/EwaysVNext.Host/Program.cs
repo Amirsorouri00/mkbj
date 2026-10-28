@@ -7,9 +7,6 @@ using EwaysVNext.Host.Authentication.Extensions;
 using EwaysVNext.Host.Middleware;
 using EwaysVNext.Modules.Catalog;
 using EwaysVNext.Modules.Customer;
-using EwaysVNext.Modules.Location;
-using EwaysVNext.Modules.Notification;
-using EwaysVNext.Modules.Payment;
 using EwaysVNext.Presentation.Endpoint;
 using EwaysVNext.Presentation.Endpoint.GraphQL;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -27,7 +24,7 @@ using EwaysVNext.Outcomes.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddModuleConfiguration(
-    ["catalog", "customer", "notification", "payment"],
+    ["catalog"],
     builder.Environment.EnvironmentName);
 builder.Configuration.AddEnvironmentVariables();
 
@@ -39,11 +36,8 @@ builder.Host.UseSerilog((ctx, cfg) => cfg
         formatProvider: System.Globalization.CultureInfo.InvariantCulture));
 
 builder.Services
-    .AddLocationModule(builder.Configuration, builder.Environment.IsDevelopment())
     .AddCatalogModule()
-    .AddCustomerModule(builder.Configuration)
-    .AddNotificationModule(builder.Configuration)
-    .AddPaymentModule(builder.Configuration);
+    .AddCustomerModule(builder.Configuration);
 builder.Services.AddUnifiedDatabase(builder.Configuration, builder.Environment.IsDevelopment());
 builder.Services.AddAuthorizationSystem(builder.Configuration);
 

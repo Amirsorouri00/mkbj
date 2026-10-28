@@ -1,6 +1,6 @@
 using AwesomeAssertions;
 using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Modules.Customer.Adapter.Inbound.GraphQL;
+using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL;
 using HotChocolate.Execution;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -14,7 +14,7 @@ public class GraphQLBootstrapTests
     {
         var services = new ServiceCollection();
 
-        services.AddCustomerGraphQL();
+        services.AddCatalogGraphQL();
         var builder = services.AddGraphQLBootstrap();
 
         var act = async () => await builder.BuildSchemaAsync();

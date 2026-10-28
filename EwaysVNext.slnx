@@ -1,4 +1,4 @@
-<Solution>
+﻿<Solution>
 
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />
@@ -100,40 +100,7 @@
   </Folder>
   <Folder Name="/src/Modules/" />
 
-  <Folder Name="/src/Modules/Payment/" />
-  <Folder Name="/src/Modules/Payment/Application/">
-    <Project Path="src/Modules/Payment/Application/EwaysVNext.Modules.Payment.Application.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Payment/Adapter/Outbound/">
-    <Project Path="src/Modules/Payment/Adapter/Outbound/EwaysVNext.Modules.Payment.Adapter.Outbound.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Payment/Adapter/" />
-  <Folder Name="/src/Modules/Payment/Adapter/Inbound/" />
-  <Folder Name="/src/Modules/Payment/Adapter/Inbound/Rest/">
-    <Project Path="src/Modules/Payment/Adapter/Inbound/Rest/EwaysVNext.Modules.Payment.Adapter.Inbound.Rest.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Payment/QueryApplication/">
-    <Project Path="src/Modules/Payment/QueryApplication/EwaysVNext.Modules.Payment.QueryApplication.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Payment/Installer/">
-    <Project Path="src/Modules/Payment/Installer/EwaysVNext.Modules.Payment.Installer.csproj" />
-  </Folder>
 
-  <Folder Name="/src/Modules/Notification/" />
-  <Folder Name="/src/Modules/Notification/Application/">
-    <Project Path="src/Modules/Notification/Application/EwaysVNext.Modules.Notification.Application.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Notification/Adapter/Outbound/">
-    <Project Path="src/Modules/Notification/Adapter/Outbound/EwaysVNext.Modules.Notification.Adapter.Outbound.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Notification/Adapter/" />
-  <Folder Name="/src/Modules/Notification/Adapter/Inbound/" />
-  <Folder Name="/src/Modules/Notification/Adapter/Inbound/Rest/">
-    <Project Path="src/Modules/Notification/Adapter/Inbound/Rest/EwaysVNext.Modules.Notification.Adapter.Inbound.Rest.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Notification/Installer/">
-    <Project Path="src/Modules/Notification/Installer/EwaysVNext.Modules.Notification.Installer.csproj" />
-  </Folder>
 
   <Folder Name="/src/Database/">
     <Project Path="src/Database/EwaysVNext.Database.csproj" />
@@ -141,30 +108,6 @@
 
   <Folder Name="/src/Host/">
     <Project Path="src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Location/" />
-  <Folder Name="/src/Modules/Location/Adapter/" />
-  <Folder Name="/src/Modules/Location/Adapter/Inbound/" />
-  <Folder Name="/src/Modules/Location/Adapter/Inbound/GraphQL/">
-    <Project Path="src/Modules/Location/Adapter/Inbound/GraphQL/EwaysVNext.Modules.Location.Adapter.Inbound.GraphQL.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Location/Adapter/Inbound/Rest/">
-    <Project Path="src/Modules/Location/Adapter/Inbound/Rest/EwaysVNext.Modules.Location.Adapter.Inbound.Rest.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Location/Adapter/Outbound/">
-    <Project Path="src/Modules/Location/Adapter/Outbound/EwaysVNext.Modules.Location.Adapter.Outbound.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Location/Application/">
-    <Project Path="src/Modules/Location/Application/EwaysVNext.Modules.Location.Application.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Location/Contracts/">
-    <Project Path="src/Modules/Location/Contracts/EwaysVNext.Modules.Location.Contracts.csproj" Id="d65b571f-a694-413d-88cc-de0afab3c3ea" />
-  </Folder>
-  <Folder Name="/src/Modules/Location/Installer/">
-    <Project Path="src/Modules/Location/Installer/EwaysVNext.Modules.Location.Installer.csproj" />
-  </Folder>
-  <Folder Name="/src/Modules/Location/QueryApplication/">
-    <Project Path="src/Modules/Location/QueryApplication/EwaysVNext.Modules.Location.QueryApplication.csproj" />
   </Folder>
 
   <Folder Name="/src/Authorization/">
@@ -175,9 +118,6 @@
   </Folder>
 
   <Folder Name="/tests/" />
-  <Folder Name="/tests/PaymentTests/">
-    <Project Path="tests/PaymentTests/EwaysVNext.PaymentTests.csproj" />
-  </Folder>
   <Folder Name="/tests/ArchitectureTests/">
     <Project Path="tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj" />
   </Folder>

@@ -3,7 +3,6 @@ using AwesomeAssertions;
 using EwaysVNext.Domain.Common;
 using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
 using EwaysVNext.Modules.Catalog.Contracts.Products;
-using EwaysVNext.Modules.Customer.Application.Ports.Inbound.Dtos;
 using EwaysVNext.Presentation.Endpoint;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,10 +61,6 @@ public class SnowflakeIdJsonTests
             .Should().Contain("\"id\":\"96521147829043201\"");
         JsonSerializer.Serialize(new ReservationSnapshot(SampleId, SampleId + 1, 2, TestTime.Now), options)
             .Should().Contain("\"reservationId\":\"96521147829043201\"").And.Contain("\"productId\":\"96521147829043202\"");
-        JsonSerializer.Serialize(
-                new CustomerProfile(SampleId, Guid.Empty, "09120000000", "A", "B", "0012345679", null, null, null, null, null, TestTime.Now.UtcDateTime, null),
-                options)
-            .Should().Contain("\"id\":\"96521147829043201\"");
     }
 
     private sealed record Sample(

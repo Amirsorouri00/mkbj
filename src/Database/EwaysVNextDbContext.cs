@@ -4,15 +4,6 @@ namespace EwaysVNext.Database;
 
 public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> options) : DbContext(options)
 {
-    public DbSet<EwaysVNext.Modules.Customer.Application.Domain.Customers.Customer> Customers
-        => Set<EwaysVNext.Modules.Customer.Application.Domain.Customers.Customer>();
-    public DbSet<EwaysVNext.Modules.Customer.Application.Domain.TeamMembers.TeamMember> TeamMembers
-        => Set<EwaysVNext.Modules.Customer.Application.Domain.TeamMembers.TeamMember>();
-    public DbSet<EwaysVNext.Modules.Location.Application.Domain.Locations.Province> Provinces
-        => Set<EwaysVNext.Modules.Location.Application.Domain.Locations.Province>();
-    public DbSet<EwaysVNext.Modules.Location.Application.Domain.Locations.Address> Addresses
-        => Set<EwaysVNext.Modules.Location.Application.Domain.Locations.Address>();
-
     public DbSet<EwaysVNext.Modules.Catalog.Application.Products.Domain.Product> Products
         => Set<EwaysVNext.Modules.Catalog.Application.Products.Domain.Product>();
 
