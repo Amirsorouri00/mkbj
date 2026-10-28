@@ -1,9 +1,15 @@
-using System.Net;
-using System.Text.Json;
 using EwaysVNext.Domain.Common;
+using EwaysVNext.Outcomes;
+using EwaysVNext.Persistence;
+using EwaysVNext.Presentation.Endpoint;
 
 namespace EwaysVNext.Host.Middleware;
 
+/// <summary>
+/// Turns anything that escapes a handler into the one error body (spec §6.3). A transient
+/// infrastructure fault becomes a retryable 503 rather than an opaque 500, so a caller knows
+/// resending is worth trying.
+/// </summary>
 public sealed class GlobalExceptionHandlerMiddleware(
     RequestDelegate next,
     ILogger<GlobalExceptionHandlerMiddleware> logger,
@@ -16,62 +22,35 @@ public sealed class GlobalExceptionHandlerMiddleware(
         {
             if (logger.IsEnabled(LogLevel.Warning))
                 logger.LogWarning(GlobalExceptionHandlerMiddlewareMessages.DomainExceptionLogged, dex.Code, dex.Message);
-            await WriteAsync(ctx, HttpStatusCode.BadRequest, dex.Code, dex.Message);
+            await ErrorResponse.WriteAsync(ctx, new Error(dex.Code, dex.Message, 400));
         }
         catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
         {
             if (logger.IsEnabled(LogLevel.Warning))
                 logger.LogWarning(GlobalExceptionHandlerMiddlewareMessages.ConcurrencyConflictLogged);
-            await WriteAsync(ctx, HttpStatusCode.Conflict, "CONCURRENCY_CONFLICT",
-                GlobalExceptionHandlerMiddlewareMessages.ConcurrencyConflict);
+            await ErrorResponse.WriteAsync(ctx, Error.ConcurrencyConflict);
+        }
+        catch (Exception ex) when (TransientFailure.Is(ex))
+        {
+            logger.LogError(ex, GlobalExceptionHandlerMiddlewareMessages.UnhandledExceptionLogged);
+            await ErrorResponse.WriteAsync(ctx, Error.ServiceUnavailable);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, GlobalExceptionHandlerMiddlewareMessages.UnhandledExceptionLogged);
-            await WriteAsync(
+            await ErrorResponse.WriteAsync(
                 ctx,
-                HttpStatusCode.InternalServerError,
-                "INTERNAL",
-                GlobalExceptionHandlerMiddlewareMessages.UnexpectedError,
-                environment.IsDevelopment() ? ex : null);
+                Error.Internal,
+                // The exception is a debugging aid, never a production response: it would leak
+                // internals and stack traces to callers.
+                details: environment.IsDevelopment()
+                    ? new
+                    {
+                        type = ex.GetType().FullName,
+                        message = ex.Message,
+                        stackTrace = ex.StackTrace,
+                    }
+                    : null);
         }
-    }
-
-    private static async Task WriteAsync(
-        HttpContext ctx,
-        HttpStatusCode status,
-        string code,
-        string detail,
-        Exception? exception = null)
-    {
-        ctx.Response.StatusCode = (int)status;
-        ctx.Response.ContentType = "application/json";
-        object response;
-        if (exception is null)
-        {
-            response = new
-            {
-                error = code,
-                message = detail,
-                exception = (object?)null
-            };
-        }
-        else
-        {
-            response = new
-            {
-                error = code,
-                message = detail,
-                exception = (object?)new
-                {
-                    type = exception.GetType().FullName,
-                    message = exception.Message,
-                    stackTrace = exception.StackTrace,
-                    details = exception.ToString()
-                }
-            };
-        }
-
-        await ctx.Response.WriteAsync(JsonSerializer.Serialize(response));
     }
 }

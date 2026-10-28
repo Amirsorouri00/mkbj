@@ -1,10 +1,11 @@
-using AuthorizationService.Endpoints;
+﻿using AuthorizationService.Endpoints;
 using AuthorizationService.Implementation.Persistence;
 using EwaysVNext.Database;
 using EwaysVNext.Host;
 using EwaysVNext.Host.Authentication;
 using EwaysVNext.Host.Authentication.Extensions;
 using EwaysVNext.Host.Middleware;
+using EwaysVNext.Outcomes;
 using EwaysVNext.Modules.Catalog;
 using EwaysVNext.Modules.Customer;
 using EwaysVNext.Presentation.Endpoint;
@@ -72,12 +73,20 @@ builder.Services.AddRateLimiter(opts =>
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anon",
             factory: _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
             {
-                PermitLimit = 100,
+                PermitLimit = builder.Configuration.GetValue("Host:RateLimit:GlobalPermitPerMinute", 100),
                 Window = TimeSpan.FromMinutes(1),
                 QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst,
                 QueueLimit = 0
             }));
     opts.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    // A rejected request never reaches a handler, so it needs the standard body written here or it
+    // would be the one response shape clients cannot parse.
+    opts.OnRejected = async (context, ct) =>
+    {
+        context.HttpContext.Response.Headers.RetryAfter = "60";
+        await ErrorResponse.WriteAsync(context.HttpContext, Error.RateLimited);
+    };
 
     opts.AddPolicy("admin", context =>
         System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
@@ -187,6 +196,9 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// First in the pipeline: everything downstream, including the error body and the logs,
+// reads the correlation id it sets.
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 app.UseCors("default");
 app.UseRateLimiter();

@@ -1,9 +1,10 @@
-using System.Globalization;
+﻿using System.Globalization;
 using EwaysVNext.Domain.Common;
 using HotChocolate.AspNetCore;
 using HotChocolate.Execution.Configuration;
 using HotChocolate.Types;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -19,6 +20,10 @@ public static class DependencyInjection
             return builder;
 
         services.TryAddSingleton<GraphQLBootstrapMarker>();
+        // GraphQLErrorFilter reads the correlation id off the current request; registering it here
+        // keeps the bootstrap self-contained instead of depending on a module having called
+        // AddUserProfileService first.
+        services.AddHttpContextAccessor();
         builder
             .AddQueryType<Query>()
             .AddMutationType<Mutation>()

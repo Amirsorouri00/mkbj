@@ -11,8 +11,19 @@ public static class EndpointResult
     internal static IResult Created<TData>(string location, TData data) =>
         Results.Created(location, new { Message = EndpointResultMessages.Success, Data = data });
 
-    internal static IResult Fail(Error error) =>
-        Results.Json(new { Message = error.Message, Code = error.Code }, statusCode: error.HttpStatus);
+    /// <summary>
+    /// The single place a REST error body is produced (spec §6.3). Public because callers outside
+    /// the Result pipeline need the same shape — a rejected rate limit, a GraphQL filter, a
+    /// PRICE_CHANGED that carries the fresh cart in <paramref name="details"/>.
+    /// </summary>
+    public static IResult Fail(Error error, object? details = null, object? items = null) =>
+        new ErrorBodyResult(error, details, items);
+
+    private sealed class ErrorBodyResult(Error error, object? details, object? items) : IResult
+    {
+        public Task ExecuteAsync(HttpContext httpContext) =>
+            ErrorResponse.WriteAsync(httpContext, error, details, items);
+    }
 
     public static IResult Unauthorized(string? message = null) =>
         Fail(message is null ? Error.Unauthorized : Error.Unauthorized with { Message = message });

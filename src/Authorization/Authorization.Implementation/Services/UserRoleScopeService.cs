@@ -1,4 +1,4 @@
-using AuthorizationService.Application.Abstractions;
+﻿using AuthorizationService.Application.Abstractions;
 using AuthorizationService.Application.Entities;
 using AuthorizationService.Application.UserRoleScopes;
 using AuthorizationService.Application.UserRoleScopes.Requests;
@@ -16,7 +16,7 @@ public class UserRoleScopeService(IApplicationDbContext db) : IUserRoleScopeServ
         var scope = await db.Scopes.FirstOrDefaultAsync(s => s.Id == scopeId, cancellationToken);
         if (scope is null)
         {
-            return Result.Failure<UserRoleScopeDto>(new Error("VALIDATION", MessageFormat.Format(UserRoleScopeServiceMessages.UnknownScopeFormat, scopeId)));
+            return Result.Failure<UserRoleScopeDto>(new Error("VALIDATION_FAILED", MessageFormat.Format(UserRoleScopeServiceMessages.UnknownScopeFormat, scopeId)));
         }
 
         var topRole = await db.Roles.OrderByDescending(r => r.Rank).FirstOrDefaultAsync(cancellationToken);
@@ -53,13 +53,13 @@ public class UserRoleScopeService(IApplicationDbContext db) : IUserRoleScopeServ
         var role = await db.Roles.FirstOrDefaultAsync(r => r.Id == request.RoleId, cancellationToken);
         if (role is null)
         {
-            return Result.Failure<UserRoleScopeDto>(new Error("VALIDATION", MessageFormat.Format(UserRoleScopeServiceMessages.UnknownRoleFormat, request.RoleId)));
+            return Result.Failure<UserRoleScopeDto>(new Error("VALIDATION_FAILED", MessageFormat.Format(UserRoleScopeServiceMessages.UnknownRoleFormat, request.RoleId)));
         }
 
         var scope = await db.Scopes.FirstOrDefaultAsync(s => s.Id == request.ScopeId, cancellationToken);
         if (scope is null)
         {
-            return Result.Failure<UserRoleScopeDto>(new Error("VALIDATION", MessageFormat.Format(UserRoleScopeServiceMessages.UnknownScopeFormat, request.ScopeId)));
+            return Result.Failure<UserRoleScopeDto>(new Error("VALIDATION_FAILED", MessageFormat.Format(UserRoleScopeServiceMessages.UnknownScopeFormat, request.ScopeId)));
         }
 
         var alreadyExists = await db.UserRoleScopes.AnyAsync(

@@ -1,4 +1,4 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Domain.Common;
 using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
@@ -45,7 +45,7 @@ public class CategoryAttributeExclusionServiceTests
         var result = await sut.ExcludeAsync(0, NextId());
 
         result.IsFailure.Should().BeTrue();
-        result.Error!.Code.Should().Be("VALIDATION");
+        result.Error!.Code.Should().Be("VALIDATION_FAILED");
         await _assignments.DidNotReceive().GetByIdAsync(Arg.Any<long>(), Arg.Any<CancellationToken>());
     }
 

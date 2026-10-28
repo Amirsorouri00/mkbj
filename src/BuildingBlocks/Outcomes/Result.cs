@@ -29,7 +29,13 @@ public class Result<T> : Result
     internal Result(T? value, bool isSuccess, Error error) : base(isSuccess, error) => Value = value;
 }
 
-public sealed record Error(string Code, string Message, int HttpStatus)
+/// <summary>
+/// <paramref name="Retryable"/> tells the caller whether trying the same request again could
+/// succeed. It is true only for failures that are genuinely temporary — a rate limit, a timeout, a
+/// transient database fault — because a client that retries a permanent failure just multiplies
+/// load on something already broken.
+/// </summary>
+public sealed record Error(string Code, string Message, int HttpStatus, bool Retryable = false)
 {
     public Error(string code, string message)
         : this(code, message, SuggestHttpStatus(code)) { }
@@ -37,7 +43,9 @@ public sealed record Error(string Code, string Message, int HttpStatus)
     public static readonly Error None = new(string.Empty, string.Empty);
     public static readonly Error NotFound = new("NOT_FOUND", ErrorMessages.NotFound, 404);
     public static readonly Error Conflict = new("CONFLICT", ErrorMessages.Conflict, 409);
-    public static readonly Error Validation = new("VALIDATION", ErrorMessages.Validation);
+    public static readonly Error Validation = new("VALIDATION_FAILED", ErrorMessages.Validation);
+    public static readonly Error RateLimited = new("RATE_LIMITED", ErrorMessages.RateLimited, 429, true);
+    public static readonly Error ServiceUnavailable = new("SERVICE_UNAVAILABLE", ErrorMessages.ServiceUnavailable, 503, true);
     public static readonly Error Unauthorized = new("UNAUTHORIZED", ErrorMessages.Unauthorized, 401);
     public static readonly Error Forbidden = new("FORBIDDEN", ErrorMessages.Forbidden, 403);
     public static readonly Error Internal = new("INTERNAL", ErrorMessages.Internal, 500);

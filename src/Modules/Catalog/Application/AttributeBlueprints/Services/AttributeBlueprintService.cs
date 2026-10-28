@@ -1,4 +1,4 @@
-using EwaysVNext.Domain.Common;
+﻿using EwaysVNext.Domain.Common;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
@@ -452,7 +452,7 @@ public sealed class AttributeBlueprintService(
         $"An attribute blueprint named '{name}' already exists.");
 
     private static Error ValidationError(IEnumerable<string> messages) => new(
-        "VALIDATION",
+        "VALIDATION_FAILED",
         string.Join("; ", messages));
 
     private static Error DataTypeInUse() => new(

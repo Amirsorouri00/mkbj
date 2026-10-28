@@ -1,4 +1,4 @@
-using EwaysVNext.Outcomes;
+﻿using EwaysVNext.Outcomes;
 using EwaysVNext.Presentation.Endpoint.GraphQL.Exceptions;
 
 namespace EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
@@ -8,12 +8,14 @@ public static class ErrorGraphQLExtensions
     public static Exception ToGraphQLException(this Error error) => error.Code switch
     {
         "CONCURRENCY_CONFLICT" => new ConcurrencyConflictGraphQLException(error),
-        "VALIDATION" => new ValidationGraphQLException(error),
+        "VALIDATION_FAILED" => new ValidationGraphQLException(error),
         "UNAUTHORIZED" => new UnauthorizedGraphQLException(error),
         "FORBIDDEN" => new ForbiddenGraphQLException(error),
 
         _ => error.HttpStatus switch
         {
+            503 => new ServiceUnavailableGraphQLException(error),
+            429 => new ServiceUnavailableGraphQLException(error),
             404 => new NotFoundGraphQLException(error),
             409 => new ConflictGraphQLException(error),
             403 => new ForbiddenGraphQLException(error),

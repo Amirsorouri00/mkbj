@@ -1,4 +1,4 @@
-using AuthorizationService.Application.Abstractions;
+﻿using AuthorizationService.Application.Abstractions;
 using AuthorizationService.Application.Entities;
 using AuthorizationService.Application.Permissions;
 using AuthorizationService.Application.Permissions.Requests;
@@ -15,7 +15,7 @@ public class PermissionService(IApplicationDbContext db) : IPermissionService
     {
         if (string.IsNullOrWhiteSpace(request.Code) || string.IsNullOrWhiteSpace(request.Name))
         {
-            return Result.Failure<PermissionDto>(new Error("VALIDATION", PermissionServiceMessages.CodeAndNameRequired));
+            return Result.Failure<PermissionDto>(new Error("VALIDATION_FAILED", PermissionServiceMessages.CodeAndNameRequired));
         }
 
         var code = request.Code.Trim();
@@ -38,7 +38,7 @@ public class PermissionService(IApplicationDbContext db) : IPermissionService
         }
         catch (InvalidPermissionRuleException ex)
         {
-            return Result.Failure<PermissionDto>(new Error("VALIDATION", ex.Message));
+            return Result.Failure<PermissionDto>(new Error("VALIDATION_FAILED", ex.Message));
         }
 
         db.Permissions.Add(permission);
@@ -54,7 +54,7 @@ public class PermissionService(IApplicationDbContext db) : IPermissionService
     {
         if (string.IsNullOrWhiteSpace(request.Name))
         {
-            return Result.Failure<PermissionDto>(new Error("VALIDATION", PermissionServiceMessages.NameRequired));
+            return Result.Failure<PermissionDto>(new Error("VALIDATION_FAILED", PermissionServiceMessages.NameRequired));
         }
 
         var permission = await db.Permissions.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
@@ -77,7 +77,7 @@ public class PermissionService(IApplicationDbContext db) : IPermissionService
         }
         catch (InvalidPermissionRuleException ex)
         {
-            return Result.Failure<PermissionDto>(new Error("VALIDATION", ex.Message));
+            return Result.Failure<PermissionDto>(new Error("VALIDATION_FAILED", ex.Message));
         }
 
         db.PermissionRules.AddRange(permission.Rules);
@@ -129,21 +129,21 @@ public class PermissionService(IApplicationDbContext db) : IPermissionService
     {
         if (rules.Count == 0)
         {
-            return Result.Failure<List<PermissionRuleInput>>(new Error("VALIDATION", PermissionServiceMessages.RuleRequired));
+            return Result.Failure<List<PermissionRuleInput>>(new Error("VALIDATION_FAILED", PermissionServiceMessages.RuleRequired));
         }
 
         foreach (var rule in rules)
         {
             if (rule.RoleId is not null && !await db.Roles.AnyAsync(r => r.Id == rule.RoleId, cancellationToken))
             {
-                return Result.Failure<List<PermissionRuleInput>>(new Error("VALIDATION", MessageFormat.Format(PermissionServiceMessages.UnknownRoleFormat, rule.RoleId)));
+                return Result.Failure<List<PermissionRuleInput>>(new Error("VALIDATION_FAILED", MessageFormat.Format(PermissionServiceMessages.UnknownRoleFormat, rule.RoleId)));
             }
 
             foreach (var scopeId in rule.ScopeIds ?? [])
             {
                 if (!await db.Scopes.AnyAsync(s => s.Id == scopeId, cancellationToken))
                 {
-                    return Result.Failure<List<PermissionRuleInput>>(new Error("VALIDATION", MessageFormat.Format(PermissionServiceMessages.UnknownScopeFormat, scopeId)));
+                    return Result.Failure<List<PermissionRuleInput>>(new Error("VALIDATION_FAILED", MessageFormat.Format(PermissionServiceMessages.UnknownScopeFormat, scopeId)));
                 }
             }
         }

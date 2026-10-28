@@ -1,4 +1,4 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Outcomes;
 using EwaysVNext.Presentation.Endpoint.GraphQL.Exceptions;
 using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
@@ -23,7 +23,7 @@ public class ErrorGraphQLExtensionsTests
     [Fact]
     public void Validation_Code_Maps_To_ValidationGraphQLException()
     {
-        var error = new Error("VALIDATION", "bad input", 400);
+        var error = new Error("VALIDATION_FAILED", "bad input", 400);
 
         error.ToGraphQLException().Should().BeOfType<ValidationGraphQLException>();
     }

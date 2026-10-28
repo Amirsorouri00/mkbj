@@ -1,4 +1,4 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Domain.Common;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
@@ -65,7 +65,7 @@ public sealed class AttributeBlueprintServiceTests
         var result = await service.CreateAsync("   ", AttributeBlueprintDataType.Text, [], TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Error!.Code.Should().Be("VALIDATION");
+        result.Error!.Code.Should().Be("VALIDATION_FAILED");
         _idGenerator.DidNotReceive().Generate();
         await _repository.DidNotReceive().NameExistsAsync(
             Arg.Any<string>(),
@@ -125,7 +125,7 @@ public sealed class AttributeBlueprintServiceTests
         var result = await service.DeleteAsync(0, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Error!.Code.Should().Be("VALIDATION");
+        result.Error!.Code.Should().Be("VALIDATION_FAILED");
         await _repository.DidNotReceive().GetByIdAsync(
             Arg.Any<long>(),
             Arg.Any<CancellationToken>());
@@ -350,7 +350,7 @@ public sealed class AttributeBlueprintServiceTests
             : await service.UnarchiveAsync(id, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Error!.Code.Should().Be("VALIDATION");
+        result.Error!.Code.Should().Be("VALIDATION_FAILED");
         _repository.ReceivedCalls().Should().BeEmpty();
         _unitOfWork.ReceivedCalls().Should().BeEmpty();
     }

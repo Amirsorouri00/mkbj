@@ -1,4 +1,4 @@
-using EwaysVNext.Domain.Common;
+﻿using EwaysVNext.Domain.Common;
 using EwaysVNext.Outcomes;
 using EwaysVNext.Persistence;
 using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
@@ -25,7 +25,7 @@ public sealed class CategoryAttributeExclusionService(
         var validationResult = await validator.ValidateAsync((categoryId, sourceAssignmentId), ct);
         if (!validationResult.IsValid)
             return Result.Failure<CategoryAttributeExclusionSnapshot>(
-                new Error("VALIDATION", string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))));
+                new Error("VALIDATION_FAILED", string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))));
 
         var ancestorChain = await ResolveAncestorChainNearestFirstAsync(categoryId, ct);
         var eligibility = await ValidateExclusionEligibilityAsync(categoryId, sourceAssignmentId, ancestorChain, ct);
@@ -58,7 +58,7 @@ public sealed class CategoryAttributeExclusionService(
         var validationResult = await validator.ValidateAsync((categoryId, sourceAssignmentId), ct);
         if (!validationResult.IsValid)
             return Result.Failure<CategoryAttributeExclusionSnapshot>(
-                new Error("VALIDATION", string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))));
+                new Error("VALIDATION_FAILED", string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))));
 
         var existing = await exclusions.GetByCategoryAndSourceAsync(categoryId, sourceAssignmentId, ct);
         if (existing is null)

@@ -1,4 +1,4 @@
-using EwaysVNext.Domain.Common;
+﻿using EwaysVNext.Domain.Common;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using EwaysVNext.Outcomes;
@@ -59,7 +59,7 @@ public sealed class ProductService : IProductService, IProductAvailabilityContra
     {
         var validationResult = await _createProductValidator.ValidateAsync((sku, name, price, currency, description), ct);
         if (!validationResult.IsValid)
-            return Result.Failure<ProductSnapshot>(new Error("VALIDATION", string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))));
+            return Result.Failure<ProductSnapshot>(new Error("VALIDATION_FAILED", string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))));
 
         var skuVo = Sku.Create(sku);
         if (await _products.SkuExistsAsync(skuVo.Value, ct))
@@ -78,7 +78,7 @@ public sealed class ProductService : IProductService, IProductAvailabilityContra
     {
         var validationResult = await _changePriceValidator.ValidateAsync((productId, newPrice, currency), ct);
         if (!validationResult.IsValid)
-            return Result.Failure(new Error("VALIDATION", string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))));
+            return Result.Failure(new Error("VALIDATION_FAILED", string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))));
 
         var product = await _products.GetByIdAsync(productId, ct);
         if (product is null) return Result.Failure(new Error("PRODUCT_NOT_FOUND", "Product was not found."));

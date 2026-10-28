@@ -34,6 +34,9 @@ public static class DependencyInjection
     {
         services.AddHttpContextAccessor();
         services.AddScoped<IUserProfileService, UserProfileService>();
+        // TryAdd: several modules call this, and a second registration would give one request two
+        // correlation contexts.
+        services.TryAddScoped<ICorrelationContext, CorrelationContext>();
         return services;
     }
 

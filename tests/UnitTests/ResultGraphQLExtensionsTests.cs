@@ -1,4 +1,4 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Outcomes;
 using EwaysVNext.Presentation.Endpoint.GraphQL.Exceptions;
 using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
@@ -21,7 +21,7 @@ public class ResultGraphQLExtensionsTests
     [Fact]
     public void ThrowIfFailure_Throws_The_Mapped_Exception_On_Failure()
     {
-        var result = Result.Failure(new Error("VALIDATION", "bad input", 400));
+        var result = Result.Failure(new Error("VALIDATION_FAILED", "bad input", 400));
 
         var act = () => result.ThrowIfFailure();
 
@@ -84,7 +84,7 @@ public class ResultGraphQLExtensionsTests
     [Fact]
     public void ValueOrDefault_Throws_The_Mapped_Exception_For_Non_404_Failures()
     {
-        var result = Result.Failure<string>(new Error("VALIDATION", "bad input", 400));
+        var result = Result.Failure<string>(new Error("VALIDATION_FAILED", "bad input", 400));
 
         var act = () => result.ValueOrDefault();
 

@@ -1,4 +1,4 @@
-using AuthorizationService.Application.Abstractions;
+﻿using AuthorizationService.Application.Abstractions;
 using AuthorizationService.Application.Entities;
 using AuthorizationService.Application.Roles;
 using AuthorizationService.Application.Roles.Requests;
@@ -15,7 +15,7 @@ public class RoleService(IApplicationDbContext db) : IRoleService
     {
         if (string.IsNullOrWhiteSpace(request.Code) || string.IsNullOrWhiteSpace(request.Name))
         {
-            return Result.Failure<RoleDto>(new Error("VALIDATION", RoleServiceMessages.CodeAndNameRequired));
+            return Result.Failure<RoleDto>(new Error("VALIDATION_FAILED", RoleServiceMessages.CodeAndNameRequired));
         }
 
         var code = request.Code.Trim();
@@ -37,7 +37,7 @@ public class RoleService(IApplicationDbContext db) : IRoleService
     {
         if (string.IsNullOrWhiteSpace(request.Name))
         {
-            return Result.Failure<RoleDto>(new Error("VALIDATION", RoleServiceMessages.NameRequired));
+            return Result.Failure<RoleDto>(new Error("VALIDATION_FAILED", RoleServiceMessages.NameRequired));
         }
 
         var role = await db.Roles.FirstOrDefaultAsync(r => r.Id == id, cancellationToken);

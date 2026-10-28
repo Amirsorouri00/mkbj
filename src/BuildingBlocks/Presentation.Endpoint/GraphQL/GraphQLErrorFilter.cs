@@ -5,9 +5,21 @@ using Error = EwaysVNext.Outcomes.Error;
 
 namespace EwaysVNext.Presentation.Endpoint.GraphQL;
 
+/// <summary>
+/// Shapes a GraphQL error and records whether retrying could help.
+/// <para>
+/// The correlation id is <b>not</b> added here. An error filter is built by HotChocolate's own
+/// schema container during warm-up, where no request and no <c>IHttpContextAccessor</c> exist;
+/// <see cref="GraphQLHttpResponseFormatter"/> adds it instead, at the HTTP boundary where the
+/// request actually is.
+/// </para>
+/// </summary>
 public class GraphQLErrorFilter : IErrorFilter
 {
-    public IError OnError(IError error)
+    public IError OnError(IError error) =>
+        Shape(error).SetExtension("retryable", (error.Exception as AppGraphQLException)?.Retryable ?? false);
+
+    private static IError Shape(IError error)
     {
         if (error.Exception is AppGraphQLException appEx)
             return error

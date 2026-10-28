@@ -1,4 +1,4 @@
-using AuthorizationService.Application.Abstractions;
+﻿using AuthorizationService.Application.Abstractions;
 using AuthorizationService.Application.Entities;
 using AuthorizationService.Application.Scopes;
 using AuthorizationService.Application.Scopes.Requests;
@@ -15,7 +15,7 @@ public class ScopeService(IApplicationDbContext db) : IScopeService
     {
         if (string.IsNullOrWhiteSpace(request.Code) || string.IsNullOrWhiteSpace(request.Name))
         {
-            return Result.Failure<ScopeDto>(new Error("VALIDATION", ScopeServiceMessages.CodeAndNameRequired));
+            return Result.Failure<ScopeDto>(new Error("VALIDATION_FAILED", ScopeServiceMessages.CodeAndNameRequired));
         }
 
         var code = request.Code.Trim();
@@ -37,7 +37,7 @@ public class ScopeService(IApplicationDbContext db) : IScopeService
     {
         if (string.IsNullOrWhiteSpace(request.Name))
         {
-            return Result.Failure<ScopeDto>(new Error("VALIDATION", ScopeServiceMessages.NameRequired));
+            return Result.Failure<ScopeDto>(new Error("VALIDATION_FAILED", ScopeServiceMessages.NameRequired));
         }
 
         var scope = await db.Scopes.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);

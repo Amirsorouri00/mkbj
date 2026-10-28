@@ -1,4 +1,4 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Domain.Common;
 using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
 using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Outbound;
@@ -39,7 +39,7 @@ public class CategoryAttributeAssignmentServiceTests
         var result = await sut.AssignAsync(0, NextId(), false, false, false, false, null, false, false);
 
         result.IsSuccess.Should().BeFalse();
-        result.Error!.Code.Should().Be("VALIDATION");
+        result.Error!.Code.Should().Be("VALIDATION_FAILED");
         await repo.DidNotReceive().GetActiveByCategoryAndAttributeAsync(Arg.Any<long>(), Arg.Any<long>(), Arg.Any<CancellationToken>());
     }
 
@@ -52,7 +52,7 @@ public class CategoryAttributeAssignmentServiceTests
         var result = await sut.AssignAsync(NextId(), NextId(), false, false, false, true, -1, false, false);
 
         result.IsSuccess.Should().BeFalse();
-        result.Error!.Code.Should().Be("VALIDATION");
+        result.Error!.Code.Should().Be("VALIDATION_FAILED");
     }
 
     [Fact]
@@ -204,7 +204,7 @@ public class CategoryAttributeAssignmentServiceTests
         var result = await sut.ReorderAsync(NextId(), -1);
 
         result.IsSuccess.Should().BeFalse();
-        result.Error!.Code.Should().Be("VALIDATION");
+        result.Error!.Code.Should().Be("VALIDATION_FAILED");
         await repo.DidNotReceive().GetByIdAsync(Arg.Any<long>(), Arg.Any<CancellationToken>());
     }
 

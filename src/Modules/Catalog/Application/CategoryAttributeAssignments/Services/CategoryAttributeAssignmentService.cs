@@ -1,4 +1,4 @@
-using EwaysVNext.Domain.Common;
+﻿using EwaysVNext.Domain.Common;
 using EwaysVNext.Outcomes;
 using EwaysVNext.Persistence;
 using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
@@ -32,7 +32,7 @@ public sealed class CategoryAttributeAssignmentService(
         var validationResult = await assignValidator.ValidateAsync((categoryId, attributeBlueprintId, titleOrder), ct);
         if (!validationResult.IsValid)
             return Result.Failure<CategoryAttributeAssignmentSnapshot>(
-                new Error("VALIDATION", string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))));
+                new Error("VALIDATION_FAILED", string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))));
 
         var existing = await assignments.GetActiveByCategoryAndAttributeAsync(categoryId, attributeBlueprintId, ct);
         if (existing is not null)
@@ -85,7 +85,7 @@ public sealed class CategoryAttributeAssignmentService(
         var validationResult = await reorderValidator.ValidateAsync((assignmentId, titleOrder), ct);
         if (!validationResult.IsValid)
             return Result.Failure<CategoryAttributeAssignmentSnapshot>(
-                new Error("VALIDATION", string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))));
+                new Error("VALIDATION_FAILED", string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))));
 
         return await MutateAsync(assignmentId, a => a.Reorder(titleOrder, clock.UtcNow), ct);
     }

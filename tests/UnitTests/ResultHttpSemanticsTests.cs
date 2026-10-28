@@ -1,4 +1,4 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Outcomes;
 using Xunit;
 
@@ -31,7 +31,7 @@ public class ResultHttpSemanticsTests
         new Error("INTERNAL_STORAGE_FAILURE", "x").HttpStatus.Should().Be(500);
 
     [Theory]
-    [InlineData("VALIDATION")]
+    [InlineData("VALIDATION_FAILED")]
     [InlineData("CARD_EXPIRED")]
     [InlineData("ORDER_STATUS_UNSUPPORTED")]
     [InlineData("TOTALLY_UNKNOWN_CODE")]

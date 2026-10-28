@@ -1,4 +1,4 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Domain.Common;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
@@ -74,7 +74,7 @@ public sealed class AttributeBlueprintOptionServiceTests
             "Weight", AttributeBlueprintDataType.Number, null!, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Error!.Code.Should().Be("VALIDATION");
+        result.Error!.Code.Should().Be("VALIDATION_FAILED");
         _repository.ReceivedCalls().Should().BeEmpty();
         _measurementUnitRepository.ReceivedCalls().Should().BeEmpty();
         _unitOfWork.ReceivedCalls().Should().BeEmpty();
@@ -379,9 +379,9 @@ public sealed class AttributeBlueprintOptionServiceTests
             blueprintId, optionId, ct: TestContext.Current.CancellationToken);
 
         update.IsFailure.Should().BeTrue();
-        update.Error!.Code.Should().Be("VALIDATION");
+        update.Error!.Code.Should().Be("VALIDATION_FAILED");
         remove.IsFailure.Should().BeTrue();
-        remove.Error!.Code.Should().Be("VALIDATION");
+        remove.Error!.Code.Should().Be("VALIDATION_FAILED");
         _repository.ReceivedCalls().Should().BeEmpty();
         _unitOfWork.ReceivedCalls().Should().BeEmpty();
     }
