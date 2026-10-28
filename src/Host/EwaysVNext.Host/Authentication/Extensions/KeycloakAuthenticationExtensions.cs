@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
@@ -8,6 +8,8 @@ using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Refit;
+
+using EwaysVNext.Outcomes.Extensions;
 
 namespace EwaysVNext.Host.Authentication.Extensions;
 
@@ -119,7 +121,7 @@ public static class KeycloakAuthenticationExtensions
         const string prefix = "Bearer ";
         if (string.IsNullOrEmpty(header) || !header.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
         {
-            logger.LogInformation(string.Format(KeycloakAuthenticationExtensionsMessages.RoutingRejectedMissingOrMalformedHeaderFormat, header.Length));
+            logger.LogInformation("Routing rejected: missing or malformed Authorization header (length {HeaderLength}).", header.Length);
             return RejectScheme;
         }
 
@@ -143,10 +145,10 @@ public static class KeycloakAuthenticationExtensions
             if (issuer is not null && issuerToTenant.TryGetValue(issuer, out var tenant))
                 return tenant;
 
-            logger.LogInformation(string.Format(
-                KeycloakAuthenticationExtensionsMessages.RoutingRejectedUnknownIssuerFormat,
+            logger.LogInformation(
+                "Routing rejected: unknown issuer {Issuer}; known issuers are {KnownIssuers}.",
                 issuer,
-                string.Join(", ", issuerToTenant.Keys)));
+                string.Join(", ", issuerToTenant.Keys));
             return RejectScheme;
         }
         catch (Exception ex)
@@ -206,7 +208,7 @@ public static class KeycloakAuthenticationExtensions
 
         if (realm.RequiredRole is not null && !identity.HasClaim(ClaimTypes.Role, realm.RequiredRole))
         {
-            context.Fail(string.Format(KeycloakAuthenticationExtensionsMessages.MissingRequiredRoleFormat, realm.RequiredRole, tenant));
+            context.Fail(MessageFormat.Format(KeycloakAuthenticationExtensionsMessages.MissingRequiredRoleFormat, realm.RequiredRole, tenant));
             return Task.CompletedTask;
         }
 

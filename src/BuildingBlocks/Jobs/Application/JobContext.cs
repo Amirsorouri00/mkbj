@@ -1,8 +1,9 @@
-namespace EwaysVNext.Jobs;
+﻿namespace EwaysVNext.Jobs;
 
 /// <summary>
 /// What a handler knows about the run it is in.
 /// </summary>
+/// <param name="JobId">The row this run belongs to.</param>
 /// <param name="Attempt">1 on the first run. A handler can use it to widen a batch or give up early.</param>
 /// <param name="HeartbeatAsync">
 /// Extends the lease. A handler doing work longer than the lease must call this, or another worker

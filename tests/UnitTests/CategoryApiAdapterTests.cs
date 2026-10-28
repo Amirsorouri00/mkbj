@@ -1,4 +1,4 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest;
@@ -301,7 +301,7 @@ public sealed class CategoryApiAdapterTests
         await using var fixture = await ApiFixture.CreateAsync();
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
 
-        var mutationFields = executor.Schema.MutationType.Fields
+        var mutationFields = executor.Schema.MutationType!.Fields
             .Select(field => field.Name)
             .ToArray();
         mutationFields.Should().Contain([

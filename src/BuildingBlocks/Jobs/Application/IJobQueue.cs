@@ -1,5 +1,10 @@
+﻿using System.Diagnostics.CodeAnalysis;
+
 namespace EwaysVNext.Jobs;
 
+[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix",
+    Justification = "It is a queue. CA1711 guards against 'Queue' implying System.Collections.Queue; " +
+                    "this type's whole purpose is the job queue, and any other name would obscure it.")]
 public interface IJobQueue
 {
     /// <summary>

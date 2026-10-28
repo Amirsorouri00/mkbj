@@ -1,3 +1,5 @@
+﻿using EwaysVNext.Outcomes.Extensions;
+
 namespace EwaysVNext.Host.Authentication;
 
 public sealed class KeycloakOptions
@@ -20,9 +22,9 @@ public sealed class KeycloakOptions
             if (string.IsNullOrWhiteSpace(tenant))
                 throw new InvalidOperationException(KeycloakOptionsMessages.TenantKeyRequired);
             if (string.IsNullOrWhiteSpace(realm.Realm))
-                throw new InvalidOperationException(string.Format(KeycloakOptionsMessages.RealmNameRequiredFormat, tenant));
+                throw new InvalidOperationException(MessageFormat.Format(KeycloakOptionsMessages.RealmNameRequiredFormat, tenant));
             if (string.IsNullOrWhiteSpace(realm.ClientId))
-                throw new InvalidOperationException(string.Format(KeycloakOptionsMessages.ClientIdRequiredFormat, tenant));
+                throw new InvalidOperationException(MessageFormat.Format(KeycloakOptionsMessages.ClientIdRequiredFormat, tenant));
         }
 
         var duplicateRealmNames = Realms.Values
@@ -32,7 +34,7 @@ public sealed class KeycloakOptions
             .ToList();
         if (duplicateRealmNames.Count > 0)
             throw new InvalidOperationException(
-                string.Format(KeycloakOptionsMessages.DuplicateRealmNamesFormat, string.Join(", ", duplicateRealmNames)));
+                MessageFormat.Format(KeycloakOptionsMessages.DuplicateRealmNamesFormat, string.Join(", ", duplicateRealmNames)));
     }
 
     public string IssuerUrl(RealmTenantOptions realm) => $"{ExternalUrl}/realms/{realm.Realm}";

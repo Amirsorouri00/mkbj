@@ -8,9 +8,9 @@
     <File Path="nuget.config" />
     <File Path=".editorconfig" />
     <File Path=".gitignore" />
-    <File Path=".dockerignore" />
     <File Path="README.md" />
-    <File Path="Dockerfile" />
+    <File Path="build/docker/api.Dockerfile" />
+    <File Path="build/docker/api.Dockerfile.dockerignore" />
     <File Path="docker-compose.yml" />
   </Folder>
 

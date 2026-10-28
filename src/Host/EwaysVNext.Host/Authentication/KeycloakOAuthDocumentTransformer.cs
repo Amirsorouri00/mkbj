@@ -1,5 +1,7 @@
-using Microsoft.AspNetCore.OpenApi;
+﻿using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
+
+using EwaysVNext.Outcomes.Extensions;
 
 namespace EwaysVNext.Host.Authentication;
 
@@ -15,7 +17,7 @@ public sealed class KeycloakOAuthDocumentTransformer(KeycloakOptions options) : 
             document.Components.SecuritySchemes[tenant] = new OpenApiSecurityScheme
             {
                 Type = SecuritySchemeType.OAuth2,
-                Description = string.Format(KeycloakOAuthDocumentTransformerMessages.SchemeDescriptionFormat, tenant),
+                Description = MessageFormat.Format(KeycloakOAuthDocumentTransformerMessages.SchemeDescriptionFormat, tenant),
                 Flows = new OpenApiOAuthFlows
                 {
                     AuthorizationCode = new OpenApiOAuthFlow

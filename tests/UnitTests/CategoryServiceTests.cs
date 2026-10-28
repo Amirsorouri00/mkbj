@@ -176,7 +176,7 @@ public sealed class CategoryServiceTests
         var result = await fixture.Sut.SetStatusAsync(
             new SetCategoryStatusCommand(child.Id, CategoryStatus.Active));
 
-        result.Error.Code.Should().Be("CATEGORY_PARENT_INACTIVE");
+        result.Error!.Code.Should().Be("CATEGORY_PARENT_INACTIVE");
         child.Status.Should().Be(CategoryStatus.Inactive);
     }
 
@@ -190,7 +190,7 @@ public sealed class CategoryServiceTests
         var result = await fixture.Sut.SetStatusAsync(
             new SetCategoryStatusCommand(child.Id, CategoryStatus.Active));
 
-        result.Error.Code.Should().Be("CATEGORY_PARENT_INACTIVE");
+        result.Error!.Code.Should().Be("CATEGORY_PARENT_INACTIVE");
         child.Status.Should().Be(CategoryStatus.Inactive);
         fixture.UnitOfWork.SaveCount.Should().Be(0);
     }
@@ -223,7 +223,7 @@ public sealed class CategoryServiceTests
         var result = await fixture.Sut.SetStatusAsync(
             new SetCategoryStatusCommand(1, (CategoryStatus)999));
 
-        result.Error.Code.Should().Be("CATEGORY_STATUS_INVALID");
+        result.Error!.Code.Should().Be("CATEGORY_STATUS_INVALID");
         fixture.UnitOfWork.SaveCount.Should().Be(0);
         fixture.Categories.CallCount.Should().Be(0);
         fixture.UnitOfWork.SaveCount.Should().Be(0);
@@ -309,7 +309,7 @@ public sealed class CategoryServiceTests
         var result = await fixture.Sut.DeactivateManyAsync(
             new BulkDeactivateCategoriesCommand([existing.Id, 999_999]));
 
-        result.Error.Code.Should().Be("CATEGORY_NOT_FOUND");
+        result.Error!.Code.Should().Be("CATEGORY_NOT_FOUND");
         existing.Status.Should().Be(CategoryStatus.Active);
         fixture.UnitOfWork.SaveCount.Should().Be(0);
         fixture.Categories.SubtreeLoadCount.Should().Be(1);
@@ -532,7 +532,7 @@ public sealed class CategoryServiceTests
         var result = await fixture.Sut.UpdateAsync(new UpdateCategoryCommand(
             category.Id, "Changed", "changed", null, 4, CategoryStatus.Deleted));
 
-        result.Error.Code.Should().Be("CATEGORY_HAS_CHILDREN");
+        result.Error!.Code.Should().Be("CATEGORY_HAS_CHILDREN");
         category.Name.Should().Be("Original");
         category.Slug.Value.Should().Be("original");
         category.Status.Should().Be(CategoryStatus.Inactive);
@@ -550,7 +550,7 @@ public sealed class CategoryServiceTests
         var result = await fixture.Sut.SetStatusAsync(
             new SetCategoryStatusCommand(category.Id, CategoryStatus.Deleted));
 
-        result.Error.Code.Should().Be("CATEGORY_HAS_CHILDREN");
+        result.Error!.Code.Should().Be("CATEGORY_HAS_CHILDREN");
         category.Status.Should().Be(CategoryStatus.Active);
         category.DeletedAt.Should().BeNull();
         fixture.UnitOfWork.SaveCount.Should().Be(0);

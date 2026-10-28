@@ -32,6 +32,11 @@ jobs:
       - name: Architecture tests
         run: dotnet test tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --no-build --verbosity minimal
 
+      # The production image. ubuntu-latest has Docker, which the integration tests also need
+      # for their Postgres and S3 containers.
+      - name: Build the api image
+        run: docker build -f build/docker/api.Dockerfile -t eways-api:ci .
+
       # Then everything registered in the solution. Running the SOLUTION rather than
       # naming each project means a newly added test project cannot silently skip CI —
       # which is how tests/UnitTests came to be built-but-unregistered.

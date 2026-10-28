@@ -14,13 +14,13 @@ public sealed class S3ObjectStorage : IObjectStorage, IDisposable
     private static readonly TimeSpan MinimumTtl = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan MaximumTtl = TimeSpan.FromDays(7);
 
-    private readonly IAmazonS3 _client;
+    private readonly AmazonS3Client _client;
 
     /// <summary>
     /// A second client bound to the public host. Signing is a local computation, so this client
     /// never connects — it exists only so the signature matches the host the recipient will use.
     /// </summary>
-    private readonly IAmazonS3 _presigningClient;
+    private readonly AmazonS3Client _presigningClient;
 
     /// <summary>The scheme the recipient will use, taken from the configured public endpoint.</summary>
     private readonly string _publicScheme;

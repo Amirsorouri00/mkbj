@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AuthorizationService.Implementation.Persistence.Migrations
 {
     [DbContext(typeof(AuthorizationDbContext))]
-    [Migration("20261028090619_init")]
-    partial class init
+    [Migration("20261028140632_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

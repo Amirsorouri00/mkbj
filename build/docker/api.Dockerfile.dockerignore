@@ -1,0 +1,15 @@
+# Named after the Dockerfile, not plain .dockerignore: the build context is the repository root,
+# where a root-level .dockerignore would also apply to every other build.
+**/bin/
+**/obj/
+tests/
+docs/
+build/
+.git/
+.github/
+.vs/
+.idea/
+**/*.user
+**/.env
+**/.env.*
+**/TestResults/

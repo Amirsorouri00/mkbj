@@ -103,7 +103,7 @@ public sealed class ModelContractTests
         }
     }
 
-    private static IReadOnlyList<string> NonSnakeCaseNames()
+    private static List<string> NonSnakeCaseNames()
     {
         List<string> offenders = [];
 

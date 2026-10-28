@@ -1,4 +1,5 @@
-﻿using AwesomeAssertions;
+﻿using System.Globalization;
+using AwesomeAssertions;
 using EwaysVNext.Audit;
 using EwaysVNext.Audit.Implementation;
 using EwaysVNext.Database;
@@ -150,7 +151,7 @@ public sealed class AuditSealTests(PostgresFixture fixture)
         var trail = scope.ServiceProvider.GetRequiredService<IAuditTrail>();
 
         for (var i = 0; i < count; i++)
-            trail.Record(AuditActor.System, "test.recorded", "Test", i.ToString(), null, new { Index = i });
+            trail.Record(AuditActor.System, "test.recorded", "Test", i.ToString(CultureInfo.InvariantCulture), null, new { Index = i });
 
         await db.SaveChangesAsync();
 

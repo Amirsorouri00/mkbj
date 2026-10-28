@@ -1,4 +1,5 @@
-﻿using AwesomeAssertions;
+﻿using System.Globalization;
+using AwesomeAssertions;
 using EwaysVNext.Audit;
 using EwaysVNext.Audit.Implementation;
 using EwaysVNext.Database;
@@ -24,7 +25,7 @@ public sealed class AuditTrailTests(PostgresFixture fixture)
         await using var scope = factory.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
         var trail = scope.ServiceProvider.GetRequiredService<IAuditTrail>();
-        var targetId = Random.Shared.NextInt64(1, long.MaxValue).ToString();
+        var targetId = Random.Shared.NextInt64(1, long.MaxValue).ToString(CultureInfo.InvariantCulture);
 
         trail.Record(AuditActor.System, "category.renamed", "Category", targetId,
             new { Name = "before" }, new { Name = "after" });

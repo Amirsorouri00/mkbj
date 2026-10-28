@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.RegularExpressions;
 using AwesomeAssertions;
 using NetArchTest.Rules;
@@ -29,6 +29,9 @@ public sealed class HexagonalBoundaryTests
 
     public static TheoryData<string> Modules => new(ModuleNames);
 
+    /// <summary>Modules that reference no other module, so they may never be a sanctioned consumer.</summary>
+    private static readonly string[] ModulesThatConsumeNothing = ["Catalog", "Customer", "Settings", "Partners"];
+
     [Fact]
     public void Src_Modules_Are_Exactly_ModuleNames() =>
         Directory.EnumerateDirectories(Path.Combine(Root, "src", "Modules"))
@@ -44,7 +47,7 @@ public sealed class HexagonalBoundaryTests
         ModuleNames.Should().Contain([consumer, provider]);
         consumer.Should().NotBe(provider);
         provider.Should().NotBe("Partners", "nothing may call into Partners — the partner id arrives as an authenticated principal");
-        new[] { "Catalog", "Customer", "Settings", "Partners" }.Should().NotContain(consumer,
+        ModulesThatConsumeNothing.Should().NotContain(consumer,
             "these modules reference no other module");
     }
 
@@ -100,7 +103,7 @@ public sealed class HexagonalBoundaryTests
     /// (Adapter.Outbound → provider Application), and Admin's composition layer, which may read any
     /// module's QueryApplication or Application (ADR-0006/0007).
     /// </summary>
-    private static IReadOnlyList<string> ForbiddenCrossModuleReferences(string module)
+    private static List<string> ForbiddenCrossModuleReferences(string module)
     {
         var sanctioned = SanctionedReferences
             .Where(row => row.Data.Item1 == module)

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using EwaysVNext.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -8,6 +8,8 @@ using NpgsqlTypes;
 
 namespace EwaysVNext.Jobs.Implementation;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix",
+    Justification = "Named for the interface it implements; see IJobQueue.")]
 public sealed class PostgresJobQueue(
     DbContext db,
     IIdGenerator idGenerator,

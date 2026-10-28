@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using AwesomeAssertions;
 using EwaysVNext.Outcomes;
@@ -15,6 +15,8 @@ namespace EwaysVNext.UnitTests;
 /// </summary>
 public sealed class ErrorBodyTests
 {
+    private static readonly int[] SampleItems = [1];
+
     [Fact]
     public void Retryable_Defaults_To_False() =>
         new Error("X_NOT_FOUND", "x").Retryable.Should().BeFalse();
@@ -47,7 +49,7 @@ public sealed class ErrorBodyTests
         Json(withoutExtras).Should().NotContain("details").And.NotContain("items");
 
         var withExtras = NewContext();
-        await EndpointResult.Fail(Error.Validation, details: new { field = "amount" }, items: new[] { 1 })
+        await EndpointResult.Fail(Error.Validation, details: new { field = "amount" }, items: SampleItems)
             .ExecuteAsync(withExtras);
         Json(withExtras).Should().Contain("\"details\":{\"field\":\"amount\"}").And.Contain("\"items\":[1]");
     }

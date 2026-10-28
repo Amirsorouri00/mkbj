@@ -240,7 +240,7 @@ public sealed class JobWorkerTests(PostgresFixture fixture)
     {
         await using var scope = host.Factory.Services.CreateAsyncScope();
         await scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>()
-            .Database.ExecuteSqlRawAsync($"UPDATE jobs.job SET run_at = now() - interval '1 hour' WHERE id = {id};");
+            .Database.ExecuteSqlAsync($"UPDATE jobs.job SET run_at = now() - interval '1 hour' WHERE id = {id};");
     }
 
     private static async Task<JobRecord> ReadAsync(TestHost host, long id)

@@ -35,6 +35,9 @@ public sealed class PostgresFixture : IAsyncLifetime
     private const string MigratorPassword = "migrator";
     private const string Database = "eways";
 
+    // Testcontainers 4.16 marks the parameterless builder constructors obsolete but ships no
+    // public replacement. SuppressMessage does not apply to compiler warnings, so this is a pragma.
+#pragma warning disable CS0618
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder()
         .WithImage("postgres:17-alpine")
         .WithDatabase(Database)
@@ -47,11 +50,14 @@ public sealed class PostgresFixture : IAsyncLifetime
             "/docker-entrypoint-initdb.d/")
         .Build();
 
+#pragma warning disable CS0618
     private readonly LocalStackContainer _s3 = new LocalStackBuilder()
         .WithImage("localstack/localstack:4.0")
         // Off by default, which would make every presigned-URL expiry assertion pass vacuously.
         .WithEnvironment("S3_SKIP_SIGNATURE_VALIDATION", "0")
         .Build();
+#pragma warning restore CS0618
+#pragma warning restore CS0618
 
     public string SuperuserConnectionString => _postgres.GetConnectionString();
     public string AppConnectionString => ConnectionStringFor("eways_app", AppPassword);
