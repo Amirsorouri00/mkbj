@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>EwaysVNext.Jobs</RootNamespace>
+    <Description>Background-job port: enqueue, handler contract, outcomes. Reference-free so an Application layer can schedule work without a persistence dependency.</Description>
+  </PropertyGroup>
+</Project>

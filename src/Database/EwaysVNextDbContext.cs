@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace EwaysVNext.Database;
 
@@ -22,6 +22,12 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
         => Set<EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain.CategoryAttributeAssignment>();
     public DbSet<EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Domain.CategoryAttributeExclusion> CategoryAttributeExclusions
         => Set<EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Domain.CategoryAttributeExclusion>();
+
+    public DbSet<EwaysVNext.Jobs.Implementation.JobRecord> Jobs
+        => Set<EwaysVNext.Jobs.Implementation.JobRecord>();
+
+    public DbSet<EwaysVNext.Jobs.Implementation.RecurringJobRecord> RecurringJobs
+        => Set<EwaysVNext.Jobs.Implementation.RecurringJobRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

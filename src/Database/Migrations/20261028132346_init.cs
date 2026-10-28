@@ -14,6 +14,9 @@ namespace EwaysVNext.Database.Migrations
             migrationBuilder.EnsureSchema(
                 name: "catalog");
 
+            migrationBuilder.EnsureSchema(
+                name: "jobs");
+
             migrationBuilder.AlterDatabase()
                 .Annotation("Npgsql:PostgresExtension:pg_trgm", ",,")
                 .Annotation("Npgsql:PostgresExtension:unaccent", ",,");
@@ -110,6 +113,31 @@ namespace EwaysVNext.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "job",
+                schema: "jobs",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false),
+                    type = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    payload = table.Column<string>(type: "jsonb", nullable: false),
+                    status = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    run_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    attempts = table.Column<int>(type: "integer", nullable: false),
+                    max_attempts = table.Column<int>(type: "integer", nullable: false),
+                    locked_by = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    locked_until = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    last_error = table.Column<string>(type: "text", nullable: true),
+                    dedupe_key = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    completed_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_job", x => x.id);
+                    table.CheckConstraint("ck_job_status", "status IN ('Queued','Running','Completed','Failed')");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "measurement_units",
                 schema: "catalog",
                 columns: table => new
@@ -143,6 +171,20 @@ namespace EwaysVNext.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_products", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "recurring",
+                schema: "jobs",
+                columns: table => new
+                {
+                    type = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    interval = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    next_run_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_recurring", x => x.type);
                 });
 
             migrationBuilder.CreateTable(
@@ -280,6 +322,20 @@ namespace EwaysVNext.Database.Migrations
                 columns: new[] { "product_id", "category_id" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_job_status_run_at",
+                schema: "jobs",
+                table: "job",
+                columns: new[] { "status", "run_at" });
+
+            migrationBuilder.CreateIndex(
+                name: "ux_job_dedupe_key_queued",
+                schema: "jobs",
+                table: "job",
+                column: "dedupe_key",
+                unique: true,
+                filter: "status = 'Queued'");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_measurement_units_name",
                 schema: "catalog",
                 table: "measurement_units",
@@ -327,8 +383,16 @@ namespace EwaysVNext.Database.Migrations
                 schema: "catalog");
 
             migrationBuilder.DropTable(
+                name: "job",
+                schema: "jobs");
+
+            migrationBuilder.DropTable(
                 name: "products",
                 schema: "catalog");
+
+            migrationBuilder.DropTable(
+                name: "recurring",
+                schema: "jobs");
 
             migrationBuilder.DropTable(
                 name: "attribute_blueprints",
