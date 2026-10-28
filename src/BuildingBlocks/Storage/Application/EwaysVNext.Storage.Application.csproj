@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>EwaysVNext.Storage</RootNamespace>
+    <Description>Object-storage port: IObjectStorage and the bucket names. Reference-free, so an Application layer can store and serve files without taking a dependency on the S3 SDK.</Description>
+  </PropertyGroup>
+</Project>

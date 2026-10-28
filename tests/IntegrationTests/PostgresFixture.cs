@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using Amazon.S3;
+using Amazon.S3.Model;
 using EwaysVNext.Database;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -6,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Testcontainers.LocalStack;
 using Testcontainers.PostgreSql;
 using Xunit;
 using AuthorizationService.Implementation.Persistence;
@@ -14,10 +17,16 @@ namespace EwaysVNext.IntegrationTests;
 
 /// <summary>
 /// The real platform the suite runs against: a Postgres container built by the same
-/// <c>build/postgres/init/01-roles.sql</c> production uses, and a MinIO container with the three
-/// buckets. Tests connect as <c>eways_app</c>, the role that owns nothing — so anything the schema
-/// forbids the application fails here too, instead of passing as a superuser and failing in
-/// production.
+/// <c>build/postgres/init/01-roles.sql</c> production uses, and an S3 server with the three
+/// buckets. Tests connect to Postgres as <c>eways_app</c>, the role that owns nothing — so
+/// anything the schema forbids the application fails here too, instead of passing as a superuser
+/// and failing in production.
+/// <para>
+/// The S3 server is LocalStack, not MinIO: the <c>minio/minio</c> image cannot be pulled in this
+/// environment (ADR-0017 D11). The adapter speaks plain S3 and MinIO implements S3, so this
+/// exercises the adapter — but it does not exercise MinIO itself, and a MinIO-specific quirk would
+/// not be caught here.
+/// </para>
 /// </summary>
 public sealed class PostgresFixture : IAsyncLifetime
 {
@@ -38,15 +47,29 @@ public sealed class PostgresFixture : IAsyncLifetime
             "/docker-entrypoint-initdb.d/")
         .Build();
 
+    private readonly LocalStackContainer _s3 = new LocalStackBuilder()
+        .WithImage("localstack/localstack:4.0")
+        // Off by default, which would make every presigned-URL expiry assertion pass vacuously.
+        .WithEnvironment("S3_SKIP_SIGNATURE_VALIDATION", "0")
+        .Build();
+
     public string SuperuserConnectionString => _postgres.GetConnectionString();
     public string AppConnectionString => ConnectionStringFor("eways_app", AppPassword);
     public string MigratorConnectionString => ConnectionStringFor("eways_migrator", MigratorPassword);
+
+    public string StorageEndpoint => _s3.GetConnectionString();
+    public const string StorageAccessKey = "test";
+    public const string StorageSecretKey = "test";
 
     public WebApplicationFactory<Program> CreateFactory(IReadOnlyDictionary<string, string?>? overrides = null)
     {
         var settings = new Dictionary<string, string?>
         {
             ["ConnectionStrings:Default"] = AppConnectionString,
+            ["Minio:Endpoint"] = StorageEndpoint,
+            ["Minio:PublicEndpoint"] = StorageEndpoint,
+            ["Minio:AccessKey"] = StorageAccessKey,
+            ["Minio:SecretKey"] = StorageSecretKey,
             ["Jobs:Mode"] = "Disabled",
         };
 
@@ -88,7 +111,9 @@ public sealed class PostgresFixture : IAsyncLifetime
 
     public async ValueTask InitializeAsync()
     {
-        await _postgres.StartAsync();
+        await Task.WhenAll(_postgres.StartAsync(), _s3.StartAsync());
+
+        await CreateBucketsAsync();
 
         // Migrate as eways_migrator: the owner role. The app role cannot create objects, which is
         // the point — the suite proves the production grant split, not just the schema.
@@ -104,7 +129,20 @@ public sealed class PostgresFixture : IAsyncLifetime
 
     public async ValueTask DisposeAsync()
     {
-        await _postgres.DisposeAsync();
+        await Task.WhenAll(_postgres.DisposeAsync().AsTask(), _s3.DisposeAsync().AsTask());
+    }
+
+    private async Task CreateBucketsAsync()
+    {
+        using var client = new AmazonS3Client(
+            StorageAccessKey,
+            StorageSecretKey,
+            new AmazonS3Config { ServiceURL = StorageEndpoint, ForcePathStyle = true, AuthenticationRegion = "us-east-1" });
+
+        foreach (var bucket in EwaysVNext.Storage.StorageBuckets.All)
+        {
+            await client.PutBucketAsync(new PutBucketRequest { BucketName = bucket });
+        }
     }
 
     private string ConnectionStringFor(string user, string password)

@@ -13,7 +13,7 @@
     <PackageReference Include="Microsoft.IdentityModel.Tokens" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <PackageReference Include="Testcontainers.PostgreSql" />
-    <PackageReference Include="Testcontainers.Minio" />
+    <PackageReference Include="Testcontainers.LocalStack" />
     <PackageReference Include="AWSSDK.S3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>

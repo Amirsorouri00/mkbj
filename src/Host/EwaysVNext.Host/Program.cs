@@ -9,6 +9,7 @@ using EwaysVNext.Outcomes;
 using EwaysVNext.Modules.Catalog;
 using EwaysVNext.Modules.Customer;
 using EwaysVNext.Presentation.Endpoint;
+using EwaysVNext.Storage.Implementation;
 using EwaysVNext.Presentation.Endpoint.GraphQL;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +41,7 @@ builder.Services
     .AddCatalogModule()
     .AddCustomerModule(builder.Configuration);
 builder.Services.AddUnifiedDatabase(builder.Configuration, builder.Environment.IsDevelopment());
+builder.Services.AddObjectStorage(builder.Configuration);
 builder.Services.AddAuthorizationSystem(builder.Configuration);
 
 builder.Services.AddMultiRealmKeycloakAuthentication(builder.Configuration);

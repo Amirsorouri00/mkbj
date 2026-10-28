@@ -44,6 +44,10 @@
   <Folder Name="/src/BuildingBlocks/Audit/">
     <Project Path="src/BuildingBlocks/Audit/Application/EwaysVNext.Audit.Application.csproj" />
   </Folder>
+  <Folder Name="/src/BuildingBlocks/Storage/">
+    <Project Path="src/BuildingBlocks/Storage/Application/EwaysVNext.Storage.Application.csproj" />
+    <Project Path="src/BuildingBlocks/Storage/Implementation/EwaysVNext.Storage.Implementation.csproj" />
+  </Folder>
   <Folder Name="/src/BuildingBlocks/Core/">
     <Project Path="src/BuildingBlocks/Core/Application/EwaysVNext.Core.Application.csproj" />
     <Project Path="src/BuildingBlocks/Core/Implementation/EwaysVNext.Core.Implementation.csproj" />

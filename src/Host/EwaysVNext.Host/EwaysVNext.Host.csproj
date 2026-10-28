@@ -30,6 +30,7 @@
     <ProjectReference Include="..\..\Modules\Customer\Installer\EwaysVNext.Modules.Customer.Installer.csproj" />
     <ProjectReference Include="..\..\Modules\Catalog\Adapter\Inbound\Rest\EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest.csproj" />
     <ProjectReference Include="..\..\Database\EwaysVNext.Database.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\Storage\Implementation\EwaysVNext.Storage.Implementation.csproj" />
     <ProjectReference Include="..\..\Authorization\Authorization.Implementation\Authorization.Implementation.csproj" />
     <ProjectReference Include="..\..\Authorization\Authorization.Endpoints\Authorization.Endpoints.csproj" />
   </ItemGroup>
