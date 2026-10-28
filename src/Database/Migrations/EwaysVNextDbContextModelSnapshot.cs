@@ -471,15 +471,13 @@ namespace EwaysVNext.Database.Migrations
                                 .HasColumnType("bigint")
                                 .HasColumnName("id");
 
-                            b1.Property<decimal>("Amount")
-                                .HasPrecision(18, 2)
-                                .HasColumnType("numeric(18,2)")
-                                .HasColumnName("price_amount");
+                            b1.Property<long>("Amount")
+                                .HasColumnType("bigint")
+                                .HasColumnName("price_amount_minor");
 
                             b1.Property<string>("Currency")
                                 .IsRequired()
-                                .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
+                                .HasColumnType("char(3)")
                                 .HasColumnName("price_currency");
 
                             b1.HasKey("ProductId");

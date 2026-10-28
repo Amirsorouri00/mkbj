@@ -1,4 +1,5 @@
 ﻿using EwaysVNext.Modules.Catalog.Application.Products.Domain;
+using EwaysVNext.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -22,8 +23,12 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.OwnsOne(p => p.Price, m =>
         {
-            m.Property(mm => mm.Amount).HasPrecision(18, 2);
-            m.Property(mm => mm.Currency).HasMaxLength(3);
+            m.Property(mm => mm.Amount)
+                .HasColumnName("price_amount_minor")
+                .HasConversion(new MinorUnitsConverter());
+            m.Property(mm => mm.Currency)
+                .HasColumnName("price_currency")
+                .HasColumnType("char(3)");
             m.WithOwner();
         });
 

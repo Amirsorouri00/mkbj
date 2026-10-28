@@ -71,6 +71,26 @@ public sealed class ModelContractTests
     }
 
     [Fact]
+    public void Product_Price_Is_Stored_In_Minor_Units()
+    {
+        using var context = Providers.Npgsql<EwaysVNextDbContext>();
+
+        var price = Providers.Model(context).GetEntityTypes()
+            .Single(e => e.ClrType == typeof(EwaysVNext.Domain.ValueObjects.Money)
+                         && e.FindOwnership()!.PrincipalEntityType.ClrType.Name == "Product");
+
+        var amount = price.FindProperty(nameof(EwaysVNext.Domain.ValueObjects.Money.Amount))!;
+        amount.GetColumnName().Should().Be("price_amount_minor");
+        amount.GetColumnType().Should().Be("bigint");
+
+        var currency = price.FindProperty(nameof(EwaysVNext.Domain.ValueObjects.Money.Currency))!;
+        currency.GetColumnName().Should().Be("price_currency");
+        // The model holds the configured literal; Postgres reports it as character(3) in its own
+        // catalog, which is the same type.
+        currency.GetColumnType().Should().Be("char(3)");
+    }
+
+    [Fact]
     public void InMemory_Model_Disables_RowVersion_Concurrency()
     {
         using var context = Providers.InMemory<EwaysVNextDbContext>();

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EwaysVNext.Database.Migrations
 {
     [DbContext(typeof(EwaysVNextDbContext))]
-    [Migration("20261028090420_init")]
+    [Migration("20261028092524_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -474,15 +474,13 @@ namespace EwaysVNext.Database.Migrations
                                 .HasColumnType("bigint")
                                 .HasColumnName("id");
 
-                            b1.Property<decimal>("Amount")
-                                .HasPrecision(18, 2)
-                                .HasColumnType("numeric(18,2)")
-                                .HasColumnName("price_amount");
+                            b1.Property<long>("Amount")
+                                .HasColumnType("bigint")
+                                .HasColumnName("price_amount_minor");
 
                             b1.Property<string>("Currency")
                                 .IsRequired()
-                                .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
+                                .HasColumnType("char(3)")
                                 .HasColumnName("price_currency");
 
                             b1.HasKey("ProductId");
