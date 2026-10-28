@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>EwaysVNext.Domain</RootNamespace>
+    <Description>Domain-Driven Design primitives: Entity, ValueObject, AggregateRoot, DomainEvent, Guard, BusinessRule.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Events\Application\EwaysVNext.Events.Application.csproj" />
+  </ItemGroup>
+</Project>

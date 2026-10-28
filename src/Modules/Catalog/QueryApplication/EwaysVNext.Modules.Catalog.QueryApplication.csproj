@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>EwaysVNext.Modules.Catalog.QueryApplication</RootNamespace>
+    <Description>Catalog read side: direct EF Core projections grouped by business concept.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Queries\Application\EwaysVNext.Queries.Application.csproj" />
+    <ProjectReference Include="..\..\..\Database\EwaysVNext.Database.csproj" />
+    <ProjectReference Include="..\..\..\..\EwaysVNext.Modules.Catalog.Contracts\EwaysVNext.Modules.Catalog.Contracts.csproj" />
+  </ItemGroup>
+</Project>

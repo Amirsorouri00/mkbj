@@ -1,0 +1,25 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Product>EwaysVNext</Product>
+    <Authors>EwaysVNext Template v3</Authors>
+    <Copyright>Copyright © 2026</Copyright>
+    <Version>3.0.0</Version>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <!--
+    Test-project-only settings live in Directory.Build.TARGETS, not here. MSBuild imports
+    Directory.Build.props BEFORE the project body, so `$(IsTestProject)` is still empty at this
+    point and any PropertyGroup conditioned on it silently never applies. A CA1707 suppression
+    sat here doing nothing until xUnit1051 made the dead condition visible.
+  -->
+</Project>

@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>EwaysVNext.Host</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <UserSecretsId>1d39ed74-2f0c-4885-9395-409036740084</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Refit" />
+    <PackageReference Include="Refit.HttpClientFactory" />
+    <PackageReference Include="Scalar.AspNetCore" />
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+    <PackageReference Include="Serilog.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="ModuleAppSetting\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\BuildingBlocks\Presentation.Endpoint\EwaysVNext.Presentation.Endpoint.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\Core\Implementation\EwaysVNext.Core.Implementation.csproj" />
+    <ProjectReference Include="..\..\Modules\Catalog\Installer\EwaysVNext.Modules.Catalog.Installer.csproj" />
+    <ProjectReference Include="..\..\Modules\Customer\Installer\EwaysVNext.Modules.Customer.Installer.csproj" />
+    <ProjectReference Include="..\..\Modules\Notification\Installer\EwaysVNext.Modules.Notification.Installer.csproj" />
+    <ProjectReference Include="..\..\Modules\Payment\Installer\EwaysVNext.Modules.Payment.Installer.csproj" />
+    <ProjectReference Include="..\..\Modules\Catalog\Adapter\Inbound\Rest\EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest.csproj" />
+    <ProjectReference Include="..\..\Database\EwaysVNext.Database.csproj" />
+    <ProjectReference Include="..\..\Modules\Location\Installer\EwaysVNext.Modules.Location.Installer.csproj" />
+    <ProjectReference Include="..\..\Authorization\Authorization.Implementation\Authorization.Implementation.csproj" />
+    <ProjectReference Include="..\..\Authorization\Authorization.Endpoints\Authorization.Endpoints.csproj" />
+  </ItemGroup>
+</Project>

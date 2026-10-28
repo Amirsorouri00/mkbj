@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>EwaysVNext.Modules.Location.Application</RootNamespace>
+    <Description>Location hexagon: Domain + Ports + Service implementations of QueryApplication's public contracts.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="Refit" />
+    <PackageReference Include="Refit.HttpClientFactory" />
+    <PackageReference Include="Refit.Reflection" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Domain\EwaysVNext.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Core\Application\EwaysVNext.Core.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\EwaysVNext.Persistence.csproj" />
+    <ProjectReference Include="..\Contracts\EwaysVNext.Modules.Location.Contracts.csproj" />
+    <ProjectReference Include="..\QueryApplication\EwaysVNext.Modules.Location.QueryApplication.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Dtos\" />
+  </ItemGroup>
+</Project>

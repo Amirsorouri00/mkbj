@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>EwaysVNext.Events.Application</RootNamespace>
+    <Description>Domain/integration event abstractions: IEvent, IDomainEvent, IDomainEventBus, IIntegrationEventBus.</Description>
+    <!-- IDomainEventHandler intentionally ends in "EventHandler" — matches the ICommandHandler/
+         IQueryHandler naming already used across this building-block layer, not the BCL delegate pattern. -->
+    <NoWarn>$(NoWarn);CA1711</NoWarn>
+  </PropertyGroup>
+</Project>

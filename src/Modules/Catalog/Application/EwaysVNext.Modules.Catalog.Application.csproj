@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>EwaysVNext.Modules.Catalog.Application</RootNamespace>
+    <Description>Catalog write hexagon: domain, ports, and application services. References EwaysVNext.Persistence for the shared IUnitOfWork without using EF Core types directly.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\EwaysVNext.Modules.Catalog.Contracts\EwaysVNext.Modules.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Domain\EwaysVNext.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\EwaysVNext.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Queries\Application\EwaysVNext.Queries.Application.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,14 @@
+FROM repository.eways.co/docker-mcr/dotnet/aspnet:10.0
+
+WORKDIR /app
+
+COPY publish/ ./
+
+USER $APP_UID
+
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "EwaysVNext.Host.dll"]

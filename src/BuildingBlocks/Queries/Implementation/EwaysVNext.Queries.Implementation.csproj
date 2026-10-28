@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>EwaysVNext.Queries.Implementation</RootNamespace>
+    <Description>Gridify pagination helpers with Mapperly-projected results.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Gridify" />
+    <PackageReference Include="Gridify.EntityFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\EwaysVNext.Queries.Application.csproj" />
+  </ItemGroup>
+</Project>

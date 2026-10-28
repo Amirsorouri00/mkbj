@@ -1,0 +1,13 @@
+{
+  "Sms": {
+    "DefaultProvider": "PayamSms"
+  },
+  "PayamSms": {
+    "BaseUrl": "https://www.payamsms.com/services/v2/index.php",
+    "Organization": "iibazar.com",
+    "Username": "iibazar.com",
+    "Password": "Eways@1405",
+    "Sender": "200064004",
+    "TimeoutSeconds": 60
+  }
+}

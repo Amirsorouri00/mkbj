@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>EwaysVNext.Modules.Notification</RootNamespace>
+    <Description>Notification module composition root. Host calls AddNotificationModule(config) — no knowledge of internal layers.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\EwaysVNext.Modules.Notification.Application.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\EwaysVNext.Modules.Notification.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\Rest\EwaysVNext.Modules.Notification.Adapter.Inbound.Rest.csproj" />
+  </ItemGroup>
+</Project>

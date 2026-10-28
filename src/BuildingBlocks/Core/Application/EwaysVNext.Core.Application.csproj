@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>EwaysVNext.Core.Application</RootNamespace>
+    <Description>Cross-cutting service abstractions: user profile, file-type detection.</Description>
+  </PropertyGroup>
+</Project>

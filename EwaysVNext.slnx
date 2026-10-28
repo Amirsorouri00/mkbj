@@ -1,0 +1,190 @@
+<Solution>
+
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="nuget.config" />
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path=".dockerignore" />
+    <File Path="README.md" />
+    <File Path="Dockerfile" />
+    <File Path="docker-compose.yml" />
+  </Folder>
+
+  <Folder Name="/docs/">
+    <File Path="docs/ONBOARDING.md" />
+    <File Path="docs/DDD-GUIDELINES.md" />
+  </Folder>
+
+  <Folder Name="/src/" />
+  <Folder Name="/src/BuildingBlocks/" />
+  <Folder Name="/src/BuildingBlocks/Domain/">
+    <Project Path="src/BuildingBlocks/Domain/EwaysVNext.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Outcomes/">
+    <Project Path="src/BuildingBlocks/Outcomes/EwaysVNext.Outcomes.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Persistence/">
+    <Project Path="src/BuildingBlocks/Persistence/EwaysVNext.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Queries/" />
+  <Folder Name="/src/BuildingBlocks/Queries/Application/">
+    <Project Path="src/BuildingBlocks/Queries/Application/EwaysVNext.Queries.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Queries/Implementation/">
+    <Project Path="src/BuildingBlocks/Queries/Implementation/EwaysVNext.Queries.Implementation.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Events/">
+    <Project Path="src/BuildingBlocks/Events/Application/EwaysVNext.Events.Application.csproj" />
+    <Project Path="src/BuildingBlocks/Events/Implementation/EwaysVNext.Events.Implementation.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Core/">
+    <Project Path="src/BuildingBlocks/Core/Application/EwaysVNext.Core.Application.csproj" />
+    <Project Path="src/BuildingBlocks/Core/Implementation/EwaysVNext.Core.Implementation.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Presentation.Endpoint/">
+    <Project Path="src/BuildingBlocks/Presentation.Endpoint/EwaysVNext.Presentation.Endpoint.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/DependencyInjection/">
+    <Project Path="src/BuildingBlocks/DependencyInjection/EwaysVNext.DependencyInjection.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/" />
+  <Folder Name="/src/Modules/Catalog/Contracts/">
+    <Project Path="EwaysVNext.Modules.Catalog.Contracts/EwaysVNext.Modules.Catalog.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/Application/">
+    <Project Path="src/Modules/Catalog/Application/EwaysVNext.Modules.Catalog.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/Adapter/Outbound/">
+    <Project Path="src/Modules/Catalog/Adapter/Outbound/EwaysVNext.Modules.Catalog.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/Adapter/" />
+  <Folder Name="/src/Modules/Catalog/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Catalog/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Catalog/Adapter/Inbound/Rest/EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Catalog/Adapter/Inbound/GraphQL/EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/QueryApplication/">
+    <Project Path="src/Modules/Catalog/QueryApplication/EwaysVNext.Modules.Catalog.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/Installer/">
+    <Project Path="src/Modules/Catalog/Installer/EwaysVNext.Modules.Catalog.Installer.csproj" />
+  </Folder>
+
+
+  <Folder Name="/src/Modules/Customer/" />
+  <Folder Name="/src/Modules/Customer/Application/">
+    <Project Path="src/Modules/Customer/Application/EwaysVNext.Modules.Customer.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Customer/Adapter/Outbound/">
+    <Project Path="src/Modules/Customer/Adapter/Outbound/EwaysVNext.Modules.Customer.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Customer/Adapter/" />
+  <Folder Name="/src/Modules/Customer/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Customer/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Customer/Adapter/Inbound/Rest/EwaysVNext.Modules.Customer.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Customer/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Customer/Adapter/Inbound/GraphQL/EwaysVNext.Modules.Customer.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Customer/QueryApplication/">
+    <Project Path="src/Modules/Customer/QueryApplication/EwaysVNext.Modules.Customer.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Customer/Installer/">
+    <Project Path="src/Modules/Customer/Installer/EwaysVNext.Modules.Customer.Installer.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+
+  <Folder Name="/src/Modules/Payment/" />
+  <Folder Name="/src/Modules/Payment/Application/">
+    <Project Path="src/Modules/Payment/Application/EwaysVNext.Modules.Payment.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Payment/Adapter/Outbound/">
+    <Project Path="src/Modules/Payment/Adapter/Outbound/EwaysVNext.Modules.Payment.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Payment/Adapter/" />
+  <Folder Name="/src/Modules/Payment/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Payment/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Payment/Adapter/Inbound/Rest/EwaysVNext.Modules.Payment.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Payment/QueryApplication/">
+    <Project Path="src/Modules/Payment/QueryApplication/EwaysVNext.Modules.Payment.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Payment/Installer/">
+    <Project Path="src/Modules/Payment/Installer/EwaysVNext.Modules.Payment.Installer.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Modules/Notification/" />
+  <Folder Name="/src/Modules/Notification/Application/">
+    <Project Path="src/Modules/Notification/Application/EwaysVNext.Modules.Notification.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Notification/Adapter/Outbound/">
+    <Project Path="src/Modules/Notification/Adapter/Outbound/EwaysVNext.Modules.Notification.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Notification/Adapter/" />
+  <Folder Name="/src/Modules/Notification/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Notification/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Notification/Adapter/Inbound/Rest/EwaysVNext.Modules.Notification.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Notification/Installer/">
+    <Project Path="src/Modules/Notification/Installer/EwaysVNext.Modules.Notification.Installer.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Database/">
+    <Project Path="src/Database/EwaysVNext.Database.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Host/">
+    <Project Path="src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Location/" />
+  <Folder Name="/src/Modules/Location/Adapter/" />
+  <Folder Name="/src/Modules/Location/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Location/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Location/Adapter/Inbound/GraphQL/EwaysVNext.Modules.Location.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Location/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Location/Adapter/Inbound/Rest/EwaysVNext.Modules.Location.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Location/Adapter/Outbound/">
+    <Project Path="src/Modules/Location/Adapter/Outbound/EwaysVNext.Modules.Location.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Location/Application/">
+    <Project Path="src/Modules/Location/Application/EwaysVNext.Modules.Location.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Location/Contracts/">
+    <Project Path="src/Modules/Location/Contracts/EwaysVNext.Modules.Location.Contracts.csproj" Id="d65b571f-a694-413d-88cc-de0afab3c3ea" />
+  </Folder>
+  <Folder Name="/src/Modules/Location/Installer/">
+    <Project Path="src/Modules/Location/Installer/EwaysVNext.Modules.Location.Installer.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Location/QueryApplication/">
+    <Project Path="src/Modules/Location/QueryApplication/EwaysVNext.Modules.Location.QueryApplication.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Authorization/">
+    <Project Path="src/Authorization/Authorization.Abstractions/Authorization.Abstractions.csproj" />
+    <Project Path="src/Authorization/Authorization.Application/Authorization.Application.csproj" />
+    <Project Path="src/Authorization/Authorization.Implementation/Authorization.Implementation.csproj" />
+    <Project Path="src/Authorization/Authorization.Endpoints/Authorization.Endpoints.csproj" />
+  </Folder>
+
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/PaymentTests/">
+    <Project Path="tests/PaymentTests/EwaysVNext.PaymentTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/ArchitectureTests/">
+    <Project Path="tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/UnitTests/">
+    <Project Path="tests/UnitTests/EwaysVNext.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/IntegrationTests/">
+    <Project Path="tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj" />
+  </Folder>
+</Solution>

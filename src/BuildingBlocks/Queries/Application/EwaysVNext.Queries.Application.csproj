@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>EwaysVNext.Queries.Application</RootNamespace>
+    <Description>Read-side pagination shapes: PaginationQuery, CursorPaginationQuery, and their results.</Description>
+  </PropertyGroup>
+</Project>

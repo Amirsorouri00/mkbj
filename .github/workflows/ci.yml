@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore EwaysVNext.slnx
+
+      - name: Build
+        run: dotnet build EwaysVNext.slnx --no-restore
+
+      # Release turns on TreatWarningsAsErrors (Directory.Build.props). This gate is
+      # explicit because the Release build was broken for a long time while Debug CI
+      # stayed green, so nothing surfaced the analyzer/nullability debt.
+      - name: Build (Release, warnings-as-errors)
+        run: dotnet build EwaysVNext.slnx -c Release
+
+      # Boundary rules first — fastest signal, no DB (AGENTS.md testing notes).
+      - name: Architecture tests
+        run: dotnet test tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --no-build --verbosity minimal
+
+      # Then everything registered in the solution. Running the SOLUTION rather than
+      # naming each project means a newly added test project cannot silently skip CI —
+      # which is how tests/UnitTests came to be built-but-unregistered.
+      - name: All tests
+        run: dotnet test EwaysVNext.slnx --no-build --verbosity minimal

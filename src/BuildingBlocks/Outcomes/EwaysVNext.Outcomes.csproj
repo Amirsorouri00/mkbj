@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>EwaysVNext.Outcomes</RootNamespace>
+    <Description>Result/Error: the outcome type used across the whole system, framework-free.</Description>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "EwaysVNext.Host",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/Host/EwaysVNext.Host"],
+      "port": 8608,
+      "url": "http://localhost:8608"
+    }
+  ]
+}

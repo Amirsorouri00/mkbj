@@ -1,0 +1,3 @@
+dotnet ef migrations add Init --project src\Database\EwaysVNext.Database.csproj --startup-project src\Host\EwaysVNext.Host\EwaysVNext.Host.csproj --context EwaysVNextDbContext --output-dir Migrations
+
+dotnet ef migrations script --project src\Database\EwaysVNext.Database.csproj --startup-project src\Host\EwaysVNext.Host\EwaysVNext.Host.csproj --context EwaysVNextDbContext

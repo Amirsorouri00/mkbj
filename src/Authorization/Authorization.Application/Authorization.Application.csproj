@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>AuthorizationService.Application</RootNamespace>
+    <NoWarn>$(NoWarn);CA1711</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Authorization.Abstractions\Authorization.Abstractions.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
+  </ItemGroup>
+</Project>

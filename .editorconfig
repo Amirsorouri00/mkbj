@@ -1,0 +1,46 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,xml,csproj,props,targets,yml,yaml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+[*.cs]
+csharp_style_namespace_declarations = file_scoped:warning
+# csharp_style_prefer_primary_constructors = true:error
+csharp_prefer_braces = when_multiline:suggestion
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_expression_bodied_properties = true:suggestion
+
+dotnet_diagnostic.CA1716.severity = none
+dotnet_diagnostic.CA1707.severity = suggestion
+dotnet_diagnostic.CA1848.severity = suggestion
+dotnet_diagnostic.CA1861.severity = warning
+dotnet_diagnostic.CA1873.severity = suggestion
+dotnet_diagnostic.CA2016.severity = warning
+dotnet_diagnostic.IDE0161.severity = warning
+
+# EF-GENERATED migrations. The generator emits constant arrays for composite indexes
+# (CA1861) and we do not hand-edit generated code. This was suppressed project-wide in
+# Supplier.Adapter.Outbound, then Payment.Adapter.Outbound, whose comment said to
+# consolidate if a third module needed it — Catalog is the third. Scoping it to the
+# generated folder is also NARROWER than the two csproj-level NoWarn it replaces, which
+# silenced CA1861 across hand-written adapter code too.
+#
+# IDE0161 (file-scoped namespace) only started surfacing here once EnforceCodeStyleInBuild
+# turned on for csharp_style_prefer_primary_constructors — the generator emits block-scoped
+# namespaces and we do not hand-edit generated code here either.
+[**/Migrations/**.cs]
+dotnet_diagnostic.CA1861.severity = none
+dotnet_diagnostic.IDE0161.severity = none

@@ -1,0 +1,9 @@
+{
+  "Payment": {
+    "Gateways": {
+      "DefaultProvider": null,
+      "FallbackProviders": [],
+      "LinkCreationTimeout": "00:00:10"
+    }
+  }
+}

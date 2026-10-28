@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Application\EwaysVNext.Modules.Payment.Application.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\EwaysVNext.Modules.Payment.Adapter.Outbound.csproj" />
+  </ItemGroup>
+</Project>

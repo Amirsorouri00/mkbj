@@ -1,0 +1,15 @@
+{
+  "Shahkar": {
+    "BaseUrl": "https://gateway.itsaaz.ir",
+    "ApiBaseUrl": "https://api-ithub.itsaaz.ir",
+    "ApiVerficationMobileUrl": "https://api.itsaaz.ir",
+    "Username": "test",
+    "Password": "test",
+    "GrantType": "",
+    "ClientId": "",
+    "ClientSecret": "",
+    "VerifyMobileUsername": "test",
+    "VerifyMobilePassword": "test",
+    "TimeoutSeconds": 30
+  }
+}
