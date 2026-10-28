@@ -1,11 +1,14 @@
+using System.Reflection;
+using System.Text.RegularExpressions;
 using AwesomeAssertions;
+using NetArchTest.Rules;
 using Xunit;
 
 namespace EwaysVNext.ArchitectureTests;
 
 /// <summary>
-/// Executable module-boundary rules. Later phases append to <see cref="ModuleNames"/> and to the
-/// sanctioned-reference theory as they create each module; a module missing from
+/// Executable module-boundary rules. Later phases append to <see cref="ModuleNames"/> and to
+/// <see cref="SanctionedReferences"/> as they create each module; a module missing from
 /// <see cref="ModuleNames"/> escapes every rule here with the build still green, so adding the
 /// name is part of adding the module.
 /// </summary>
@@ -15,10 +18,135 @@ public sealed class HexagonalBoundaryTests
     // Catalog, Customer, Partners, Settings, Pricing, Sales, Sourcing, Admin.
     public static readonly string[] ModuleNames = ["Catalog", "Customer"];
 
+    /// <summary>
+    /// Rows are (consumerModule, providerModule): `EwaysVNext.Modules.{consumer}.Adapter.Outbound`
+    /// may reference `EwaysVNext.Modules.{provider}.Application`. Phase 0 has no rows — each later
+    /// phase adds its own in the task that introduces the reference. The final set (spec §3.6) is
+    /// (Sales,Catalog), (Sales,Pricing), (Sales,Customer), (Sales,Settings), (Pricing,Catalog),
+    /// (Pricing,Settings), (Sourcing,Catalog), (Sourcing,Pricing).
+    /// </summary>
+    public static TheoryData<string, string> SanctionedReferences => new();
+
+    public static TheoryData<string> Modules => new(ModuleNames);
+
     [Fact]
     public void Src_Modules_Are_Exactly_ModuleNames() =>
         Directory.EnumerateDirectories(Path.Combine(Root, "src", "Modules"))
             .Select(Path.GetFileName).Should().BeEquivalentTo(ModuleNames);
+
+    [Theory, MemberData(nameof(Modules))]
+    public void Module_References_No_Other_Module_Unless_Sanctioned(string module) =>
+        ForbiddenCrossModuleReferences(module).Should().BeEmpty();
+
+    [Theory(SkipTestWithoutData = true), MemberData(nameof(SanctionedReferences))]
+    public void Sanctioned_Row_Is_Well_Formed(string consumer, string provider)
+    {
+        ModuleNames.Should().Contain([consumer, provider]);
+        consumer.Should().NotBe(provider);
+        provider.Should().NotBe("Partners", "nothing may call into Partners — the partner id arrives as an authenticated principal");
+        new[] { "Catalog", "Customer", "Settings", "Partners" }.Should().NotContain(consumer,
+            "these modules reference no other module");
+    }
+
+    [Theory, MemberData(nameof(Modules))]
+    public void Application_Depends_On_No_Adapter_And_No_EfCore(string module)
+    {
+        var application = Load($"EwaysVNext.Modules.{module}.Application");
+        if (application.GetTypes().Length == 0) return; // a module stripped to a shell has nothing to check
+
+        Types.InAssembly(application).ShouldNot()
+            .HaveDependencyOnAny($"EwaysVNext.Modules.{module}.Adapter", "Microsoft.EntityFrameworkCore")
+            .GetResult().IsSuccessful.Should().BeTrue();
+    }
+
+    [Theory, MemberData(nameof(Modules))]
+    public void Application_Services_Are_Sealed(string module)
+    {
+        var application = Load($"EwaysVNext.Modules.{module}.Application");
+        if (application.GetTypes().Length == 0) return;
+
+        var result = Types.InAssembly(application).That().AreClasses()
+            .And().AreNotAbstract().And().HaveNameEndingWith("Service")
+            .Should().BeSealed().GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            "unsealed: {0}", string.Join(", ", result.FailingTypeNames ?? []));
+    }
+
+    [Theory, MemberData(nameof(Modules))]
+    public void QueryApplication_Never_Writes(string module) =>
+        SourceFiles($"src/Modules/{module}/QueryApplication")
+            .Where(f => Regex.IsMatch(File.ReadAllText(f), @"SaveChanges|IUnitOfWork|ExecuteUpdate|ExecuteDelete"))
+            .Should().BeEmpty();
+
+    [Fact]
+    public void No_Wolverine_Anywhere() =>
+        Directory.EnumerateFiles(Root, "*.*", SearchOption.AllDirectories)
+            .Where(f => f.EndsWith(".csproj", StringComparison.Ordinal) || f.EndsWith(".props", StringComparison.Ordinal))
+            .Where(NotInBinObj)
+            .Where(f => File.ReadAllText(f).Contains("Wolverine", StringComparison.Ordinal))
+            .Should().BeEmpty();
+
+    /// <summary>
+    /// "{assembly} -> {reference}" for every reference from one module's assemblies into another
+    /// module, except the two sanctioned shapes: a row in <see cref="SanctionedReferences"/>
+    /// (Adapter.Outbound → provider Application), and Admin's composition layer, which may read any
+    /// module's QueryApplication or Application (ADR-0006/0007).
+    /// </summary>
+    private static IReadOnlyList<string> ForbiddenCrossModuleReferences(string module)
+    {
+        var sanctioned = SanctionedReferences
+            .Where(row => row.Data.Item1 == module)
+            .Select(row => row.Data.Item2)
+            .ToHashSet(StringComparer.Ordinal);
+        List<string> violations = [];
+
+        foreach (var assemblyPath in Directory.EnumerateFiles(
+                     AppContext.BaseDirectory, $"EwaysVNext.Modules.{module}.*.dll"))
+        {
+            var assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
+
+            foreach (var reference in Assembly.LoadFrom(assemblyPath).GetReferencedAssemblies())
+            {
+                var match = Regex.Match(reference.Name ?? string.Empty, @"^EwaysVNext\.Modules\.([^.]+)\.(.+)$");
+                if (!match.Success) continue;
+
+                var other = match.Groups[1].Value;
+                var layer = match.Groups[2].Value;
+                if (other == module) continue;
+
+                var isSanctionedGateway =
+                    assemblyName == $"EwaysVNext.Modules.{module}.Adapter.Outbound"
+                    && layer == "Application"
+                    && sanctioned.Contains(other);
+
+                var isAdminComposition =
+                    module == "Admin"
+                    && assemblyName == "EwaysVNext.Modules.Admin.Adapter.Outbound"
+                    && layer is "QueryApplication" or "Application";
+
+                if (!isSanctionedGateway && !isAdminComposition)
+                    violations.Add($"{assemblyName} -> {reference.Name}");
+            }
+        }
+
+        return violations;
+    }
+
+    private static Assembly Load(string assemblyName) =>
+        Assembly.LoadFrom(Path.Combine(AppContext.BaseDirectory, $"{assemblyName}.dll"));
+
+    private static IEnumerable<string> SourceFiles(string relativeDirectory)
+    {
+        var directory = Path.Combine(Root, relativeDirectory.Replace('/', Path.DirectorySeparatorChar));
+        return Directory.Exists(directory)
+            ? Directory.EnumerateFiles(directory, "*.cs", SearchOption.AllDirectories).Where(NotInBinObj)
+            : [];
+    }
+
+    private static bool NotInBinObj(string path) =>
+        !path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+        && !path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
 
     private static string Root
     {
