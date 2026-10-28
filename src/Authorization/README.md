@@ -158,10 +158,10 @@ mutations already use.
 
 ## How enforcement works — permission checks only, one mechanism per protocol
 
-Every gate is a **permission code** (e.g. `"notification.send"`, `"authorization.permissions.read"`)
-resolved against `IAuthorizationCheckService`, which checks whether the caller has a
-`UserRoleScope` satisfying one of the target `Permission`'s rules. There is no role-based
-authorization policy anywhere, and no custom middleware — REST and GraphQL each plug a
+Every gate is a **permission code** (e.g. `"catalog.manage"`, `"partners.manage"`) resolved
+against `IAuthorizationCheckService`, which checks whether the caller satisfies one of the target
+`Permission`'s rules — either through a stored `UserRoleScope`, or through a role the token
+itself asserts. There is no custom middleware — REST and GraphQL each plug a
 permission check into whichever native extensibility point that protocol already has.
 
 **REST** — `DynamicAuthorizationPolicyProvider` (registered as the app's
@@ -172,6 +172,45 @@ to the app's normal `DefaultAuthorizationPolicyProvider`, so the existing static
 modules) keep resolving exactly as before. `PermissionAuthorizationHandler` (a plain
 `AuthorizationHandler<PermissionRequirement>`) resolves the caller's id from the
 `ClaimsPrincipal` (`ClaimTypes.NameIdentifier` / `"sub"`) and calls `IAuthorizationCheckService`.
+### Two gates, on purpose
+
+An admin surface is gated **twice**: the group gets `.RequireAuthorization(AuthPolicies.AdminStaff)`
+(or `AdminSuper`), and each endpoint gets `.RequirePermission(AdminPermissions.X)`. GraphQL uses
+`[Authorize(Policy = ...)]` plus `[RequirePermission(...)]`.
+
+That is not redundancy. Permission rows are **editable data** — a misedited rule could hand staff
+something only a super admin should have. The realm policy is not editable from inside the
+application, so it bounds the damage a bad row can do. The permission answers "may this user do
+this particular thing"; the policy answers "is this caller even in the right realm".
+
+### Where backoffice roles come from
+
+Keycloak, not this database. `PermissionAuthorizationHandler` forwards the token's
+`ClaimTypes.Role` values as `CheckAuthorizationRequest.TokenRoleCodes` — **but only when the
+`tenant` claim is `Backoffice`**. The Shop realm is open self-service registration, so a role
+named there means nothing here however it is spelled; forwarding it would let anyone who could
+influence their own Shop token claim backoffice authority. `AdminPermissionMatrixTests` holds
+that case.
+
+Token roles count as assignments with no scope, so they satisfy only rules that carry no scope
+rows. A scoped rule still needs a real `UserRoleScope` naming the scope.
+
+### The seeded matrix (spec §6.1)
+
+`AdminPermissionMatrix.Rows` is the matrix, seeded via `HasData` with literal GUIDs generated
+once and committed — computing them from the code string would make the seed depend on an
+algorithm, and changing it later would orphan every row already in a production database.
+
+| Permission | Lowest role |
+|---|---|
+| `catalog.manage`, `imports.manage`, `customers.manage`, `orders.manage`, `payments.confirm` | `staff` |
+| `partners.manage`, `fx.manage`, `currencies.manage`, `settings.manage`, `refunds.manage`, `admin-accounts.manage` | `super_admin` |
+
+`super_admin` (rank 20) outranks `staff` (rank 10) and the rule check is
+`assigned.Rank >= rule.Rank`, so a super admin satisfies every staff rule without a second row.
+Both ranks sit well above the legacy `User`/`Manager`/`Admin` ladder so neither can reach a
+backoffice rule by outranking it.
+
 Reference only `Authorization.Abstractions` and use the sugar, which just calls the standard
 `.RequireAuthorization(policyName)` under the hood:
 
@@ -224,52 +263,47 @@ Each mutation takes one `…Input` and returns a `…Payload`: create/update/ass
 payloads carry the resulting DTO (`permission`, `role`, `scope`, `assignment`); delete/remove
 payloads carry `success`.
 
-| Mutation | Permission | Notes |
-|----------|------------|-------|
-| `createPermission(input)` | *(none — just authenticated)* | Takes a `rules` list (`roleId` and/or `scopeIds` combinations) — permission gate temporarily removed, pending re-application (see note below) |
-| `updatePermission(input)` | *(none — just authenticated)* | |
-| `deletePermission(input)` | *(none — just authenticated)* | |
-| `createRole(input)` | *(none — just authenticated)* | `code`, `name`, `rank` — permission gate temporarily removed, pending re-application (see note below) |
-| `updateRole(input)` | *(none — just authenticated)* | |
-| `deleteRole(input)` | *(none — just authenticated)* | Refuses (`ROLE_IN_USE`) if still referenced by a `PermissionRule` or `UserRoleScope` |
-| `createScope(input)` | *(none — just authenticated)* | `code`, `name` — permission gate temporarily removed, pending re-application |
-| `updateScope(input)` | *(none — just authenticated)* | |
-| `deleteScope(input)` | *(none — just authenticated)* | Refuses (`SCOPE_IN_USE`) if still referenced by a `PermissionRuleScope` or `UserRoleScope` |
-| `assignUserRoleScope(input)` | *(none — just authenticated)* | Assign a role in a scope to a user — permission gate temporarily removed, pending re-application |
-| `removeUserRoleScope(input)` | *(none — just authenticated)* | |
-| `bootstrapAdmin(input)` | *(none — just authenticated)* | Assigns the highest-`Rank` role to the caller (user id from the token's `NameIdentifier`/`sub` claim) in `input.scopeId`; refuses (`ADMIN_ALREADY_EXISTS`) once someone already holds that role. Can't require a permission here — nothing could be granted yet |
+| Mutation | Policy | Permission | Notes |
+|----------|--------|------------|-------|
+| `createPermission(input)` | `admin:super` | `admin-accounts.manage` | Takes a `rules` list (`roleId` and/or `scopeIds` combinations) |
+| `updatePermission(input)` | `admin:super` | `admin-accounts.manage` | |
+| `deletePermission(input)` | `admin:super` | `admin-accounts.manage` | |
+| `createRole(input)` | `admin:super` | `admin-accounts.manage` | `code`, `name`, `rank` |
+| `updateRole(input)` | `admin:super` | `admin-accounts.manage` | |
+| `deleteRole(input)` | `admin:super` | `admin-accounts.manage` | Refuses (`ROLE_IN_USE`) if still referenced by a `PermissionRule` or `UserRoleScope` |
+| `createScope(input)` | `admin:super` | `admin-accounts.manage` | `code`, `name` |
+| `updateScope(input)` | `admin:super` | `admin-accounts.manage` | |
+| `deleteScope(input)` | `admin:super` | `admin-accounts.manage` | Refuses (`SCOPE_IN_USE`) if still referenced by a `PermissionRuleScope` or `UserRoleScope` |
+| `assignUserRoleScope(input)` | `admin:super` | `admin-accounts.manage` | Assign a role in a scope to a user |
+| `removeUserRoleScope(input)` | `admin:super` | `admin-accounts.manage` | |
+| `bootstrapAdmin(input)` | `admin:super` | — | **Vestigial.** It assigns the highest-`Rank` role to the caller, which is now `super_admin` — so before it was gated, the first authenticated caller to reach it became a super admin. Backoffice authority comes from Keycloak realm roles now, not from a stored assignment, so nothing needs it |
 
-Every mutation carries HotChocolate's `[Authorize]`, so an anonymous caller gets
-`AUTH_NOT_AUTHENTICATED` (HTTP 401) before any service runs. No mutation carries
-`[RequirePermission]` right now (see the note below); once one does, a caller without the
-permission gets `AUTH_NOT_AUTHORIZED` (HTTP 403). `GraphQLHttpResponseFormatter` maps both codes
-to those statuses. A refusal the
-service returns surfaces as a GraphQL error with the service's own code, via `.ValueOrThrow()`.
+Every resolver class carries `[Authorize(Policy = AuthPolicies.AdminSuper)]`, so an anonymous
+caller gets `AUTH_NOT_AUTHENTICATED` (HTTP 401) and a non-super-admin gets `AUTH_NOT_AUTHORIZED`
+(HTTP 403), both before any service runs. `GraphQLHttpResponseFormatter` maps the two codes to
+those statuses; a refusal the service returns surfaces with the service's own code via
+`.ValueOrThrow()`.
 
-**Temporary state, not a design decision:** `authorization.permissions.manage`,
-`authorization.roles.manage`, `authorization.scopes.manage`, and
-`authorization.user-role-scopes.manage` are all removed from their mutations for now, so no
-mutation is permission-gated — these are slated to come back; don't take the current (empty) gate
-list as final.
+**Why the class, not the method.** `RbacGraphQlGatingTests` reflects over every resolver and
+fails the build if one is missing its policy. The gate used to be a bare `[Authorize]` — any
+authenticated caller, including a website customer — on a surface that edits the permission
+matrix itself, which made it self-escalating: `createPermission` could grant its own caller
+`partners.manage`.
 
 ### Queries
 
-| Field | Permission | Notes |
-|-------|------------|-------|
-| `permissions` | *(none — not even authentication, see below)* | List all |
-| `permission(id)` | *(none — not even authentication)* | Returns `null` on not-found (`.ValueOrDefault()`) |
-| `permissionByCode(code)` | *(none — not even authentication)* | Same |
-| `roles` | *(none — not even authentication)* | All `Role` rows, ordered by `Rank` descending |
-| `scopes` | *(none — not even authentication)* | All `Scope` rows |
-| `userRoleScopesForUser(userId)` | *(none — not even authentication)* | |
+| Field | Policy | Notes |
+|-------|--------|-------|
+| `permissions` | `admin:staff` | List all |
+| `permission(id)` | `admin:staff` | Returns `null` on not-found (`.ValueOrDefault()`) |
+| `permissionByCode(code)` | `admin:staff` | Same |
+| `roles` | `admin:staff` | All `Role` rows, ordered by `Rank` descending |
+| `scopes` | `admin:staff` | All `Scope` rows |
+| `userRoleScopesForUser(userId)` | `admin:staff` | |
 
-**Open gap:** unlike the mutations, the query fields carry no `[Authorize]`, so they answer
-anonymous callers. `checkAuthorization(input)` (ask whether a user id has a given permission)
-has been removed for now, along with the `[RequirePermission(...)]` attribute on every query
-field — same temporary state as the mutations' note. `PermissionQueries`/`RoleQueries`/
-`ScopeQueries`/`UserRoleScopeQueries` still call `.ValueOrThrow()`/`.ValueOrDefault()` on the
-`Result` the service returns (see "Error handling" above); re-adding `[Authorize]` and
-`[RequirePermission("...")]` to a field is a one-line change each.
+Reads need at least `staff`: who may do what is not public information, and it maps the admin
+surface for anyone probing it. These fields previously carried no attribute at all and answered
+anonymous callers. `checkAuthorization(input)` remains removed.
 
 ## Wiring it into a host
 
@@ -295,16 +329,10 @@ app.MapGraphQLEndpoint(); // already called once by Host; Authorization's querie
   scope, and nothing automated currently guards its conventions the way it does for a module.
 - No admin UI or other caller currently exercises `PermissionService`/`UserRoleScopeService`
   beyond its own GraphQL mutations and the seeded bootstrap flow.
-- **Bootstrap gap, not yet fixed:** since every gate is a permission check rather than a
-  structural role check, each `authorization.*` permission that's actually enforced must exist
-  in the database, with a rule granting it (e.g. to the `Admin` role), before **anyone —
-  including a freshly-bootstrapped Admin — can call the mutation it gates**. Right now no
-  mutation enforces a permission (see the GraphQL surface's temporary-state notes); this applies
-  again as soon as the gates are re-added.
-  `bootstrap-admin` only creates a `UserRoleScope`; it does not create any `Permission` rows,
-  and `DatabaseSeeder` currently only seeds `AuthorizationSeedData.UserRoleScopes` (an empty
-  hardcoded list by default), not `Permission`/`PermissionRule` — unlike `Role`/`Scope`, which
-  do ship default rows in the `InitialCreate` migration (see Persistence above). Until this
-  seeding gap is closed (or these rows are inserted by hand on first deploy), `POST /permissions`
-  is circularly locked — nothing can call it, because calling it requires a permission only it
-  can grant.
+- **The bootstrap deadlock is closed.** It used to be circular: a permission gate could only be
+  satisfied by a row that only the gated mutation could create, so nothing could call it. Two
+  things resolved that. The §6.1 matrix now ships as seed data in the `AdminPermissionMatrix`
+  migration, so the rows exist before anyone connects; and backoffice authority comes from a
+  Keycloak realm role rather than a stored assignment, so the first super admin is created in
+  Keycloak, outside this database entirely. `bootstrapAdmin` is vestigial as a result — see the
+  GraphQL surface above for why it is nonetheless gated.

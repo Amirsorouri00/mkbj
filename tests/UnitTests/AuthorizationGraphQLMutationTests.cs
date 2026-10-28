@@ -12,7 +12,9 @@ using AuthorizationService.Application.UserRoleScopes.Responses;
 using AuthorizationService.Endpoints;
 using AwesomeAssertions;
 using EwaysVNext.Outcomes;
+using EwaysVNext.Core.Application.Security;
 using EwaysVNext.Presentation.Endpoint;
+using EwaysVNext.Presentation.Endpoint.Security;
 using HotChocolate;
 using HotChocolate.Execution;
 using Microsoft.AspNetCore.Http;
@@ -56,6 +58,9 @@ public class AuthorizationGraphQLMutationTests
         services.AddSingleton(_permissions).AddSingleton(_roles).AddSingleton(_scopes).AddSingleton(_userRoleScopes);
         var caller = user ?? new ClaimsPrincipal(new ClaimsIdentity());
         services.AddSingleton<IHttpContextAccessor>(new HttpContextAccessor { HttpContext = new DefaultHttpContext { User = caller } });
+        // The resolvers carry [Authorize(Policy = ...)], so the policies have to exist here or
+        // every mutation fails as "policy not found" rather than as refused.
+        services.AddAuthorization(options => options.AddEwaysAuthorizationPolicies());
         services.AddAuthorizationGraphQL();
 
         var executor = await services.BuildServiceProvider().GetRequestExecutorAsync();
@@ -66,8 +71,27 @@ public class AuthorizationGraphQLMutationTests
         return json.RootElement.Clone();
     }
 
+    /// <summary>
+    /// A super admin: the RBAC mutations edit the permission matrix itself, so nothing less may
+    /// call them. A merely authenticated caller is covered by the anonymous/forbidden cases.
+    /// </summary>
     private static ClaimsPrincipal SignedIn() =>
-        new(new ClaimsIdentity([new Claim("sub", UserId.ToString())], authenticationType: "Test"));
+        new(new ClaimsIdentity(
+            [
+                new Claim(EwaysClaimTypes.Subject, UserId.ToString()),
+                new Claim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm),
+                new Claim(ClaimTypes.Role, AdminRoles.SuperAdmin),
+            ],
+            authenticationType: "Test"));
+
+    /// <summary>A signed-in caller who is not a backoffice admin at all.</summary>
+    private static ClaimsPrincipal SignedInCustomer() =>
+        new(new ClaimsIdentity(
+            [
+                new Claim(EwaysClaimTypes.Subject, UserId.ToString()),
+                new Claim(EwaysClaimTypes.Tenant, AdminRoles.ShopRealm),
+            ],
+            authenticationType: "Test"));
 
     private static string FirstErrorCode(JsonElement result) =>
         result.GetProperty("errors")[0].GetProperty("extensions").GetProperty("code").GetString()!;
@@ -140,7 +164,15 @@ public class AuthorizationGraphQLMutationTests
     [Fact]
     public async Task BootstrapAdmin_Refuses_A_Token_Without_A_User_Id()
     {
-        var withoutUserId = new ClaimsPrincipal(new ClaimsIdentity([new Claim("name", "someone")], authenticationType: "Test"));
+        // Admin enough to pass the policy, but carrying no subject — so this exercises the
+        // resolver's own guard rather than the gate in front of it. A real Keycloak token always
+        // has a sub; the guard is defence in depth for the day one does not.
+        var withoutUserId = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm),
+                new Claim(ClaimTypes.Role, AdminRoles.SuperAdmin),
+            ],
+            authenticationType: "Test"));
 
         var result = await ExecuteAsync(
             $$"""mutation { bootstrapAdmin(input: { scopeId: "{{ScopeId}}" }) { assignment { id } } }""", withoutUserId);

@@ -36,6 +36,24 @@ public class AuthorizationCheckService(IApplicationDbContext db) : IAuthorizatio
             .Select(a => new { RoleRank = a.Role.Rank, a.ScopeId })
             .ToListAsync(cancellationToken);
 
+        // Roles the token asserts count as assignments with no scope. They therefore satisfy only
+        // rules that carry no scope rows — a scoped rule still needs a real assignment naming the
+        // scope, so a backoffice role can never stand in for one.
+        if (request.TokenRoleCodes is { Count: > 0 } tokenRoles)
+        {
+            var ranks = await db.Roles
+                .Where(role => tokenRoles.Contains(role.Code))
+                .Select(role => role.Rank)
+                .ToListAsync(cancellationToken);
+
+            if (ranks.Count > 0 && rules.Any(r =>
+                    r.ScopeIds.Count == 0
+                    && (r.RoleRank is null || ranks.Any(rank => rank >= r.RoleRank))))
+            {
+                return new CheckAuthorizationResult(true, AuthorizationCheckServiceMessages.Granted);
+            }
+        }
+
         var allowed = assignments.Any(a => rules.Any(r =>
             (r.RoleRank is null || a.RoleRank >= r.RoleRank)
             && (r.ScopeIds.Count == 0 || r.ScopeIds.Contains(a.ScopeId))));

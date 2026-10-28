@@ -18,5 +18,6 @@
     <ProjectReference Include="..\Authorization.Application\Authorization.Application.csproj" />
     <ProjectReference Include="..\Authorization.Abstractions\Authorization.Abstractions.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\Core\Application\EwaysVNext.Core.Application.csproj" />
   </ItemGroup>
 </Project>

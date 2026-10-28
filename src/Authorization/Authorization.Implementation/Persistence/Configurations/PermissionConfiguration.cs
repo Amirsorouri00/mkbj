@@ -1,4 +1,5 @@
-﻿using AuthorizationService.Application.Entities;
+using AuthorizationService.Application.Entities;
+using AuthorizationService.Implementation.Seeding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -6,6 +7,8 @@ namespace AuthorizationService.Implementation.Persistence.Configurations;
 
 internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permission>
 {
+    private static readonly DateTime SeedTimestamp = new(2026, 9, 23, 0, 0, 0, DateTimeKind.Utc);
+
     public void Configure(EntityTypeBuilder<Permission> builder)
     {
         builder.HasKey(p => p.Id);
@@ -31,5 +34,14 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
             .WithOne(r => r.Permission)
             .HasForeignKey(r => r.PermissionId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasData(AdminPermissionMatrix.Rows.Select(row => new
+        {
+            Id = row.PermissionId,
+            row.Code,
+            row.Name,
+            CreatedAtUtc = SeedTimestamp,
+            UpdatedAtUtc = SeedTimestamp,
+        }));
     }
 }

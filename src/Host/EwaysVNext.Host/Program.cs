@@ -1,4 +1,4 @@
-﻿using AuthorizationService.Endpoints;
+using AuthorizationService.Endpoints;
 using AuthorizationService.Implementation.Persistence;
 using EwaysVNext.Database;
 using EwaysVNext.Host;
@@ -13,6 +13,7 @@ using EwaysVNext.Audit.Implementation;
 using EwaysVNext.Jobs.Implementation;
 using EwaysVNext.Storage.Implementation;
 using EwaysVNext.Presentation.Endpoint.GraphQL;
+using EwaysVNext.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Exporter;
@@ -56,12 +57,11 @@ builder.Services.AddEndpoints(typeof(Program).Assembly);
 
 builder.Services.AddAuthorization(opts =>
 {
-    opts.AddPolicy("Admin", p => p.RequireAssertion(ctx =>
-        ctx.User.HasClaim(KeycloakClaimTypes.Tenant, "Backoffice") && ctx.User.IsInRole("admin")));
+    opts.AddEwaysAuthorizationPolicies();
 
-    opts.AddPolicy("Customer", p => p.RequireAssertion(ctx =>
-        ctx.User.HasClaim(KeycloakClaimTypes.Tenant, "Shop")
-        || (ctx.User.HasClaim(KeycloakClaimTypes.Tenant, "Backoffice") && ctx.User.IsInRole("admin"))));
+    // The names Catalog's endpoints were written against. Removed in phase 2-3 when they are
+    // regated onto AuthPolicies.
+    opts.AddLegacyPolicyAliases();
 });
 
 var allowedOrigins = builder.Configuration.GetSection("Host:AllowedCorsOrigins").Get<string[]>() ?? Array.Empty<string>();

@@ -1,4 +1,6 @@
-﻿using AuthorizationService.Application.Entities;
+using AuthorizationService.Application.Entities;
+using AuthorizationService.Implementation.Seeding;
+using EwaysVNext.Core.Application.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -46,6 +48,28 @@ internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
                 Code = "Admin",
                 Name = "Admin",
                 Rank = 3,
+                CreatedAtUtc = SeedTimestamp,
+                UpdatedAtUtc = SeedTimestamp,
+            },
+            // The two backoffice roles of spec §6.1. Their ranks sit well above the legacy
+            // User/Manager/Admin ladder so that neither can satisfy a backoffice rule by
+            // outranking it, which the `assigned.Rank >= rule.Rank` comparison would otherwise
+            // allow the moment someone raised Admin's rank.
+            new
+            {
+                Id = AdminPermissionMatrix.StaffRoleId,
+                Code = AdminRoles.Staff,
+                Name = "Staff",
+                Rank = AdminPermissionMatrix.StaffRank,
+                CreatedAtUtc = SeedTimestamp,
+                UpdatedAtUtc = SeedTimestamp,
+            },
+            new
+            {
+                Id = AdminPermissionMatrix.SuperAdminRoleId,
+                Code = AdminRoles.SuperAdmin,
+                Name = "Super Admin",
+                Rank = AdminPermissionMatrix.SuperAdminRank,
                 CreatedAtUtc = SeedTimestamp,
                 UpdatedAtUtc = SeedTimestamp,
             });

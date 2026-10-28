@@ -62,6 +62,96 @@ namespace AuthorizationService.Implementation.Persistence.Migrations
                         .HasDatabaseName("ix_permissions_code");
 
                     b.ToTable("permissions", "authorization");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("456b4292-5990-4b68-8fd7-1a43193e2d38"),
+                            Code = "catalog.manage",
+                            CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Manage catalog",
+                            UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("638688a3-9a51-4d23-8ee0-58e2efbfa773"),
+                            Code = "imports.manage",
+                            CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Manage imports",
+                            UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("1b1bc629-d7be-4ae9-8379-a4a96e01f2d4"),
+                            Code = "customers.manage",
+                            CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Manage customers",
+                            UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("23c77d5c-58d0-49b5-818e-83a23d108d38"),
+                            Code = "orders.manage",
+                            CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Manage orders",
+                            UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("d71fac8d-4fb0-4cda-bd94-482e056a01c9"),
+                            Code = "payments.confirm",
+                            CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Confirm payments",
+                            UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("37e59e3a-94fe-43d1-bf8f-d0f57cfc82d7"),
+                            Code = "partners.manage",
+                            CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Manage partners",
+                            UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("a445cf70-2f1e-498a-8282-f1e2881e84bc"),
+                            Code = "fx.manage",
+                            CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Manage FX rates",
+                            UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("3e2384fc-8eb3-492b-bd4b-1519aa403015"),
+                            Code = "currencies.manage",
+                            CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Manage currencies",
+                            UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("6e892f33-023e-429b-b697-4ad522a6615a"),
+                            Code = "settings.manage",
+                            CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Manage settings",
+                            UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("740123bd-baa3-4f9b-9e3f-4d0b960aaab7"),
+                            Code = "refunds.manage",
+                            CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Manage refunds",
+                            UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("630e0097-bb6c-4587-a8e1-fd0a561cdf32"),
+                            Code = "admin-accounts.manage",
+                            CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Manage admin accounts",
+                            UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
                 });
 
             modelBuilder.Entity("AuthorizationService.Application.Entities.PermissionRule", b =>
@@ -88,6 +178,74 @@ namespace AuthorizationService.Implementation.Persistence.Migrations
                         .HasDatabaseName("ix_permission_rules_role_id");
 
                     b.ToTable("permission_rules", "authorization");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("93883648-7f7f-4d32-b5fd-9ea6146f5fbf"),
+                            PermissionId = new Guid("456b4292-5990-4b68-8fd7-1a43193e2d38"),
+                            RoleId = new Guid("7237c944-c6d2-4dcf-b0e4-ecf2768ce08d")
+                        },
+                        new
+                        {
+                            Id = new Guid("e71446da-cab8-4db4-9ca9-d8407e505026"),
+                            PermissionId = new Guid("638688a3-9a51-4d23-8ee0-58e2efbfa773"),
+                            RoleId = new Guid("7237c944-c6d2-4dcf-b0e4-ecf2768ce08d")
+                        },
+                        new
+                        {
+                            Id = new Guid("33a6ce58-a48f-45cc-a481-5dd1ffc44af0"),
+                            PermissionId = new Guid("1b1bc629-d7be-4ae9-8379-a4a96e01f2d4"),
+                            RoleId = new Guid("7237c944-c6d2-4dcf-b0e4-ecf2768ce08d")
+                        },
+                        new
+                        {
+                            Id = new Guid("9f51a166-39c3-4eb8-a0c7-d1b7f877fe5f"),
+                            PermissionId = new Guid("23c77d5c-58d0-49b5-818e-83a23d108d38"),
+                            RoleId = new Guid("7237c944-c6d2-4dcf-b0e4-ecf2768ce08d")
+                        },
+                        new
+                        {
+                            Id = new Guid("f6c02d4a-1b22-4ae3-baff-141a8960e3f9"),
+                            PermissionId = new Guid("d71fac8d-4fb0-4cda-bd94-482e056a01c9"),
+                            RoleId = new Guid("7237c944-c6d2-4dcf-b0e4-ecf2768ce08d")
+                        },
+                        new
+                        {
+                            Id = new Guid("769fa513-a0db-42bc-8a67-0fcc5f6c3073"),
+                            PermissionId = new Guid("37e59e3a-94fe-43d1-bf8f-d0f57cfc82d7"),
+                            RoleId = new Guid("1a52e0a6-982a-4eac-843d-cf357b081742")
+                        },
+                        new
+                        {
+                            Id = new Guid("9c44f926-9820-4e3d-89c5-18d07620a677"),
+                            PermissionId = new Guid("a445cf70-2f1e-498a-8282-f1e2881e84bc"),
+                            RoleId = new Guid("1a52e0a6-982a-4eac-843d-cf357b081742")
+                        },
+                        new
+                        {
+                            Id = new Guid("82bae564-7381-47fd-b277-d5f232733acb"),
+                            PermissionId = new Guid("3e2384fc-8eb3-492b-bd4b-1519aa403015"),
+                            RoleId = new Guid("1a52e0a6-982a-4eac-843d-cf357b081742")
+                        },
+                        new
+                        {
+                            Id = new Guid("ac294bdd-0ea0-4bce-b96a-4ce936236978"),
+                            PermissionId = new Guid("6e892f33-023e-429b-b697-4ad522a6615a"),
+                            RoleId = new Guid("1a52e0a6-982a-4eac-843d-cf357b081742")
+                        },
+                        new
+                        {
+                            Id = new Guid("7a376c6a-5026-4fb1-ae11-e1abf946f0a9"),
+                            PermissionId = new Guid("740123bd-baa3-4f9b-9e3f-4d0b960aaab7"),
+                            RoleId = new Guid("1a52e0a6-982a-4eac-843d-cf357b081742")
+                        },
+                        new
+                        {
+                            Id = new Guid("ec3c722e-b2b4-4d5a-b9c9-04fbb5985862"),
+                            PermissionId = new Guid("630e0097-bb6c-4587-a8e1-fd0a561cdf32"),
+                            RoleId = new Guid("1a52e0a6-982a-4eac-843d-cf357b081742")
+                        });
                 });
 
             modelBuilder.Entity("AuthorizationService.Application.Entities.PermissionRuleScope", b =>
@@ -174,6 +332,24 @@ namespace AuthorizationService.Implementation.Persistence.Migrations
                             CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
                             Name = "Admin",
                             Rank = 3,
+                            UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("7237c944-c6d2-4dcf-b0e4-ecf2768ce08d"),
+                            Code = "staff",
+                            CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Staff",
+                            Rank = 10,
+                            UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("1a52e0a6-982a-4eac-843d-cf357b081742"),
+                            Code = "super_admin",
+                            CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Super Admin",
+                            Rank = 20,
                             UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
                         });
                 });
