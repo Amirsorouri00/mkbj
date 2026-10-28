@@ -1,0 +1,44 @@
+{
+  "realm": "Shop",
+  "enabled": true,
+  "displayName": "Eways Shop",
+
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "verifyEmail": true,
+  "resetPasswordAllowed": true,
+  "rememberMe": true,
+
+  "accessTokenLifespan": 900,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+
+  "smtpServer": {
+    "host": "${KC_SMTP_HOST}",
+    "port": "${KC_SMTP_PORT}",
+    "from": "${KC_SMTP_FROM}",
+    "user": "${KC_SMTP_USER}",
+    "password": "${KC_SMTP_PASSWORD}",
+    "auth": "true",
+    "starttls": "true"
+  },
+
+  "clients": [
+    {
+      "clientId": "modular-monolith",
+      "name": "Storefront",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["${SHOP_REDIRECT_URI}"],
+      "webOrigins": ["+"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    }
+  ]
+}

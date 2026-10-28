@@ -34,6 +34,10 @@ jobs:
 
       # The production image. ubuntu-latest has Docker, which the integration tests also need
       # for their Postgres and S3 containers.
+      # ci.env holds placeholders so the production stack can be validated without secrets.
+      - name: Validate the production compose stack
+        run: docker compose -f build/compose/docker-compose.yml --env-file build/compose/ci.env config --quiet
+
       - name: Build the api image
         run: docker build -f build/docker/api.Dockerfile -t eways-api:ci .
 

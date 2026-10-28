@@ -1,0 +1,56 @@
+{
+  "realm": "Backoffice",
+  "enabled": true,
+  "displayName": "Eways Backoffice",
+
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "verifyEmail": true,
+  "resetPasswordAllowed": true,
+  "rememberMe": false,
+
+  "accessTokenLifespan": 900,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 28800,
+
+  "smtpServer": {
+    "host": "${KC_SMTP_HOST}",
+    "port": "${KC_SMTP_PORT}",
+    "from": "${KC_SMTP_FROM}",
+    "user": "${KC_SMTP_USER}",
+    "password": "${KC_SMTP_PASSWORD}",
+    "auth": "true",
+    "starttls": "true"
+  },
+
+  "roles": {
+    "realm": [
+      {
+        "name": "super_admin",
+        "description": "Partners and API keys, FX overrides, currency enablement, settings, refunds and credit notes."
+      },
+      {
+        "name": "staff",
+        "description": "Catalog, imports, customers, orders and website payment confirmation."
+      }
+    ]
+  },
+
+  "clients": [
+    {
+      "clientId": "backoffice-console",
+      "name": "Admin console",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["${BACKOFFICE_REDIRECT_URI}"],
+      "webOrigins": ["+"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    }
+  ]
+}

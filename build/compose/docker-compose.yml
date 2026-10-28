@@ -1,0 +1,237 @@
+# Production stack. Run from build/compose with a .env alongside it (see .env.example).
+#
+# Every secret is ${VAR:?...}: compose refuses to start rather than silently defaulting, because a
+# default password that reaches production is worse than an outage.
+name: eways
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: eways
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      # Read by 01-roles.sql through psql's \getenv, so no password is written into the script.
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}
+      MIGRATOR_DB_PASSWORD: ${MIGRATOR_DB_PASSWORD:?set MIGRATOR_DB_PASSWORD in .env}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      # Runs once, when the data directory is first initialised.
+      - ../postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d eways"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    restart: unless-stopped
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER in .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD in .env}
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Creates the buckets and the application's own MinIO user, then exits. The API never uses the
+  # root credentials.
+  minio-init:
+    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
+    restart: "no"
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER in .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD in .env}
+      MINIO_APP_ACCESS_KEY: ${MINIO_APP_ACCESS_KEY:?set MINIO_APP_ACCESS_KEY in .env}
+      MINIO_APP_SECRET_KEY: ${MINIO_APP_SECRET_KEY:?set MINIO_APP_SECRET_KEY in .env}
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"
+        mc mb --ignore-existing local/catalog-media local/import-staging local/documents
+        # Published product images are served to anonymous browsers through Caddy.
+        # import-staging and documents stay private: documents are reached only by presigned URL.
+        mc anonymous set download local/catalog-media
+        mc admin user add local "$$MINIO_APP_ACCESS_KEY" "$$MINIO_APP_SECRET_KEY"
+        mc admin policy attach local readwrite --user "$$MINIO_APP_ACCESS_KEY" || true
+
+  # Runs to completion before api and worker start. The host never migrates on startup.
+  migrations:
+    build:
+      context: ../..
+      dockerfile: build/docker/api.Dockerfile
+    restart: "no"
+    command: ["--migrate"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=eways;Username=eways_migrator;Password=${MIGRATOR_DB_PASSWORD:?set MIGRATOR_DB_PASSWORD in .env}
+
+  api:
+    build:
+      context: ../..
+      dockerfile: build/docker/api.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+      minio-init:
+        condition: service_completed_successfully
+      keycloak:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      # The API connects as the role that owns nothing and cannot change the schema.
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=eways;Username=eways_app;Password=${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}
+      # Background work belongs to the worker; see ADR-0019 D8.
+      Jobs__Mode: Disabled
+      Minio__Endpoint: http://minio:9000
+      # Presigned URLs are signed for the host the customer's browser will use, not the internal one.
+      Minio__PublicEndpoint: https://${STORAGE_HOST:?set STORAGE_HOST in .env}
+      Minio__AccessKey: ${MINIO_APP_ACCESS_KEY:?set MINIO_APP_ACCESS_KEY in .env}
+      Minio__SecretKey: ${MINIO_APP_SECRET_KEY:?set MINIO_APP_SECRET_KEY in .env}
+      ApiKeys__Pepper: ${API_KEYS_PEPPER:?set API_KEYS_PEPPER in .env}
+      Brave__ApiKey: ${BRAVE_API_KEY:?set BRAVE_API_KEY in .env}
+      Anthropic__ApiKey: ${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY in .env}
+      Keycloak__InternalUrl: http://keycloak:8080
+      Keycloak__ExternalUrl: https://${AUTH_HOST:?set AUTH_HOST in .env}
+    healthcheck:
+      # The image is chiselled: no curl, no shell. The host implements --probe for this.
+      test: ["CMD", "dotnet", "EwaysVNext.Host.dll", "--probe", "http://localhost:8080/health/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  worker:
+    build:
+      context: ../..
+      dockerfile: build/docker/api.Dockerfile
+    restart: unless-stopped
+    command: ["--worker"]
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+      minio-init:
+        condition: service_completed_successfully
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=eways;Username=eways_app;Password=${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}
+      Minio__Endpoint: http://minio:9000
+      Minio__PublicEndpoint: https://${STORAGE_HOST:?set STORAGE_HOST in .env}
+      Minio__AccessKey: ${MINIO_APP_ACCESS_KEY:?set MINIO_APP_ACCESS_KEY in .env}
+      Minio__SecretKey: ${MINIO_APP_SECRET_KEY:?set MINIO_APP_SECRET_KEY in .env}
+      ApiKeys__Pepper: ${API_KEYS_PEPPER:?set API_KEYS_PEPPER in .env}
+      Brave__ApiKey: ${BRAVE_API_KEY:?set BRAVE_API_KEY in .env}
+      Anthropic__ApiKey: ${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY in .env}
+      Keycloak__InternalUrl: http://keycloak:8080
+      Keycloak__ExternalUrl: https://${AUTH_HOST:?set AUTH_HOST in .env}
+    healthcheck:
+      # A worker maps only the health endpoints; /health/ready would pull in checks it does not serve.
+      test: ["CMD", "dotnet", "EwaysVNext.Host.dll", "--probe", "http://localhost:8080/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  keycloak-db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${KC_DB_PASSWORD:?set KC_DB_PASSWORD in .env}
+    volumes:
+      - keycloak_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4
+    restart: unless-stopped
+    command: ["start", "--import-realm"]
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD:?set KC_DB_PASSWORD in .env}
+      KC_HOSTNAME: https://${AUTH_HOST:?set AUTH_HOST in .env}
+      # TLS terminates at Caddy; Keycloak must trust its forwarded headers to build correct
+      # issuer and redirect URLs.
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      KC_HEALTH_ENABLED: "true"
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:?set KC_BOOTSTRAP_ADMIN_USERNAME in .env}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:?set KC_BOOTSTRAP_ADMIN_PASSWORD in .env}
+      # Substituted into the committed realm exports at import time.
+      KC_SMTP_HOST: ${KC_SMTP_HOST:?set KC_SMTP_HOST in .env}
+      KC_SMTP_PORT: ${KC_SMTP_PORT:?set KC_SMTP_PORT in .env}
+      KC_SMTP_FROM: ${KC_SMTP_FROM:?set KC_SMTP_FROM in .env}
+      KC_SMTP_USER: ${KC_SMTP_USER:?set KC_SMTP_USER in .env}
+      KC_SMTP_PASSWORD: ${KC_SMTP_PASSWORD:?set KC_SMTP_PASSWORD in .env}
+      SHOP_REDIRECT_URI: ${SHOP_REDIRECT_URI:?set SHOP_REDIRECT_URI in .env}
+      BACKOFFICE_REDIRECT_URI: ${BACKOFFICE_REDIRECT_URI:?set BACKOFFICE_REDIRECT_URI in .env}
+    volumes:
+      - ../keycloak:/opt/keycloak/data/import:ro
+    healthcheck:
+      # The image has no curl or wget; bash's /dev/tcp is what is available.
+      test:
+        - CMD-SHELL
+        - >
+          exec 3<>/dev/tcp/localhost/9000 &&
+          printf 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 &&
+          head -1 <&3 | grep -q 200
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:?set PUBLIC_HOST in .env}
+      AUTH_HOST: ${AUTH_HOST:?set AUTH_HOST in .env}
+      STORAGE_HOST: ${STORAGE_HOST:?set STORAGE_HOST in .env}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:2019/config/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pg_data:
+  minio_data:
+  keycloak_data:
+  caddy_data:
+  caddy_config:

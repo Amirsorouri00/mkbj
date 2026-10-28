@@ -9,9 +9,10 @@
     <File Path=".editorconfig" />
     <File Path=".gitignore" />
     <File Path="README.md" />
+    <File Path="build/compose/docker-compose.yml" />
+    <File Path="build/compose/docker-compose.dev.yml" />
     <File Path="build/docker/api.Dockerfile" />
     <File Path="build/docker/api.Dockerfile.dockerignore" />
-    <File Path="docker-compose.yml" />
   </Folder>
 
   <Folder Name="/docs/">

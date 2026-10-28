@@ -1,0 +1,29 @@
+# TLS is obtained and renewed automatically per hostname.
+{
+	email {$ACME_EMAIL}
+}
+
+{$PUBLIC_HOST} {
+	encode zstd gzip
+
+	# Product images are served straight from the bucket, so image traffic never occupies an
+	# application thread. handle_path strips /media before the rewrite adds the bucket name.
+	handle_path /media/* {
+		rewrite * /catalog-media{uri}
+		reverse_proxy minio:9000
+	}
+
+	handle {
+		reverse_proxy api:8080
+	}
+}
+
+{$AUTH_HOST} {
+	reverse_proxy keycloak:8080
+}
+
+# The storage host exists so presigned URLs resolve for a browser; the bucket policies, not Caddy,
+# decide what may be read anonymously.
+{$STORAGE_HOST} {
+	reverse_proxy minio:9000
+}
