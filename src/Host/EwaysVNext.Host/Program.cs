@@ -25,12 +25,15 @@ using System.Security.Claims;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest.Categories;
 using EwaysVNext.Outcomes.Extensions;
 
+if (args.Contains("--probe")) return await Probe.RunAsync(args);
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddModuleConfiguration(
     ["catalog"],
     builder.Environment.EnvironmentName);
 builder.Configuration.AddEnvironmentVariables();
+HostCommands.ApplyFlags(builder.Configuration, args);
 
 
 builder.Host.UseSerilog((ctx, cfg) => cfg
@@ -150,33 +153,14 @@ if (!otlpConfigured)
 
 var app = builder.Build();
 
-if (args.Contains("--migrate"))
-{
-    await using var scope = app.Services.CreateAsyncScope();
-    var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
-    if (db.Database.IsInMemory())
-        Console.WriteLine(MessageFormat.Format(ProgramMessages.MigrateSkippedFormat, db.Database.ProviderName));
-    else
-        await DatabaseMigrator.MigrateAsync(scope.ServiceProvider);
-
-    var authorizationDb = scope.ServiceProvider.GetRequiredService<AuthorizationDbContext>();
-    if (authorizationDb.Database.IsInMemory())
-    {
-        Console.WriteLine(MessageFormat.Format(ProgramMessages.MigrateAuthorizationSkippedFormat, authorizationDb.Database.ProviderName));
-    }
-    else
-    {
-        await authorizationDb.Database.MigrateAsync();
-    }
-
-    Console.WriteLine(ProgramMessages.MigrateDone);
-
-    return;
-}
+if (await HostCommands.RunAsync(app, args) is { } exitCode) return exitCode;
 
 app.UseSerilogRequestLogging();
 
-if (app.Environment.IsDevelopment())
+var workerOnly = string.Equals(
+    builder.Configuration["Jobs:Mode"], "WorkerOnly", StringComparison.OrdinalIgnoreCase);
+
+if (!workerOnly && app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 
@@ -211,12 +195,15 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapEndpoints();
-app.MapGraphQLEndpoint(options =>
+if (!workerOnly)
 {
-    options.Tool.Title = "EwaysVNext GraphQL";
-    options.Tool.Enable = app.Environment.IsDevelopment();
-});
+    app.MapEndpoints();
+    app.MapGraphQLEndpoint(options =>
+    {
+        options.Tool.Title = "EwaysVNext GraphQL";
+        options.Tool.Enable = app.Environment.IsDevelopment();
+    });
+}
 
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
 
@@ -225,5 +212,7 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = c => c
 app.MapHealthChecks("/health");
 
 app.Run();
+
+return 0;
 
 public partial class Program { }
