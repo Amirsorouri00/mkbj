@@ -18,7 +18,7 @@ public sealed class Partner : AggregateRoot<long>
     private const string NotFound = "NOT_FOUND";
     private const string Conflict = "CONFLICT";
 
-    private readonly HashSet<string> _scopes = new(StringComparer.Ordinal);
+    private readonly List<string> _scopes = [];
     private readonly List<ApiKey> _keys = [];
 
     private Partner()
@@ -29,7 +29,7 @@ public sealed class Partner : AggregateRoot<long>
 
     public PartnerStatus Status { get; private set; }
 
-    public IReadOnlySet<string> Scopes => _scopes;
+    public IReadOnlyList<string> Scopes => _scopes;
 
     public int RateLimitPerMinute { get; private set; }
 
@@ -113,7 +113,7 @@ public sealed class Partner : AggregateRoot<long>
     {
         var granted = scopes is null ? _scopes : Validated(scopes);
 
-        if (!granted.IsSubsetOf(_scopes))
+        if (granted.Any(scope => !_scopes.Contains(scope, StringComparer.Ordinal)))
         {
             throw new DomainException(Validation,
                 "A key cannot be granted a scope the partner does not hold.");
@@ -175,15 +175,14 @@ public sealed class Partner : AggregateRoot<long>
         var validated = Validated(scopes);
 
         _scopes.Clear();
-        foreach (var scope in validated)
-            _scopes.Add(scope);
+        _scopes.AddRange(validated);
     }
 
     /// <summary>
     /// Unknown scopes are refused, not dropped. Silently ignoring one would leave an admin
     /// looking at a partner they believe they granted something to.
     /// </summary>
-    private static HashSet<string> Validated(IReadOnlyCollection<string> scopes)
+    private static List<string> Validated(IReadOnlyCollection<string> scopes)
     {
         if (scopes is null || scopes.Count == 0)
             throw new DomainException(Validation, "A partner must hold at least one scope.");
@@ -195,7 +194,7 @@ public sealed class Partner : AggregateRoot<long>
                 $"Unknown scope(s): {string.Join(", ", unknown)}. Valid scopes are {string.Join(", ", PartnerScopes.All)}.");
         }
 
-        return [.. scopes];
+        return [.. scopes.Distinct(StringComparer.Ordinal)];
     }
 
     private static string RequireName(string name)

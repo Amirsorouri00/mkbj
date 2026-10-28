@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using AuthorizationService.Implementation.Persistence;
 using AwesomeAssertions;
 using EwaysVNext.Database;
@@ -66,8 +66,20 @@ public sealed class ModelContractTests
     {
         using var context = Providers.Npgsql<EwaysVNextDbContext>();
 
-        Providers.Model(context).GetEntityTypes().Select(e => e.GetSchema())
-            .Should().OnlyContain(s => s == "catalog" || s == "jobs" || s == "audit");
+        // Asserts the rule rather than a list of known schemas: EwaysVNextDbContext.ResolveSchema
+        // already throws for a namespace it cannot place, so enumerating the names here only
+        // bought an edit every time a module was added — and a stale list fails a correct change.
+        var schemas = Providers.Model(context).GetEntityTypes()
+            .Select(entity => new { Entity = entity.ClrType.Name, Schema = entity.GetSchema() })
+            .ToList();
+
+        schemas.Should().NotBeEmpty();
+
+        schemas.Where(entry =>
+                string.IsNullOrWhiteSpace(entry.Schema)
+                || entry.Schema == "public"
+                || !entry.Schema!.All(character => !char.IsLetter(character) || char.IsLower(character)))
+            .Should().BeEmpty("a table in the default schema is one two modules can collide in");
     }
 
     [Fact]

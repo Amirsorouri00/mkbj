@@ -5,5 +5,6 @@
     <ProjectReference Include="..\Adapter\Inbound\Rest\EwaysVNext.Modules.Partners.Adapter.Inbound.Rest.csproj" />
     <ProjectReference Include="..\QueryApplication\EwaysVNext.Modules.Partners.QueryApplication.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\DependencyInjection\EwaysVNext.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\..\Database\EwaysVNext.Database.csproj" />
   </ItemGroup>
 </Project>

@@ -8,6 +8,7 @@ using EwaysVNext.Host.Middleware;
 using EwaysVNext.Outcomes;
 using EwaysVNext.Modules.Catalog;
 using EwaysVNext.Modules.Customer;
+using EwaysVNext.Modules.Partners;
 using EwaysVNext.Presentation.Endpoint;
 using EwaysVNext.Audit.Implementation;
 using EwaysVNext.Jobs.Implementation;
@@ -31,7 +32,7 @@ if (args.Contains("--probe")) return await Probe.RunAsync(args);
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddModuleConfiguration(
-    ["catalog"],
+    ["catalog", "partners"],
     builder.Environment.EnvironmentName);
 builder.Configuration.AddEnvironmentVariables();
 HostCommands.ApplyFlags(builder.Configuration, args);
@@ -45,7 +46,8 @@ builder.Host.UseSerilog((ctx, cfg) => cfg
 
 builder.Services
     .AddCatalogModule()
-    .AddCustomerModule(builder.Configuration);
+    .AddCustomerModule(builder.Configuration)
+    .AddPartnersModule(builder.Configuration);
 builder.Services.AddUnifiedDatabase(builder.Configuration, builder.Environment.IsDevelopment());
 builder.Services.AddObjectStorage(builder.Configuration);
 builder.Services.AddJobs(builder.Configuration);

@@ -573,6 +573,118 @@ namespace EwaysVNext.Database.Migrations
                     b.ToTable("products", "catalog");
                 });
 
+            modelBuilder.Entity("EwaysVNext.Modules.Partners.Application.Partners.Domain.ApiKey", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<long>("PartnerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("partner_id");
+
+                    b.Property<string>("Prefix")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("prefix");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("revoked_at");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.PrimitiveCollection<string[]>("Scopes")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("scopes");
+
+                    b.Property<byte[]>("SecretHash")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("secret_hash");
+
+                    b.HasKey("Id")
+                        .HasName("pk_api_keys");
+
+                    b.HasIndex("PartnerId")
+                        .HasDatabaseName("ix_api_keys_partner_id");
+
+                    b.HasIndex("Prefix")
+                        .IsUnique()
+                        .HasDatabaseName("ix_api_keys_prefix");
+
+                    b.ToTable("api_keys", "partners", t =>
+                        {
+                            t.HasCheckConstraint("ck_api_keys_expiry_after_creation", "expires_at IS NULL OR expires_at > created_at");
+                        });
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Partners.Application.Partners.Domain.Partner", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<int>("BulkMaxItems")
+                        .HasColumnType("integer")
+                        .HasColumnName("bulk_max_items");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("RateLimitPerMinute")
+                        .HasColumnType("integer")
+                        .HasColumnName("rate_limit_per_minute");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.PrimitiveCollection<string[]>("Scopes")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("scopes");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_partners");
+
+                    b.ToTable("partners", "partners", t =>
+                        {
+                            t.HasCheckConstraint("ck_partners_bulk_max_items", "bulk_max_items BETWEEN 1 AND 1000");
+
+                            t.HasCheckConstraint("ck_partners_rate_limit", "rate_limit_per_minute BETWEEN 1 AND 6000");
+                        });
+                });
+
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprint", b =>
                 {
                     b.OwnsMany("EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprintOption", "Options", b1 =>
@@ -677,9 +789,24 @@ namespace EwaysVNext.Database.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("EwaysVNext.Modules.Partners.Application.Partners.Domain.ApiKey", b =>
+                {
+                    b.HasOne("EwaysVNext.Modules.Partners.Application.Partners.Domain.Partner", null)
+                        .WithMany("Keys")
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_api_keys_partners_partner_id");
+                });
+
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Categories.Domain.Category", b =>
                 {
                     b.Navigation("Children");
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Partners.Application.Partners.Domain.Partner", b =>
+                {
+                    b.Navigation("Keys");
                 });
 #pragma warning restore 612, 618
         }

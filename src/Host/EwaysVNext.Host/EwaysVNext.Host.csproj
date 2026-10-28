@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>EwaysVNext.Host</RootNamespace>
@@ -28,6 +28,7 @@
     <ProjectReference Include="..\..\BuildingBlocks\Core\Implementation\EwaysVNext.Core.Implementation.csproj" />
     <ProjectReference Include="..\..\Modules\Catalog\Installer\EwaysVNext.Modules.Catalog.Installer.csproj" />
     <ProjectReference Include="..\..\Modules\Customer\Installer\EwaysVNext.Modules.Customer.Installer.csproj" />
+    <ProjectReference Include="..\..\Modules\Partners\Installer\EwaysVNext.Modules.Partners.Installer.csproj" />
     <ProjectReference Include="..\..\Modules\Catalog\Adapter\Inbound\Rest\EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest.csproj" />
     <ProjectReference Include="..\..\Database\EwaysVNext.Database.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\Storage\Implementation\EwaysVNext.Storage.Implementation.csproj" />

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace EwaysVNext.Database;
 
@@ -28,6 +28,9 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
 
     public DbSet<EwaysVNext.Jobs.Implementation.RecurringJobRecord> RecurringJobs
         => Set<EwaysVNext.Jobs.Implementation.RecurringJobRecord>();
+
+    public DbSet<EwaysVNext.Modules.Partners.Application.Partners.Domain.Partner> Partners
+        => Set<EwaysVNext.Modules.Partners.Application.Partners.Domain.Partner>();
 
     public DbSet<EwaysVNext.Audit.Implementation.AuditEvent> AuditEvents
         => Set<EwaysVNext.Audit.Implementation.AuditEvent>();

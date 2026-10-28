@@ -13,7 +13,11 @@ namespace EwaysVNext.Modules.Partners.Application.Partners.Domain;
 /// </summary>
 public sealed class ApiKey : Entity<long>
 {
-    private readonly HashSet<string> _scopes = new(StringComparer.Ordinal);
+    // A List, not a HashSet, because EF maps a List<string> straight onto a Postgres text[]
+    // with no value converter. A converted set breaks the EF InMemory model outright (InMemory
+    // composes its own IEnumerable->string converter onto it), which would take the dev-mode
+    // fallback and half the test suite with it. Uniqueness is the domain's job either way.
+    private readonly List<string> _scopes = [];
 
     private ApiKey()
     {
@@ -26,7 +30,7 @@ public sealed class ApiKey : Entity<long>
 
     public byte[] SecretHash { get; private set; } = [];
 
-    public IReadOnlySet<string> Scopes => _scopes;
+    public IReadOnlyList<string> Scopes => _scopes;
 
     public DateTimeOffset CreatedAt { get; private set; }
 
@@ -53,8 +57,7 @@ public sealed class ApiKey : Entity<long>
             ExpiresAt = expiresAt,
         };
 
-        foreach (var scope in scopes)
-            key._scopes.Add(scope);
+        key._scopes.AddRange(scopes.Distinct(StringComparer.Ordinal));
 
         return key;
     }
@@ -77,5 +80,6 @@ public sealed class ApiKey : Entity<long>
         ExpiresAt = ExpiresAt is null || moment < ExpiresAt ? moment : ExpiresAt;
 
     /// <summary>Drops anything the partner no longer holds; see <see cref="Partner.SetScopes"/>.</summary>
-    internal void RetainOnly(IReadOnlySet<string> allowed) => _scopes.IntersectWith(allowed);
+    internal void RetainOnly(IReadOnlyCollection<string> allowed) =>
+        _scopes.RemoveAll(scope => !allowed.Contains(scope));
 }

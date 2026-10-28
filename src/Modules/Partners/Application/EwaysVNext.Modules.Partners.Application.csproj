@@ -5,5 +5,10 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\EwaysVNext.Persistence.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Core\Application\EwaysVNext.Core.Application.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Events\Application\EwaysVNext.Events.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Audit\Application\EwaysVNext.Audit.Application.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
   </ItemGroup>
 </Project>
