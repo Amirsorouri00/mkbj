@@ -1,4 +1,4 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Domain.Common;
 using EwaysVNext.Domain.Events;
 using EwaysVNext.Outcomes;
@@ -30,7 +30,6 @@ public sealed class CategoryServiceTests
         var categories = new InMemoryCategoryRepository(log);
         var assignments = new InMemoryCategoryProductRepository(log);
         var unitOfWork = new InMemoryCategoryUnitOfWork(log);
-        var transactionExecutor  = new InMemoryTransactionExecutor(log);
         var catalog = new StubCatalogProductLookup(ActiveProductId, log);
         var idGenerator = new FixedIdGenerator(GeneratedCategoryId);
         var constructor = typeof(CategoryService).GetConstructors().Single();
@@ -43,14 +42,13 @@ public sealed class CategoryServiceTests
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().Be(GeneratedCategoryId);
         categories.All.Should().ContainSingle(category => category.Id == GeneratedCategoryId);
-        log.Should().ContainInOrder("transaction.begin", "save", "transaction.commit");
+        log.Should().ContainInOrder("save");
 
         object ResolveArgument(System.Reflection.ParameterInfo parameter)
         {
             if (parameter.ParameterType == typeof(ICategoryRepository)) return categories;
             if (parameter.ParameterType == typeof(ICategoryProductRepository)) return assignments;
             if (parameter.ParameterType == typeof(IUnitOfWork)) return unitOfWork;
-            if (parameter.ParameterType == typeof(ITransactionExecutor))return transactionExecutor;
             if (parameter.ParameterType == typeof(ICatalogProductLookup)) return catalog;
             if (parameter.ParameterType == typeof(IClock)) return new FixedClock();
             if (parameter.ParameterType == typeof(IIdGenerator)) return idGenerator;
@@ -79,7 +77,7 @@ public sealed class CategoryServiceTests
 
         result.IsSuccess.Should().BeTrue();
         fixture.Categories.All.Should().HaveCount(2);
-        fixture.TransactionExecutor.ExecuteCount.Should().Be(1);
+        fixture.UnitOfWork.SaveCount.Should().Be(1);
     }
 
     [Fact]
@@ -226,7 +224,7 @@ public sealed class CategoryServiceTests
             new SetCategoryStatusCommand(1, (CategoryStatus)999));
 
         result.Error.Code.Should().Be("CATEGORY_STATUS_INVALID");
-        fixture.TransactionExecutor.ExecuteCount.Should().Be(0);
+        fixture.UnitOfWork.SaveCount.Should().Be(0);
         fixture.Categories.CallCount.Should().Be(0);
         fixture.UnitOfWork.SaveCount.Should().Be(0);
     }
@@ -342,16 +340,15 @@ public sealed class CategoryServiceTests
 
         var root = fixture.AddCategory("Root", "root", active: true);
 
-        fixture.UnitOfWork.NextSaveError = Error.PersistenceConflict;
+        fixture.UnitOfWork.NextSaveOutcome = SaveOutcome.ConcurrencyConflict;
 
         var result = await fixture.Sut.SetStatusAsync(
             new SetCategoryStatusCommand(root.Id, CategoryStatus.Inactive));
 
         result.IsFailure.Should().BeTrue();
-        result.Error!.Code.Should().Be("PERSISTENCE_CONFLICT");
+        result.Error!.Code.Should().Be("CONCURRENCY_CONFLICT");
 
         fixture.UnitOfWork.SaveCount.Should().Be(1);
-        fixture.TransactionExecutor.ExecuteCount.Should().Be(1);
     }
 
     [Fact]
@@ -592,7 +589,7 @@ public sealed class CategoryServiceTests
         result.Error!.Code.Should().Be("CATEGORY_NAME_REQUIRED");
         result.Error.Message.Should().Be("نام دسته‌بندی اجباری است");
         fixture.Categories.CallCount.Should().Be(0);
-        fixture.TransactionExecutor.ExecuteCount.Should().Be(0);
+        fixture.UnitOfWork.SaveCount.Should().Be(0);
     }
 
     [Fact]
@@ -607,7 +604,7 @@ public sealed class CategoryServiceTests
         result.Error.Message.Should().Be(
             "Category name cannot exceed 60 characters or contain unsupported characters");
         fixture.Categories.CallCount.Should().Be(0);
-        fixture.TransactionExecutor.ExecuteCount.Should().Be(0);
+        fixture.UnitOfWork.SaveCount.Should().Be(0);
     }
 
     [Fact]
@@ -621,7 +618,7 @@ public sealed class CategoryServiceTests
 
         result.Error!.Code.Should().Be("CATEGORY_CYCLE");
         root.ParentId.Should().BeNull();
-        fixture.TransactionExecutor.ExecuteCount.Should().Be(1);
+        fixture.UnitOfWork.SaveCount.Should().Be(0);
     }
 
     [Fact]
@@ -634,7 +631,7 @@ public sealed class CategoryServiceTests
 
         result.IsSuccess.Should().BeTrue();
         category.ParentId.Should().Be(parent.Id);
-        fixture.TransactionExecutor.ExecuteCount.Should().Be(1);
+        fixture.UnitOfWork.SaveCount.Should().Be(1);
     }
 
     [Fact]
@@ -684,7 +681,7 @@ public sealed class CategoryServiceTests
 
         result.Error!.Code.Should().Be("CATEGORY_DISPLAY_ORDER_INVALID");
         fixture.Categories.CallCount.Should().Be(0);
-        fixture.TransactionExecutor.ExecuteCount.Should().Be(0);
+        fixture.UnitOfWork.SaveCount.Should().Be(0);
     }
 
     [Fact]
@@ -697,7 +694,7 @@ public sealed class CategoryServiceTests
 
         result.Error!.Code.Should().Be("CATEGORY_PARENT_INVALID");
         fixture.Categories.CallCount.Should().Be(0);
-        fixture.TransactionExecutor.ExecuteCount.Should().Be(0);
+        fixture.UnitOfWork.SaveCount.Should().Be(0);
     }
 
     [Fact]
@@ -724,7 +721,7 @@ public sealed class CategoryServiceTests
         leafResult.IsSuccess.Should().BeTrue();
         leaf.DeletedAt.Should().Be(TestTime.Now);
 
-        fixture.TransactionExecutor.ExecuteCount.Should().Be(2);
+        fixture.UnitOfWork.SaveCount.Should().Be(1);
     }
 
     [Fact]
@@ -864,15 +861,13 @@ public sealed class CategoryServiceTests
             new AssignCategoryProductCommand(category.Id, ActiveProductId, null));
 
         result.IsSuccess.Should().BeTrue();
-        fixture.TransactionExecutor.ExecuteCount.Should().Be(1);
+        fixture.UnitOfWork.SaveCount.Should().Be(1);
         fixture.Log.Should().Equal(
-            "transaction.begin",
             "category.get",
             "assignment.exists",
             "catalog.lookup",
             "assignment.add",
-            "save",
-            "transaction.commit");
+            "save");
     }
 
     [Fact]
@@ -883,7 +878,7 @@ public sealed class CategoryServiceTests
             new CreateCategoryCommand("Child", "child", null, -1, 0));
 
         result.Error!.Code.Should().Be("CATEGORY_PARENT_INVALID");
-        fixture.TransactionExecutor.ExecuteCount.Should().Be(0);
+        fixture.UnitOfWork.SaveCount.Should().Be(0);
         fixture.Categories.CallCount.Should().Be(0);
     }
 
@@ -909,24 +904,63 @@ public sealed class CategoryServiceTests
             new CreateCategoryCommand("Root", "root", null, null, 0));
 
         result.IsSuccess.Should().BeTrue();
-        fixture.TransactionExecutor.ExecuteCount.Should().Be(1);
-        fixture.Log.Should().Equal("transaction.begin", "save", "transaction.commit");
+        fixture.UnitOfWork.SaveCount.Should().Be(1);
+        fixture.Log.Should().Equal("save");
+    }
+
+    // The three writes whose validity depends on the parent's state must also touch the parent,
+    // so a concurrent writer that read the old parent loses on its concurrency token. This is what
+    // replaced the serializable transaction (ADR-0017 D8); without it both writes commit.
+
+    [Fact]
+    public async Task Create_Touches_The_Parent()
+    {
+        var fixture = new Fixture();
+        var parent = fixture.AddCategory("Parent", "parent", active: true);
+
+        var result = await fixture.Sut.CreateAsync(
+            new CreateCategoryCommand("Child", "child", null, parent.Id, 0));
+
+        result.IsSuccess.Should().BeTrue();
+        parent.UpdatedAt.Should().Be(TestTime.Now);
+    }
+
+    [Fact]
+    public async Task Move_Touches_The_New_Parent()
+    {
+        var fixture = new Fixture();
+        var newParent = fixture.AddCategory("New parent", "new-parent", active: true);
+        var moved = fixture.AddCategory("Moved", "moved");
+
+        var result = await fixture.Sut.MoveAsync(
+            new MoveCategoryCommand(moved.Id, newParent.Id, 0));
+
+        result.IsSuccess.Should().BeTrue();
+        newParent.UpdatedAt.Should().Be(TestTime.Now);
+    }
+
+    [Fact]
+    public async Task Activation_Touches_The_Parent()
+    {
+        var fixture = new Fixture();
+        var parent = fixture.AddCategory("Parent", "parent", active: true);
+        var child = fixture.AddCategory("Child", "child", parent.Id);
+
+        var result = await fixture.Sut.SetStatusAsync(
+            new SetCategoryStatusCommand(child.Id, CategoryStatus.Active));
+
+        result.IsSuccess.Should().BeTrue();
+        parent.UpdatedAt.Should().Be(TestTime.Now);
     }
 
     [Theory]
-    [InlineData("PERSISTENCE_CONFLICT")]
-    [InlineData("CONCURRENCY_CONFLICT")]
-    public async Task Save_Conflicts_Must_Be_Translated_To_Result_Failures(
-    string expectedCode)
+    [InlineData(SaveOutcome.ConcurrencyConflict, "CONCURRENCY_CONFLICT")]
+    [InlineData(SaveOutcome.UniqueViolation, "CONFLICT")]
+    public async Task Lost_Save_Races_Must_Be_Translated_To_Result_Failures(
+        SaveOutcome outcome, string expectedCode)
     {
         var fixture = new Fixture();
-
-        fixture.UnitOfWork.NextSaveError = expectedCode switch
-        {
-            "PERSISTENCE_CONFLICT" => Error.PersistenceConflict,
-            "CONCURRENCY_CONFLICT" => Error.ConcurrencyConflict,
-            _ => throw new ArgumentOutOfRangeException(nameof(expectedCode))
-        };
+        fixture.UnitOfWork.NextSaveOutcome = outcome;
 
         var result = await fixture.Sut.CreateAsync(
             new CreateCategoryCommand(
@@ -940,9 +974,7 @@ public sealed class CategoryServiceTests
         result.Error!.Code.Should().Be(expectedCode);
 
         fixture.Log.Should().NotContain("dispatch");
-        fixture.Log.Should().EndWith("transaction.rollback");
-
-        fixture.TransactionExecutor.ExecuteCount.Should().Be(1);
+        fixture.UnitOfWork.SaveCount.Should().Be(1);
     }
 
     [Fact]
@@ -989,8 +1021,7 @@ public sealed class CategoryServiceTests
         services.AddSingleton<IUnitOfWork>(
             new InMemoryCategoryUnitOfWork(log));
 
-        services.AddSingleton<ITransactionExecutor>(
-            new InMemoryTransactionExecutor(log));
+
 
         services.AddSingleton<ICatalogProductLookup>(
             new StubCatalogProductLookup(ActiveProductId, log));
@@ -1033,7 +1064,6 @@ public sealed class CategoryServiceTests
         public InMemoryCategoryRepository Categories { get; }
         public InMemoryCategoryProductRepository Assignments { get; }
         public InMemoryCategoryUnitOfWork UnitOfWork { get; }
-        public InMemoryTransactionExecutor TransactionExecutor { get; }
         public StubCatalogProductLookup Catalog { get; }
         public SequentialIdGenerator IdGenerator { get; }
         //public RecordingEventDispatcher Events { get; }
@@ -1044,13 +1074,12 @@ public sealed class CategoryServiceTests
             Categories = new InMemoryCategoryRepository(Log);
             Assignments = new InMemoryCategoryProductRepository(Log);
             UnitOfWork = new InMemoryCategoryUnitOfWork(Log);
-            TransactionExecutor = new InMemoryTransactionExecutor(Log);
             Catalog = new StubCatalogProductLookup(ActiveProductId, Log);
             IdGenerator = new SequentialIdGenerator();
             //Events = new RecordingEventDispatcher(Log);
             Sut = new CategoryService(
                 Categories, Assignments, UnitOfWork, Catalog, /*Events,*/ new FixedClock(),
-                IdGenerator,TransactionExecutor );
+                IdGenerator);
         }
 
         public Category AddCategory(string name, string slug, long? parentId = null, bool active = false)
@@ -1264,6 +1293,7 @@ public sealed class CategoryServiceTests
         public int SaveCount { get; private set; }
         public CancellationToken LastToken { get; private set; }
         public Error NextSaveError { get; set; } = Error.None;
+        public SaveOutcome NextSaveOutcome { get; set; } = SaveOutcome.Saved;
 
         public InMemoryCategoryUnitOfWork(List<string> log) => _log = log;
 
@@ -1290,88 +1320,16 @@ public sealed class CategoryServiceTests
             return 1;
         }
 
+        public Task<SaveOutcome> TrySaveChangesAsync(CancellationToken ct = default)
+        {
+            SaveCount++;
+            LastToken = ct;
+            _log.Add("save");
+            return Task.FromResult(NextSaveOutcome);
+        }
+
     }
 
-    private sealed class InMemoryTransactionExecutor : ITransactionExecutor
-    {
-        private readonly List<string> _log;
-
-        public int ExecuteCount { get; private set; }
-        public CancellationToken LastToken { get; private set; }
-
-        public Error? NextError { get; set; }
-
-        public InMemoryTransactionExecutor(List<string> log)
-        {
-            _log = log;
-        }
-
-        public async Task<Result> ExecuteSerializableAsync(
-            Func<CancellationToken, Task<Result>> operation,
-            CancellationToken ct = default)
-        {
-            ExecuteCount++;
-            LastToken = ct;
-
-            _log.Add("transaction.begin");
-
-            if (NextError is not null)
-            {
-                _log.Add("transaction.rollback");
-                return Result.Failure(NextError);
-            }
-
-            try
-            {
-                var result = await operation(ct);
-
-                _log.Add(
-                    result.IsSuccess
-                        ? "transaction.commit"
-                        : "transaction.rollback");
-
-                return result;
-            }
-            catch (PersistenceTestException error)
-            {
-                _log.Add("transaction.rollback");
-                return Result.Failure(error.Error);
-            }
-        }
-
-        public async Task<Result<T>> ExecuteSerializableAsync<T>(
-            Func<CancellationToken, Task<Result<T>>> operation,
-            CancellationToken ct = default)
-        {
-            ExecuteCount++;
-            LastToken = ct;
-
-            _log.Add("transaction.begin");
-
-            if (NextError is not null)
-            {
-                _log.Add("transaction.rollback");
-                return Result.Failure<T>(NextError);
-            }
-
-            try
-            {
-                var result = await operation(ct);
-
-                _log.Add(
-                    result.IsSuccess
-                        ? "transaction.commit"
-                        : "transaction.rollback");
-
-                return result;
-            }
-            catch (PersistenceTestException error)
-            {
-                _log.Add("transaction.rollback");
-                return Result.Failure<T>(error.Error);
-            }
-        }
-    }
 
     //private sealed class RecordingEventDispatcher(List<string> log) : IEventDispatcher
     //{

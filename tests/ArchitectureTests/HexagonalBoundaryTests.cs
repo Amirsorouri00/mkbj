@@ -80,6 +80,13 @@ public sealed class HexagonalBoundaryTests
             .Should().BeEmpty();
 
     [Fact]
+    public void No_User_Initiated_Transactions_In_Src() =>
+        SourceFiles("src")
+            .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}Migrations{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+            .Where(f => Regex.IsMatch(File.ReadAllText(f), @"BeginTransaction|UseTransaction"))
+            .Should().BeEmpty("rule 8: EnableRetryOnFailure cannot replay a user-initiated transaction");
+
+    [Fact]
     public void No_Wolverine_Anywhere() =>
         Directory.EnumerateFiles(Root, "*.*", SearchOption.AllDirectories)
             .Where(f => f.EndsWith(".csproj", StringComparison.Ordinal) || f.EndsWith(".props", StringComparison.Ordinal))

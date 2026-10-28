@@ -180,6 +180,19 @@ public sealed class Category : AggregateRoot<long>
         UpdatedAt = now;
         Raise(new CategoryDeletedDomainEvent(Id, now));
     }
+
+    /// <summary>
+    /// Marks this category as changed because one of its children did.
+    /// <para>
+    /// This is what replaced the serializable transaction (ADR-0017 D8): a write whose validity
+    /// depends on the parent's state — a new child, a move into this parent, a child becoming
+    /// active — also touches the parent, so the parent's <c>xmin</c> changes and a concurrent
+    /// writer that read the old parent loses on its concurrency check instead of both succeeding
+    /// against a stale view.
+    /// </para>
+    /// </summary>
+    public void RecordChildChanged(DateTimeOffset now) => UpdatedAt = now;
+
     private void EnsureNotDeleted()
     {
         if (Status == CategoryStatus.Deleted)

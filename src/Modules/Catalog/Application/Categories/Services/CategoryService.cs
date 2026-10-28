@@ -1,4 +1,4 @@
-using EwaysVNext.Domain.Common;
+﻿using EwaysVNext.Domain.Common;
 using EwaysVNext.Modules.Catalog.Application.Categories.Commands;
 using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
 using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
@@ -43,7 +43,6 @@ public sealed class CategoryService : Ports.Inbound.ICategoryService
     private readonly ICategoryRepository _categories;
     private readonly ICategoryProductRepository _assignments;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ITransactionExecutor _transactionExecutor;
     private readonly ICatalogProductLookup _catalog;
     //private readonly IEventDispatcher _events;
     private readonly IClock _clock;
@@ -52,11 +51,10 @@ public sealed class CategoryService : Ports.Inbound.ICategoryService
     public CategoryService(ICategoryRepository categories,
         ICategoryProductRepository assignments, IUnitOfWork unitOfWork,
         ICatalogProductLookup catalog, /*IEventDispatcher events, */IClock clock,
-        IIdGenerator idGenerator, ITransactionExecutor transactionExecutor)
+        IIdGenerator idGenerator)
     {
         (_categories, _assignments, _unitOfWork, _catalog, /*_events, */_clock, _idGenerator) =
         (categories, assignments, unitOfWork, catalog, /*events,*/ clock, idGenerator);
-        _transactionExecutor = transactionExecutor;
     }
 
     public async Task<Result<long>> CreateAsync(CreateCategoryCommand command,
@@ -71,31 +69,29 @@ public sealed class CategoryService : Ports.Inbound.ICategoryService
         }
         catch (DomainException error) { return Result.Failure<long>(ToError(error)); }
 
-        var result = await _transactionExecutor.ExecuteSerializableAsync(async token =>
-        {
-            var parent = await LoadExistingParentAsync(command.ParentId, token);
-            if (parent.IsFailure) return Result.Failure<long>(parent.Error!);
-            var hierarchy = await _categories.GetHierarchyAsync(command.ParentId, null, token);
-            var parentDepth = GetAncestorDepth(command.ParentId, hierarchy, token);
-            if (parentDepth.IsFailure)
-                return Result.Failure<long>(parentDepth.Error!);
-            if (parentDepth.Value >= 5)
-                return Result.Failure<long>(DepthExceeded);
-            if (await _categories.NameExistsAtLevelAsync(
-                    category.NormalizedName, category.ParentId, null, token))
-                return Result.Failure<long>(CreateNameConflict);
-            if (await _categories.SlugExistsAsync(category.Slug.Value, null, token))
-                return Result.Failure<long>(SlugConflict(category.Slug.Value));
+        var parent = await LoadExistingParentAsync(command.ParentId, ct);
+        if (parent.IsFailure) return Result.Failure<long>(parent.Error!);
+        var hierarchy = await _categories.GetHierarchyAsync(command.ParentId, null, ct);
+        var parentDepth = GetAncestorDepth(command.ParentId, hierarchy, ct);
+        if (parentDepth.IsFailure)
+            return Result.Failure<long>(parentDepth.Error!);
+        if (parentDepth.Value >= 5)
+            return Result.Failure<long>(DepthExceeded);
+        if (await _categories.NameExistsAtLevelAsync(
+                category.NormalizedName, category.ParentId, null, ct))
+            return Result.Failure<long>(CreateNameConflict);
+        if (await _categories.SlugExistsAsync(category.Slug.Value, null, ct))
+            return Result.Failure<long>(SlugConflict(category.Slug.Value));
 
-            await _categories.AddAsync(category, token);
+        await _categories.AddAsync(category, ct);
+        // Touch the parent so a concurrent writer that validated against the old parent loses on
+        // its concurrency token instead of both writes succeeding (ADR-0017 D8).
+        parent.Value?.RecordChildChanged(_clock.UtcNow);
 
-            await _unitOfWork.SaveChangesAsync(token);
+        var saved = await _unitOfWork.TrySaveChangesAsync(ct);
+        if (saved != SaveOutcome.Saved) return Result.Failure<long>(ToError(saved));
 
-            return Result.Success<long>(category.Id);
-        }, ct);
-
-        //if (result.IsSuccess) await DispatchAndClearAsync(category, ct);
-        return result;
+        return Result.Success<long>(category.Id);
     }
 
     public async Task<Result<CategoryAdminDto>> UpdateAsync(UpdateCategoryCommand command,
@@ -108,68 +104,63 @@ public sealed class CategoryService : Ports.Inbound.ICategoryService
         try { CategoryEntity.ValidateDetails(command.Name, command.Slug, command.Description, command.DisplayOrder); }
         catch (DomainException error) { return Result.Failure<CategoryAdminDto>(ToError(error)); }
 
-        var result = await _transactionExecutor.ExecuteSerializableAsync(async token =>
+        var category = await _categories.GetByIdAsync(command.CategoryId, ct);
+        if (category is null) return Result.Failure<CategoryAdminDto>(NotFound);
+        if (category.Status == CategoryStatus.Deleted)
+            return Result.Failure<CategoryAdminDto>(Deleted);
+        var normalizedName = CategoryEntity.NormalizeNameForComparison(command.Name);
+        if (await _categories.NameExistsAtLevelAsync(
+                normalizedName, category.ParentId, command.CategoryId, ct))
+            return Result.Failure<CategoryAdminDto>(UpdateNameConflict);
+        CategorySlug slug;
+        try { slug = CategorySlug.Create(command.Slug); }
+        catch (DomainException error) { return Result.Failure<CategoryAdminDto>(ToError(error)); }
+        if (await _categories.SlugExistsAsync(slug.Value, command.CategoryId, ct))
+            return Result.Failure<CategoryAdminDto>(SlugConflict(slug.Value));
+
+        StatusTransition? transition = null;
+        var transitionTarget = default(CategoryStatus);
+        var targetStatus = command.Status;
+        if (targetStatus.HasValue && targetStatus.Value != category.Status)
         {
-            var category = await _categories.GetByIdAsync(command.CategoryId, token);
-            if (category is null) return Result.Failure<CategoryAdminDto>(NotFound);
-            if (category.Status == CategoryStatus.Deleted)
-                return Result.Failure<CategoryAdminDto>(Deleted);
-            var normalizedName = CategoryEntity.NormalizeNameForComparison(command.Name);
-            if (await _categories.NameExistsAtLevelAsync(
-                    normalizedName, category.ParentId, command.CategoryId, token))
-                return Result.Failure<CategoryAdminDto>(UpdateNameConflict);
-            CategorySlug slug;
-            try { slug = CategorySlug.Create(command.Slug); }
-            catch (DomainException error) { return Result.Failure<CategoryAdminDto>(ToError(error)); }
-            if (await _categories.SlugExistsAsync(slug.Value, command.CategoryId, token))
-                return Result.Failure<CategoryAdminDto>(SlugConflict(slug.Value));
+            transitionTarget = targetStatus.Value;
+            var transitionResult = await PrepareStatusTransitionAsync(category,
+                transitionTarget,
+                ct);
 
-            StatusTransition? transition = null;
-            var transitionTarget = default(CategoryStatus);
-            var targetStatus = command.Status;
-            if (targetStatus.HasValue && targetStatus.Value != category.Status)
+            if (transitionResult.IsFailure)
+                return Result.Failure<CategoryAdminDto>(transitionResult.Error!);
+            transition = transitionResult.Value;
+        }
+
+        try
+        {
+            var now = _clock.UtcNow;
+
+            category.Update(command.Name,
+                slug.Value,
+                command.Description,
+                command.DisplayOrder,
+                now);
+
+            if (transition is not null)
             {
-                transitionTarget = targetStatus.Value;
-                var transitionResult = await PrepareStatusTransitionAsync(category,
+                ApplyStatusTransition(
+                    transition,
                     transitionTarget,
-                    token);
-
-                if (transitionResult.IsFailure)
-                    return Result.Failure<CategoryAdminDto>(transitionResult.Error!);
-                transition = transitionResult.Value;
+                    now,
+                    ct);
             }
+        }
+        catch (DomainException error)
+        {
+            return Result.Failure<CategoryAdminDto>(ToError(error));
+        }
 
-            try
-            {
-                var now = _clock.UtcNow;
+        var saved = await _unitOfWork.TrySaveChangesAsync(ct);
+        if (saved != SaveOutcome.Saved) return Result.Failure<CategoryAdminDto>(ToError(saved));
 
-                category.Update(command.Name,
-                    slug.Value,
-                    command.Description,
-                    command.DisplayOrder,
-                    now);
-
-                if (transition is not null)
-                {
-                    ApplyStatusTransition(
-                        transition,
-                        transitionTarget,
-                        now,
-                        token);
-                }
-            }
-            catch (DomainException error)
-            {
-                return Result.Failure<CategoryAdminDto>(ToError(error));
-            }
-
-            await _unitOfWork.SaveChangesAsync(token);
-
-            return Result.Success<CategoryAdminDto>(ToAdminDto(category));
-
-        }, ct);
-
-        return result;
+        return Result.Success<CategoryAdminDto>(ToAdminDto(category));
     }
 
     public async Task<Result> MoveAsync(MoveCategoryCommand command,
@@ -185,28 +176,24 @@ public sealed class CategoryService : Ports.Inbound.ICategoryService
                 "A category cannot be its own parent."));
 
         CategoryEntity? changed = null;
-        var result = await _transactionExecutor.ExecuteSerializableAsync(async token =>
-        {
-            var category = await _categories.GetByIdAsync(command.CategoryId, token);
-            if (category is null) return Result.Failure(NotFound);
-            if (category.Status == CategoryStatus.Deleted) return Result.Failure(Deleted);
-            var parent = await LoadExistingParentAsync(command.ParentId, token);
-            if (parent.IsFailure) return Result.Failure(parent.Error!);
-            var hierarchy = await _categories.GetHierarchyAsync(command.ParentId, category.Id, token);
-            var validation = ValidateMoveHierarchy(category.Id, command.ParentId, hierarchy, token);
-            if (validation.IsFailure) return validation;
+        var category = await _categories.GetByIdAsync(command.CategoryId, ct);
+        if (category is null) return Result.Failure(NotFound);
+        if (category.Status == CategoryStatus.Deleted) return Result.Failure(Deleted);
+        var parent = await LoadExistingParentAsync(command.ParentId, ct);
+        if (parent.IsFailure) return Result.Failure(parent.Error!);
+        var hierarchy = await _categories.GetHierarchyAsync(command.ParentId, category.Id, ct);
+        var validation = ValidateMoveHierarchy(category.Id, command.ParentId, hierarchy, ct);
+        if (validation.IsFailure) return validation;
 
-            try { category.Move(command.ParentId, command.DisplayOrder, _clock.UtcNow); }
-            catch (DomainException error) { return Result.Failure(ToError(error)); }
-            changed = category;
+        try { category.Move(command.ParentId, command.DisplayOrder, _clock.UtcNow); }
+        catch (DomainException error) { return Result.Failure(ToError(error)); }
+        changed = category;
+        parent.Value?.RecordChildChanged(_clock.UtcNow);
 
-            await _unitOfWork.SaveChangesAsync(token);
+        var saved = await _unitOfWork.TrySaveChangesAsync(ct);
+        if (saved != SaveOutcome.Saved) return Result.Failure(ToError(saved));
 
-            return Result.Success();
-        }, ct);
-
-        //if (result.IsSuccess) await DispatchAndClearAsync(changed!, ct);
-        return result;
+        return Result.Success();
     }
 
     public async Task<Result<CategoryAdminDto>> SetStatusAsync(
@@ -217,33 +204,32 @@ public sealed class CategoryService : Ports.Inbound.ICategoryService
         if (!Enum.IsDefined(command.Status))
             return Result.Failure<CategoryAdminDto>(InvalidStatus);
 
-        return await _transactionExecutor.ExecuteSerializableAsync(async token =>
+        var category = await _categories.GetByIdAsync(command.CategoryId, ct);
+        if (category is null) return Result.Failure<CategoryAdminDto>(NotFound);
+        if (category.Status == CategoryStatus.Deleted)
+            return Result.Failure<CategoryAdminDto>(Deleted);
+        if (command.Status != category.Status)
         {
-            var category = await _categories.GetByIdAsync(command.CategoryId, token);
-            if (category is null) return Result.Failure<CategoryAdminDto>(NotFound);
-            if (category.Status == CategoryStatus.Deleted)
-                return Result.Failure<CategoryAdminDto>(Deleted);
-            if (command.Status != category.Status)
+            var transition = await PrepareStatusTransitionAsync(category, command.Status, ct);
+
+            if (transition.IsFailure)
+                return Result.Failure<CategoryAdminDto>(transition.Error!);
+
+            try
             {
-                var transition = await PrepareStatusTransitionAsync(category, command.Status, token);
-
-                if (transition.IsFailure)
-                    return Result.Failure<CategoryAdminDto>(transition.Error!);
-
-                try
-                {
-                    ApplyStatusTransition(
-                        transition.Value!, command.Status, _clock.UtcNow, token);
-                }
-                catch (DomainException error)
-                {
-                    return Result.Failure<CategoryAdminDto>(ToError(error));
-                }
+                ApplyStatusTransition(
+                    transition.Value!, command.Status, _clock.UtcNow, ct);
             }
+            catch (DomainException error)
+            {
+                return Result.Failure<CategoryAdminDto>(ToError(error));
+            }
+        }
 
-            await _unitOfWork.SaveChangesAsync(token);
-            return Result.Success(ToAdminDto(category));
-        }, ct);
+        var saved = await _unitOfWork.TrySaveChangesAsync(ct);
+        if (saved != SaveOutcome.Saved) return Result.Failure<CategoryAdminDto>(ToError(saved));
+
+        return Result.Success(ToAdminDto(category));
     }
 
     public async Task<Result> DeactivateManyAsync(BulkDeactivateCategoriesCommand command,
@@ -253,33 +239,29 @@ public sealed class CategoryService : Ports.Inbound.ICategoryService
         if (categoryIds.Length == 0 || categoryIds.Any(categoryId => categoryId <= 0))
             return Result.Failure(NotFound);
 
-        var result = await _transactionExecutor.ExecuteSerializableAsync(async token =>
+        var subtree = await _categories.GetSubtreesForUpdateAsync(categoryIds, ct);
+        ct.ThrowIfCancellationRequested();
+        var uniqueSubtree = subtree.DistinctBy(item => item.Id).ToArray();
+        var selected = uniqueSubtree
+            .Where(item => categoryIds.Contains(item.Id))
+            .ToDictionary(item => item.Id);
+        if (categoryIds.Any(categoryId => !selected.ContainsKey(categoryId)))
+            return Result.Failure(NotFound);
+        if (selected.Values.Any(category => category.Status == CategoryStatus.Deleted))
+            return Result.Failure(Deleted);
+
+        var now = _clock.UtcNow;
+        foreach (var item in uniqueSubtree)
         {
-            var subtree = await _categories.GetSubtreesForUpdateAsync(categoryIds, token);
-            token.ThrowIfCancellationRequested();
-            var uniqueSubtree = subtree.DistinctBy(item => item.Id).ToArray();
-            var selected = uniqueSubtree
-                .Where(item => categoryIds.Contains(item.Id))
-                .ToDictionary(item => item.Id);
-            if (categoryIds.Any(categoryId => !selected.ContainsKey(categoryId)))
-                return Result.Failure(NotFound);
-            if (selected.Values.Any(category => category.Status == CategoryStatus.Deleted))
-                return Result.Failure(Deleted);
+            ct.ThrowIfCancellationRequested();
+            if (item.Status != CategoryStatus.Deleted)
+                item.SetStatus(CategoryStatus.Inactive, parentIsActive: false,
+                    hasDependencies: false, now);
+        }
+        var saved = await _unitOfWork.TrySaveChangesAsync(ct);
+        if (saved != SaveOutcome.Saved) return Result.Failure(ToError(saved));
 
-            var now = _clock.UtcNow;
-            foreach (var item in uniqueSubtree)
-            {
-                token.ThrowIfCancellationRequested();
-                if (item.Status != CategoryStatus.Deleted)
-                    item.SetStatus(CategoryStatus.Inactive, parentIsActive: false,
-                        hasDependencies: false, now);
-            }
-            await _unitOfWork.SaveChangesAsync(token);
-
-            return Result.Success();
-        }, ct);
-
-        return result;
+        return Result.Success();
     }
 
     public async Task<Result> DeleteAsync(DeleteCategoryCommand command,
@@ -297,35 +279,35 @@ public sealed class CategoryService : Ports.Inbound.ICategoryService
         }
         catch (DomainException error) { return Result.Failure(ToError(error)); }
 
-        return await _transactionExecutor.ExecuteSerializableAsync(async token =>
-        {
-            var category = await _categories.GetByIdAsync(
-                command.CategoryId,
-                token);
+        var category = await _categories.GetByIdAsync(
+            command.CategoryId,
+            ct);
 
-            if (category is null)
-                return Result.Failure(NotFound);
+        if (category is null)
+            return Result.Failure(NotFound);
 
-            if (category.Status == CategoryStatus.Deleted)
-                return Result.Failure(Deleted);
+        if (category.Status == CategoryStatus.Deleted)
+            return Result.Failure(Deleted);
 
-            if (await _assignments.ExistsAsync(
-                command.CategoryId,
-                command.ProductId,
-                token))
-                return Result.Success();
+        if (await _assignments.ExistsAsync(
+            command.CategoryId,
+            command.ProductId,
+            ct))
+            return Result.Success();
 
-            if (!await _catalog.ExistsAndIsActiveAsync(
-                command.ProductId,
-                token))
-                return Result.Failure(ProductInvalid);
+        if (!await _catalog.ExistsAndIsActiveAsync(
+            command.ProductId,
+            ct))
+            return Result.Failure(ProductInvalid);
 
-            //var outcome = await _assignments.AddIfAbsentAsync(assignment, token);
-            await _assignments.AddAsync(assignment, token);
-            await _unitOfWork.SaveChangesAsync(token);
+        //var outcome = await _assignments.AddIfAbsentAsync(assignment, ct);
+        await _assignments.AddAsync(assignment, ct);
+        var saved = await _unitOfWork.TrySaveChangesAsync(ct);
+        if (saved == SaveOutcome.UniqueViolation)
+            return AssociationResult(AssociationMutationOutcome.AlreadyInDesiredState);
+        if (saved != SaveOutcome.Saved) return Result.Failure(ToError(saved));
 
-            return AssociationResult(AssociationMutationOutcome.Applied);
-        }, ct);
+        return AssociationResult(AssociationMutationOutcome.Applied);
     }
 
     public async Task<Result> UnassignProductAsync(UnassignCategoryProductCommand command,
@@ -350,7 +332,7 @@ public sealed class CategoryService : Ports.Inbound.ICategoryService
             return parent.IsFailure
                 ? Result.Failure<StatusTransition>(parent.Error!)
                 : Result.Success(new StatusTransition(
-                    [category], parent.Value?.Status == CategoryStatus.Active));
+                    [category], parent.Value?.Status == CategoryStatus.Active, parent.Value));
         }
 
         if (targetStatus == CategoryStatus.Inactive)
@@ -393,6 +375,10 @@ public sealed class CategoryService : Ports.Inbound.ICategoryService
             if (category.Status == CategoryStatus.Deleted) continue;
             category.SetStatus(targetStatus, transition.ParentIsActive, false, now);
         }
+
+        // A child becoming active is only valid against this parent's current state, so the
+        // parent is touched too (ADR-0017 D8).
+        if (targetStatus == CategoryStatus.Active) transition.Parent?.RecordChildChanged(now);
     }
 
     private async Task<Result<CategoryEntity?>> LoadExistingParentAsync(long? parentId,
@@ -416,7 +402,6 @@ public sealed class CategoryService : Ports.Inbound.ICategoryService
             ? result
             : Result.Failure<CategoryEntity?>(ParentInactive);
     }
-
 
     private static Result AssociationResult(AssociationMutationOutcome outcome) =>
         outcome == AssociationMutationOutcome.PersistenceConflict
@@ -492,10 +477,19 @@ public sealed class CategoryService : Ports.Inbound.ICategoryService
         category.Description, category.DisplayOrder, category.Status);
 
     private static Error ToError(DomainException exception) => new(exception.Code, exception.Message);
+
+    /// <summary>A lost save race, as an error: stale write vs duplicate key.</summary>
+    private static Error ToError(SaveOutcome outcome) => outcome switch
+    {
+        SaveOutcome.ConcurrencyConflict => Error.ConcurrencyConflict,
+        SaveOutcome.UniqueViolation => Error.Conflict,
+        _ => PersistenceConflict,
+    };
     private static Result ValidateCategoryId(long categoryId) =>
         categoryId > 0 ? Result.Success() : Result.Failure(NotFound);
 
     private sealed record StatusTransition(
         IReadOnlyList<CategoryEntity> Categories,
-        bool ParentIsActive);
+        bool ParentIsActive,
+        CategoryEntity? Parent = null);
 }

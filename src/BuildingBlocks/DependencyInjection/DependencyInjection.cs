@@ -56,8 +56,6 @@ public static class DependencyInjection
         where TDbContext : DbContext
     {
         services.AddScoped<IUnitOfWork, EfCoreUnitOfWork<TDbContext>>();
-
-        services.AddScoped<ITransactionExecutor,EfCoreTransactionExecutor<TDbContext>>();
         return services;
     }
 }
