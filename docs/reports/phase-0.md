@@ -65,10 +65,10 @@ against itself on a case-insensitive filesystem. Both lessons are recorded in
 ## Known gaps carried into phase 1
 
 - **MinIO's images are no longer anonymously pullable.** Both `docker.io/minio/minio` and
-  `quay.io/minio/minio` refuse an unauthenticated pull. The dev stack defaults to an archived
-  mirror of the same AGPL server behind `MINIO_IMAGE`/`MINIO_MC_IMAGE`. **This needs a decision**:
-  credentials for MinIO's registry, staying on the archive, or another S3-compatible server.
-  Nothing in the code is MinIO-specific either way.
+  `quay.io/minio/minio` refuse an unauthenticated pull. Decided 2026-10-28: stay on the archived
+  mirror, behind `MINIO_IMAGE`/`MINIO_MC_IMAGE` and pinned by digest ([ADR-0017](../adr/0017-postgres-and-minio.md)
+  D11). It is frozen and unmaintained, so a production deployment should point those variables at
+  a maintained image; nothing in the adapter is MinIO-specific.
 - **Keycloak realm secrets are placeholders.** Phase 1 fills them and adds the first
   authentication test.
 - **Nothing is measured.** There is no load test and no number in any document is measured; the

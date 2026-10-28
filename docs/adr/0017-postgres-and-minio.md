@@ -130,11 +130,25 @@ Object storage is reached through `IObjectStorage` (Task 9) with an AWS S3 SDK a
 MinIO, over three buckets: `catalog-media` (published images), `import-staging` (raw downloads,
 private) and `documents` (invoice PDFs, private, served by 5-minute presigned URLs).
 
-**Not yet exercised in CI.** The `minio/minio` image could not be pulled in this environment
-("pull access denied … repository does not exist"), while other namespaced Docker Hub images pull
-normally — MinIO has restructured its public distribution. Task 4 needs no object storage, so the
-container was left out of the fixture rather than faked; Task 9 owns the decision (authenticate to
-MinIO's registry, pin a mirrored tag, or use another S3-compatible image for tests).
+**MinIO's images are no longer anonymously pullable, and we run an archived mirror.** Both
+`docker.io/minio/minio` and `quay.io/minio/minio` refuse an unauthenticated pull; this is a
+distribution change on MinIO's side, not a transient registry fault — other namespaced images on
+both registries pull normally. Resolved 2026-10-28, with the product owner choosing the mirror
+over obtaining registry credentials:
+
+- The dev stack reads `MINIO_IMAGE` and `MINIO_MC_IMAGE`, defaulting to `bitnamilegacy/minio`
+  pinned by digest — the same AGPLv3 MinIO server (DEVELOPMENT.2025-05-24), redistributed. Point
+  the variables back at `minio/minio` once credentials exist; nothing else changes.
+- The mirror runs as uid 1001 and cannot write a freshly created named volume, so the dev service
+  sets `user: "0"`, matching the official image rather than diverging from it.
+- Tests use LocalStack's S3, not MinIO, for the same reason.
+
+**What this costs.** The mirror is frozen: it receives no security updates, so it is a development
+and test convenience, not a production supply chain. Production compose points at the same
+variables, and a deployment should set them to an image someone is maintaining. Nothing in the
+adapter is MinIO-specific — it speaks plain S3 — so a MinIO-specific quirk would not be caught
+before deploy either way, and switching to another S3-compatible server is a configuration change
+rather than a code one.
 
 ### D12 — InMemory stays the dev fallback, and nothing else
 With no connection string configured and `ASPNETCORE_ENVIRONMENT=Development`, the host still falls
