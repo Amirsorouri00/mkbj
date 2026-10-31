@@ -3,5 +3,6 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Queries\Application\EwaysVNext.Queries.Application.csproj" />
     <ProjectReference Include="..\..\..\Database\EwaysVNext.Database.csproj" />
+    <ProjectReference Include="..\Application\EwaysVNext.Modules.Partners.Application.csproj" />
   </ItemGroup>
 </Project>

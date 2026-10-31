@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Security.Claims;
 using AuthorizationService.Abstractions.Authorization;
 using AuthorizationService.Abstractions.Authorization.Requests;
+using EwaysVNext.Core.Application.Security;
 using HotChocolate.Resolvers;
 using HotChocolate.Types.Descriptors;
 using Microsoft.AspNetCore.Http;
@@ -30,7 +31,8 @@ public sealed class RequirePermissionAttribute(string permissionCode) : ObjectFi
 
             var checkService = ctx.Services.GetRequiredService<IAuthorizationCheckService>();
             var result = await checkService.CheckAsync(
-                new CheckAuthorizationRequest(userId, permissionCode, ScopeId: null),
+                new CheckAuthorizationRequest(
+                    userId, permissionCode, ScopeId: null, BackofficeRoles.From(user)),
                 ctx.RequestAborted);
 
             if (!result.Allowed)

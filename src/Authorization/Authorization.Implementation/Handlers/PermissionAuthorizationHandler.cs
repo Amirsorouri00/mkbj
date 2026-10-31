@@ -21,16 +21,11 @@ public sealed class PermissionAuthorizationHandler(IAuthorizationCheckService ch
             return;
         }
 
-        // Role claims are forwarded only from the Backoffice realm. The Shop realm is open
-        // self-service registration, so a role named there means nothing here however it is
-        // spelled — forwarding it would let anyone who could influence their own Shop token
-        // claim backoffice authority.
-        var tokenRoleCodes = context.User.HasClaim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm)
-            ? context.User.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray()
-            : null;
-
+        // Shared with the GraphQL field attribute: the two enforcement paths must agree on which
+        // roles count, and they have already drifted once.
         var result = await checkService.CheckAsync(
-            new CheckAuthorizationRequest(userId, requirement.PermissionCode, ScopeId: null, tokenRoleCodes));
+            new CheckAuthorizationRequest(
+                userId, requirement.PermissionCode, ScopeId: null, BackofficeRoles.From(context.User)));
 
         if (result.Allowed)
         {

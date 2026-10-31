@@ -2,11 +2,13 @@ using EwaysVNext.Database;
 using EwaysVNext.DependencyInjection;
 using EwaysVNext.Jobs;
 using EwaysVNext.Jobs.Implementation;
+using EwaysVNext.Modules.Partners.Adapter.Inbound.GraphQL;
 using EwaysVNext.Modules.Partners.Adapter.Inbound.Rest;
 using EwaysVNext.Modules.Partners.Adapter.Inbound.Rest.Usage;
 using EwaysVNext.Modules.Partners.Adapter.Outbound;
 using EwaysVNext.Modules.Partners.Adapter.Outbound.Usage;
 using EwaysVNext.Modules.Partners.Application;
+using EwaysVNext.Modules.Partners.QueryApplication;
 using EwaysVNext.Modules.Partners.Application.Partners.Domain;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +25,8 @@ public static class ModuleInstaller
         services.AddPartnersApplication(configuration);
         services.AddPartnersOutboundAdapters(configuration);
         services.AddPartnersRestAdapter();
+        services.AddPartnersGraphQL();
+        services.AddPartnersQueryApplication();
 
         services.AddJobHandler<UsagePruneJobHandler, UsagePrunePayload>();
         services.AddRecurringJob(JobTypes.UsagePrune, TimeSpan.FromDays(1));
