@@ -41,8 +41,11 @@ builder.Configuration.AddEnvironmentVariables();
 HostCommands.ApplyFlags(builder.Configuration, args);
 
 
-builder.Host.UseSerilog((ctx, cfg) => cfg
+// ReadFrom.Services picks up any ILogEventSink registered in DI. That is what lets a test
+// capture everything the application logs and assert that a credential never appears in it.
+builder.Host.UseSerilog((ctx, services, cfg) => cfg
     .ReadFrom.Configuration(ctx.Configuration)
+    .ReadFrom.Services(services)
     .WriteTo.Console(
         outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}",
         formatProvider: System.Globalization.CultureInfo.InvariantCulture));
@@ -173,6 +176,9 @@ app.UseCors("default");
 // until authentication has run — before this order was fixed, every partner request fell into the
 // anonymous per-IP partition and the per-partner limit could never apply.
 app.UseAuthentication();
+// Between the two on purpose: after authentication there is a partner to attribute the call to,
+// and before the limiter a 429 is still recorded.
+app.UsePartnersModule();
 app.UseRateLimiter();
 app.UseAuthorization();
 

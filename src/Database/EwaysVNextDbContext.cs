@@ -32,6 +32,9 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
     public DbSet<EwaysVNext.Modules.Partners.Application.Partners.Domain.Partner> Partners
         => Set<EwaysVNext.Modules.Partners.Application.Partners.Domain.Partner>();
 
+    public DbSet<EwaysVNext.Modules.Partners.Application.Usage.ApiKeyUsage> ApiKeyUsages
+        => Set<EwaysVNext.Modules.Partners.Application.Usage.ApiKeyUsage>();
+
     public DbSet<EwaysVNext.Audit.Implementation.AuditEvent> AuditEvents
         => Set<EwaysVNext.Audit.Implementation.AuditEvent>();
 

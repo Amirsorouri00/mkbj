@@ -38,6 +38,7 @@
     <ProjectReference Include="..\..\src\Modules\Catalog\QueryApplication\EwaysVNext.Modules.Catalog.QueryApplication.csproj" />
     <ProjectReference Include="..\..\src\Modules\Customer\Application\EwaysVNext.Modules.Customer.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Partners\Application\EwaysVNext.Modules.Partners.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Partners\Adapter\Outbound\EwaysVNext.Modules.Partners.Adapter.Outbound.csproj" />
     <ProjectReference Include="..\..\src\Modules\Customer\Adapter\Outbound\EwaysVNext.Modules.Customer.Adapter.Outbound.csproj" />
     <ProjectReference Include="..\..\src\Modules\Customer\Adapter\Inbound\GraphQL\EwaysVNext.Modules.Customer.Adapter.Inbound.GraphQL.csproj" />
     <ProjectReference Include="..\..\src\Database\EwaysVNext.Database.csproj" />

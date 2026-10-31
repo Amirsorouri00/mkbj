@@ -685,6 +685,63 @@ namespace EwaysVNext.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EwaysVNext.Modules.Partners.Application.Usage.ApiKeyUsage", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("at");
+
+                    b.Property<string>("CorrelationId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("correlation_id");
+
+                    b.Property<int>("DurationMs")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_ms");
+
+                    b.Property<long>("KeyId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("key_id");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("method");
+
+                    b.Property<long>("PartnerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("partner_id");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasColumnName("path");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_api_key_usage");
+
+                    b.HasIndex("At")
+                        .HasDatabaseName("ix_api_key_usage_at");
+
+                    b.HasIndex("PartnerId", "At")
+                        .IsDescending(false, true)
+                        .HasDatabaseName("ix_api_key_usage_partner_id_at");
+
+                    b.ToTable("api_key_usage", "partners");
+                });
+
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprint", b =>
                 {
                     b.OwnsMany("EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprintOption", "Options", b1 =>
