@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Amazon.S3;
 using Amazon.S3.Model;
 using EwaysVNext.Database;
@@ -12,6 +12,7 @@ using Testcontainers.LocalStack;
 using Testcontainers.PostgreSql;
 using Xunit;
 using AuthorizationService.Implementation.Persistence;
+using EwaysVNext.Presentation.Endpoint.Security;
 
 namespace EwaysVNext.IntegrationTests;
 
@@ -59,6 +60,8 @@ public sealed class PostgresFixture : IAsyncLifetime
 #pragma warning restore CS0618
 #pragma warning restore CS0618
 
+    public const string TestRouterScheme = "IntegrationTestRouter";
+
     public string SuperuserConnectionString => _postgres.GetConnectionString();
     public string AppConnectionString => ConnectionStringFor("eways_app", AppPassword);
     public string MigratorConnectionString => ConnectionStringFor("eways_migrator", MigratorPassword);
@@ -79,6 +82,10 @@ public sealed class PostgresFixture : IAsyncLifetime
             ["Minio:AccessKey"] = StorageAccessKey,
             ["Minio:SecretKey"] = StorageSecretKey,
             ["Jobs:Mode"] = "Disabled",
+            ["ApiKeys:Pepper"] = "integration-tests-pepper-forty-chars-0000",
+            // The suite fires many requests from one address; without this the per-IP limiter
+            // would reject them and every test would be measuring the limiter.
+            ["RateLimiting:AnonymousPermitPerMinute"] = "100000",
         };
 
         if (overrides is not null)
@@ -94,12 +101,20 @@ public sealed class PostgresFixture : IAsyncLifetime
             {
                 configureServices?.Invoke(services);
 
+                // Production routes a partner key away from the JWT reader with a policy scheme;
+                // the suite replaces that router with its own so the same split is exercised here
+                // rather than every pk_ key arriving at a JWT handler that cannot read it.
                 services.AddAuthentication(options =>
                 {
-                    options.DefaultScheme = TestScheme;
-                    options.DefaultAuthenticateScheme = TestScheme;
-                    options.DefaultChallengeScheme = TestScheme;
+                    options.DefaultScheme = TestRouterScheme;
+                    options.DefaultAuthenticateScheme = TestRouterScheme;
+                    options.DefaultChallengeScheme = TestRouterScheme;
                 })
+                .AddPolicyScheme(TestRouterScheme, TestRouterScheme, policy =>
+                    policy.ForwardDefaultSelector = context =>
+                        AuthSchemes.IsPartnerKey(context.Request)
+                            ? AuthSchemes.PartnerApiKey
+                            : TestScheme)
                 .AddJwtBearer(TestScheme, opts =>
                 {
                     opts.RequireHttpsMetadata = false;

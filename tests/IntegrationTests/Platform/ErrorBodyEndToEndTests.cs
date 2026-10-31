@@ -40,7 +40,10 @@ public sealed class ErrorBodyEndToEndTests(PostgresFixture fixture)
     {
         using var factory = fixture.CreateFactory(new Dictionary<string, string?>
         {
-            ["Host:RateLimit:GlobalPermitPerMinute"] = "2",
+            // Overrides the fixture's deliberately huge default. The suite raises the anonymous
+            // limit so that no other test is accidentally measuring the limiter; this one is
+            // about the limiter, so it sets its own.
+            ["RateLimiting:AnonymousPermitPerMinute"] = "2",
         });
         using var client = factory.CreateClient();
 

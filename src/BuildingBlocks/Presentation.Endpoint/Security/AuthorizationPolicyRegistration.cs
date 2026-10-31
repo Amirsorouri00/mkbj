@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using EwaysVNext.Core.Application;
 using EwaysVNext.Core.Application.Security;
 using Microsoft.AspNetCore.Authorization;
 
@@ -31,6 +32,17 @@ public static class AuthorizationPolicyRegistration
         options.AddPolicy(AuthPolicies.ShopCustomer, policy => policy
             .RequireAuthenticatedUser()
             .RequireClaim(EwaysClaimTypes.Tenant, AdminRoles.ShopRealm));
+
+        // One policy per scope. They authenticate with the API-key scheme ONLY: a backoffice JWT
+        // must not satisfy a partner endpoint, because a partner endpoint answers "for this
+        // partner" and a human token names no partner.
+        foreach (var scope in PartnerScopes.All)
+        {
+            options.AddPolicy(AuthPolicies.Partner(scope), policy => policy
+                .AddAuthenticationSchemes(AuthSchemes.PartnerApiKey)
+                .RequireAuthenticatedUser()
+                .AddRequirements(new PartnerScopeRequirement(scope)));
+        }
 
         return options;
     }

@@ -181,7 +181,7 @@ defaulting.
 | `ApiKeys__Pepper` | Yes | Mixed into every partner key hash. Rotating it invalidates every issued key. |
 | `Keycloak__InternalUrl` / `Keycloak__ExternalUrl` | Yes | Container address and public address. |
 | `Brave__ApiKey` / `Anthropic__ApiKey` | No | Catalog discovery and enrichment; each feature disables itself when absent. |
-| `Host__RateLimit__GlobalPermitPerMinute` | No | Default 100, per IP. In-process. |
+| `RateLimiting__AnonymousPermitPerMinute` | No | Default 100, per IP, for callers with no partner key. A partner is limited by its own `rate_limit_per_minute` instead, read from the claim the key handler mints. In-process. |
 
 ## Database Migrations
 

@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using EwaysVNext.Presentation.Endpoint.Security;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
@@ -131,6 +132,16 @@ public static class KeycloakAuthenticationExtensions
             logger.LogInformation(KeycloakAuthenticationExtensionsMessages.RoutingRejectedEmptyToken);
             return RejectScheme;
         }
+
+        // Checked before the JWT handler ever sees it. A partner key is not a JWT, so letting it
+        // reach CanReadToken would route it to the reject scheme — and would put a live
+        // credential through a code path that logs about tokens it cannot parse.
+        //
+        // Goes through AuthSchemes.IsPartnerKey rather than re-spelling the prefix test, so this
+        // router and the integration fixture's router share one implementation. They did not
+        // before, which left this branch provable only by the suite that replaces it.
+        if (AuthSchemes.IsPartnerKey(context.Request))
+            return AuthSchemes.PartnerApiKey;
 
         try
         {

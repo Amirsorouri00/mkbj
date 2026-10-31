@@ -103,6 +103,22 @@ Verified there today:
 - **Anything in a later phase.** Pricing, the composition engine, orders, invoices, imports and
   the admin surface do not exist yet, so nothing covers them.
 
+## Two places the HTTP suite cannot reach, and what covers them instead
+
+Both were found by mutation testing, and both would otherwise have read as covered.
+
+- **Whether key expiry is inclusive or exclusive.** `Rotated_Old_Key_Works_Until_Overlap_Expiry`
+  proves the rotation overlap ends, but it cannot pin the boundary: Postgres stores `timestamptz`
+  to the microsecond while `DateTimeOffset` keeps 100ns ticks, so the `ExpiresAt` read back is not
+  the value the rotation computed and the clock cannot land exactly on it. Mutating the
+  authenticator's `>=` to `>` leaves that test green. `ApiKeyAuthenticatorTests
+  .Key_At_Exact_Expiry_Returns_Null` holds the boundary, with no database in the way.
+- **The production authentication scheme router.** The integration fixture substitutes its own,
+  because test JWTs are signed by an issuer no realm claims and the production router would reject
+  them. Removing the partner-key branch from the production router therefore left all eight
+  partner tests green. Both routers now call one `AuthSchemes.IsPartnerKey`, and `AuthSchemesTests`
+  covers it; the realm-to-tenant branch is still exercised by nothing.
+
 ## Two habits this repository insists on
 
 **Mutation-test every guard.** Reintroduce the bug, watch the test fail, restore. A guard nobody

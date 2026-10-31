@@ -15,6 +15,9 @@ using EwaysVNext.Jobs.Implementation;
 using EwaysVNext.Storage.Implementation;
 using EwaysVNext.Presentation.Endpoint.GraphQL;
 using EwaysVNext.Presentation.Endpoint.Security;
+using EwaysVNext.Host.RateLimiting;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Exporter;
@@ -57,6 +60,11 @@ builder.Services.AddAuthorizationSystem(builder.Configuration);
 builder.Services.AddMultiRealmKeycloakAuthentication(builder.Configuration);
 builder.Services.AddEndpoints(typeof(Program).Assembly);
 
+// The standard error body for 401 and 403. Without it those are the only two responses ASP.NET
+// Core answers itself, with no body at all.
+builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, EwaysAuthorizationResultHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, PartnerScopeAuthorizationHandler>();
+
 builder.Services.AddAuthorization(opts =>
 {
     opts.AddEwaysAuthorizationPolicies();
@@ -77,39 +85,7 @@ builder.Services.AddCors(opts =>
     });
 });
 
-builder.Services.AddRateLimiter(opts =>
-{
-    opts.GlobalLimiter = System.Threading.RateLimiting.PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
-        System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anon",
-            factory: _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
-            {
-                PermitLimit = builder.Configuration.GetValue("Host:RateLimit:GlobalPermitPerMinute", 100),
-                Window = TimeSpan.FromMinutes(1),
-                QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst,
-                QueueLimit = 0
-            }));
-    opts.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-
-    // A rejected request never reaches a handler, so it needs the standard body written here or it
-    // would be the one response shape clients cannot parse.
-    opts.OnRejected = async (context, ct) =>
-    {
-        context.HttpContext.Response.Headers.RetryAfter = "60";
-        await ErrorResponse.WriteAsync(context.HttpContext, Error.RateLimited);
-    };
-
-    opts.AddPolicy("admin", context =>
-        System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "anon",
-            factory: _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 10,
-                Window = TimeSpan.FromMinutes(1),
-                QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst,
-                QueueLimit = 0
-            }));
-});
+builder.Services.AddEwaysRateLimiting(builder.Configuration);
 
 builder.Services.AddOpenApi(options =>
 {
@@ -193,8 +169,11 @@ if (!workerOnly && app.Environment.IsDevelopment())
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 app.UseCors("default");
-app.UseRateLimiter();
+// Authentication first: the rate limiter partitions by partner, and context.User is anonymous
+// until authentication has run — before this order was fixed, every partner request fell into the
+// anonymous per-IP partition and the per-partner limit could never apply.
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 if (!workerOnly)

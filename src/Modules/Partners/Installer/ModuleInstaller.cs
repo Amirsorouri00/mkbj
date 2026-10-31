@@ -1,5 +1,6 @@
 using EwaysVNext.Database;
 using EwaysVNext.DependencyInjection;
+using EwaysVNext.Modules.Partners.Adapter.Inbound.Rest;
 using EwaysVNext.Modules.Partners.Adapter.Outbound;
 using EwaysVNext.Modules.Partners.Application;
 using EwaysVNext.Modules.Partners.Application.Partners.Domain;
@@ -15,6 +16,7 @@ public static class ModuleInstaller
     {
         services.AddPartnersApplication(configuration);
         services.AddPartnersOutboundAdapters();
+        services.AddPartnersRestAdapter();
 
         var applicationAssembly = typeof(Partner).Assembly;
         services
