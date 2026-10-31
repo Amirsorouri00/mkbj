@@ -14,6 +14,7 @@ public static class DependencyInjection
 
         services.AddOptions<FxAgeOptions>().Bind(configuration.GetSection(FxAgeOptions.SectionName));
         services.AddScoped<ISettingsPort, SettingsPortService>();
+        services.AddScoped<ISettingsAdminService, SettingsAdminService>();
 
         return services;
     }

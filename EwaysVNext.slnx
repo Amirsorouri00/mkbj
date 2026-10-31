@@ -125,6 +125,9 @@
   <Folder Name="/src/Modules/Settings/Adapter/Inbound/Rest/">
     <Project Path="src/Modules/Settings/Adapter/Inbound/Rest/EwaysVNext.Modules.Settings.Adapter.Inbound.Rest.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/Settings/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Settings/Adapter/Inbound/GraphQL/EwaysVNext.Modules.Settings.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Settings/QueryApplication/">
     <Project Path="src/Modules/Settings/QueryApplication/EwaysVNext.Modules.Settings.QueryApplication.csproj" />
   </Folder>

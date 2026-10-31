@@ -34,6 +34,7 @@ public sealed class PostgresFixture : IAsyncLifetime
     private const string TestScheme = "IntegrationTest";
     private const string AppPassword = "app";
     private const string MigratorPassword = "migrator";
+    private const string SuperuserPassword = "postgres";
     private const string Database = "eways";
 
     // Testcontainers 4.16 marks the parameterless builder constructors obsolete but ships no
@@ -43,7 +44,7 @@ public sealed class PostgresFixture : IAsyncLifetime
         .WithImage("postgres:17-alpine")
         .WithDatabase(Database)
         .WithUsername("postgres")
-        .WithPassword("postgres")
+        .WithPassword(SuperuserPassword)
         .WithEnvironment("APP_DB_PASSWORD", AppPassword)
         .WithEnvironment("MIGRATOR_DB_PASSWORD", MigratorPassword)
         .WithResourceMapping(
@@ -170,15 +171,78 @@ public sealed class PostgresFixture : IAsyncLifetime
         }
     }
 
-    private string ConnectionStringFor(string user, string password)
+    private string ConnectionStringFor(string user, string password, string? database = null)
     {
         var builder = new Npgsql.NpgsqlConnectionStringBuilder(_postgres.GetConnectionString())
         {
             Username = user,
             Password = password,
-            Database = Database,
+            Database = database ?? Database,
         };
         return builder.ConnectionString;
+    }
+
+    /// <summary>
+    /// Creates and migrates a database of its own, for the few assertions that are about what a
+    /// <b>fresh</b> database contains.
+    /// <para>
+    /// The seeded settings singletons are the case: every other test shares one database, and the
+    /// settings admin tests necessarily change the very rows the seed test asserts — so run in the
+    /// wrong order, "the migration seeds these values" became "whatever ran last left these
+    /// values". Tests that restored what they changed would have hidden that rather than fixed it.
+    /// </para>
+    /// </summary>
+    public async Task<WebApplicationFactory<Program>> CreateFreshDatabaseFactoryAsync()
+    {
+        var name = $"eways_fresh_{Guid.NewGuid():N}";
+
+        await using (var admin = new Npgsql.NpgsqlConnection(SuperuserConnectionString))
+        {
+            await admin.OpenAsync();
+
+            await using var create = new Npgsql.NpgsqlCommand(
+                $"CREATE DATABASE \"{name}\" OWNER eways_migrator", admin);
+            await create.ExecuteNonQueryAsync();
+        }
+
+        // ALTER DEFAULT PRIVILEGES is per-database, so 01-roles.sql only granted them in the
+        // database it ran in. Production has exactly one database, which is why the script is
+        // right as it stands; a second one here needs the same grants applied again, or the app
+        // role connects and can read nothing.
+        await using (var admin = new Npgsql.NpgsqlConnection(
+            ConnectionStringFor("postgres", SuperuserPassword, name)))
+        {
+            await admin.OpenAsync();
+
+            await using var grant = new Npgsql.NpgsqlCommand(
+                $"""
+                GRANT CONNECT ON DATABASE "{name}" TO eways_app;
+                ALTER DEFAULT PRIVILEGES FOR ROLE eways_migrator GRANT USAGE ON SCHEMAS TO eways_app;
+                ALTER DEFAULT PRIVILEGES FOR ROLE eways_migrator GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO eways_app;
+                ALTER DEFAULT PRIVILEGES FOR ROLE eways_migrator GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO eways_app;
+                """, admin);
+            await grant.ExecuteNonQueryAsync();
+        }
+
+        var migratorConnection = ConnectionStringFor("eways_migrator", MigratorPassword, name);
+
+        using (var migrator = CreateFactory(new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:Default"] = migratorConnection,
+        }))
+        {
+            using var scope = migrator.Services.CreateScope();
+
+            await DatabaseMigrator.MigrateAsync(scope.ServiceProvider);
+            await scope.ServiceProvider.GetRequiredService<AuthorizationDbContext>().Database.MigrateAsync();
+        }
+
+        // Handed back on the app role, like every other factory: the suite proves the production
+        // grant split, not just the schema.
+        return CreateFactory(new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:Default"] = ConnectionStringFor("eways_app", AppPassword, name),
+        });
     }
 
     private static string RepositoryRoot

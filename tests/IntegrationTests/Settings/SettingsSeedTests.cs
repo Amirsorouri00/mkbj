@@ -18,7 +18,10 @@ public sealed class SettingsSeedTests(PostgresFixture fixture)
     [Fact]
     public async Task Seeded_Defaults_Match_Spec()
     {
-        using var factory = fixture.CreateFactory();
+        // Its own database, because this asserts what a FRESH one contains. On the shared
+        // database the settings admin tests change these very rows, so the result depended on
+        // execution order rather than on the migration.
+        using var factory = await fixture.CreateFreshDatabaseFactoryAsync();
         using var scope = factory.Services.CreateScope();
 
         var port = scope.ServiceProvider.GetRequiredService<ISettingsPort>();

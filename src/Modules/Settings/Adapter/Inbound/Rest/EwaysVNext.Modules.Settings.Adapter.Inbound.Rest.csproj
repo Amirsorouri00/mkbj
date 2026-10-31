@@ -4,5 +4,11 @@
     <ProjectReference Include="..\..\..\QueryApplication\EwaysVNext.Modules.Settings.QueryApplication.csproj" />
     <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Presentation.Endpoint\EwaysVNext.Presentation.Endpoint.csproj" />
     <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
+      <ProjectReference Include="..\..\..\..\..\Authorization\Authorization.Abstractions\Authorization.Abstractions.csproj" />
+      <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Core\Application\EwaysVNext.Core.Application.csproj" />
+      <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Persistence\EwaysVNext.Persistence.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 </Project>
