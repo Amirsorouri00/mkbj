@@ -573,6 +573,154 @@ namespace EwaysVNext.Database.Migrations
                     b.ToTable("products", "catalog");
                 });
 
+            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Customers.Domain.ContactChange", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("ChangedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("changed_at");
+
+                    b.Property<string>("CorrelationId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("correlation_id");
+
+                    b.Property<long>("CustomerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("customer_id");
+
+                    b.Property<string>("Field")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("field");
+
+                    b.Property<string>("NewValue")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("new_value");
+
+                    b.Property<string>("OldValue")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("old_value");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<long?>("SourcePartnerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("source_partner_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_contact_changes");
+
+                    b.HasIndex("CustomerId", "ChangedAt")
+                        .IsDescending(false, true)
+                        .HasDatabaseName("ix_contact_changes_customer_id_changed_at");
+
+                    b.ToTable("contact_changes", "customer");
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CompanyName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("company_name");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("email");
+
+                    b.Property<bool>("EmailVerified")
+                        .HasColumnType("boolean")
+                        .HasColumnName("email_verified");
+
+                    b.Property<string>("ExternalCustomerId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("external_customer_id");
+
+                    b.Property<string>("FullName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("full_name");
+
+                    b.Property<Guid?>("IdentityUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("identity_user_id");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("kind");
+
+                    b.Property<long?>("PartnerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("partner_id");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("RegistrationNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("registration_number");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_customers");
+
+                    b.HasIndex("Email")
+                        .HasDatabaseName("ix_customers_email");
+
+                    b.HasIndex("IdentityUserId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_customers_identity_user")
+                        .HasFilter("kind = 'Website'");
+
+                    b.HasIndex("PartnerId", "ExternalCustomerId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_customers_partner_external")
+                        .HasFilter("kind = 'PartnerLinked'");
+
+                    b.ToTable("customers", "customer", t =>
+                        {
+                            t.HasCheckConstraint("ck_customers_kind_keys", "(kind = 'Website' AND identity_user_id IS NOT NULL AND partner_id IS NULL AND external_customer_id IS NULL) OR (kind = 'PartnerLinked' AND partner_id IS NOT NULL AND external_customer_id IS NOT NULL AND identity_user_id IS NULL)");
+                        });
+                });
+
             modelBuilder.Entity("EwaysVNext.Modules.Partners.Application.Partners.Domain.ApiKey", b =>
                 {
                     b.Property<long>("Id")
@@ -1061,6 +1209,65 @@ namespace EwaysVNext.Database.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Customers.Domain.ContactChange", b =>
+                {
+                    b.HasOne("EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer", null)
+                        .WithMany("ContactChanges")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_contact_changes_customers_customer_id");
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer", b =>
+                {
+                    b.OwnsOne("EwaysVNext.Modules.Customer.Application.Customers.Domain.Address", "BillingAddress", b1 =>
+                        {
+                            b1.Property<long>("CustomerId")
+                                .HasColumnType("bigint")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("billing_city");
+
+                            b1.Property<string>("CountryIso2")
+                                .IsRequired()
+                                .HasMaxLength(2)
+                                .HasColumnType("character varying(2)")
+                                .HasColumnName("billing_country_iso2");
+
+                            b1.Property<string>("Line1")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("billing_line1");
+
+                            b1.Property<string>("Line2")
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("billing_line2");
+
+                            b1.Property<string>("PostalCode")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("billing_postal_code");
+
+                            b1.HasKey("CustomerId");
+
+                            b1.ToTable("customers", "customer");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CustomerId")
+                                .HasConstraintName("fk_customers_customers_id");
+                        });
+
+                    b.Navigation("BillingAddress");
+                });
+
             modelBuilder.Entity("EwaysVNext.Modules.Partners.Application.Partners.Domain.ApiKey", b =>
                 {
                     b.HasOne("EwaysVNext.Modules.Partners.Application.Partners.Domain.Partner", null)
@@ -1084,6 +1291,11 @@ namespace EwaysVNext.Database.Migrations
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Categories.Domain.Category", b =>
                 {
                     b.Navigation("Children");
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer", b =>
+                {
+                    b.Navigation("ContactChanges");
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Partners.Application.Partners.Domain.Partner", b =>

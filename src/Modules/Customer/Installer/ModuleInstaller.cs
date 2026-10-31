@@ -1,15 +1,29 @@
+using EwaysVNext.Database;
+using EwaysVNext.DependencyInjection;
+using EwaysVNext.Modules.Customer.Adapter.Outbound;
+using EwaysVNext.Modules.Customer.Application;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
+using CustomerAggregate = EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer;
 
 namespace EwaysVNext.Modules.Customer;
 
 public static class ModuleInstaller
 {
-    /// <summary>
-    /// No-op: the Customer module was stripped to a shell when the Iran-market domain was removed
-    /// (ADR-0022) and is rebuilt in phase 1 around the website/partner-linked customer model.
-    /// The projects and this registration point stay so the Host wiring does not churn.
-    /// </summary>
-    public static IServiceCollection AddCustomerModule(this IServiceCollection services, IConfiguration config)
-        => services;
+    public static IServiceCollection AddCustomerModule(
+        this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddCustomerApplication();
+        services.AddCustomerOutboundAdapters();
+
+        var applicationAssembly = typeof(CustomerAggregate).Assembly;
+        services
+            .AddPersistenceInterceptors()
+            .AddUserProfileService()
+            .AddUnitOfWork<EwaysVNextDbContext>()
+            .AddEvents(applicationAssembly);
+
+        return services;
+    }
 }

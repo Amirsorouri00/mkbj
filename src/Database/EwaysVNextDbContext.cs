@@ -44,6 +44,9 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
     public DbSet<EwaysVNext.Modules.Settings.Application.Settings.Domain.CommerceLimits> CommerceLimits
         => Set<EwaysVNext.Modules.Settings.Application.Settings.Domain.CommerceLimits>();
 
+    public DbSet<EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer> Customers
+        => Set<EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer>();
+
     public DbSet<EwaysVNext.Audit.Implementation.AuditEvent> AuditEvents
         => Set<EwaysVNext.Audit.Implementation.AuditEvent>();
 
