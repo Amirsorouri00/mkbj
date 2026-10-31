@@ -113,6 +113,25 @@
   </Folder>
   <Folder Name="/src/Modules/" />
 
+  <Folder Name="/src/Modules/Settings/" />
+  <Folder Name="/src/Modules/Settings/Application/">
+    <Project Path="src/Modules/Settings/Application/EwaysVNext.Modules.Settings.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Settings/Adapter/Outbound/">
+    <Project Path="src/Modules/Settings/Adapter/Outbound/EwaysVNext.Modules.Settings.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Settings/Adapter/" />
+  <Folder Name="/src/Modules/Settings/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Settings/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Settings/Adapter/Inbound/Rest/EwaysVNext.Modules.Settings.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Settings/QueryApplication/">
+    <Project Path="src/Modules/Settings/QueryApplication/EwaysVNext.Modules.Settings.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Settings/Installer/">
+    <Project Path="src/Modules/Settings/Installer/EwaysVNext.Modules.Settings.Installer.csproj" />
+  </Folder>
+
   <Folder Name="/src/Modules/Partners/" />
   <Folder Name="/src/Modules/Partners/Application/">
     <Project Path="src/Modules/Partners/Application/EwaysVNext.Modules.Partners.Application.csproj" />

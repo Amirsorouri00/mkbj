@@ -28,16 +28,16 @@ receipt before the commercial invoice is issued.
 
 ### Modules
 
-Present today: **Catalog**, **Customer**, **Partners**. Customer is a compile-only shell — its
-Iran-market domain was removed ([ADR-0022](docs/adr/0022-remove-iran-specific-modules.md)) and
-phase 1 rebuilds it. Partners is being built now: the key format and peppered hashing exist, the
-aggregate and adapters do not yet.
+Present today: **Catalog**, **Customer**, **Partners**, **Settings**. Partners is complete:
+aggregate, peppered API keys, authentication scheme, usage log and admin surface. Settings holds
+the seller profile, the versioned payment instruction and the commerce limits, all singletons
+seeded by the migration. Customer is still a compile-only shell — its Iran-market domain was
+removed ([ADR-0022](docs/adr/0022-remove-iran-specific-modules.md)) and phase 1 rebuilds it.
 
 Planned (not yet present; do not reference them):
 
 | Module | Phase | Owns |
 |---|---|---|
-| Settings | 1 | Seller identity, payment instruction, commerce limits |
 | Pricing | 2 | Reference prices, currency overrides, FX rates |
 | Sales | 4–5 | Carts, orders, composition engine, invoices, refunds |
 | Sourcing | 7 | Import jobs, staging, crawling, publishing |
@@ -76,7 +76,7 @@ Authorization/                   ← RBAC subsystem (permissions, roles, scopes)
 Database/                        ← The ONE EwaysVNextDbContext, every module's EF configurations,
                                     DatabaseMigrator, Migrations/, repeatable Scripts/*.sql
 Host/EwaysVNext.Host/            ← Entry point: module wiring, host commands, the pipeline
-Modules/{Catalog,Customer,Partners}/
+Modules/{Catalog,Customer,Partners,Settings}/
 ├── Application/                 ← Hexagon: Domain + Ports + Service
 ├── Adapter/Inbound/{Rest,GraphQL}/
 ├── Adapter/Outbound/            ← Repositories and ACL gateways

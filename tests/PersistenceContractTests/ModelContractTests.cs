@@ -110,8 +110,15 @@ public sealed class ModelContractTests
         foreach (var property in Providers.Model(context).GetEntityTypes()
                      .Select(e => e.FindProperty("RowVersion")).OfType<IProperty>())
         {
-            property.IsConcurrencyToken.Should().BeFalse();
-            property.ValueGenerated.Should().Be(ValueGenerated.Never);
+            property.IsConcurrencyToken.Should().BeFalse(
+                "InMemory has no xmin, so a concurrency check against it would compare a value "
+                + "nothing ever assigns");
+
+            // OnAdd, not Never — and this is the contract, not an accident. Against Npgsql the
+            // column is xmin, which the database supplies, so no HasData row carries a value for
+            // it. Marked Never here it becomes a required property with no value and EF rejects
+            // every seeded row in the model, which took out 54 tests unrelated to the seed.
+            property.ValueGenerated.Should().Be(ValueGenerated.OnAdd);
         }
     }
 

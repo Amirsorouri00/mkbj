@@ -742,6 +742,221 @@ namespace EwaysVNext.Database.Migrations
                     b.ToTable("api_key_usage", "partners");
                 });
 
+            modelBuilder.Entity("EwaysVNext.Modules.Settings.Application.Settings.Domain.CommerceLimits", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<int>("BulkDefaultMax")
+                        .HasColumnType("integer")
+                        .HasColumnName("bulk_default_max");
+
+                    b.Property<int>("CompositionDeadlineMs")
+                        .HasColumnType("integer")
+                        .HasColumnName("composition_deadline_ms");
+
+                    b.Property<int>("CompositionMaxLines")
+                        .HasColumnType("integer")
+                        .HasColumnName("composition_max_lines");
+
+                    b.Property<long>("MaxUsdMinor")
+                        .HasColumnType("bigint")
+                        .HasColumnName("max_usd_minor");
+
+                    b.Property<long>("MinUsdMinor")
+                        .HasColumnType("bigint")
+                        .HasColumnName("min_usd_minor");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_commerce_limits");
+
+                    b.ToTable("commerce_limits", "settings", t =>
+                        {
+                            t.HasCheckConstraint("ck_commerce_limits_deadline", "composition_deadline_ms BETWEEN 1000 AND 9500");
+
+                            t.HasCheckConstraint("ck_commerce_limits_range", "min_usd_minor > 0 AND max_usd_minor > min_usd_minor");
+
+                            t.HasCheckConstraint("ck_commerce_limits_singleton", "id = 1");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            BulkDefaultMax = 100,
+                            CompositionDeadlineMs = 8000,
+                            CompositionMaxLines = 200,
+                            MaxUsdMinor = 100000000L,
+                            MinUsdMinor = 1000L
+                        });
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Settings.Application.Settings.Domain.PaymentInstruction", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<int>("ActiveVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("active_version");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payment_instruction");
+
+                    b.ToTable("payment_instruction", "settings", t =>
+                        {
+                            t.HasCheckConstraint("ck_payment_instruction_singleton", "id = 1");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            ActiveVersion = 1
+                        });
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Settings.Application.Settings.Domain.PaymentInstructionVersion", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<long>("PaymentInstructionId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("payment_instruction_id");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("text");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payment_instruction_versions");
+
+                    b.HasIndex("PaymentInstructionId", "Version")
+                        .IsUnique()
+                        .HasDatabaseName("ix_payment_instruction_versions_payment_instruction_id_version");
+
+                    b.ToTable("payment_instruction_versions", "settings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 10, 28, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            PaymentInstructionId = 1L,
+                            Text = "Pay by bank transfer using the details on your pro forma invoice. Quote the pro forma number as the payment reference.",
+                            Version = 1
+                        });
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Settings.Application.Settings.Domain.SellerProfile", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("address");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("email");
+
+                    b.Property<bool>("GstRegistered")
+                        .HasColumnType("boolean")
+                        .HasColumnName("gst_registered");
+
+                    b.Property<string>("InvoiceFooter")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("invoice_footer");
+
+                    b.Property<string>("LegalName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("legal_name");
+
+                    b.PrimitiveCollection<string[]>("RequiredBuyerFields")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("required_buyer_fields");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<string>("Uen")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("uen");
+
+                    b.HasKey("Id")
+                        .HasName("pk_seller_profile");
+
+                    b.ToTable("seller_profile", "settings", t =>
+                        {
+                            t.HasCheckConstraint("ck_seller_profile_singleton", "id = 1");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            Address = "Singapore",
+                            Email = "billing@example.invalid",
+                            GstRegistered = false,
+                            InvoiceFooter = "",
+                            LegalName = "Configure seller legal name",
+                            RequiredBuyerFields = new[] { "email|phone" },
+                            Uen = "UNSET"
+                        });
+                });
+
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprint", b =>
                 {
                     b.OwnsMany("EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprintOption", "Options", b1 =>
@@ -856,6 +1071,16 @@ namespace EwaysVNext.Database.Migrations
                         .HasConstraintName("fk_api_keys_partners_partner_id");
                 });
 
+            modelBuilder.Entity("EwaysVNext.Modules.Settings.Application.Settings.Domain.PaymentInstructionVersion", b =>
+                {
+                    b.HasOne("EwaysVNext.Modules.Settings.Application.Settings.Domain.PaymentInstruction", null)
+                        .WithMany("Versions")
+                        .HasForeignKey("PaymentInstructionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_payment_instruction_versions_payment_instruction_payment_in");
+                });
+
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Categories.Domain.Category", b =>
                 {
                     b.Navigation("Children");
@@ -864,6 +1089,11 @@ namespace EwaysVNext.Database.Migrations
             modelBuilder.Entity("EwaysVNext.Modules.Partners.Application.Partners.Domain.Partner", b =>
                 {
                     b.Navigation("Keys");
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Settings.Application.Settings.Domain.PaymentInstruction", b =>
+                {
+                    b.Navigation("Versions");
                 });
 #pragma warning restore 612, 618
         }

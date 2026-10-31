@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Queries\Application\EwaysVNext.Queries.Application.csproj" />
+    <ProjectReference Include="..\..\..\Database\EwaysVNext.Database.csproj" />
+  </ItemGroup>
+</Project>

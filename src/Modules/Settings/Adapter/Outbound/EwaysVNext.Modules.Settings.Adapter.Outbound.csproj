@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\EwaysVNext.Modules.Settings.Application.csproj" />
+    <ProjectReference Include="..\..\QueryApplication\EwaysVNext.Modules.Settings.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Persistence\EwaysVNext.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\..\Database\EwaysVNext.Database.csproj" />
+  </ItemGroup>
+</Project>

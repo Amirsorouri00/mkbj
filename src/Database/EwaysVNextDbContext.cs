@@ -35,6 +35,15 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
     public DbSet<EwaysVNext.Modules.Partners.Application.Usage.ApiKeyUsage> ApiKeyUsages
         => Set<EwaysVNext.Modules.Partners.Application.Usage.ApiKeyUsage>();
 
+    public DbSet<EwaysVNext.Modules.Settings.Application.Settings.Domain.SellerProfile> SellerProfiles
+        => Set<EwaysVNext.Modules.Settings.Application.Settings.Domain.SellerProfile>();
+
+    public DbSet<EwaysVNext.Modules.Settings.Application.Settings.Domain.PaymentInstruction> PaymentInstructions
+        => Set<EwaysVNext.Modules.Settings.Application.Settings.Domain.PaymentInstruction>();
+
+    public DbSet<EwaysVNext.Modules.Settings.Application.Settings.Domain.CommerceLimits> CommerceLimits
+        => Set<EwaysVNext.Modules.Settings.Application.Settings.Domain.CommerceLimits>();
+
     public DbSet<EwaysVNext.Audit.Implementation.AuditEvent> AuditEvents
         => Set<EwaysVNext.Audit.Implementation.AuditEvent>();
 
@@ -66,7 +75,13 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
                 {
                     // InMemory has no xmin and no concurrency story; keep it an inert property.
                     property.IsConcurrencyToken = false;
-                    property.ValueGenerated = Microsoft.EntityFrameworkCore.Metadata.ValueGenerated.Never;
+
+                    // OnAdd, not Never. Against Npgsql this column is xmin, which the database
+                    // supplies, so seed data never carries a value for it. Marking it Never here
+                    // makes it a required property with no value, and every HasData row in the
+                    // model fails validation — which is how seeded settings broke 54 tests that
+                    // have nothing to do with settings.
+                    property.ValueGenerated = Microsoft.EntityFrameworkCore.Metadata.ValueGenerated.OnAdd;
                 }
                 else
                 {

@@ -25,5 +25,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Modules\Partners\Application\EwaysVNext.Modules.Partners.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Partners\QueryApplication\EwaysVNext.Modules.Partners.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Settings\Application\EwaysVNext.Modules.Settings.Application.csproj" />
   </ItemGroup>
 </Project>
