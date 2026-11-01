@@ -28,14 +28,14 @@ public sealed class CategoryService : Ports.Inbound.ICategoryService
         "A category cannot be moved beneath one of its descendants.");
     private static readonly Error DepthExceeded = new(
         "CATEGORY_DEPTH_EXCEEDED",
-        "حداکثر عمق مجاز دسته‌بندی (۵ لایه) رعایت نشده است");
+        "A category tree cannot be deeper than five levels.");
     private static readonly Error CreateNameConflict = new(
         "CATEGORY_NAME_CONFLICT",
-        "دسته‌بندی با این نام در این سطح وجود دارد",
+        "A sibling category already uses this name.",
         409);
     private static readonly Error UpdateNameConflict = new(
         "CATEGORY_NAME_CONFLICT",
-        "نام دسته‌بندی تکراری است",
+        "A sibling category already uses this name.",
         409);
     private static readonly Error PersistenceConflict = new(
         "CATEGORY_PERSISTENCE_CONFLICT", "Category persistence conflict.", 409);

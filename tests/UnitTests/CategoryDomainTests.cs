@@ -57,7 +57,7 @@ public sealed class CategoryDomainTests
 
         var error = act.Should().Throw<DomainException>().Which;
         error.Code.Should().Be("CATEGORY_NAME_REQUIRED");
-        error.Message.Should().Be("نام دسته‌بندی اجباری است");
+        error.Message.Should().Be("A category name is required.");
     }
 
     [Fact]
@@ -75,8 +75,7 @@ public sealed class CategoryDomainTests
 
         var error = act.Should().Throw<DomainException>().Which;
         error.Code.Should().Be("CATEGORY_NAME_TOO_LONG");
-        error.Message.Should().Be(
-            "Category name cannot exceed 60 characters or contain unsupported characters");
+        error.Message.Should().Be("A category name cannot exceed 60 characters.");
     }
 
     [Fact]
@@ -98,8 +97,7 @@ public sealed class CategoryDomainTests
 
         var error = act.Should().Throw<DomainException>().Which;
         error.Code.Should().Be("CATEGORY_NAME_UNSUPPORTED");
-        error.Message.Should().Be(
-            "Category name cannot exceed 60 characters or contain unsupported characters");
+        error.Message.Should().Be("A category name can contain letters, digits, spaces and basic punctuation.");
     }
 
     [Fact]

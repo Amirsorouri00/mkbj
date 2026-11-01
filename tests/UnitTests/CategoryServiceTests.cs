@@ -95,7 +95,7 @@ public sealed class CategoryServiceTests
 
         result.IsFailure.Should().BeTrue();
         result.Error!.Code.Should().Be("CATEGORY_DEPTH_EXCEEDED");
-        result.Error.Message.Should().Be("حداکثر عمق مجاز دسته‌بندی (۵ لایه) رعایت نشده است");
+        result.Error.Message.Should().Be("A category tree cannot be deeper than five levels.");
         fixture.Categories.All.Should().HaveCount(5);
     }
 
@@ -403,7 +403,7 @@ public sealed class CategoryServiceTests
             new CreateCategoryCommand("  SHOES  ", "shoes-new", null, null, 0));
 
         result.Error!.Code.Should().Be("CATEGORY_NAME_CONFLICT");
-        result.Error.Message.Should().Be("دسته‌بندی با این نام در این سطح وجود دارد");
+        result.Error.Message.Should().Be("A sibling category already uses this name.");
         fixture.Categories.All.Should().ContainSingle();
     }
 
@@ -573,7 +573,7 @@ public sealed class CategoryServiceTests
 
         ownName.IsSuccess.Should().BeTrue();
         siblingName.Error!.Code.Should().Be("CATEGORY_NAME_CONFLICT");
-        siblingName.Error.Message.Should().Be("نام دسته‌بندی تکراری است");
+        siblingName.Error.Message.Should().Be("A sibling category already uses this name.");
         boots.Name.Should().Be("Boots");
     }
 
@@ -587,7 +587,7 @@ public sealed class CategoryServiceTests
                 CategoryStatus.Inactive));
 
         result.Error!.Code.Should().Be("CATEGORY_NAME_REQUIRED");
-        result.Error.Message.Should().Be("نام دسته‌بندی اجباری است");
+        result.Error.Message.Should().Be("A category name is required.");
         fixture.Categories.CallCount.Should().Be(0);
         fixture.UnitOfWork.SaveCount.Should().Be(0);
     }
@@ -601,8 +601,7 @@ public sealed class CategoryServiceTests
             new CreateCategoryCommand("Shoes 😀", "shoes", null, null, 0));
 
         result.Error!.Code.Should().Be("CATEGORY_NAME_UNSUPPORTED");
-        result.Error.Message.Should().Be(
-            "Category name cannot exceed 60 characters or contain unsupported characters");
+        result.Error.Message.Should().Be("A category name can contain letters, digits, spaces and basic punctuation.");
         fixture.Categories.CallCount.Should().Be(0);
         fixture.UnitOfWork.SaveCount.Should().Be(0);
     }
@@ -650,7 +649,7 @@ public sealed class CategoryServiceTests
 
         result.IsFailure.Should().BeTrue();
         result.Error!.Code.Should().Be("CATEGORY_DEPTH_EXCEEDED");
-        result.Error.Message.Should().Be("حداکثر عمق مجاز دسته‌بندی (۵ لایه) رعایت نشده است");
+        result.Error.Message.Should().Be("A category tree cannot be deeper than five levels.");
         movingRoot.ParentId.Should().BeNull();
     }
 

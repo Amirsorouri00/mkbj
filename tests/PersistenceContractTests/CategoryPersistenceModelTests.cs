@@ -73,11 +73,23 @@ public sealed class CategoryPersistenceModelTests
                  nameof(Category.DisplayOrder), nameof(Category.Id)]));
         hierarchyIndex.IsUnique.Should().BeFalse();
 
-        var siblingNameIndex = entity.GetIndexes().Single(index =>
+        // Siblings are unique by canonical key, not by the display name: "Kitchen & Dining" and
+        // "kitchen  dining" are the same category to an import, and the key is what an import
+        // matches on.
+        var siblingKeyIndex = entity.GetIndexes().Single(index =>
             index.Properties.Select(property => property.Name)
-                .SequenceEqual([nameof(Category.ParentId), nameof(Category.NormalizedName)]));
-        siblingNameIndex.IsUnique.Should().BeTrue();
-        siblingNameIndex.GetFilter().Should().Be("status <> 2");
+                .SequenceEqual([nameof(Category.ParentId), nameof(Category.CanonicalKey)]));
+        siblingKeyIndex.IsUnique.Should().BeTrue();
+        siblingKeyIndex.GetFilter().Should().Be("status <> 2");
+
+        // The NULLS NOT DISTINCT part is not visible on the model — Npgsql emits it at SQL
+        // generation — so it is proved against a real database by
+        // CatalogConstraintTests.Root_Categories_With_The_Same_Canonical_Key_Are_Rejected.
+
+        var aliasIndex = entity.GetIndexes().Single(index =>
+            index.Properties.Select(property => property.Name).SequenceEqual(["Aliases"]));
+        aliasIndex.GetMethod().Should().Be("gin",
+            "the lookup asks which category holds an alias, which a btree cannot answer");
 
         entity.GetIndexes()
             .Single(index => index.Properties.Select(p => p.Name).SequenceEqual([nameof(Category.Slug)]))

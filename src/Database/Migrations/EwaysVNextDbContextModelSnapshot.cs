@@ -305,6 +305,17 @@ namespace EwaysVNext.Database.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("id");
 
+                    b.PrimitiveCollection<string[]>("Aliases")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("aliases");
+
+                    b.Property<string>("CanonicalKey")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("canonical_key");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -361,15 +372,22 @@ namespace EwaysVNext.Database.Migrations
                     b.HasKey("Id")
                         .HasName("pk_categories");
 
+                    b.HasIndex("Aliases")
+                        .HasDatabaseName("ix_categories_aliases");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Aliases"), "gin");
+
                     b.HasIndex("Slug")
                         .IsUnique()
                         .HasDatabaseName("ix_categories_slug")
                         .HasFilter("status <> 2");
 
-                    b.HasIndex("ParentId", "NormalizedName")
+                    b.HasIndex("ParentId", "CanonicalKey")
                         .IsUnique()
-                        .HasDatabaseName("ix_categories_parent_id_normalized_name")
+                        .HasDatabaseName("ux_categories_parent_canonical_key")
                         .HasFilter("status <> 2");
+
+                    NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("ParentId", "CanonicalKey"), false);
 
                     b.HasIndex("ParentId", "Status", "DisplayOrder", "Id")
                         .HasDatabaseName("ix_categories_parent_id_status_display_order_id");
