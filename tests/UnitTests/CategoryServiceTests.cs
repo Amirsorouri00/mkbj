@@ -1247,6 +1247,16 @@ public sealed class CategoryServiceTests
             return Task.FromResult(_assignments.Keys.Any(key => key.Item1 == categoryId));
         }
 
+        public Task<IReadOnlyList<long>> ListCategoryIdsForProductAsync(
+            long productId, CancellationToken ct = default)
+        {
+            _log?.Add("assignment.list-for-product");
+            CallCount++;
+            LastToken = ct;
+            return Task.FromResult<IReadOnlyList<long>>(
+                _assignments.Keys.Where(key => key.Item2 == productId).Select(key => key.Item1).ToList());
+        }
+
         public Task<AssociationMutationOutcome> AddIfAbsentAsync(
             CategoryProduct assignment, CancellationToken ct = default)
         {

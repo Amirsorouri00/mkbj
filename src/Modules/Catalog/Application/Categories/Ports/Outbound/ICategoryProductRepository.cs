@@ -1,4 +1,4 @@
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
+﻿using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
 
 namespace EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
 
@@ -6,6 +6,12 @@ public interface ICategoryProductRepository
 {
     Task<bool> ExistsAsync(long categoryId, long productId, CancellationToken ct = default);
     Task<bool> HasAnyForCategoryAsync(long categoryId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Every category a product is currently filed under. Setting a product's secondary
+    /// categories is a replacement, so the caller has to know what it is replacing.
+    /// </summary>
+    Task<IReadOnlyList<long>> ListCategoryIdsForProductAsync(long productId, CancellationToken ct = default);
     Task<AssociationMutationOutcome> AddIfAbsentAsync(
         CategoryProduct assignment, CancellationToken ct = default);
     Task<AssociationMutationOutcome> RemoveIfPresentAsync(

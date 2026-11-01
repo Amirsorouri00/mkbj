@@ -1,4 +1,4 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 using EwaysVNext.Database;
 using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
 using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
@@ -16,6 +16,13 @@ internal sealed class CategoryProductRepository(EwaysVNextDbContext db)
     public Task<bool> HasAnyForCategoryAsync(long categoryId, CancellationToken ct = default) =>
         db.CategoryProducts.AsNoTracking().AnyAsync(
             assignment => assignment.CategoryId == categoryId, ct);
+
+    public async Task<IReadOnlyList<long>> ListCategoryIdsForProductAsync(
+        long productId, CancellationToken ct = default) =>
+        await db.CategoryProducts.AsNoTracking()
+            .Where(assignment => assignment.ProductId == productId)
+            .Select(assignment => assignment.CategoryId)
+            .ToListAsync(ct);
 
     // use raw sql
 
