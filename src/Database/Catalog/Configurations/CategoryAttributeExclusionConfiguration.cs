@@ -1,4 +1,4 @@
-﻿using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
+using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,6 +8,10 @@ internal sealed class CategoryAttributeExclusionConfiguration : IEntityTypeConfi
 {
     public void Configure(EntityTypeBuilder<CategoryAttributeExclusion> builder)
     {
+        // Named explicitly: phase 3 reads these tables from raw SQL, which must not
+        // depend on how the naming convention happens to pluralise a type name.
+        builder.ToTable("category_attribute_exclusions");
+
         
         builder.HasKey(e => e.Id);
         builder.Property(e => e.Id).ValueGeneratedNever();

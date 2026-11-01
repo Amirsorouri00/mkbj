@@ -1,4 +1,4 @@
-﻿using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
+using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,6 +8,10 @@ internal sealed class CategoryAttributeAssignmentConfiguration : IEntityTypeConf
 {
     public void Configure(EntityTypeBuilder<CategoryAttributeAssignment> builder)
     {
+        // Named explicitly: phase 3 reads these tables from raw SQL, which must not
+        // depend on how the naming convention happens to pluralise a type name.
+        builder.ToTable("category_attribute_assignments");
+
         
         builder.HasKey(a => a.Id);
         builder.Property(a => a.Id).ValueGeneratedNever();

@@ -1134,25 +1134,25 @@ namespace EwaysVNext.Database.Migrations
                                 .HasColumnName("value");
 
                             b1.HasKey("Id")
-                                .HasName("pk_attribute_blueprint_option");
+                                .HasName("pk_attribute_blueprint_options");
 
                             b1.HasIndex("AttributeBlueprintId")
-                                .HasDatabaseName("ix_attribute_blueprint_option_attribute_blueprint_id");
+                                .HasDatabaseName("ix_attribute_blueprint_options_attribute_blueprint_id");
 
                             b1.HasIndex("MeasurementUnitId")
-                                .HasDatabaseName("ix_attribute_blueprint_option_measurement_unit_id");
+                                .HasDatabaseName("ix_attribute_blueprint_options_measurement_unit_id");
 
-                            b1.ToTable("attribute_blueprint_option", "catalog");
+                            b1.ToTable("attribute_blueprint_options", "catalog");
 
                             b1.WithOwner()
                                 .HasForeignKey("AttributeBlueprintId")
-                                .HasConstraintName("fk_attribute_blueprint_option_attribute_blueprints_attribute_b");
+                                .HasConstraintName("fk_attribute_blueprint_options_attribute_blueprints_attribute_");
 
                             b1.HasOne("EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.MeasurementUnit", null)
                                 .WithMany()
                                 .HasForeignKey("MeasurementUnitId")
                                 .OnDelete(DeleteBehavior.Restrict)
-                                .HasConstraintName("fk_attribute_blueprint_option_measurement_units_measurement_un");
+                                .HasConstraintName("fk_attribute_blueprint_options_measurement_units_measurement_u");
                         });
 
                     b.Navigation("Options");

@@ -1,4 +1,4 @@
-﻿using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,6 +8,10 @@ internal sealed class MeasurementUnitConfiguration : IEntityTypeConfiguration<Me
 {
     public void Configure(EntityTypeBuilder<MeasurementUnit> builder)
     {
+        // Named explicitly: phase 3 reads these tables from raw SQL, which must not
+        // depend on how the naming convention happens to pluralise a type name.
+        builder.ToTable("measurement_units");
+
         
         builder.HasKey(unit => unit.Id);
         builder.Property(unit => unit.Id).ValueGeneratedNever();

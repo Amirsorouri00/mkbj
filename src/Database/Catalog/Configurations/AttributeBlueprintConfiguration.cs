@@ -1,4 +1,4 @@
-﻿using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,6 +8,10 @@ internal sealed class AttributeBlueprintConfiguration : IEntityTypeConfiguration
 {
     public void Configure(EntityTypeBuilder<AttributeBlueprint> builder)
     {
+        // Named explicitly: phase 3 reads these tables from raw SQL, which must not
+        // depend on how the naming convention happens to pluralise a type name.
+        builder.ToTable("attribute_blueprints");
+
         
         builder.HasKey(blueprint => blueprint.Id);
         builder.Property(blueprint => blueprint.Id).ValueGeneratedNever();
@@ -29,6 +33,11 @@ internal sealed class AttributeBlueprintConfiguration : IEntityTypeConfiguration
 
         builder.OwnsMany(blueprint => blueprint.Options, option =>
         {
+            // Plural, matching every other table. The convention had produced the singular
+            // "attribute_blueprint_option" for this owned collection, which phase 3's SQL would
+            // have had to know about as a one-off.
+            option.ToTable("attribute_blueprint_options");
+
             
             option.WithOwner().HasForeignKey(value => value.AttributeBlueprintId);
             option.HasKey(value => value.Id);

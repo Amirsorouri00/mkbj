@@ -1,4 +1,4 @@
-﻿using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
+using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,6 +8,10 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {
     public void Configure(EntityTypeBuilder<Category> builder)
     {
+        // Named explicitly: phase 3 reads these tables from raw SQL, which must not
+        // depend on how the naming convention happens to pluralise a type name.
+        builder.ToTable("categories");
+
         
         builder.HasKey(category => category.Id);
         builder.Property(category => category.Id)
