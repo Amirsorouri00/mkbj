@@ -35,6 +35,9 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
     public DbSet<EwaysVNext.Modules.Pricing.Application.Fx.Domain.FxRateOverride> FxRateOverrides
         => Set<EwaysVNext.Modules.Pricing.Application.Fx.Domain.FxRateOverride>();
 
+    public DbSet<EwaysVNext.Modules.Pricing.Application.Prices.Domain.VariantPrice> VariantPrices
+        => Set<EwaysVNext.Modules.Pricing.Application.Prices.Domain.VariantPrice>();
+
     public DbSet<EwaysVNext.Jobs.Implementation.JobRecord> Jobs
         => Set<EwaysVNext.Jobs.Implementation.JobRecord>();
 

@@ -1,7 +1,9 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Database;
 using EwaysVNext.Modules.Pricing.Application.Currencies.Domain;
 using EwaysVNext.Modules.Pricing.Application.Fx.Domain;
+using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Outbound;
+using EwaysVNext.Modules.Pricing.Application.Prices.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -234,5 +236,194 @@ public sealed class PricingPersistenceTests(PostgresFixture fixture)
 
         revived.IsActive.Should().BeTrue();
         revived.Rate.Should().Be(1.45m);
+    }
+    [Fact]
+    public async Task Variant_Price_With_Overrides_Roundtrips()
+    {
+        using var factory = fixture.CreateFactory();
+        var id = NextId();
+        var variantId = NextId();
+        var provenance = new PriceProvenance(
+            42, "https://example/kettle", DateTimeOffset.UtcNow, 99.95m, "EUR", TaxIncluded: true);
+
+        await InScopeAsync(factory, async db =>
+        {
+            var price = VariantPrice.Create(id, variantId, 9995, "EUR", provenance, DateTimeOffset.UtcNow);
+            price.SetOverride(NextId(), "SGD", 14900, DateTimeOffset.UtcNow);
+            price.SetOverride(NextId(), "USD", 10900, DateTimeOffset.UtcNow);
+            db.VariantPrices.Add(price);
+            return await db.SaveChangesAsync(Ct);
+        });
+
+        var reloaded = await InScopeAsync(factory, db =>
+            db.VariantPrices.AsNoTracking()
+                .Include(price => price.Overrides)
+                .SingleAsync(price => price.Id == id, Ct));
+
+        reloaded.BaseAmountMinor.Should().Be(9995);
+        reloaded.BaseCurrency.Should().Be("EUR");
+        // Asserted field by field, because two of them do not survive a round trip unchanged
+        // and saying so is more useful than a comparison loose enough to hide it.
+        reloaded.Provenance.ObservationId.Should().Be(42);
+        reloaded.Provenance.SourceUrl.Should().Be("https://example/kettle");
+        reloaded.Provenance.OriginalCurrency.Should().Be("EUR");
+        reloaded.Provenance.TaxIncluded.Should().BeTrue();
+
+        // Postgres timestamptz keeps microseconds; a DateTimeOffset tick is 100ns, so the last
+        // digit is truncated on the way in.
+        reloaded.Provenance.CollectedAt.Should().BeCloseTo(provenance.CollectedAt!.Value, TimeSpan.FromTicks(10));
+
+        // numeric(18,4) comes back scaled to four places. The value is equal; the decimal's
+        // scale is not, which is why this compares numerically rather than by record equality.
+        reloaded.Provenance.OriginalAmount.Should().Be(99.95m);
+        decimal.GetBits(reloaded.Provenance.OriginalAmount!.Value)[3].Should().Be(4 << 16,
+            "the column's scale is what the reader gets back, not the scale it was written with");
+        reloaded.Overrides.Select(@override => @override.Currency)
+            .Should().BeEquivalentTo(["SGD", "USD"]);
+    }
+
+    [Fact]
+    public async Task Duplicate_Override_Currency_Is_Rejected()
+    {
+        using var factory = fixture.CreateFactory();
+        var id = NextId();
+
+        await InScopeAsync(factory, async db =>
+        {
+            var price = VariantPrice.Create(id, NextId(), 9995, "EUR", PriceProvenance.Manual, DateTimeOffset.UtcNow);
+            price.SetOverride(NextId(), "SGD", 14900, DateTimeOffset.UtcNow);
+            db.VariantPrices.Add(price);
+            return await db.SaveChangesAsync(Ct);
+        });
+
+        // Written as raw SQL, which is the only way this can happen: the aggregate upserts, so
+        // a second row for one currency cannot come from a path that goes through it.
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var overrideId = NextId();
+        var priceList = CurrencyOverride.DefaultPriceList;
+
+        var act = async () => await db.Database.ExecuteSqlAsync($"""
+            INSERT INTO pricing.currency_overrides
+                (id, variant_price_id, currency, amount_minor, price_list, updated_at)
+            VALUES ({overrideId}, {id}, 'SGD', 15900, {priceList}, now())
+            """);
+
+        var postgres = (await act.Should().ThrowAsync<PostgresException>()).Which;
+
+        postgres.SqlState.Should().Be("23505");
+        postgres.ConstraintName
+
+            .Should().Be("ux_currency_overrides_price_currency_list");
+    }
+
+    [Fact]
+    public async Task One_Price_Per_Variant_Is_Enforced()
+    {
+        using var factory = fixture.CreateFactory();
+        var variantId = NextId();
+
+        await InScopeAsync(factory, async db =>
+        {
+            db.VariantPrices.Add(VariantPrice.Create(
+                NextId(), variantId, 1000, "EUR", PriceProvenance.Manual, DateTimeOffset.UtcNow));
+            return await db.SaveChangesAsync(Ct);
+        });
+
+        var act = () => InScopeAsync(factory, async db =>
+        {
+            db.VariantPrices.Add(VariantPrice.Create(
+                NextId(), variantId, 2000, "EUR", PriceProvenance.Manual, DateTimeOffset.UtcNow));
+            return await db.SaveChangesAsync(Ct);
+        });
+
+        (await ExpectUniqueViolationAsync(act)).ConstraintName
+            .Should().Be("ux_variant_prices_variant",
+                "two prices would make 'what does this cost' a question with two answers");
+    }
+
+    [Theory]
+    [InlineData("0.5")]
+    [InlineData("1.5")]
+    [InlineData("2.5")]
+    [InlineData("137.5")]
+    [InlineData("162.5")]
+    [InlineData("2.4999")]
+    [InlineData("2.5001")]
+    [InlineData("10")]
+    public async Task Round_Half_Even_Sql_Matches_Dotnet(string literal)
+    {
+        var value = decimal.Parse(literal, System.Globalization.CultureInfo.InvariantCulture);
+
+        using var factory = fixture.CreateFactory();
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+
+        var fromSql = await db.Database
+            .SqlQuery<decimal>($"SELECT pricing.round_half_even({value}) AS \"Value\"")
+            .SingleAsync(Ct);
+
+        fromSql.Should().Be(decimal.Round(value, 0, MidpointRounding.ToEven),
+            "the storefront views round the same way the resolver does, or a listing page and a "
+            + "quote would differ by a cent");
+    }
+
+    [Fact]
+    public async Task Resolved_Rate_Projection_Replaces_All_Rows()
+    {
+        using var factory = fixture.CreateFactory();
+
+        await ReplaceAsync(factory,
+        [
+            new ResolvedRateRow("EUR", "USD", 1.0812m, "ecb", 1, null, DateTimeOffset.UtcNow, null),
+            new ResolvedRateRow("EUR", "SGD", 1.4321m, "ecb", 2, null, DateTimeOffset.UtcNow, null),
+        ]);
+
+        await ReplaceAsync(factory,
+        [
+            new ResolvedRateRow("EUR", "GBP", 0.85m, "ecb", 3, null, DateTimeOffset.UtcNow, null),
+        ]);
+
+        var rows = await InScopeAsync(factory, db =>
+            db.Database.SqlQuery<string>($"SELECT quote AS \"Value\" FROM pricing.resolved_fx_rates")
+                .ToListAsync(Ct));
+
+        rows.Select(quote => quote.Trim()).Should().BeEquivalentTo(["GBP"],
+            "a partial update would leave pairs from before an FX refresh beside pairs from after it");
+    }
+
+    [Fact]
+    public async Task Rebuilding_The_Same_Pairs_Updates_Them_In_Place()
+    {
+        using var factory = fixture.CreateFactory();
+
+        await ReplaceAsync(factory,
+        [
+            new ResolvedRateRow("EUR", "USD", 1.0812m, "ecb", 1, null, DateTimeOffset.UtcNow, null),
+        ]);
+
+        // The same pair again, which is what every refresh does. A delete-then-insert of one
+        // statement would collide here: both halves see the same snapshot, so the insert would
+        // hit a row the delete had not yet made invisible.
+        await ReplaceAsync(factory,
+        [
+            new ResolvedRateRow("EUR", "USD", 1.0900m, "ecb", 2, null, DateTimeOffset.UtcNow, null),
+        ]);
+
+        var rate = await InScopeAsync(factory, db =>
+            db.Database.SqlQuery<decimal>(
+                    $"SELECT rate AS \"Value\" FROM pricing.resolved_fx_rates WHERE quote = 'USD'")
+                .SingleAsync(Ct));
+
+        rate.Should().Be(1.0900000000m);
+    }
+
+    private static async Task ReplaceAsync(
+        Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Program> factory,
+        IReadOnlyList<ResolvedRateRow> rows)
+    {
+        using var scope = factory.Services.CreateScope();
+        await scope.ServiceProvider.GetRequiredService<IResolvedRateProjection>()
+            .ReplaceAllAsync(rows, Ct);
     }
 }

@@ -2,6 +2,7 @@
 using EwaysVNext.DependencyInjection;
 using EwaysVNext.Modules.Pricing.Adapter.Outbound;
 using EwaysVNext.Modules.Pricing.Application;
+using EwaysVNext.Modules.Pricing.Application.Fx.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,6 +21,7 @@ public static class ModuleInstaller
         ArgumentNullException.ThrowIfNull(configuration);
 
         services.AddPricingOutboundAdapters();
+        services.AddScoped<ResolvedRateProjectionService>();
 
         services
             .AddPersistenceInterceptors()

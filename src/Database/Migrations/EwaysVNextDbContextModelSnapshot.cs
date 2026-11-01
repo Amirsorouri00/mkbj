@@ -1408,6 +1408,100 @@ namespace EwaysVNext.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EwaysVNext.Modules.Pricing.Application.Prices.Domain.CurrencyOverride", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<long>("AmountMinor")
+                        .HasColumnType("bigint")
+                        .HasColumnName("amount_minor");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("char(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<string>("PriceList")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("price_list");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<long>("VariantPriceId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("variant_price_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_currency_overrides");
+
+                    b.HasIndex("VariantPriceId", "Currency", "PriceList")
+                        .IsUnique()
+                        .HasDatabaseName("ux_currency_overrides_price_currency_list");
+
+                    b.ToTable("currency_overrides", "pricing", t =>
+                        {
+                            t.HasCheckConstraint("ck_currency_overrides_positive", "amount_minor > 0");
+                        });
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Pricing.Application.Prices.Domain.VariantPrice", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<long>("BaseAmountMinor")
+                        .HasColumnType("bigint")
+                        .HasColumnName("base_amount_minor");
+
+                    b.Property<string>("BaseCurrency")
+                        .IsRequired()
+                        .HasColumnType("char(3)")
+                        .HasColumnName("base_currency");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<long>("VariantId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("variant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_variant_prices");
+
+                    b.HasIndex("VariantId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_variant_prices_variant");
+
+                    b.ToTable("variant_prices", "pricing", t =>
+                        {
+                            t.HasCheckConstraint("ck_variant_prices_positive", "base_amount_minor > 0");
+                        });
+                });
+
             modelBuilder.Entity("EwaysVNext.Modules.Settings.Application.Settings.Domain.CommerceLimits", b =>
                 {
                     b.Property<long>("Id")
@@ -1863,6 +1957,63 @@ namespace EwaysVNext.Database.Migrations
                         .HasConstraintName("fk_api_keys_partners_partner_id");
                 });
 
+            modelBuilder.Entity("EwaysVNext.Modules.Pricing.Application.Prices.Domain.CurrencyOverride", b =>
+                {
+                    b.HasOne("EwaysVNext.Modules.Pricing.Application.Prices.Domain.VariantPrice", null)
+                        .WithMany("Overrides")
+                        .HasForeignKey("VariantPriceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_currency_overrides_variant_prices_variant_price_id");
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Pricing.Application.Prices.Domain.VariantPrice", b =>
+                {
+                    b.OwnsOne("EwaysVNext.Modules.Pricing.Application.Prices.Domain.PriceProvenance", "Provenance", b1 =>
+                        {
+                            b1.Property<long>("VariantPriceId")
+                                .HasColumnType("bigint")
+                                .HasColumnName("id");
+
+                            b1.Property<DateTimeOffset?>("CollectedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("provenance_collected_at");
+
+                            b1.Property<long?>("ObservationId")
+                                .HasColumnType("bigint")
+                                .HasColumnName("provenance_observation_id");
+
+                            b1.Property<decimal?>("OriginalAmount")
+                                .HasColumnType("numeric(18,4)")
+                                .HasColumnName("provenance_original_amount");
+
+                            b1.Property<string>("OriginalCurrency")
+                                .HasMaxLength(8)
+                                .HasColumnType("character varying(8)")
+                                .HasColumnName("provenance_original_currency");
+
+                            b1.Property<string>("SourceUrl")
+                                .HasMaxLength(2048)
+                                .HasColumnType("character varying(2048)")
+                                .HasColumnName("provenance_source_url");
+
+                            b1.Property<bool?>("TaxIncluded")
+                                .HasColumnType("boolean")
+                                .HasColumnName("provenance_tax_included");
+
+                            b1.HasKey("VariantPriceId");
+
+                            b1.ToTable("variant_prices", "pricing");
+
+                            b1.WithOwner()
+                                .HasForeignKey("VariantPriceId")
+                                .HasConstraintName("fk_variant_prices_variant_prices_id");
+                        });
+
+                    b.Navigation("Provenance")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("EwaysVNext.Modules.Settings.Application.Settings.Domain.PaymentInstructionVersion", b =>
                 {
                     b.HasOne("EwaysVNext.Modules.Settings.Application.Settings.Domain.PaymentInstruction", null)
@@ -1895,6 +2046,11 @@ namespace EwaysVNext.Database.Migrations
             modelBuilder.Entity("EwaysVNext.Modules.Partners.Application.Partners.Domain.Partner", b =>
                 {
                     b.Navigation("Keys");
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Pricing.Application.Prices.Domain.VariantPrice", b =>
+                {
+                    b.Navigation("Overrides");
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Settings.Application.Settings.Domain.PaymentInstruction", b =>
