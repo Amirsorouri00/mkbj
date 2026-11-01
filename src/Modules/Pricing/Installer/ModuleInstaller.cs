@@ -2,7 +2,10 @@
 using EwaysVNext.DependencyInjection;
 using EwaysVNext.Modules.Pricing.Adapter.Outbound;
 using EwaysVNext.Modules.Pricing.Application;
+using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound;
 using EwaysVNext.Modules.Pricing.Application.Fx.Services;
+using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
+using EwaysVNext.Modules.Pricing.Application.Prices.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,6 +25,9 @@ public static class ModuleInstaller
 
         services.AddPricingOutboundAdapters();
         services.AddScoped<ResolvedRateProjectionService>();
+        services.AddScoped<FxBookLoader>();
+        services.AddScoped<IPriceQuotePort, PriceQuoteService>();
+        services.AddScoped<IFxSnapshotPort, FxSnapshotService>();
 
         services
             .AddPersistenceInterceptors()
