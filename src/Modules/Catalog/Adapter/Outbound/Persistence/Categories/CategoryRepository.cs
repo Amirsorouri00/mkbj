@@ -1,5 +1,6 @@
 ﻿using EwaysVNext.Database;
 using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
+using EwaysVNext.Modules.Catalog.Application.Common;
 using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.Contracts.Categories;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +44,34 @@ internal sealed class CategoryRepository(EwaysVNextDbContext db) : ICategoryRepo
         return await db.Categories.AsNoTracking().AnyAsync(category =>
             category.Status != CategoryStatus.Deleted && category.Slug == value
             && (!excludingCategoryId.HasValue || category.Id != excludingCategoryId.Value), ct);
+    }
+
+    public async Task<CategoryEntity?> FindByCanonicalPathAsync(
+        IReadOnlyList<string> canonicalKeyPath, CancellationToken ct = default)
+    {
+        if (canonicalKeyPath is null || canonicalKeyPath.Count == 0) return null;
+
+        CategoryEntity? current = null;
+
+        foreach (var step in canonicalKeyPath)
+        {
+            if (!CanonicalKey.TryFrom(step, out var key)) return null;
+
+            var parentId = current?.Id;
+
+            // Aliases are searched alongside the key because a feed writes the supplier's own
+            // wording, and the alias list is exactly where that wording was recorded.
+            current = await db.Categories.AsNoTracking()
+                .Where(category => category.ParentId == parentId
+                    && category.Status != CategoryStatus.Deleted
+                    && (category.CanonicalKey == key || category.Aliases.Contains(key)))
+                .OrderBy(category => category.Id)
+                .FirstOrDefaultAsync(ct);
+
+            if (current is null) return null;
+        }
+
+        return current;
     }
 
     public Task<bool> HasChildrenAsync(long categoryId, CancellationToken ct = default) =>

@@ -1158,6 +1158,27 @@ public sealed class CategoryServiceTests
                 category.Id != excludingCategoryId && category.Slug.Value == slug));
         }
 
+        public Task<Category?> FindByCanonicalPathAsync(
+            IReadOnlyList<string> canonicalKeyPath, CancellationToken ct = default)
+        {
+            CallCount++;
+            LastToken = ct;
+
+            Category? current = null;
+            foreach (var step in canonicalKeyPath ?? [])
+            {
+                var parentId = current?.Id;
+                current = _categories.Values.FirstOrDefault(category =>
+                    category.ParentId == parentId
+                    && category.Status != CategoryStatus.Deleted
+                    && (category.CanonicalKey == step || category.Aliases.Contains(step)));
+
+                if (current is null) return Task.FromResult<Category?>(null);
+            }
+
+            return Task.FromResult(current);
+        }
+
         public Task<bool> HasChildrenAsync(long categoryId, CancellationToken ct = default)
         {
             CallCount++;
