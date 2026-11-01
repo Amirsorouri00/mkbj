@@ -24,6 +24,7 @@
     <ProjectReference Include="..\BuildingBlocks\Persistence\EwaysVNext.Persistence.csproj" />
     <ProjectReference Include="..\Modules\Catalog\Application\EwaysVNext.Modules.Catalog.Application.csproj" />
     <ProjectReference Include="..\Modules\Customer\Application\EwaysVNext.Modules.Customer.Application.csproj" />
+    <ProjectReference Include="..\Modules\Pricing\Application\EwaysVNext.Modules.Pricing.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Migrations\" />

@@ -1220,6 +1220,194 @@ namespace EwaysVNext.Database.Migrations
                     b.ToTable("api_key_usage", "partners");
                 });
 
+            modelBuilder.Entity("EwaysVNext.Modules.Pricing.Application.Currencies.Domain.Currency", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("char(3)")
+                        .HasColumnName("code");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<int>("MinorUnits")
+                        .HasColumnType("integer")
+                        .HasColumnName("minor_units");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_currencies");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ux_currencies_code");
+
+                    b.ToTable("currencies", "pricing");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 840L,
+                            Code = "USD",
+                            IsEnabled = true,
+                            MinorUnits = 2
+                        },
+                        new
+                        {
+                            Id = 978L,
+                            Code = "EUR",
+                            IsEnabled = true,
+                            MinorUnits = 2
+                        },
+                        new
+                        {
+                            Id = 702L,
+                            Code = "SGD",
+                            IsEnabled = true,
+                            MinorUnits = 2
+                        },
+                        new
+                        {
+                            Id = 784L,
+                            Code = "AED",
+                            IsEnabled = true,
+                            MinorUnits = 2
+                        },
+                        new
+                        {
+                            Id = 826L,
+                            Code = "GBP",
+                            IsEnabled = true,
+                            MinorUnits = 2
+                        });
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Pricing.Application.Fx.Domain.FxRate", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Base")
+                        .IsRequired()
+                        .HasColumnType("char(3)")
+                        .HasColumnName("base");
+
+                    b.Property<DateTimeOffset>("FetchedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fetched_at");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("Quote")
+                        .IsRequired()
+                        .HasColumnType("char(3)")
+                        .HasColumnName("quote");
+
+                    b.Property<decimal>("Rate")
+                        .HasColumnType("numeric(18,10)")
+                        .HasColumnName("rate");
+
+                    b.Property<DateOnly>("RateDate")
+                        .HasColumnType("date")
+                        .HasColumnName("rate_date");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_fx_rates");
+
+                    b.HasIndex("Base", "Quote", "FetchedAt")
+                        .IsDescending(false, false, true)
+                        .HasDatabaseName("ix_fx_rates_pair_fetched_at");
+
+                    b.HasIndex("Base", "Quote", "Provider", "RateDate")
+                        .IsUnique()
+                        .HasDatabaseName("ux_fx_rates_pair_provider_date");
+
+                    b.ToTable("fx_rates", "pricing", t =>
+                        {
+                            t.HasCheckConstraint("ck_fx_rates_positive", "rate > 0");
+                        });
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Pricing.Application.Fx.Domain.FxRateOverride", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Base")
+                        .IsRequired()
+                        .HasColumnType("char(3)")
+                        .HasColumnName("base");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Quote")
+                        .IsRequired()
+                        .HasColumnType("char(3)")
+                        .HasColumnName("quote");
+
+                    b.Property<decimal>("Rate")
+                        .HasColumnType("numeric(18,10)")
+                        .HasColumnName("rate");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<DateTimeOffset>("SetAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("set_at");
+
+                    b.Property<Guid>("SetBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("set_by");
+
+                    b.Property<DateTimeOffset?>("ValidUntil")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("valid_until");
+
+                    b.HasKey("Id")
+                        .HasName("pk_fx_rate_overrides");
+
+                    b.HasIndex("Base", "Quote")
+                        .IsUnique()
+                        .HasDatabaseName("ux_fx_rate_overrides_pair");
+
+                    b.ToTable("fx_rate_overrides", "pricing", t =>
+                        {
+                            t.HasCheckConstraint("ck_fx_rate_overrides_positive", "rate > 0");
+                        });
+                });
+
             modelBuilder.Entity("EwaysVNext.Modules.Settings.Application.Settings.Domain.CommerceLimits", b =>
                 {
                     b.Property<long>("Id")

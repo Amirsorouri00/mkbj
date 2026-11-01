@@ -1,5 +1,6 @@
-using EwaysVNext.Database;
+﻿using EwaysVNext.Database;
 using EwaysVNext.DependencyInjection;
+using EwaysVNext.Modules.Pricing.Adapter.Outbound;
 using EwaysVNext.Modules.Pricing.Application;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,8 @@ public static class ModuleInstaller
         this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
+
+        services.AddPricingOutboundAdapters();
 
         services
             .AddPersistenceInterceptors()

@@ -26,6 +26,15 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
     public DbSet<EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Domain.CategoryAttributeExclusion> CategoryAttributeExclusions
         => Set<EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Domain.CategoryAttributeExclusion>();
 
+    public DbSet<EwaysVNext.Modules.Pricing.Application.Currencies.Domain.Currency> Currencies
+        => Set<EwaysVNext.Modules.Pricing.Application.Currencies.Domain.Currency>();
+
+    public DbSet<EwaysVNext.Modules.Pricing.Application.Fx.Domain.FxRate> FxRates
+        => Set<EwaysVNext.Modules.Pricing.Application.Fx.Domain.FxRate>();
+
+    public DbSet<EwaysVNext.Modules.Pricing.Application.Fx.Domain.FxRateOverride> FxRateOverrides
+        => Set<EwaysVNext.Modules.Pricing.Application.Fx.Domain.FxRateOverride>();
+
     public DbSet<EwaysVNext.Jobs.Implementation.JobRecord> Jobs
         => Set<EwaysVNext.Jobs.Implementation.JobRecord>();
 

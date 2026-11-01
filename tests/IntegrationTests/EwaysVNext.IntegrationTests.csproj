@@ -29,5 +29,6 @@
       <ProjectReference Include="..\..\src\Modules\Customer\Application\EwaysVNext.Modules.Customer.Application.csproj" />
       <ProjectReference Include="..\..\src\Modules\Customer\QueryApplication\EwaysVNext.Modules.Customer.QueryApplication.csproj" />
       <ProjectReference Include="..\..\src\Modules\Catalog\Application\EwaysVNext.Modules.Catalog.Application.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Pricing\Installer\EwaysVNext.Modules.Pricing.Installer.csproj" />
   </ItemGroup>
 </Project>
