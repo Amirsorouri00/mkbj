@@ -26,6 +26,12 @@ public sealed class CatalogAdminService(
 {
     private const string TargetType = "Product";
 
+    /// <summary>
+    /// Beyond this an admin is describing a query rather than a selection, and one save holding
+    /// thousands of aggregates holds its locks far too long.
+    /// </summary>
+    private const int MaxBulkProducts = 500;
+
     public async Task<Result<long>> CreateProductAsync(CreateProductCommand command, AdminActor actor,
         CancellationToken ct = default)
     {
@@ -281,6 +287,142 @@ public sealed class CatalogAdminService(
 
         audit.Record(actor.ToAudit(), active ? "product.variant_activated" : "product.variant_deactivated",
             TargetType, Key(productId), before, Snapshot(product));
+        await unitOfWork.SaveChangesAsync(ct);
+
+        await notifier.SellabilityChangedAsync(ct);
+        return Result.Success();
+    }
+
+    public async Task<Result<BulkEditResult>> BulkEditAsync(BulkProductEdit edit, AdminActor actor,
+        CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(edit);
+        ArgumentNullException.ThrowIfNull(actor);
+
+        if (edit.ProductIds is null || edit.ProductIds.Count == 0 || edit.ProductIds.Count > MaxBulkProducts)
+        {
+            return Result.Failure<BulkEditResult>(new Error(
+                "VALIDATION_FAILED",
+                $"A bulk edit covers between 1 and {MaxBulkProducts.ToString(CultureInfo.InvariantCulture)} products."));
+        }
+
+        if (edit.Status == BulkStatusChange.None && edit.PrimaryCategoryId is null && edit.BrandId is null)
+        {
+            return Result.Failure<BulkEditResult>(new Error(
+                "VALIDATION_FAILED", "A bulk edit must change the status, the category or the brand."));
+        }
+
+        if (edit.BrandId is { } brandId && !await brands.ExistsAsync(brandId, ct))
+            return Result.Failure<BulkEditResult>(BrandNotFound(brandId));
+
+        if (edit.PrimaryCategoryId is { } categoryId &&
+            await categories.GetByIdAsync(categoryId, ct) is null)
+            return Result.Failure<BulkEditResult>(CategoryNotFound(categoryId));
+
+        var ordered = edit.ProductIds.Distinct().ToArray();
+        var loaded = (await products.GetByIdsAsync(ordered, ct)).ToDictionary(product => product.Id);
+        var outcomes = new List<BulkItemOutcome>(ordered.Length);
+        var sellabilityChanged = false;
+
+        foreach (var productId in ordered)
+        {
+            if (!loaded.TryGetValue(productId, out var product))
+            {
+                outcomes.Add(new BulkItemOutcome(productId, false, "PRODUCT_NOT_FOUND"));
+                continue;
+            }
+
+            var before = Snapshot(product);
+            try
+            {
+                // Checked before anything is written, so a product that cannot go active is left
+                // exactly as it was rather than half-edited into the new category.
+                if (edit.Status == BulkStatusChange.Activate && product.ActivationProblems() is { Count: > 0 } problems)
+                    throw new DomainException("PRODUCT_ACTIVATION_INVALID", string.Join(',', problems));
+
+                if (edit.BrandId is { } newBrand || edit.PrimaryCategoryId is { } newCategory)
+                {
+                    product.UpdateDetails(
+                        edit.BrandId ?? product.BrandId,
+                        edit.PrimaryCategoryId ?? product.PrimaryCategoryId,
+                        product.Title, product.ShortDescription, product.Description, clock.UtcNow);
+
+                    sellabilityChanged |= product.Status != ProductStatus.Draft;
+                }
+
+                switch (edit.Status)
+                {
+                    case BulkStatusChange.Activate:
+                        product.Activate(byAdmin: true, clock.UtcNow);
+                        sellabilityChanged = true;
+                        break;
+                    case BulkStatusChange.Deactivate:
+                        product.Deactivate(byAdmin: true, clock.UtcNow);
+                        sellabilityChanged = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (DomainException exception)
+            {
+                outcomes.Add(new BulkItemOutcome(productId, false, exception.Code));
+                continue;
+            }
+
+            audit.Record(actor.ToAudit(), "product.bulk_edited", TargetType, Key(productId),
+                before, Snapshot(product));
+            outcomes.Add(new BulkItemOutcome(productId, true, null));
+        }
+
+        // One save for the whole batch. These aggregates are independent — no product's
+        // invariants depend on another's — so this is the batch rule 7 permits, not a
+        // multi-aggregate transaction.
+        await unitOfWork.SaveChangesAsync(ct);
+
+        if (sellabilityChanged) await notifier.SellabilityChangedAsync(ct);
+        else await notifier.DisplayChangedAsync(ct);
+
+        return Result.Success(new BulkEditResult(outcomes));
+    }
+
+    public async Task<Result> MergeDuplicateAsync(long duplicateProductId, long survivorProductId,
+        AdminActor actor, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(actor);
+
+        var duplicate = await products.GetByIdAsync(duplicateProductId, ct);
+        if (duplicate is null) return Result.Failure(ProductNotFound());
+
+        var survivor = await products.GetByIdAsync(survivorProductId, ct);
+        if (survivor is null) return Result.Failure(ProductNotFound());
+
+        // A survivor that is itself merged would leave a chain for every reader to walk, and the
+        // next merge could close it into a loop.
+        if (survivor.MergedIntoProductId.HasValue)
+        {
+            return Result.Failure(new Error(
+                "PRODUCT_MERGE_INVALID",
+                "The surviving product was itself merged into another; merge into that one instead.",
+                409));
+        }
+
+        var before = Snapshot(duplicate);
+        try
+        {
+            // Only the duplicate is written. Its identifiers stay where they are, so every
+            // uniqueness index keeps holding, and the publishing port follows
+            // MergedIntoProductId to the survivor instead. Moving them would mean two aggregates
+            // in one save whose invariants depend on each other — exactly what rule 7 forbids.
+            duplicate.MarkMergedInto(survivorProductId, clock.UtcNow);
+        }
+        catch (DomainException exception)
+        {
+            return Result.Failure(Domain(exception));
+        }
+
+        audit.Record(actor.ToAudit(), "product.merged", TargetType, Key(duplicateProductId),
+            before, new { MergedInto = survivorProductId, Status = duplicate.Status.ToString() });
         await unitOfWork.SaveChangesAsync(ct);
 
         await notifier.SellabilityChangedAsync(ct);

@@ -39,3 +39,30 @@ public sealed record IdentifierInput(
     ProductIdentifierType Type,
     string Value,
     string? SourceDomain);
+
+public enum BulkStatusChange
+{
+    None,
+    Activate,
+    Deactivate
+}
+
+/// <summary>
+/// One edit applied to many products. Capped at 500 ids: beyond that an admin is describing a
+/// query, not a selection, and a single save holding thousands of aggregates is a lock held far
+/// too long.
+/// </summary>
+public sealed record BulkProductEdit(
+    IReadOnlyList<long> ProductIds,
+    BulkStatusChange Status,
+    long? PrimaryCategoryId,
+    long? BrandId);
+
+/// <remarks><c>ErrorCode</c> is null when the item succeeded.</remarks>
+public sealed record BulkItemOutcome(long ProductId, bool Succeeded, string? ErrorCode);
+
+/// <summary>
+/// Per-item outcomes rather than one verdict: a bulk edit where one product cannot go active is
+/// a normal day, and failing all 500 because of it would make the feature useless.
+/// </summary>
+public sealed record BulkEditResult(IReadOnlyList<BulkItemOutcome> Items);

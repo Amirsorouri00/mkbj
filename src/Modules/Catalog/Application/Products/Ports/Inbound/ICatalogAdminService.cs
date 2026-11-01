@@ -1,4 +1,4 @@
-using EwaysVNext.Core.Application;
+﻿using EwaysVNext.Core.Application;
 using EwaysVNext.Outcomes;
 
 namespace EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
@@ -35,5 +35,19 @@ public interface ICatalogAdminService
         CancellationToken ct = default);
 
     Task<Result> SetVariantActiveAsync(long productId, long variantId, bool active,
+        AdminActor actor, CancellationToken ct = default);
+
+    /// <summary>
+    /// Applies one edit to many products, reporting each separately. A batch of independent
+    /// aggregates in one save is allowed: none of their invariants depends on another's.
+    /// </summary>
+    Task<Result<BulkEditResult>> BulkEditAsync(BulkProductEdit edit, AdminActor actor,
+        CancellationToken ct = default);
+
+    /// <summary>
+    /// Records that one product is a duplicate of another. Only the duplicate is written — see
+    /// the implementation for why the survivor is read but never touched.
+    /// </summary>
+    Task<Result> MergeDuplicateAsync(long duplicateProductId, long survivorProductId,
         AdminActor actor, CancellationToken ct = default);
 }
