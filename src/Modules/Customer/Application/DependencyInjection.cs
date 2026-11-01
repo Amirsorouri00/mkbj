@@ -11,6 +11,7 @@ public static class DependencyInjection
         services.AddScoped<ICustomerResolutionPort, CustomerResolutionService>();
         services.AddScoped<IWebsiteCustomerPort, WebsiteCustomerService>();
         services.AddScoped<ICustomerProfileService, CustomerProfileService>();
+        services.AddScoped<ICustomerAdminService, CustomerAdminService>();
 
         return services;
     }

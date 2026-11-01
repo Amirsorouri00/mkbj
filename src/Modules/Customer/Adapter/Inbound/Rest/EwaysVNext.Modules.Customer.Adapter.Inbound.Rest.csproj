@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+      <ProjectReference Include="..\..\..\..\..\Authorization\Authorization.Abstractions\Authorization.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Application\EwaysVNext.Modules.Customer.Application.csproj" />

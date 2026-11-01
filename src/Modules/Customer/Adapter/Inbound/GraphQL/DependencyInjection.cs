@@ -11,7 +11,9 @@ public static class DependencyInjection
         services
             .AddGraphQLBootstrap()
             .AddType<ShopMeQueries>()
-            .AddType<ShopProfileMutations>();
+            .AddType<ShopProfileMutations>()
+            .AddType<Admin.CustomerAdminGraphQLQueries>()
+            .AddType<Admin.CustomerAdminGraphQLMutations>();
 
         return services;
     }
