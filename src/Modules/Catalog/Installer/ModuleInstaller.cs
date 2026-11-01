@@ -1,9 +1,10 @@
-using EwaysVNext.Database;
+﻿using EwaysVNext.Database;
 using EwaysVNext.DependencyInjection;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest;
 using EwaysVNext.Modules.Catalog.Adapter.Outbound;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints;
+using EwaysVNext.Modules.Catalog.Application.Brands;
 using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments;
 using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions;
 using EwaysVNext.Modules.Catalog.Application.Categories;
@@ -26,6 +27,7 @@ public static class ModuleInstaller
         services.AddCategoryApplication();
 
         services.AddProductApplication();
+        services.AddBrandApplication();
 
         services.AddAttributeBlueprintApplication();
         services.AddCategoryAttributeAssignmentApplication();

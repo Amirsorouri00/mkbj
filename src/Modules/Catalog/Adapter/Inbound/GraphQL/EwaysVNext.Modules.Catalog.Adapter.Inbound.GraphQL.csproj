@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL</RootNamespace>
@@ -18,6 +18,7 @@
     <ProjectReference Include="..\..\..\Application\EwaysVNext.Modules.Catalog.Application.csproj" />
     <ProjectReference Include="..\..\..\QueryApplication\EwaysVNext.Modules.Catalog.QueryApplication.csproj" />
     <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Presentation.Endpoint\EwaysVNext.Presentation.Endpoint.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Authorization\Authorization.Abstractions\Authorization.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\EwaysVNext.Modules.Catalog.Contracts\EwaysVNext.Modules.Catalog.Contracts.csproj" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
+﻿using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
+using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Brands;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.CategoryAttributeAssignment;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.CategoryAttributeExclusion;
@@ -17,6 +18,8 @@ public static class DependencyInjection
             .AddType<CategoryAdminType>()
             .AddType<CategoryAdminParentType>()
             .AddType<CategoryAdminTreeNodeType>()
+            .AddType<BrandAdminGraphQLQueries>()
+            .AddType<BrandAdminGraphQLMutations>()
             .AddType<CategoryAdminQueries>()
             .AddType<CategoryAdminMutations>()
             .AddType<AttributeBlueprintQueries>()

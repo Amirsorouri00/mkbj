@@ -1,4 +1,5 @@
 ﻿using EwaysVNext.Modules.Catalog.QueryApplication.Categories;
+using EwaysVNext.Modules.Catalog.QueryApplication.Products;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EwaysVNext.Modules.Catalog.QueryApplication;
@@ -9,6 +10,7 @@ public static class DependencyInjection
     {
         services.AddScoped<ICategoryQueries, CategoryQueries>();
         services.AddScoped<ICategoryAdminQueries, CategoryAdminQueries>();
+        services.AddScoped<ICatalogAdminQueries, CatalogAdminQueries>();
         return services;
     }
 }
