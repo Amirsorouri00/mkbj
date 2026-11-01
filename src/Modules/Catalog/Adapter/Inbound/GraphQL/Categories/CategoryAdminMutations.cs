@@ -1,9 +1,12 @@
-using EwaysVNext.Modules.Catalog.Application.Categories.Commands;
+﻿using EwaysVNext.Modules.Catalog.Application.Categories.Commands;
 using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Inbound;
 using EwaysVNext.Modules.Catalog.Contracts.Categories;
 using EwaysVNext.Modules.Catalog.QueryApplication.Categories;
 using EwaysVNext.Presentation.Endpoint.GraphQL;
 using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
+using AuthorizationService.Abstractions.Attributes;
+using AuthorizationService.Abstractions.Policies;
+using EwaysVNext.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
 using HotChocolate.Types.Relay;
 using System.Security.Claims;
@@ -27,7 +30,8 @@ public sealed record UnassignCategoryProductInput([property: ID] long CategoryId
 #pragma warning disable CA1822 // GraphQL resolver methods are intentionally stateless shells.
 public sealed class CategoryAdminMutations
 {
-    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     [ID]
     public async Task<long> CreateCategoryAsync([Service] ICategoryService service,
         CreateCategoryInput input, CancellationToken ct = default)
@@ -37,7 +41,8 @@ public sealed class CategoryAdminMutations
         return ResultGraphQLExtensions.ValueOrThrow(result);
     }
 
-    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<CategoryAdminDto> UpdateCategoryAsync(
         [Service] ICategoryService service,
         [Service] ICategoryAdminQueries queries,
@@ -47,7 +52,8 @@ public sealed class CategoryAdminMutations
             new UpdateCategoryCommand(input.CategoryId, input.Name, input.Slug,
                 input.Description, input.DisplayOrder, input.Status), ct), queries, ct);
 
-    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<CategoryAdminDto> SetCategoryStatusAsync(
         [Service] ICategoryService service,
         [Service] ICategoryAdminQueries queries,
@@ -56,30 +62,35 @@ public sealed class CategoryAdminMutations
         await ReloadAsync(await service.SetStatusAsync(
             new SetCategoryStatusCommand(input.CategoryId, input.Status), ct), queries, ct);
 
-    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<bool> MoveCategoryAsync([Service] ICategoryService service,
         MoveCategoryInput input, CancellationToken ct = default) => SuccessOrThrow(await service.MoveAsync(
             new MoveCategoryCommand(input.CategoryId, input.ParentId, input.DisplayOrder), ct));
 
-    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<bool> DeactivateCategoriesAsync([Service] ICategoryService service,
         BulkDeactivateCategoriesInput input, CancellationToken ct = default) =>
         SuccessOrThrow(await service.DeactivateManyAsync(
             new BulkDeactivateCategoriesCommand(input.CategoryIds), ct));
 
-    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<bool> DeleteCategoryAsync([Service] ICategoryService service,
         CategoryIdInput input, CancellationToken ct = default) => SuccessOrThrow(await service.DeleteAsync(
             new DeleteCategoryCommand(input.CategoryId), ct));
 
-    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<bool> AssignCategoryProductAsync([Service] ICategoryService service,
         AssignCategoryProductInput input, ClaimsPrincipal principal,
         CancellationToken ct = default) => SuccessOrThrow(await service.AssignProductAsync(
             new AssignCategoryProductCommand(input.CategoryId, input.ProductId,
                 TryGetActorUserId(principal)), ct));
 
-    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<bool> UnassignCategoryProductAsync([Service] ICategoryService service,
         UnassignCategoryProductInput input, CancellationToken ct = default) => SuccessOrThrow(await service.UnassignProductAsync(
             new UnassignCategoryProductCommand(input.CategoryId, input.ProductId), ct));

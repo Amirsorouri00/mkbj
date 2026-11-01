@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using EwaysVNext.Core.Application;
 using EwaysVNext.Core.Application.Security;
@@ -43,30 +43,6 @@ public static class AuthorizationPolicyRegistration
                 .RequireAuthenticatedUser()
                 .AddRequirements(new PartnerScopeRequirement(scope)));
         }
-
-        return options;
-    }
-
-    /// <summary>
-    /// The policy names Catalog's endpoints were written against, kept working while those
-    /// endpoints still reference them. Removed in phase 2–3, when Catalog is regated.
-    /// </summary>
-    public static AuthorizationOptions AddLegacyPolicyAliases(this AuthorizationOptions options)
-    {
-        ArgumentNullException.ThrowIfNull(options);
-
-        options.AddPolicy("Admin", policy => policy
-            .RequireAuthenticatedUser()
-            .RequireClaim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm)
-            .RequireRole(AdminRoles.Staff, AdminRoles.SuperAdmin));
-
-        // A customer-facing read an admin must also be able to make, so either realm satisfies it.
-        options.AddPolicy("Customer", policy => policy
-            .RequireAuthenticatedUser()
-            .RequireAssertion(context =>
-                context.User.HasClaim(EwaysClaimTypes.Tenant, AdminRoles.ShopRealm)
-                || (context.User.HasClaim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm)
-                    && (context.User.IsInRole(AdminRoles.Staff) || context.User.IsInRole(AdminRoles.SuperAdmin)))));
 
         return options;
     }

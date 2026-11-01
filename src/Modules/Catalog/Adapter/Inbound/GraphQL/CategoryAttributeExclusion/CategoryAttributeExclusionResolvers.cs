@@ -1,6 +1,9 @@
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions;
+﻿using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions;
 using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
 using EwaysVNext.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
+using AuthorizationService.Abstractions.Attributes;
+using AuthorizationService.Abstractions.Policies;
+using EwaysVNext.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
 
 namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.CategoryAttributeExclusion;
@@ -8,7 +11,8 @@ namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.CategoryAttributeEx
 [ExtendObjectType("Mutation")]
 public sealed class CategoryAttributeExclusionMutationResolvers
 {
-    [Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<CategoryAttributeExclusionSnapshot> ExcludeInheritedCategoryAttribute(
         long categoryId,
         long sourceAssignmentId,
@@ -19,7 +23,8 @@ public sealed class CategoryAttributeExclusionMutationResolvers
         return result.ThrowIfFailure();
     }
 
-    [Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<CategoryAttributeExclusionSnapshot> IncludeInheritedCategoryAttribute(
         long categoryId,
         long sourceAssignmentId,
@@ -30,7 +35,8 @@ public sealed class CategoryAttributeExclusionMutationResolvers
         return result.ThrowIfFailure();
     }
 
-    [Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<IReadOnlyList<CategoryAttributeExclusionSnapshot>> SetCategoryAttributeExclusions(
         long categoryId,
         IReadOnlyList<long> excludedSourceAssignmentIds,
@@ -45,7 +51,8 @@ public sealed class CategoryAttributeExclusionMutationResolvers
 [ExtendObjectType("Query")]
 public sealed class CategoryAttributeExclusionQueryResolvers
 {
-    [Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<IReadOnlyList<EffectiveCategoryAttributeSnapshot>> EffectiveCategoryAttributes(
         long categoryId,
         [Service] ICategoryAttributeExclusionQueryService query,

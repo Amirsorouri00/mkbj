@@ -1,5 +1,6 @@
 ﻿using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Brands;
+using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Products;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.CategoryAttributeAssignment;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.CategoryAttributeExclusion;
@@ -15,6 +16,15 @@ public static class DependencyInjection
         services
             .AddGraphQLBootstrap()
             .AddProjections()
+            // Uploads travel as multipart; without this the Upload scalar has no type.
+            .AddUploadType()
+            .AddType<ProductAdminQueries>()
+            .AddType<ProductAdminMutations>()
+            .AddType<ProductAdminRowType>()
+            .AddType<ProductAdminDetailType>()
+            .AddType<ProductAdminVariantType>()
+            .AddType<ProductAdminIdentifierType>()
+            .AddType<ProductAdminMediaType>()
             .AddType<CategoryAdminType>()
             .AddType<CategoryAdminParentType>()
             .AddType<CategoryAdminTreeNodeType>()

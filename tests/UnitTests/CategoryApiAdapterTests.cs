@@ -1,4 +1,7 @@
-﻿using AwesomeAssertions;
+﻿using AuthorizationService.Abstractions.Authorization;
+using AuthorizationService.Abstractions.Authorization.Requests;
+using AuthorizationService.Abstractions.Authorization.Responses;
+using AwesomeAssertions;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest;
@@ -7,7 +10,9 @@ using EwaysVNext.Modules.Catalog.Application.Categories.Commands;
 using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Inbound;
 using EwaysVNext.Modules.Catalog.Contracts.Categories;
 using EwaysVNext.Modules.Catalog.QueryApplication.Categories;
+using EwaysVNext.Core.Application.Security;
 using EwaysVNext.Outcomes;
+using EwaysVNext.Presentation.Endpoint.Security;
 using EwaysVNext.Presentation.Endpoint.GraphQL;
 using EwaysVNext.Presentation.Endpoint.GraphQL.Exceptions;
 using HotChocolate;
@@ -38,8 +43,7 @@ public sealed class CategoryApiAdapterTests
         await using var fixture = await ApiFixture.CreateAsync();
 
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
-        var admin = new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(ClaimTypes.Role, "Admin")], "test"));
+        var admin = StaffPrincipal();
         var result = await executor.ExecuteAsync(OperationRequestBuilder.New()
             .SetDocument("{ categoryHierarchy { id name } }")
             .SetUser(admin)
@@ -66,27 +70,27 @@ public sealed class CategoryApiAdapterTests
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
         const string query = "{ categories(first: 20) { totalCount nodes { id status } } }";
         (await executor.ExecuteAsync(query)).ToJson().Should().Contain("\"errors\"");
-        var customer = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Role, "Customer")], "test"));
+        var customer = CustomerPrincipal();
         (await executor.ExecuteAsync(OperationRequestBuilder.New().SetDocument(query).SetUser(customer).Build()))
             .ToJson().Should().NotContain("\"categories\": {");
-        var admin = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Role, "Admin")], "test"));
+        var admin = StaffPrincipal();
         (await executor.ExecuteAsync(OperationRequestBuilder.New().SetDocument(query).SetUser(admin).Build()))
             .ToJson().Should().Contain("\"categories\": {");
 
         typeof(CategoryAdminQueries).GetMethods()
             .Where(method => method.DeclaringType == typeof(CategoryAdminQueries))
             .Should().OnlyContain(method => method.GetCustomAttributes(typeof(HotChocolateAuthorizeAttribute), true)
-                .Cast<HotChocolateAuthorizeAttribute>().Any(attribute => attribute.Policy == "Admin"));
+                .Cast<HotChocolateAuthorizeAttribute>().Any(attribute => attribute.Policy == AuthPolicies.AdminStaff));
         typeof(CategoryAdminMutations).GetMethods()
             .Where(method => method.DeclaringType == typeof(CategoryAdminMutations))
             .Should().OnlyContain(method => method.GetCustomAttributes(typeof(HotChocolateAuthorizeAttribute), true)
-                .Cast<HotChocolateAuthorizeAttribute>().Any(attribute => attribute.Policy == "Admin"));
+                .Cast<HotChocolateAuthorizeAttribute>().Any(attribute => attribute.Policy == AuthPolicies.AdminStaff));
 
         var endpoint = fixture.Endpoints.Single(candidate =>
             candidate.RoutePattern.RawText!.StartsWith(
                 "/api/v1/admin/graphql", StringComparison.Ordinal)
             && HasAdminPolicy(candidate));
-        endpoint.Metadata.GetMetadata<IAuthorizeData>()!.Policy.Should().Be("Admin");
+        endpoint.Metadata.GetMetadata<IAuthorizeData>()!.Policy.Should().Be(AuthPolicies.AdminStaff);
         endpoint.Metadata.GetMetadata<EnableRateLimitingAttribute>()!.PolicyName.Should().Be("admin");
     }
 
@@ -95,8 +99,7 @@ public sealed class CategoryApiAdapterTests
     {
         await using var fixture = await ApiFixture.CreateAsync();
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
-        var admin = new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(ClaimTypes.Role, "Admin")], "test"));
+        var admin = StaffPrincipal();
 
         var result = await executor.ExecuteAsync(OperationRequestBuilder.New().SetDocument("""
                 {
@@ -124,7 +127,7 @@ public sealed class CategoryApiAdapterTests
         await using var fixture = await ApiFixture.CreateAsync();
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
 
-        var result = await executor.ExecuteAsync("""
+        var result = await executor.ExecuteAsync(OperationRequestBuilder.New().SetDocument("""
             {
               categories(first: 1) {
                 nodes {
@@ -133,7 +136,7 @@ public sealed class CategoryApiAdapterTests
                 }
               }
             }
-            """);
+            """).SetUser(StaffPrincipal()).Build());
 
         var json = result.ToJson();
         json.Should().NotContain("errors");
@@ -150,8 +153,7 @@ public sealed class CategoryApiAdapterTests
     {
         await using var fixture = await ApiFixture.CreateAsync();
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
-        var admin = new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(ClaimTypes.Role, "Admin")], "test"));
+        var admin = StaffPrincipal();
 
         var result = await executor.ExecuteAsync(OperationRequestBuilder.New().SetDocument("""
                 {
@@ -201,8 +203,7 @@ public sealed class CategoryApiAdapterTests
         var queries = new FakeAdminQueries { ProductCategoryExists = false };
         await using var fixture = await ApiFixture.CreateAsync(adminQueries: queries);
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
-        var admin = new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(ClaimTypes.Role, "Admin")], "test"));
+        var admin = StaffPrincipal();
 
         var result = await executor.ExecuteAsync(OperationRequestBuilder.New().SetDocument("""
                 {
@@ -233,8 +234,7 @@ public sealed class CategoryApiAdapterTests
               }
             }
             """;
-        var admin = new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(ClaimTypes.Role, "Admin")], "test"));
+        var admin = StaffPrincipal();
 
         // TODO(Identity): restore anonymous-access assertions when GraphQL authorization is enabled.
 
@@ -253,8 +253,7 @@ public sealed class CategoryApiAdapterTests
     {
         await using var fixture = await ApiFixture.CreateAsync();
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
-        var admin = new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(ClaimTypes.Role, "Admin")], "test"));
+        var admin = StaffPrincipal();
         const string query = """
             {
               category(id: 3) { id name status }
@@ -283,8 +282,7 @@ public sealed class CategoryApiAdapterTests
         var queries = new FakeAdminQueries { CategoryId = categoryId };
         await using var fixture = await ApiFixture.CreateAsync(adminQueries: queries);
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
-        var admin = new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(ClaimTypes.Role, "Admin")], "test"));
+        var admin = StaffPrincipal();
 
         var result = await executor.ExecuteAsync(OperationRequestBuilder.New()
             .SetDocument($"{{ category(id: \"{categoryId}\") {{ id }} }}")
@@ -335,8 +333,7 @@ public sealed class CategoryApiAdapterTests
         var queries = new FakeAdminQueries { FailRelationshipsWithNotFound = true };
         await using var fixture = await ApiFixture.CreateAsync(adminQueries: queries);
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
-        var admin = new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(ClaimTypes.Role, "Admin")], "test"));
+        var admin = StaffPrincipal();
 
         var result = await executor.ExecuteAsync(OperationRequestBuilder.New().SetDocument("""
                 {
@@ -368,8 +365,7 @@ public sealed class CategoryApiAdapterTests
         };
         await using var fixture = await ApiFixture.CreateAsync(service, queries);
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
-        var admin = new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(ClaimTypes.Role, "Admin")], "test"));
+        var admin = StaffPrincipal();
 
         var created = await executor.ExecuteAsync(OperationRequestBuilder.New().SetDocument(
                 "mutation { createCategory(input: { name: \"Root\", slug: \"root\", displayOrder: 0 }) }")
@@ -406,8 +402,7 @@ public sealed class CategoryApiAdapterTests
         };
         await using var fixture = await ApiFixture.CreateAsync(service, queries);
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
-        var admin = new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(ClaimTypes.Role, "Admin")], "test"));
+        var admin = StaffPrincipal();
 
         var result = await executor.ExecuteAsync(OperationRequestBuilder.New().SetDocument("""
                 mutation {
@@ -447,11 +442,11 @@ public sealed class CategoryApiAdapterTests
             new FailingService(new FrameworkError(code, message, 400)));
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
 
-        var result = await executor.ExecuteAsync("""
+        var result = await executor.ExecuteAsync(OperationRequestBuilder.New().SetDocument("""
             mutation {
               setCategoryStatus(input: { categoryId: "7", status: ACTIVE }) { id }
             }
-            """);
+            """).SetUser(StaffPrincipal()).Build());
 
         var json = result.ToJson();
         json.Should().Contain($"\"code\": \"{code}\"");
@@ -469,11 +464,11 @@ public sealed class CategoryApiAdapterTests
         await using var fixture = await ApiFixture.CreateAsync(new CapturingService(), queries);
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
 
-        var result = await executor.ExecuteAsync("""
+        var result = await executor.ExecuteAsync(OperationRequestBuilder.New().SetDocument("""
             mutation {
               setCategoryStatus(input: { categoryId: "7", status: ACTIVE }) { id }
             }
-            """);
+            """).SetUser(StaffPrincipal()).Build());
 
         result.ToJson().Should().Contain("\"code\": \"CATEGORY_NOT_FOUND\"");
         queries.RequestedCategoryIds.Should().Equal(7);
@@ -486,11 +481,11 @@ public sealed class CategoryApiAdapterTests
         await using var fixture = await ApiFixture.CreateAsync(service);
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
 
-        var result = await executor.ExecuteAsync("""
+        var result = await executor.ExecuteAsync(OperationRequestBuilder.New().SetDocument("""
             mutation {
               setCategoryStatus(input: { categoryId: "7", status: UNKNOWN }) { id }
             }
-            """);
+            """).SetUser(StaffPrincipal()).Build());
 
         result.ToJson().Should().Contain("errors");
         service.StatusCommands.Should().BeEmpty();
@@ -502,8 +497,7 @@ public sealed class CategoryApiAdapterTests
         var service = new CapturingService();
         await using var fixture = await ApiFixture.CreateAsync(service);
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
-        var admin = new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(ClaimTypes.Role, "Admin")], "test"));
+        var admin = StaffPrincipal();
 
         var result = await executor.ExecuteAsync(OperationRequestBuilder.New().SetDocument(
                 "mutation { deactivateCategories(input: { categoryIds: [11, 22, 33] }) }")
@@ -529,8 +523,7 @@ public sealed class CategoryApiAdapterTests
         await using var fixture = await ApiFixture.CreateAsync(
             new FailingService(new FrameworkError(code, message, httpStatus)));
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
-        var admin = new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(ClaimTypes.Role, "Admin")], "test"));
+        var admin = StaffPrincipal();
 
         var result = await executor.ExecuteAsync(OperationRequestBuilder.New().SetDocument(
                 "mutation { createCategory(input: { name: \"Root\", slug: \"root\", displayOrder: 0 }) }")
@@ -581,9 +574,7 @@ public sealed class CategoryApiAdapterTests
         var executor = await fixture.App.Services.GetRequestExecutorAsync();
         var trustedActorId = Guid.Parse("20000000-0000-0000-0000-000000000001");
         var attackerActorId = Guid.Parse("30000000-0000-0000-0000-000000000001");
-        var principal = new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(ClaimTypes.Role, "Admin"),
-            new Claim(ClaimTypes.NameIdentifier, trustedActorId.ToString())], "test"));
+        var principal = StaffPrincipal(trustedActorId);
 
         var rejected = await executor.ExecuteAsync(OperationRequestBuilder.New()
             .SetDocument($"mutation {{ assignCategoryProduct(input: {{ categoryId: 7, productId: {ProductId}, assignedByUserId: \"{attackerActorId}\" }}) }}")
@@ -599,14 +590,20 @@ public sealed class CategoryApiAdapterTests
         accepted.ToJson().Should().NotContain("errors");
         service.AssignCommands.Should().ContainSingle().Which.AssignedByUserId.Should().Be(trustedActorId);
 
-        var malformedPrincipal = new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(ClaimTypes.Role, "Admin"), new Claim("sub", "not-a-guid")], "test"));
+        // A token that passes the realm policy but carries no usable subject is now refused at
+        // the gate. It used to reach the resolver and be recorded as an anonymous actor, which
+        // meant an unattributable write; the permission check needs a user id and says so.
+        var malformedPrincipal = Acting(new ClaimsPrincipal(new ClaimsIdentity([
+            new Claim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm),
+            new Claim(ClaimTypes.Role, AdminRoles.Staff),
+            new Claim("sub", "not-a-guid")], "test")));
         var missingActor = await executor.ExecuteAsync(OperationRequestBuilder.New()
             .SetDocument($"mutation {{ assignCategoryProduct(input: {{ categoryId: 7, productId: {ProductId} }}) }}")
             .SetUser(malformedPrincipal).Build());
 
-        missingActor.ToJson().Should().NotContain("errors");
-        service.AssignCommands.Last().AssignedByUserId.Should().BeNull();
+        missingActor.ToJson().Should().Contain("AUTH_NOT_AUTHENTICATED");
+        service.AssignCommands.Should().ContainSingle(
+            "the refused request never reached the service");
     }
 
     [Fact]
@@ -683,6 +680,76 @@ public sealed class CategoryApiAdapterTests
             .GetProperty("slug").GetString().Should().Be("offers");
     }
 
+    /// <summary>
+    /// The caller these tests are acting as.
+    /// <para>
+    /// Two places need it, and they do not share one. HotChocolate's <c>[Authorize]</c> reads the
+    /// principal the request was built with; <c>[RequirePermission]</c> reads
+    /// <see cref="IHttpContextAccessor"/> instead. In the real server both are the same user
+    /// because the request came in over HTTP — here there is no HTTP, so the helpers below
+    /// publish the principal to the accessor as well as returning it.
+    /// </para>
+    /// </summary>
+    private static readonly AsyncLocal<ClaimsPrincipal?> ActingAs = new();
+
+    /// <summary>
+    /// What a backoffice staff token looks like once the JWT handler has mapped it. The tenant
+    /// claim is the one that matters: the permission check reads roles only when it says
+    /// Backoffice, because the Shop realm is open self-service registration.
+    /// </summary>
+    private static ClaimsPrincipal StaffPrincipal(Guid? subject = null) => Acting(new ClaimsPrincipal(new ClaimsIdentity([
+        new Claim(ClaimTypes.NameIdentifier, (subject ?? Guid.NewGuid()).ToString()),
+        new Claim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm),
+        new Claim(ClaimTypes.Role, AdminRoles.Staff),
+    ], "test")));
+
+    private static ClaimsPrincipal CustomerPrincipal() => Acting(new ClaimsPrincipal(new ClaimsIdentity([
+        new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+        new Claim(EwaysClaimTypes.Tenant, AdminRoles.ShopRealm),
+        new Claim(ClaimTypes.Role, "customer"),
+    ], "test")));
+
+    private static ClaimsPrincipal Acting(ClaimsPrincipal principal)
+    {
+        ActingAs.Value = principal;
+        return principal;
+    }
+
+    /// <summary>
+    /// Supplies the context <c>[RequirePermission]</c> reads. It carries <c>RequestServices</c>
+    /// as well as the user, because the pipeline's error filter and correlation context resolve
+    /// services through it — a bare context would turn a mapped domain error into INTERNAL.
+    /// <para>
+    /// The setter is ignored on purpose: these tests drive the executor directly with no HTTP
+    /// request, and whatever the pipeline assigns — including the null it assigns when a request
+    /// ends — would otherwise wipe out the caller the test is acting as.
+    /// </para>
+    /// </summary>
+    private sealed class ActingHttpContextAccessor(IServiceProvider services) : IHttpContextAccessor
+    {
+        public HttpContext? HttpContext
+        {
+            get => ActingAs.Value is { } principal
+                ? new DefaultHttpContext { User = principal, RequestServices = services }
+                : null;
+            set { }
+        }
+    }
+
+    /// <summary>
+    /// Stands in for the RBAC subsystem, which has its own database and its own tests. It grants
+    /// whatever a backoffice role asks for, so these tests exercise the adapter rather than the
+    /// permission matrix.
+    /// </summary>
+    private sealed class AllowBackofficeRoles : IAuthorizationCheckService
+    {
+        public Task<CheckAuthorizationResult> CheckAsync(
+            CheckAuthorizationRequest request, CancellationToken cancellationToken = default) =>
+            Task.FromResult(request?.TokenRoleCodes is { Count: > 0 }
+                ? new CheckAuthorizationResult(true, "backoffice role")
+                : new CheckAuthorizationResult(false, "no backoffice role"));
+    }
+
     private sealed class ApiFixture : IAsyncDisposable
     {
         private ApiFixture(WebApplication app, FakeQueries queries)
@@ -704,7 +771,14 @@ public sealed class CategoryApiAdapterTests
             var builder = WebApplication.CreateBuilder();
             var queries = new FakeQueries();
             adminQueries ??= new FakeAdminQueries();
-            builder.Services.AddAuthorization(options => options.AddPolicy("Admin", policy => policy.RequireRole("Admin")));
+            builder.Services.AddSingleton<IHttpContextAccessor>(
+                provider => new ActingHttpContextAccessor(provider));
+            builder.Services.AddSingleton<IAuthorizationCheckService, AllowBackofficeRoles>();
+            builder.Services.AddAuthorization(options => options.AddPolicy(
+                AuthPolicies.AdminStaff,
+                policy => policy
+                    .RequireClaim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm)
+                    .RequireRole(AdminRoles.Staff, AdminRoles.SuperAdmin)));
             builder.Services.AddSingleton<ICategoryQueries>(queries);
             builder.Services.AddSingleton(adminQueries);
             builder.Services.AddSingleton<ICategoryService>(service ?? new FailingService(FrameworkError.Internal));
@@ -721,7 +795,7 @@ public sealed class CategoryApiAdapterTests
         {
             var endpoint = Endpoints.Single(candidate => candidate.RoutePattern.RawText == routePattern);
             var context = new DefaultHttpContext { RequestServices = App.Services };
-            context.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Role, "Admin")], "test"));
+            context.User = StaffPrincipal();
             context.Request.Method = HttpMethods.Get;
             context.Request.Path = pathAndQuery.Split('?', 2)[0];
             context.Request.QueryString = pathAndQuery.Contains('?')
@@ -744,7 +818,7 @@ public sealed class CategoryApiAdapterTests
 
     private static bool HasAdminPolicy(RouteEndpoint endpoint) =>
         endpoint.Metadata.GetOrderedMetadata<IAuthorizeData>()
-            .Any(metadata => metadata.Policy == "Admin");
+            .Any(metadata => metadata.Policy == AuthPolicies.AdminStaff);
 
     private sealed class FakeQueries : ICategoryQueries
     {

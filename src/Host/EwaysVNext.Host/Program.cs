@@ -1,4 +1,4 @@
-using AuthorizationService.Endpoints;
+﻿using AuthorizationService.Endpoints;
 using AuthorizationService.Implementation.Persistence;
 using EwaysVNext.Database;
 using EwaysVNext.Host;
@@ -70,14 +70,7 @@ builder.Services.AddEndpoints(typeof(Program).Assembly);
 builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, EwaysAuthorizationResultHandler>();
 builder.Services.AddSingleton<IAuthorizationHandler, PartnerScopeAuthorizationHandler>();
 
-builder.Services.AddAuthorization(opts =>
-{
-    opts.AddEwaysAuthorizationPolicies();
-
-    // The names Catalog's endpoints were written against. Removed in phase 2-3 when they are
-    // regated onto AuthPolicies.
-    opts.AddLegacyPolicyAliases();
-});
+builder.Services.AddAuthorization(opts => opts.AddEwaysAuthorizationPolicies());
 
 var allowedOrigins = builder.Configuration.GetSection("Host:AllowedCorsOrigins").Get<string[]>() ?? Array.Empty<string>();
 builder.Services.AddCors(opts =>

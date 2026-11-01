@@ -1,3 +1,7 @@
+﻿using AuthorizationService.Abstractions.Attributes;
+using AuthorizationService.Abstractions.Policies;
+using EwaysVNext.Presentation.Endpoint.Security;
+using HotChocolate.Authorization;
 using EwaysVNext.Modules.Catalog.Contracts.Categories;
 using EwaysVNext.Modules.Catalog.QueryApplication.Categories;
 using EwaysVNext.Presentation.Endpoint.GraphQL;
@@ -11,13 +15,15 @@ namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
 #pragma warning disable CA1822
 public sealed class CategoryAdminQueries
 {
-    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     [UsePaging(IncludeTotalCount = true, MaxPageSize = 100)]
     [UseProjection]
     public IQueryable<CategoryAdminDto> Categories(CategoryAdminFilterDto? filter,
         [Service] ICategoryAdminQueries queries) => queries.Search(filter);
 
-    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<CategoryAdminDto> CategoryAsync([ID] long id,
         [Service] ICategoryAdminQueries queries, CancellationToken ct)
     {
@@ -25,7 +31,8 @@ public sealed class CategoryAdminQueries
         return ResultGraphQLExtensions.ValueOrThrow(result);
     }
 
-    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<CategoryAdminDto?> CategoryParentAsync([ID] long categoryId,
         [Service] ICategoryAdminQueries queries, CancellationToken ct)
     {
@@ -33,7 +40,8 @@ public sealed class CategoryAdminQueries
         return ResultGraphQLExtensions.ValueOrThrow(result);
     }
 
-    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<IReadOnlyList<CategoryAdminTreeNodeDto>> CategoryDescendantsAsync(
         [ID] long categoryId, [Service] ICategoryAdminQueries queries, CancellationToken ct)
     {
@@ -41,16 +49,19 @@ public sealed class CategoryAdminQueries
         return ResultGraphQLExtensions.ValueOrThrow(result);
     }
 
-    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public Task<IReadOnlyList<CategoryAdminDto>> CategoryChildrenAsync([ID] long? parentId,
         [Service] ICategoryAdminQueries queries, CancellationToken ct) => queries.GetChildrenAsync(parentId, ct);
 
-    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     public Task<IReadOnlyList<CategoryAdminTreeNodeDto>> CategoryHierarchyAsync(
         [Service] ICategoryAdminQueries queries, CancellationToken ct) =>
         queries.GetHierarchyAsync(ct);
 
-    //[Authorize(Policy = "Admin")]
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
     [UsePaging(typeof(IdType), IncludeTotalCount = true, MaxPageSize = 100)]
     public async Task<IQueryable<long>> CategoryProductsAsync([ID] long categoryId,
         [Service] ICategoryAdminQueries queries, CancellationToken ct)
