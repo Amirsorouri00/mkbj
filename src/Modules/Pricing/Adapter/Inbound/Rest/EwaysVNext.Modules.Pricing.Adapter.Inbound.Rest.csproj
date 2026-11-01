@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\EwaysVNext.Modules.Pricing.Application.csproj" />
+    <ProjectReference Include="..\..\..\QueryApplication\EwaysVNext.Modules.Pricing.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Presentation.Endpoint\EwaysVNext.Presentation.Endpoint.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
+  </ItemGroup>
+</Project>

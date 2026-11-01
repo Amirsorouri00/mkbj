@@ -36,5 +36,6 @@
     <ProjectReference Include="..\..\BuildingBlocks\Jobs\Implementation\EwaysVNext.Jobs.Implementation.csproj" />
     <ProjectReference Include="..\..\Authorization\Authorization.Implementation\Authorization.Implementation.csproj" />
     <ProjectReference Include="..\..\Authorization\Authorization.Endpoints\Authorization.Endpoints.csproj" />
+    <ProjectReference Include="..\..\Modules\Pricing\Installer\EwaysVNext.Modules.Pricing.Installer.csproj" />
   </ItemGroup>
 </Project>

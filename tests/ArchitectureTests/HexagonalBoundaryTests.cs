@@ -16,7 +16,7 @@ public sealed class HexagonalBoundaryTests
 {
     // Final set (later phases append as they create each module):
     // Catalog, Customer, Partners, Settings, Pricing, Sales, Sourcing, Admin.
-    public static readonly string[] ModuleNames = ["Catalog", "Customer", "Partners", "Settings"];
+    public static readonly string[] ModuleNames = ["Catalog", "Customer", "Partners", "Settings", "Pricing"];
 
     /// <summary>
     /// Rows are (consumerModule, providerModule): `EwaysVNext.Modules.{consumer}.Adapter.Outbound`
@@ -25,12 +25,26 @@ public sealed class HexagonalBoundaryTests
     /// (Sales,Catalog), (Sales,Pricing), (Sales,Customer), (Sales,Settings), (Pricing,Catalog),
     /// (Pricing,Settings), (Sourcing,Catalog), (Sourcing,Pricing).
     /// </summary>
-    public static TheoryData<string, string> SanctionedReferences => new();
+    public static TheoryData<string, string> SanctionedReferences => new()
+    {
+        // Pricing prices what the catalogue says is sellable, and reads the seller's FX staleness
+        // limit from Settings. Both go through its Adapter.Outbound, never its Application.
+        { "Pricing", "Catalog" },
+        { "Pricing", "Settings" },
+    };
 
     public static TheoryData<string> Modules => new(ModuleNames);
 
     /// <summary>Modules that reference no other module, so they may never be a sanctioned consumer.</summary>
     private static readonly string[] ModulesThatConsumeNothing = ["Catalog", "Customer", "Settings", "Partners"];
+
+    /// <summary>
+    /// Pricing reaches other modules only from its Adapter.Outbound. Its Application is the
+    /// hexagon, and a reference there would make the dependency structural rather than a port.
+    /// </summary>
+    [Fact]
+    public void Pricing_Application_References_No_Other_Module() =>
+        OtherModuleReferences("Pricing", "EwaysVNext.Modules.Pricing.Application").Should().BeEmpty();
 
     [Fact]
     public void Src_Modules_Are_Exactly_ModuleNames() =>
@@ -40,6 +54,19 @@ public sealed class HexagonalBoundaryTests
     [Theory, MemberData(nameof(Modules))]
     public void Module_References_No_Other_Module_Unless_Sanctioned(string module) =>
         ForbiddenCrossModuleReferences(module).Should().BeEmpty();
+
+    /// <summary>
+    /// The same rule read from the project files rather than the built assemblies.
+    /// <para>
+    /// Both are needed. The compiler elides a reference no code uses, so a freshly scaffolded
+    /// module passes the assembly check however it is wired — the reference only becomes visible
+    /// once something calls through it, which is exactly when it is too late to be told. This
+    /// catches the wiring the moment it is written.
+    /// </para>
+    /// </summary>
+    [Theory, MemberData(nameof(Modules))]
+    public void Module_Project_References_Are_Sanctioned(string module) =>
+        ForbiddenProjectReferences(module).Should().BeEmpty();
 
     [Theory(SkipTestWithoutData = true), MemberData(nameof(SanctionedReferences))]
     public void Sanctioned_Row_Is_Well_Formed(string consumer, string provider)
@@ -137,6 +164,63 @@ public sealed class HexagonalBoundaryTests
 
                 if (!isSanctionedGateway && !isAdminComposition)
                     violations.Add($"{assemblyName} -> {reference.Name}");
+            }
+        }
+
+        return violations;
+    }
+
+    /// <summary>Every other module this one assembly references, sanctioned or not.</summary>
+    private static List<string> OtherModuleReferences(string module, string assemblyName)
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, $"{assemblyName}.dll");
+        if (!File.Exists(path)) return [$"{assemblyName}.dll was not built"];
+
+        return Assembly.LoadFrom(path).GetReferencedAssemblies()
+            .Select(reference => Regex.Match(reference.Name ?? string.Empty, @"^EwaysVNext\.Modules\.([^.]+)\."))
+            .Where(match => match.Success && match.Groups[1].Value != module)
+            .Select(match => match.Groups[1].Value)
+            .ToList();
+    }
+
+    private static List<string> ForbiddenProjectReferences(string module)
+    {
+        var sanctioned = SanctionedReferences
+            .Where(row => row.Data.Item1 == module)
+            .Select(row => row.Data.Item2)
+            .ToHashSet(StringComparer.Ordinal);
+
+        var moduleDirectory = Path.Combine(Root, "src", "Modules", module);
+        List<string> violations = [];
+
+        foreach (var projectPath in Directory.EnumerateFiles(
+                     moduleDirectory, "*.csproj", SearchOption.AllDirectories))
+        {
+            var projectName = Path.GetFileNameWithoutExtension(projectPath);
+
+            foreach (var referenced in Regex.Matches(
+                         File.ReadAllText(projectPath), @"ProjectReference\s+Include=""([^""]+)""")
+                     .Select(match => Path.GetFileNameWithoutExtension(match.Groups[1].Value)))
+            {
+                var match = Regex.Match(referenced, @"^EwaysVNext\.Modules\.([^.]+)\.(.+)$");
+                if (!match.Success) continue;
+
+                var other = match.Groups[1].Value;
+                var layer = match.Groups[2].Value;
+                if (other == module) continue;
+
+                var isSanctionedGateway =
+                    projectName == $"EwaysVNext.Modules.{module}.Adapter.Outbound"
+                    && layer == "Application"
+                    && sanctioned.Contains(other);
+
+                var isAdminComposition =
+                    module == "Admin"
+                    && projectName == "EwaysVNext.Modules.Admin.Adapter.Outbound"
+                    && layer is "QueryApplication" or "Application";
+
+                if (!isSanctionedGateway && !isAdminComposition)
+                    violations.Add($"{projectName} -> {referenced}");
             }
         }
 

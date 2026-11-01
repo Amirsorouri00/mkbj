@@ -7,6 +7,7 @@ using EwaysVNext.Host.Authentication.Extensions;
 using EwaysVNext.Host.Middleware;
 using EwaysVNext.Outcomes;
 using EwaysVNext.Modules.Catalog;
+using EwaysVNext.Modules.Pricing;
 using EwaysVNext.Modules.Customer;
 using EwaysVNext.Modules.Partners;
 using EwaysVNext.Modules.Settings;
@@ -53,6 +54,9 @@ builder.Host.UseSerilog((ctx, services, cfg) => cfg
 
 builder.Services
     .AddCatalogModule()
+    // After Catalog: Pricing's outbound adapter reaches into it, so the thing it depends on is
+    // already registered when its own registrations run.
+    .AddPricingModule(builder.Configuration)
     .AddCustomerModule(builder.Configuration)
     .AddPartnersModule(builder.Configuration)
     .AddSettingsModule(builder.Configuration);

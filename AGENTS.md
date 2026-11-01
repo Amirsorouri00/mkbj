@@ -28,19 +28,21 @@ receipt before the commercial invoice is issued.
 
 ### Modules
 
-Present today: **Catalog**, **Customer**, **Partners**, **Settings**, all built through phase 1.
+Present today: **Catalog**, **Customer**, **Partners**, **Settings**, **Pricing**.
 Partners owns B2B partners, peppered API keys, the `PartnerApiKey` authentication scheme, the
 usage log and the admin surface. Settings owns the seller profile, the versioned payment
 instruction and the commerce limits, three singletons seeded by migration. Customer was rebuilt
 around website and partner-linked buyers with contact-change history
 ([ADR-0022](docs/adr/0022-remove-iran-specific-modules.md) removed the Iran-market domain it
-replaced).
+replaced). Catalog owns brands, categories, attribute blueprints, products with their variants,
+identifiers and media, and the publishing and sellable-variant ports. Pricing is being built now:
+it owns reference prices, currency overrides and FX rates, and is the only module that may read
+Catalog and Settings — through its `Adapter.Outbound`, never its Application.
 
 Planned (not yet present; do not reference them):
 
 | Module | Phase | Owns |
 |---|---|---|
-| Pricing | 2 | Reference prices, currency overrides, FX rates |
 | Sales | 4–5 | Carts, orders, composition engine, invoices, refunds |
 | Sourcing | 7 | Import jobs, staging, crawling, publishing |
 | Admin | 6 | Cross-module composition and the admin GraphQL |
@@ -78,7 +80,7 @@ Authorization/                   ← RBAC subsystem (permissions, roles, scopes)
 Database/                        ← The ONE EwaysVNextDbContext, every module's EF configurations,
                                     DatabaseMigrator, Migrations/, repeatable Scripts/*.sql
 Host/EwaysVNext.Host/            ← Entry point: module wiring, host commands, the pipeline
-Modules/{Catalog,Customer,Partners,Settings}/
+Modules/{Catalog,Customer,Partners,Settings,Pricing}/
 ├── Application/                 ← Hexagon: Domain + Ports + Service
 ├── Adapter/Inbound/{Rest,GraphQL}/
 ├── Adapter/Outbound/            ← Repositories and ACL gateways

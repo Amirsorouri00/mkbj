@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Application\EwaysVNext.Modules.Pricing.Application.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\EwaysVNext.Modules.Pricing.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\Rest\EwaysVNext.Modules.Pricing.Adapter.Inbound.Rest.csproj" />
+    <ProjectReference Include="..\QueryApplication\EwaysVNext.Modules.Pricing.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\DependencyInjection\EwaysVNext.DependencyInjection.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\GraphQL\EwaysVNext.Modules.Pricing.Adapter.Inbound.GraphQL.csproj" />
+  </ItemGroup>
+</Project>

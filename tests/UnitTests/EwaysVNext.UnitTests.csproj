@@ -50,5 +50,6 @@
     <ProjectReference Include="..\..\src\Modules\Catalog\Adapter\Inbound\GraphQL\EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.csproj" />
     <ProjectReference Include="..\..\src\Modules\Catalog\Installer\EwaysVNext.Modules.Catalog.Installer.csproj" />
     <ProjectReference Include="..\..\src\Modules\Catalog\Adapter\Inbound\Rest\EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Pricing\Installer\EwaysVNext.Modules.Pricing.Installer.csproj" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-<Solution>
+﻿<Solution>
 
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />
@@ -112,6 +112,28 @@
     <Project Path="src/Modules/Customer/Installer/EwaysVNext.Modules.Customer.Installer.csproj" />
   </Folder>
   <Folder Name="/src/Modules/" />
+
+  <Folder Name="/src/Modules/Pricing/" />
+  <Folder Name="/src/Modules/Pricing/Application/">
+    <Project Path="src/Modules/Pricing/Application/EwaysVNext.Modules.Pricing.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Pricing/Adapter/Outbound/">
+    <Project Path="src/Modules/Pricing/Adapter/Outbound/EwaysVNext.Modules.Pricing.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Pricing/Adapter/" />
+  <Folder Name="/src/Modules/Pricing/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Pricing/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Pricing/Adapter/Inbound/GraphQL/EwaysVNext.Modules.Pricing.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Pricing/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Pricing/Adapter/Inbound/Rest/EwaysVNext.Modules.Pricing.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Pricing/QueryApplication/">
+    <Project Path="src/Modules/Pricing/QueryApplication/EwaysVNext.Modules.Pricing.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Pricing/Installer/">
+    <Project Path="src/Modules/Pricing/Installer/EwaysVNext.Modules.Pricing.Installer.csproj" />
+  </Folder>
 
   <Folder Name="/src/Modules/Settings/" />
   <Folder Name="/src/Modules/Settings/Application/">
