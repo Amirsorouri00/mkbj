@@ -1,11 +1,7 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Domain.Common;
 using EwaysVNext.Domain.Events;
-using EwaysVNext.Domain.ValueObjects;
 using EwaysVNext.Events.Application;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Services;
 using EwaysVNext.Persistence;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
@@ -83,29 +79,5 @@ public class EventDispatchingTests
         await unitOfWork.SaveChangesAsync();
 
         await eventBus.Received(2).PublishAsync(Arg.Any<IDomainEvent>(), Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task DeactivateProductAsync_Deactivates_And_Saves_With_No_Explicit_Dispatch_Call()
-    {
-        var productId = new SnowflakeIdGenerator().Generate();
-        var repo = Substitute.For<IProductRepository>();
-        var uow = Substitute.For<IUnitOfWork>();
-
-        var product = Product.Create(productId, Sku.Create($"T-{Guid.NewGuid():N}"[..12]), "P", Money.Create(5m), TestTime.Now);
-        repo.GetByIdAsync(productId, Arg.Any<CancellationToken>()).Returns(product);
-
-        var sut = new CatalogAdminService(
-            Substitute.For<Modules.Catalog.Application.Products.Ports.Inbound.IProductService>(),
-            repo,
-            uow,
-            new FixedClock());
-
-        var result = await sut.DeactivateProductAsync(productId);
-
-        result.IsSuccess.Should().BeTrue();
-        product.IsActive.Should().BeFalse();
-        product.DomainEvents.Should().Contain(e => e is ProductDeactivatedDomainEvent);
-        await uow.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 }

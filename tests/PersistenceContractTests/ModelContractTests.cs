@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using AuthorizationService.Implementation.Persistence;
 using AwesomeAssertions;
 using EwaysVNext.Database;
@@ -82,25 +82,11 @@ public sealed class ModelContractTests
             .Should().BeEmpty("a table in the default schema is one two modules can collide in");
     }
 
-    [Fact]
-    public void Product_Price_Is_Stored_In_Minor_Units()
-    {
-        using var context = Providers.Npgsql<EwaysVNextDbContext>();
-
-        var price = Providers.Model(context).GetEntityTypes()
-            .Single(e => e.ClrType == typeof(EwaysVNext.Domain.ValueObjects.Money)
-                         && e.FindOwnership()!.PrincipalEntityType.ClrType.Name == "Product");
-
-        var amount = price.FindProperty(nameof(EwaysVNext.Domain.ValueObjects.Money.Amount))!;
-        amount.GetColumnName().Should().Be("price_amount_minor");
-        amount.GetColumnType().Should().Be("bigint");
-
-        var currency = price.FindProperty(nameof(EwaysVNext.Domain.ValueObjects.Money.Currency))!;
-        currency.GetColumnName().Should().Be("price_currency");
-        // The model holds the configured literal; Postgres reports it as character(3) in its own
-        // catalog, which is the same type.
-        currency.GetColumnType().Should().Be("char(3)");
-    }
+    // The money-in-minor-units mapping had its model-level assertion here, on the product's own
+    // price. The product no longer carries one — a price now depends on who is buying and in what
+    // currency, which is the Pricing module's job — so there is no owned Money in the model to
+    // assert against until phase 2 adds reference prices. MinorUnitsTests still covers the
+    // conversion arithmetic in the meantime.
 
     [Fact]
     public void InMemory_Model_Disables_RowVersion_Concurrency()

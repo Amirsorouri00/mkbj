@@ -640,24 +640,238 @@ namespace EwaysVNext.Database.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("id");
 
+                    b.Property<long>("BrandId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("brand_id");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<bool>("DeactivatedByAdmin")
+                        .HasColumnType("boolean")
+                        .HasColumnName("deactivated_by_admin");
+
                     b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
+                        .HasMaxLength(20000)
+                        .HasColumnType("character varying(20000)")
                         .HasColumnName("description");
+
+                    b.Property<long?>("MergedIntoProductId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("merged_into_product_id");
+
+                    b.Property<string>("Mpn")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("mpn");
+
+                    b.Property<long>("PrimaryCategoryId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("primary_category_id");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<string>("ShortDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("short_description");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(240)
+                        .HasColumnType("character varying(240)")
+                        .HasColumnName("slug");
+
+                    b.PrimitiveCollection<long[]>("SourceRefs")
+                        .IsRequired()
+                        .HasColumnType("bigint[]")
+                        .HasColumnName("source_refs");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_products");
+
+                    b.HasIndex("PrimaryCategoryId")
+                        .HasDatabaseName("ix_products_primary_category_id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("ux_products_slug");
+
+                    b.HasIndex("BrandId", "Mpn")
+                        .IsUnique()
+                        .HasDatabaseName("ux_products_brand_mpn")
+                        .HasFilter("mpn IS NOT NULL");
+
+                    b.ToTable("products", "catalog", t =>
+                        {
+                            t.HasCheckConstraint("ck_products_status", "status IN ('Draft', 'Active', 'Deactivated')");
+                        });
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Products.Domain.ProductIdentifier", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("product_id");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<string>("SourceDomain")
+                        .HasMaxLength(253)
+                        .HasColumnType("character varying(253)")
+                        .HasColumnName("source_domain");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id")
+                        .HasName("pk_product_identifiers");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_product_identifiers_product_id");
+
+                    b.HasIndex("SourceDomain", "Value")
+                        .IsUnique()
+                        .HasDatabaseName("ux_product_identifiers_source")
+                        .HasFilter("type = 'SourceId'");
+
+                    b.HasIndex("Type", "Value")
+                        .IsUnique()
+                        .HasDatabaseName("ux_product_identifiers_type_value")
+                        .HasFilter("type IN ('Gtin', 'Upc', 'Ean')");
+
+                    b.ToTable("product_identifiers", "catalog");
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Products.Domain.ProductMedia", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Alt")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("alt");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("ObjectKey")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasColumnName("object_key");
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("product_id");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("SourceUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("source_url");
+
+                    b.Property<string>("UsageRights")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("usage_rights");
+
+                    b.HasKey("Id")
+                        .HasName("pk_product_media");
+
+                    b.HasIndex("ProductId", "SortOrder")
+                        .HasDatabaseName("ix_product_media_product_id_sort_order");
+
+                    b.ToTable("product_media", "catalog", t =>
+                        {
+                            t.HasCheckConstraint("ck_product_media_usage_rights", "usage_rights IN ('Allowed', 'RightsUnknown', 'Denied')");
+                        });
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Products.Domain.Variant", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AttributeSignature")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("attribute_signature");
+
+                    b.Property<string>("AttributeSignatureHash")
+                        .IsRequired()
+                        .HasColumnType("char(64)")
+                        .HasColumnName("attribute_signature_hash");
+
+                    b.Property<string>("AttributeValues")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("attribute_values");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("DeactivatedByAdmin")
+                        .HasColumnType("boolean")
+                        .HasColumnName("deactivated_by_admin");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("name");
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("product_id");
 
                     b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
@@ -676,16 +890,17 @@ namespace EwaysVNext.Database.Migrations
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id")
-                        .HasName("pk_products");
-
-                    b.HasIndex("CreatedAt")
-                        .HasDatabaseName("ix_products_created_at");
+                        .HasName("pk_variants");
 
                     b.HasIndex("Sku")
                         .IsUnique()
-                        .HasDatabaseName("ix_products_sku");
+                        .HasDatabaseName("ux_variants_sku");
 
-                    b.ToTable("products", "catalog");
+                    b.HasIndex("ProductId", "AttributeSignatureHash")
+                        .IsUnique()
+                        .HasDatabaseName("ux_variants_product_signature");
+
+                    b.ToTable("variants", "catalog");
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Customers.Domain.ContactChange", b =>
@@ -1346,32 +1561,49 @@ namespace EwaysVNext.Database.Migrations
 
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Products.Domain.Product", b =>
                 {
-                    b.OwnsOne("EwaysVNext.Domain.ValueObjects.Money", "Price", b1 =>
-                        {
-                            b1.Property<long>("ProductId")
-                                .HasColumnType("bigint")
-                                .HasColumnName("id");
+                    b.HasOne("EwaysVNext.Modules.Catalog.Application.Brands.Domain.Brand", null)
+                        .WithMany()
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_products_brands_brand_id");
 
-                            b1.Property<long>("Amount")
-                                .HasColumnType("bigint")
-                                .HasColumnName("price_amount_minor");
+                    b.HasOne("EwaysVNext.Modules.Catalog.Application.Categories.Domain.Category", null)
+                        .WithMany()
+                        .HasForeignKey("PrimaryCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_products_categories_primary_category_id");
+                });
 
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasColumnType("char(3)")
-                                .HasColumnName("price_currency");
+            modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Products.Domain.ProductIdentifier", b =>
+                {
+                    b.HasOne("EwaysVNext.Modules.Catalog.Application.Products.Domain.Product", null)
+                        .WithMany("Identifiers")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_product_identifiers_products_product_id");
+                });
 
-                            b1.HasKey("ProductId");
+            modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Products.Domain.ProductMedia", b =>
+                {
+                    b.HasOne("EwaysVNext.Modules.Catalog.Application.Products.Domain.Product", null)
+                        .WithMany("Media")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_product_media_products_product_id");
+                });
 
-                            b1.ToTable("products", "catalog");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ProductId")
-                                .HasConstraintName("fk_products_products_id");
-                        });
-
-                    b.Navigation("Price")
-                        .IsRequired();
+            modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Products.Domain.Variant", b =>
+                {
+                    b.HasOne("EwaysVNext.Modules.Catalog.Application.Products.Domain.Product", null)
+                        .WithMany("Variants")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_variants_products_product_id");
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Customers.Domain.ContactChange", b =>
@@ -1456,6 +1688,15 @@ namespace EwaysVNext.Database.Migrations
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Categories.Domain.Category", b =>
                 {
                     b.Navigation("Children");
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Products.Domain.Product", b =>
+                {
+                    b.Navigation("Identifiers");
+
+                    b.Navigation("Media");
+
+                    b.Navigation("Variants");
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer", b =>

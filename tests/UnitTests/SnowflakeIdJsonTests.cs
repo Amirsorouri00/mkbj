@@ -1,8 +1,6 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using AwesomeAssertions;
 using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Contracts.Products;
 using EwaysVNext.Presentation.Endpoint;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,15 +48,6 @@ public class SnowflakeIdJsonTests
 
         request.Id.Value.Should().Be(SampleId);
         request.CustomerId.Value.Should().Be(SampleId);
-    }
-
-    [Fact]
-    public void The_Response_Dtos_Serialize_Their_Snowflake_Ids_As_Strings()
-    {
-        var options = HttpJsonOptions();
-
-        JsonSerializer.Serialize(new ProductSnapshot(SampleId, "Pen", 1m, "USD"), options)
-            .Should().Contain("\"id\":\"96521147829043201\"");
     }
 
     private sealed record Sample(
