@@ -1,6 +1,7 @@
 ﻿using AwesomeAssertions;
 using EwaysVNext.Database;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using EwaysVNext.Modules.Catalog.Application.Brands.Domain;
 using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -169,6 +170,92 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
 
         await act.Should().NotThrowAsync(
             "\"Size\" may mean shoe size in one category and screen size in another");
+    }
+
+    [Fact]
+    public async Task Brand_CanonicalName_Is_Unique()
+    {
+        using var factory = fixture.CreateFactory();
+        var suffix = Guid.NewGuid().ToString("N")[..8];
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            db.Set<Brand>().Add(Brand.Create(NextId(), $"Northwind {suffix}", "admin", DateTimeOffset.UtcNow));
+            await db.SaveChangesAsync();
+        }
+
+        var act = async () =>
+        {
+            using var scope = factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            db.Set<Brand>().Add(Brand.Create(NextId(), $"NORTHWIND  {suffix}", "import", DateTimeOffset.UtcNow));
+            await db.SaveChangesAsync();
+        };
+
+        var postgres = (await act.Should().ThrowAsync<DbUpdateException>())
+            .Which.InnerException.Should().BeOfType<PostgresException>().Which;
+
+        postgres.SqlState.Should().Be("23505");
+        postgres.ConstraintName.Should().Be("ux_brands_canonical_name");
+    }
+
+    [Fact]
+    public async Task Brand_Alias_Is_Globally_Unique()
+    {
+        using var factory = fixture.CreateFactory();
+        var suffix = Guid.NewGuid().ToString("N")[..8];
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            var first = Brand.Create(NextId(), $"Northwind {suffix}", "admin", DateTimeOffset.UtcNow);
+            first.AddAlias(NextId(), $"Acme {suffix}", DateTimeOffset.UtcNow);
+            db.Set<Brand>().Add(first);
+            await db.SaveChangesAsync();
+        }
+
+        // A different brand claiming the same spelling makes "which brand is this?" unanswerable,
+        // so the index spans every brand rather than each one separately.
+        var act = async () =>
+        {
+            using var scope = factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            var second = Brand.Create(NextId(), $"Southwind {suffix}", "import", DateTimeOffset.UtcNow);
+            second.AddAlias(NextId(), $"ACME  {suffix}", DateTimeOffset.UtcNow);
+            db.Set<Brand>().Add(second);
+            await db.SaveChangesAsync();
+        };
+
+        var postgres = (await act.Should().ThrowAsync<DbUpdateException>())
+            .Which.InnerException.Should().BeOfType<PostgresException>().Which;
+
+        postgres.SqlState.Should().Be("23505");
+        postgres.ConstraintName.Should().Be("ux_brand_aliases_alias");
+    }
+
+    [Fact]
+    public async Task A_Brand_Provenance_Outside_The_Known_Set_Is_Rejected_By_The_Database()
+    {
+        using var factory = fixture.CreateFactory();
+        var suffix = Guid.NewGuid().ToString("N")[..8];
+
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+
+        // Written past the aggregate, the way an import fix-up script would.
+        var act = async () => await db.Database.ExecuteSqlRawAsync(
+            """
+            INSERT INTO catalog.brands (id, canonical_name, display_name, provenance, is_active, created_at)
+            VALUES ({0}, {1}, {2}, 'crawler', true, now())
+            """.Replace("{0}", NextId().ToString(System.Globalization.CultureInfo.InvariantCulture))
+               .Replace("{1}", $"'crawled-{suffix}'")
+               .Replace("{2}", $"'Crawled {suffix}'"));
+
+        var postgres = (await act.Should().ThrowAsync<PostgresException>()).Which;
+
+        postgres.SqlState.Should().Be("23514");
+        postgres.ConstraintName.Should().Be("ck_brands_provenance");
     }
 
     [Fact]

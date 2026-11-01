@@ -1,9 +1,11 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using EwaysVNext.Modules.Catalog.Adapter.Outbound.Dependencies.AttributeBlueprints;
 using EwaysVNext.Modules.Catalog.Adapter.Outbound.Repositories;
 using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.Adapter.Outbound.Repositories.AttributeBlueprints;
+using EwaysVNext.Modules.Catalog.Adapter.Outbound.Repositories.Brands;
+using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.Adapter.Outbound.Persistence.Categories;
 using EwaysVNext.Modules.Catalog.Adapter.Outbound.Persistence.Products;
@@ -18,6 +20,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IAttributeBlueprintRepository, AttributeBlueprintRepository>();
+        services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<IMeasurementUnitRepository, MeasurementUnitRepository>();
         services.AddScoped<IAttributeBlueprintDependencyGateway, UnavailableAttributeBlueprintDependencyGateway>();
         services.AddScoped<ICategoryAttributeAssignmentRepository, CategoryAttributeAssignmentRepository>();

@@ -300,7 +300,6 @@ namespace EwaysVNext.Database.Migrations
 
                     NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("ScopeCategoryId", "CanonicalKey"), false);
 
-
                     b.ToTable("attribute_blueprints", "catalog");
                 });
 
@@ -340,6 +339,61 @@ namespace EwaysVNext.Database.Migrations
                         .HasDatabaseName("ix_measurement_units_symbol");
 
                     b.ToTable("measurement_units", "catalog");
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Brands.Domain.Brand", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CanonicalName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("canonical_name");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("display_name");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Provenance")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("provenance");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_brands");
+
+                    b.HasIndex("CanonicalName")
+                        .IsUnique()
+                        .HasDatabaseName("ux_brands_canonical_name");
+
+                    b.ToTable("brands", "catalog", t =>
+                        {
+                            t.HasCheckConstraint("ck_brands_provenance", "provenance IN ('admin', 'import', 'seed')");
+                        });
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Categories.Domain.Category", b =>
@@ -1223,6 +1277,50 @@ namespace EwaysVNext.Database.Migrations
                         });
 
                     b.Navigation("Options");
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Brands.Domain.Brand", b =>
+                {
+                    b.OwnsMany("EwaysVNext.Modules.Catalog.Application.Brands.Domain.BrandAlias", "Aliases", b1 =>
+                        {
+                            b1.Property<long>("Id")
+                                .HasColumnType("bigint")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("Alias")
+                                .IsRequired()
+                                .HasMaxLength(120)
+                                .HasColumnType("character varying(120)")
+                                .HasColumnName("alias");
+
+                            b1.Property<long>("BrandId")
+                                .HasColumnType("bigint")
+                                .HasColumnName("brand_id");
+
+                            b1.Property<uint>("RowVersion")
+                                .IsConcurrencyToken()
+                                .ValueGeneratedOnAddOrUpdate()
+                                .HasColumnType("xid")
+                                .HasColumnName("xmin");
+
+                            b1.HasKey("Id")
+                                .HasName("pk_brand_aliases");
+
+                            b1.HasIndex("Alias")
+                                .IsUnique()
+                                .HasDatabaseName("ux_brand_aliases_alias");
+
+                            b1.HasIndex("BrandId")
+                                .HasDatabaseName("ix_brand_aliases_brand_id");
+
+                            b1.ToTable("brand_aliases", "catalog");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BrandId")
+                                .HasConstraintName("fk_brand_aliases_brands_brand_id");
+                        });
+
+                    b.Navigation("Aliases");
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.Categories.Domain.Category", b =>

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace EwaysVNext.Database;
 
@@ -12,6 +12,9 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
 
     public DbSet<EwaysVNext.Modules.Catalog.Application.Categories.Domain.CategoryProduct> CategoryProducts
         => Set<EwaysVNext.Modules.Catalog.Application.Categories.Domain.CategoryProduct>();
+
+    public DbSet<EwaysVNext.Modules.Catalog.Application.Brands.Domain.Brand> Brands
+        => Set<EwaysVNext.Modules.Catalog.Application.Brands.Domain.Brand>();
 
     public DbSet<EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprint> AttributeBlueprints
         => Set<EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprint>();
