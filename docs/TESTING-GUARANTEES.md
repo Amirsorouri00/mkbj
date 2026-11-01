@@ -99,7 +99,17 @@ Verified there today:
   is one run on one machine, not a deployment: nothing exercises the production compose end to
   end, restarts, upgrades, volume persistence or the Caddy TLS path.
 - **Keycloak beyond discovery.** Both realms import and serve `.well-known/openid-configuration`,
-  but their secrets are still placeholders and phase 1 fills them. No test authenticates a human.
+  and their content is asserted — password policy, session lifetimes, client flows, TOTP as a
+  default action, every secret a `${VAR}` placeholder. But that is a structural check on a JSON
+  file. **No automated test obtains a token from Keycloak**: the integration suite signs its own
+  JWTs with a test key and substitutes its own scheme router, because test tokens come from an
+  issuer no realm claims. The production router's realm-to-tenant branch is therefore exercised
+  by nothing.
+- **The partner probe endpoints prove the gates, not the product.** `/test/partner/{scope}` exists
+  only in the integration suite and returns the partner id. It proves that a key authenticates,
+  that a scope is required, that suspension and revocation take effect, and that the rate limit
+  partitions per partner. It proves nothing about any real partner endpoint, since none exist
+  yet — those arrive with Sales.
 - **Anything in a later phase.** Pricing, the composition engine, orders, invoices, imports and
   the admin surface do not exist yet, so nothing covers them.
 
@@ -118,6 +128,25 @@ Both were found by mutation testing, and both would otherwise have read as cover
   them. Removing the partner-key branch from the production router therefore left all eight
   partner tests green. Both routers now call one `AuthSchemes.IsPartnerKey`, and `AuthSchemesTests`
   covers it; the realm-to-tenant branch is still exercised by nothing.
+
+## What phase 1's suites cover
+
+- **The permission split is tested over HTTP, not against the matrix.** The matrix being right is
+  not the same as every route consulting it, so `Acceptance13StaffPermissionTests` sends real
+  requests as staff and as a super admin. Each refusal has a positive control: without one, a
+  route broken for everyone would pass the refusal test and look like correct security.
+- **Both gates are deliberate, and the acceptance test proves the outcome rather than which one
+  fired.** Weakening a group from `admin:super` to `admin:staff` leaves the suite green, because
+  the permission still refuses. Only opening both fails it. That is the layered design working,
+  but it does mean a single weakened gate is caught by review and the unit matrix, not by this
+  suite.
+- **Concurrency is tested, not reasoned about.** Ten parallel creates for one partner reference,
+  and ten for one identity subject, each settle on a single row through the filtered unique index
+  and a reload on violation.
+- **Mutation testing earned its place this phase.** It found a test that could not pin an expiry
+  boundary at all (Postgres stores microseconds, `DateTimeOffset` keeps ticks), a production
+  scheme router the suite substitutes and therefore never exercised, and an architecture rule
+  whose name match let the planted probe through.
 
 ## Two habits this repository insists on
 

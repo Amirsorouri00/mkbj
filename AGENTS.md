@@ -28,11 +28,13 @@ receipt before the commercial invoice is issued.
 
 ### Modules
 
-Present today: **Catalog**, **Customer**, **Partners**, **Settings**. Partners is complete:
-aggregate, peppered API keys, authentication scheme, usage log and admin surface. Settings holds
-the seller profile, the versioned payment instruction and the commerce limits, all singletons
-seeded by the migration. Customer is still a compile-only shell — its Iran-market domain was
-removed ([ADR-0022](docs/adr/0022-remove-iran-specific-modules.md)) and phase 1 rebuilds it.
+Present today: **Catalog**, **Customer**, **Partners**, **Settings**, all built through phase 1.
+Partners owns B2B partners, peppered API keys, the `PartnerApiKey` authentication scheme, the
+usage log and the admin surface. Settings owns the seller profile, the versioned payment
+instruction and the commerce limits, three singletons seeded by migration. Customer was rebuilt
+around website and partner-linked buyers with contact-change history
+([ADR-0022](docs/adr/0022-remove-iran-specific-modules.md) removed the Iran-market domain it
+replaced).
 
 Planned (not yet present; do not reference them):
 
@@ -179,9 +181,48 @@ defaulting.
 | `Minio__AccessKey` / `Minio__SecretKey` | Yes | The application's own MinIO user, never the root account. |
 | `Jobs__Mode` | No | `InProcess` (default), `WorkerOnly`, `Disabled`. Production runs the API Disabled and one worker. |
 | `ApiKeys__Pepper` | Yes | Mixed into every partner key hash. Rotating it invalidates every issued key. |
+| `Fx__MaxRateAge` | No | Default 72 h. How stale an FX rate may be before pricing refuses it. Read by Settings and Pricing from the one key, never stored. |
 | `Keycloak__InternalUrl` / `Keycloak__ExternalUrl` | Yes | Container address and public address. |
 | `Brave__ApiKey` / `Anthropic__ApiKey` | No | Catalog discovery and enrichment; each feature disables itself when absent. |
 | `RateLimiting__AnonymousPermitPerMinute` | No | Default 100, per IP, for callers with no partner key. A partner is limited by its own `rate_limit_per_minute` instead, read from the claim the key handler mints. In-process. |
+
+## Authentication, authorization and endpoints
+
+Humans authenticate through Keycloak (realms `Shop` and `Backoffice`); partners present an API
+key. A key arrives as `Authorization: Bearer pk_…` and is routed to the `PartnerApiKey` scheme by
+`AuthSchemes.IsPartnerKey` **before** any JWT code sees it — one implementation shared by the
+production router and the test fixture's.
+
+| Policy | Means |
+|---|---|
+| `admin:staff` | Backoffice realm, role `staff` or `super_admin` |
+| `admin:super` | Backoffice realm, role `super_admin` |
+| `shop:customer` | Shop realm |
+| `partner:{scope}` | A live API key granting that scope; authenticates with `PartnerApiKey` only |
+
+**Admin surfaces are gated twice**: the group takes `.RequireAuthorization(AuthPolicies.AdminStaff
+| AdminSuper)` and each endpoint `.RequirePermission(AdminPermissions.X)`. Permission rows are
+editable data; the realm policy is not, so it bounds what a misedited row can reach. GraphQL uses
+`[Authorize(Policy = …)]` then `[RequirePermission(…)]`, **in that order**, on **each resolver** —
+never on the class. A type-level attribute on an `[ExtendObjectType]` is merged onto the whole
+`Query`/`Mutation` and would gate every other module's fields; `GraphQLGateScopeTests` fails the
+build on both halves of that rule.
+
+Backoffice authority comes from Keycloak realm roles, forwarded to the permission check by
+`BackofficeRoles.From(user)` — and **only** when the tenant claim is `Backoffice`, since the Shop
+realm is open self-service registration.
+
+| Route | Gate |
+|---|---|
+| `/api/v1/admin/partners` | `admin:super` + `partners.manage` |
+| `/api/v1/admin/settings` | `admin:super` + `settings.manage` |
+| `/api/v1/admin/customers` | `admin:staff` + `customers.manage` |
+| `/api/v1/shop/me` | `shop:customer` — creates the customer record on first call |
+| `/graphql` | per resolver, as above |
+
+A partner's own id is never bindable: it reaches a port through `PartnerPrincipal` alone, and
+`PartnerTenancyArchitectureTests` fails the build if any inbound request shape carries a
+`PartnerId`.
 
 ## Database Migrations
 
