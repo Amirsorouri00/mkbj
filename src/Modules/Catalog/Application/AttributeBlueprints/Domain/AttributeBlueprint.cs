@@ -1,11 +1,43 @@
-using System.Globalization;
+﻿using System.Globalization;
 using EwaysVNext.Domain.Common;
 
 namespace EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 
 public sealed class AttributeBlueprint : AggregateRoot<long>
 {
+    public const int MaxAliases = 20;
+
+    private readonly List<string> _aliases = [];
+
     public string Name { get; private set; } = null!;
+
+    /// <summary>
+    /// Derived from <see cref="Name"/>, never set directly. It is what an import matches a
+    /// supplier's attribute column against, so letting an admin edit it apart from the name would
+    /// mean a rename silently stopped matching the feed.
+    /// </summary>
+    public string CanonicalKey { get; private set; } = string.Empty;
+
+    /// <summary>
+    /// Other canonical keys that resolve to this attribute — the column headings suppliers
+    /// actually use, which the normalizer deliberately will not guess at.
+    /// </summary>
+    public IReadOnlyList<string> Aliases => _aliases;
+
+    public AttributeScope Scope { get; private set; } = AttributeScope.Global;
+
+    /// <summary>
+    /// The category a <see cref="AttributeScope.Category"/>-scoped attribute belongs to, and null
+    /// for a global one. Null is also what makes the uniqueness index read "one global attribute
+    /// per key", so the two must never disagree.
+    /// </summary>
+    public long? ScopeCategoryId { get; private set; }
+
+    /// <summary>
+    /// The default measurement unit for this attribute's values, for example millimetres on
+    /// "Screen Size". Null means the values carry no unit.
+    /// </summary>
+    public long? UnitId { get; private set; }
 
     public AttributeBlueprintDataType DataType { get; private set; }
 
@@ -39,7 +71,9 @@ public sealed class AttributeBlueprint : AggregateRoot<long>
         {
             Id = id,
             Name = NormalizeName(name),
+            CanonicalKey = Common.CanonicalKey.From(NormalizeName(name)),
             DataType = dataType,
+            Scope = AttributeScope.Global,
             Status = AttributeBlueprintStatus.Active,
             DeletedAt = null,
             CreatedAt = now,
@@ -62,6 +96,7 @@ public sealed class AttributeBlueprint : AggregateRoot<long>
         }
 
         Name = normalizedName;
+        CanonicalKey = Common.CanonicalKey.From(normalizedName);
         Touch(now);
         Raise(new AttributeBlueprintRenamedDomainEvent(Id, Name));
     }
@@ -127,6 +162,7 @@ public sealed class AttributeBlueprint : AggregateRoot<long>
         if (Name != normalizedName)
         {
             Name = normalizedName;
+            CanonicalKey = Common.CanonicalKey.From(normalizedName);
             Raise(new AttributeBlueprintRenamedDomainEvent(Id, Name));
             changed = true;
         }
@@ -182,6 +218,91 @@ public sealed class AttributeBlueprint : AggregateRoot<long>
         }
 
         return (normalizedName, normalizedOptions);
+    }
+
+    /// <summary>
+    /// Narrows the attribute to one category, or widens it back to the whole catalogue. The two
+    /// halves are set together because either one alone is a lie: a global attribute holding a
+    /// category id, or a category-scoped one holding none, is a row the uniqueness index reads
+    /// as the opposite of what it says.
+    /// </summary>
+    public void SetScope(AttributeScope scope, long? categoryId, DateTimeOffset now)
+    {
+        EnsureNotDeleted();
+
+        var valid = scope switch
+        {
+            AttributeScope.Global => categoryId is null,
+            AttributeScope.Category => categoryId is > 0,
+            _ => false
+        };
+
+        if (!valid)
+        {
+            throw new DomainException(
+                "ATTRIBUTE_SCOPE_INVALID",
+                "A global attribute has no category; a category-scoped one needs a positive category ID.");
+        }
+
+        Scope = scope;
+        ScopeCategoryId = categoryId;
+        Touch(now);
+    }
+
+    /// <summary>
+    /// Replaces the alias list. Each entry is canonicalised, duplicates collapse, and an alias
+    /// equal to this attribute's own key is dropped.
+    /// <para>
+    /// An entry with no letters or digits is skipped rather than fatal: this list is filled from
+    /// an import's header row, and one unusable heading must not reject the rest.
+    /// </para>
+    /// </summary>
+    public void SetAliases(IEnumerable<string> aliases, DateTimeOffset now)
+    {
+        ArgumentNullException.ThrowIfNull(aliases);
+        EnsureNotDeleted();
+
+        var canonical = new List<string>();
+
+        foreach (var alias in aliases)
+        {
+            if (!Common.CanonicalKey.TryFrom(alias, out var key))
+                continue;
+
+            if (string.Equals(key, CanonicalKey, StringComparison.Ordinal) ||
+                canonical.Contains(key, StringComparer.Ordinal))
+                continue;
+
+            canonical.Add(key);
+        }
+
+        if (canonical.Count > MaxAliases)
+        {
+            throw new DomainException(
+                "ATTRIBUTE_ALIASES_TOO_MANY",
+                $"An attribute may have at most {MaxAliases} aliases; {canonical.Count} were given.");
+        }
+
+        _aliases.Clear();
+        _aliases.AddRange(canonical);
+        Touch(now);
+    }
+
+    /// <summary>
+    /// Sets or clears the attribute's default unit. That the unit exists is the service's
+    /// question — the aggregate cannot see the unit table and only refuses an impossible id.
+    /// </summary>
+    public void SetUnit(long? unitId, DateTimeOffset now)
+    {
+        EnsureNotDeleted();
+
+        if (unitId is <= 0)
+        {
+            throw new DomainException("ATTRIBUTE_UNIT_INVALID", "Measurement unit ID must be positive.");
+        }
+
+        UnitId = unitId;
+        Touch(now);
     }
 
     public void AddOption(long optionId, string value, long? measurementUnitId, DateTimeOffset now)
@@ -347,7 +468,10 @@ public sealed class AttributeBlueprint : AggregateRoot<long>
 
         switch (dataType)
         {
+            // An Option attribute's values are labels an admin picks from, so they are kept as
+            // typed (trimmed) rather than parsed — the same treatment free text gets.
             case AttributeBlueprintDataType.Text:
+            case AttributeBlueprintDataType.Option:
                 return normalizedValue;
             case AttributeBlueprintDataType.Number:
                 return NormalizeNumber(normalizedValue);
@@ -430,7 +554,23 @@ public enum AttributeBlueprintDataType
     Text = 1,
     Number = 2,
     Boolean = 3,
-    Date = 4
+    Date = 4,
+
+    /// <summary>
+    /// Values come from the blueprint's own option list. Appended as 5 so every stored row keeps
+    /// the meaning it was written with.
+    /// </summary>
+    Option = 5
+}
+
+/// <summary>
+/// Whether an attribute applies to the whole catalogue or only within one category — what stops
+/// "Size" meaning shoe size in one branch and screen size in another.
+/// </summary>
+public enum AttributeScope
+{
+    Global = 1,
+    Category = 2
 }
 
 public enum AttributeBlueprintStatus

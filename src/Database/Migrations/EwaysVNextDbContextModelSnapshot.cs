@@ -214,6 +214,17 @@ namespace EwaysVNext.Database.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("id");
 
+                    b.PrimitiveCollection<string[]>("Aliases")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("aliases");
+
+                    b.Property<string>("CanonicalKey")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("canonical_key");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -242,9 +253,21 @@ namespace EwaysVNext.Database.Migrations
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
 
+                    b.Property<int>("Scope")
+                        .HasColumnType("integer")
+                        .HasColumnName("scope");
+
+                    b.Property<long?>("ScopeCategoryId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("scope_category_id");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer")
                         .HasColumnName("status");
+
+                    b.Property<long?>("UnitId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("unit_id");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -253,10 +276,30 @@ namespace EwaysVNext.Database.Migrations
                     b.HasKey("Id")
                         .HasName("pk_attribute_blueprints");
 
+                    b.HasIndex("Aliases")
+                        .HasDatabaseName("ix_attribute_blueprints_aliases");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Aliases"), "gin");
+
                     b.HasIndex("Name")
                         .IsUnique()
                         .HasDatabaseName("ix_attribute_blueprints_name")
                         .HasFilter("deleted_at IS NULL");
+
+                    b.HasIndex("ScopeCategoryId")
+                        .HasDatabaseName("ix_attribute_blueprints_scope_category_id")
+                        .HasFilter("scope_category_id IS NOT NULL");
+
+                    b.HasIndex("UnitId")
+                        .HasDatabaseName("ix_attribute_blueprints_unit_id");
+
+                    b.HasIndex("ScopeCategoryId", "CanonicalKey")
+                        .IsUnique()
+                        .HasDatabaseName("ux_attribute_blueprints_scope_key")
+                        .HasFilter("deleted_at IS NULL");
+
+                    NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("ScopeCategoryId", "CanonicalKey"), false);
+
 
                     b.ToTable("attribute_blueprints", "catalog");
                 });
@@ -1125,6 +1168,12 @@ namespace EwaysVNext.Database.Migrations
 
             modelBuilder.Entity("EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprint", b =>
                 {
+                    b.HasOne("EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.MeasurementUnit", null)
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_attribute_blueprints_measurement_units_unit_id");
+
                     b.OwnsMany("EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprintOption", "Options", b1 =>
                         {
                             b1.Property<long>("Id")

@@ -3,6 +3,7 @@ using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Validation;
+using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
 using EwaysVNext.Outcomes;
 using EwaysVNext.Persistence;
 
@@ -11,6 +12,7 @@ namespace EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Services;
 public sealed class AttributeBlueprintService(
     IAttributeBlueprintRepository repository,
     IMeasurementUnitRepository measurementUnitRepository,
+    ICategoryRepository categoryRepository,
     IUnitOfWork unitOfWork,
     IAttributeBlueprintDependencyGateway dependencyGateway,
     IClock clock,
@@ -66,6 +68,13 @@ public sealed class AttributeBlueprintService(
             return Result.Failure<long>(NameTaken(blueprint.Name));
         }
 
+        // Two names can differ and still canonicalise alike ("Screen Size" / "screen-size"), so
+        // the name check above does not cover the key the uniqueness index actually enforces.
+        if (await repository.CanonicalKeyExistsAsync(blueprint.CanonicalKey, blueprint.ScopeCategoryId, ct: ct))
+        {
+            return Result.Failure<long>(KeyTaken(blueprint.CanonicalKey));
+        }
+
         var measurementUnitError = await FindMissingMeasurementUnitAsync(
             blueprint.DataType,
             blueprint.Options.Select(option => option.MeasurementUnitId),
@@ -108,10 +117,19 @@ public sealed class AttributeBlueprintService(
         catch (DomainException exception) { return Result.Failure(new Error(exception.Code, exception.Message)); }
 
         var normalizedName = name.Trim();
-        if (!string.Equals(blueprint.Name, normalizedName, StringComparison.Ordinal) &&
-            await repository.NameExistsAsync(normalizedName, id, ct))
+        if (!string.Equals(blueprint.Name, normalizedName, StringComparison.Ordinal))
         {
-            return Result.Failure(NameTaken(normalizedName));
+            if (await repository.NameExistsAsync(normalizedName, id, ct))
+            {
+                return Result.Failure(NameTaken(normalizedName));
+            }
+
+            var updatedKey = CanonicalKeyOrNull(normalizedName);
+            if (updatedKey is not null &&
+                await repository.CanonicalKeyExistsAsync(updatedKey, blueprint.ScopeCategoryId, id, ct))
+            {
+                return Result.Failure(KeyTaken(updatedKey));
+            }
         }
 
         var dataTypeChanged = blueprint.DataType != dataType;
@@ -188,6 +206,13 @@ public sealed class AttributeBlueprintService(
         if (await repository.NameExistsAsync(normalizedName, id, ct))
         {
             return Result.Failure(NameTaken(normalizedName));
+        }
+
+        var renamedKey = CanonicalKeyOrNull(normalizedName);
+        if (renamedKey is not null &&
+            await repository.CanonicalKeyExistsAsync(renamedKey, blueprint.ScopeCategoryId, id, ct))
+        {
+            return Result.Failure(KeyTaken(renamedKey));
         }
 
         try { blueprint.Rename(name, clock.UtcNow); }
@@ -440,12 +465,107 @@ public sealed class AttributeBlueprintService(
     }
 
 
+    public async Task<Result> SetScopeAsync(long id, AttributeScope scope, long? categoryId,
+        CancellationToken ct = default)
+    {
+        var validation = await idValidator.ValidateAsync(id, ct);
+        if (!validation.IsValid)
+        {
+            return Result.Failure(ValidationError(validation.Errors.Select(error => error.ErrorMessage)));
+        }
+
+        var blueprint = await repository.GetByIdAsync(id, ct);
+        if (blueprint is null) return NotFound();
+
+        if (scope == AttributeScope.Category && categoryId is > 0 &&
+            await categoryRepository.GetByIdAsync(categoryId.Value, ct) is null)
+        {
+            return Result.Failure(CategoryNotFound(categoryId.Value));
+        }
+
+        // The key is unique per scope, so moving an attribute between scopes can collide with one
+        // already there. Checked here so the admin reads a conflict rather than a 23505.
+        var targetCategoryId = scope == AttributeScope.Category ? categoryId : null;
+        if (await repository.CanonicalKeyExistsAsync(blueprint.CanonicalKey, targetCategoryId, id, ct))
+        {
+            return Result.Failure(KeyTaken(blueprint.CanonicalKey));
+        }
+
+        try { blueprint.SetScope(scope, categoryId, clock.UtcNow); }
+        catch (DomainException exception) { return Result.Failure(new Error(exception.Code, exception.Message)); }
+
+        await unitOfWork.SaveChangesAsync(ct);
+        return Result.Success();
+    }
+
+    public async Task<Result> SetAliasesAsync(long id, IReadOnlyCollection<string> aliases,
+        CancellationToken ct = default)
+    {
+        var validation = await idValidator.ValidateAsync(id, ct);
+        if (!validation.IsValid)
+        {
+            return Result.Failure(ValidationError(validation.Errors.Select(error => error.ErrorMessage)));
+        }
+
+        if (aliases is null)
+        {
+            return Result.Failure(ValidationError(["Attribute aliases are required."]));
+        }
+
+        var blueprint = await repository.GetByIdAsync(id, ct);
+        if (blueprint is null) return NotFound();
+
+        try { blueprint.SetAliases(aliases, clock.UtcNow); }
+        catch (DomainException exception) { return Result.Failure(new Error(exception.Code, exception.Message)); }
+
+        await unitOfWork.SaveChangesAsync(ct);
+        return Result.Success();
+    }
+
+    public async Task<Result> SetUnitAsync(long id, long? unitId, CancellationToken ct = default)
+    {
+        var validation = await idValidator.ValidateAsync(id, ct);
+        if (!validation.IsValid)
+        {
+            return Result.Failure(ValidationError(validation.Errors.Select(error => error.ErrorMessage)));
+        }
+
+        var blueprint = await repository.GetByIdAsync(id, ct);
+        if (blueprint is null) return NotFound();
+
+        if (unitId is > 0 && !await measurementUnitRepository.ExistsAsync(unitId.Value, ct))
+        {
+            return Result.Failure(MeasurementUnitNotFound(unitId.Value));
+        }
+
+        try { blueprint.SetUnit(unitId, clock.UtcNow); }
+        catch (DomainException exception) { return Result.Failure(new Error(exception.Code, exception.Message)); }
+
+        await unitOfWork.SaveChangesAsync(ct);
+        return Result.Success();
+    }
+
+
     private static Result NotFound() => Result.Failure(BlueprintNotFoundError());
 
     private static Result<T> NotFound<T>() => Result.Failure<T>(BlueprintNotFoundError());
 
     private static Error BlueprintNotFoundError() => new(
         "ATTRIBUTE_BLUEPRINT_NOT_FOUND", "Attribute blueprint was not found.");
+
+    /// <summary>
+    /// The key a name would produce, or null when it canonicalises to nothing — in which case
+    /// there is no key to collide with and the aggregate refuses the name a moment later.
+    /// </summary>
+    private static string? CanonicalKeyOrNull(string name) =>
+        Common.CanonicalKey.TryFrom(name, out var key) ? key : null;
+
+    private static Error KeyTaken(string canonicalKey) => new(
+        "ATTRIBUTE_BLUEPRINT_KEY_TAKEN",
+        $"Another attribute in this scope already uses the key '{canonicalKey}'.");
+
+    private static Error CategoryNotFound(long categoryId) => new(
+        "CATEGORY_NOT_FOUND", $"Category '{categoryId}' was not found.");
 
     private static Error NameTaken(string name) => new(
         "ATTRIBUTE_BLUEPRINT_NAME_TAKEN",

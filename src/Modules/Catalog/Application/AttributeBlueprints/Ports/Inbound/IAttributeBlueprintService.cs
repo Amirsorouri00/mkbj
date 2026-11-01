@@ -1,4 +1,4 @@
-using EwaysVNext.Outcomes;
+﻿using EwaysVNext.Outcomes;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 
 
@@ -33,4 +33,19 @@ public interface IAttributeBlueprintService
         CancellationToken ct = default);
 
     Task<Result> RemoveOptionAsync(long attributeBlueprintId, long optionId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Narrows the attribute to one category, or widens it back to the whole catalogue.
+    /// </summary>
+    Task<Result> SetScopeAsync(long id, AttributeScope scope, long? categoryId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Replaces the attribute's alias list — the supplier column headings that resolve to it.
+    /// </summary>
+    Task<Result> SetAliasesAsync(long id, IReadOnlyCollection<string> aliases, CancellationToken ct = default);
+
+    /// <summary>
+    /// Sets or clears the attribute's default measurement unit.
+    /// </summary>
+    Task<Result> SetUnitAsync(long id, long? unitId, CancellationToken ct = default);
 }

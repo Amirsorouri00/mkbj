@@ -2,6 +2,8 @@
 using EwaysVNext.Domain.Common;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
+using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Services;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Validation;
 using EwaysVNext.Persistence;
@@ -16,6 +18,7 @@ public sealed class AttributeBlueprintServiceTests
 
     private readonly IAttributeBlueprintRepository _repository = Substitute.For<IAttributeBlueprintRepository>();
     private readonly IMeasurementUnitRepository _measurementUnitRepository = Substitute.For<IMeasurementUnitRepository>();
+    private readonly ICategoryRepository _categoryRepository = Substitute.For<ICategoryRepository>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
     private readonly IAttributeBlueprintDependencyGateway _dependencyGateway = Substitute.For<IAttributeBlueprintDependencyGateway>();
     private readonly IIdGenerator _idGenerator = Substitute.For<IIdGenerator>();
@@ -402,10 +405,148 @@ public sealed class AttributeBlueprintServiceTests
         clock.ReceivedCalls().Should().BeEmpty("the service must reject the request before invoking the domain status change");
     }
 
+    [Fact]
+    public async Task Create_Refuses_A_Name_That_Canonicalises_Onto_An_Existing_One()
+    {
+        _idGenerator.Generate().Returns(BlueprintId);
+        _repository.NameExistsAsync("screen size", null, Arg.Any<CancellationToken>()).Returns(false);
+        _repository.CanonicalKeyExistsAsync("screen-size", null, null, Arg.Any<CancellationToken>()).Returns(true);
+        var service = CreateService();
+
+        var result = await service.CreateAsync("screen size", AttributeBlueprintDataType.Text, [],
+            TestContext.Current.CancellationToken);
+
+        result.Error!.Code.Should().Be("ATTRIBUTE_BLUEPRINT_KEY_TAKEN",
+            "'screen size' and 'Screen Size' are different names but one key, so the name check "
+            + "above it does not cover what the uniqueness index enforces");
+        await _repository.DidNotReceive().AddAsync(Arg.Any<AttributeBlueprint>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SetScope_Narrows_The_Attribute_To_A_Category_And_Saves()
+    {
+        var blueprint = AttributeBlueprint.Create(BlueprintId, "Screen Size", AttributeBlueprintDataType.Number, _clock.UtcNow);
+        _repository.GetByIdAsync(BlueprintId, Arg.Any<CancellationToken>()).Returns(blueprint);
+        _categoryRepository.GetByIdAsync(7, Arg.Any<CancellationToken>())
+            .Returns(Category.Create(7, "Monitors", "monitors", null, null, 0, _clock.UtcNow));
+        var service = CreateService();
+
+        var result = await service.SetScopeAsync(BlueprintId, AttributeScope.Category, 7,
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        blueprint.Scope.Should().Be(AttributeScope.Category);
+        blueprint.ScopeCategoryId.Should().Be(7);
+        await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SetScope_Refuses_A_Category_That_Does_Not_Exist()
+    {
+        var blueprint = AttributeBlueprint.Create(BlueprintId, "Screen Size", AttributeBlueprintDataType.Number, _clock.UtcNow);
+        _repository.GetByIdAsync(BlueprintId, Arg.Any<CancellationToken>()).Returns(blueprint);
+        _categoryRepository.GetByIdAsync(7, Arg.Any<CancellationToken>()).Returns((Category?)null);
+        var service = CreateService();
+
+        var result = await service.SetScopeAsync(BlueprintId, AttributeScope.Category, 7,
+            TestContext.Current.CancellationToken);
+
+        result.Error!.Code.Should().Be("CATEGORY_NOT_FOUND");
+        blueprint.Scope.Should().Be(AttributeScope.Global);
+        await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SetScope_Refuses_A_Move_Into_A_Scope_That_Already_Holds_The_Key()
+    {
+        var blueprint = AttributeBlueprint.Create(BlueprintId, "Screen Size", AttributeBlueprintDataType.Number, _clock.UtcNow);
+        _repository.GetByIdAsync(BlueprintId, Arg.Any<CancellationToken>()).Returns(blueprint);
+        _categoryRepository.GetByIdAsync(7, Arg.Any<CancellationToken>())
+            .Returns(Category.Create(7, "Monitors", "monitors", null, null, 0, _clock.UtcNow));
+        _repository.CanonicalKeyExistsAsync("screen-size", 7, BlueprintId, Arg.Any<CancellationToken>()).Returns(true);
+        var service = CreateService();
+
+        var result = await service.SetScopeAsync(BlueprintId, AttributeScope.Category, 7,
+            TestContext.Current.CancellationToken);
+
+        result.Error!.Code.Should().Be("ATTRIBUTE_BLUEPRINT_KEY_TAKEN",
+            "the admin must read a conflict rather than a raw unique-violation from the database");
+        await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SetUnit_Refuses_A_Unit_That_Does_Not_Exist()
+    {
+        var blueprint = AttributeBlueprint.Create(BlueprintId, "Screen Size", AttributeBlueprintDataType.Number, _clock.UtcNow);
+        _repository.GetByIdAsync(BlueprintId, Arg.Any<CancellationToken>()).Returns(blueprint);
+        _measurementUnitRepository.ExistsAsync(9, Arg.Any<CancellationToken>()).Returns(false);
+        var service = CreateService();
+
+        var result = await service.SetUnitAsync(BlueprintId, 9, TestContext.Current.CancellationToken);
+
+        result.Error!.Code.Should().Be("MEASUREMENT_UNIT_NOT_FOUND");
+        blueprint.UnitId.Should().BeNull();
+        await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SetUnit_Records_An_Existing_Unit()
+    {
+        var blueprint = AttributeBlueprint.Create(BlueprintId, "Screen Size", AttributeBlueprintDataType.Number, _clock.UtcNow);
+        _repository.GetByIdAsync(BlueprintId, Arg.Any<CancellationToken>()).Returns(blueprint);
+        _measurementUnitRepository.ExistsAsync(9, Arg.Any<CancellationToken>()).Returns(true);
+        var service = CreateService();
+
+        var result = await service.SetUnitAsync(BlueprintId, 9, TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        blueprint.UnitId.Should().Be(9);
+    }
+
+    [Fact]
+    public async Task SetUnit_Clearing_Does_Not_Consult_The_Unit_Table()
+    {
+        var blueprint = AttributeBlueprint.Create(BlueprintId, "Screen Size", AttributeBlueprintDataType.Number, _clock.UtcNow);
+        _repository.GetByIdAsync(BlueprintId, Arg.Any<CancellationToken>()).Returns(blueprint);
+        var service = CreateService();
+
+        var result = await service.SetUnitAsync(BlueprintId, null, TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        await _measurementUnitRepository.DidNotReceive().ExistsAsync(Arg.Any<long>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SetAliases_Replaces_The_List_And_Saves()
+    {
+        var blueprint = AttributeBlueprint.Create(BlueprintId, "Screen Size", AttributeBlueprintDataType.Number, _clock.UtcNow);
+        _repository.GetByIdAsync(BlueprintId, Arg.Any<CancellationToken>()).Returns(blueprint);
+        var service = CreateService();
+
+        var result = await service.SetAliasesAsync(BlueprintId, ["Display Size"], TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        blueprint.Aliases.Should().BeEquivalentTo(["display-size"]);
+        await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SetAliases_Reports_A_Missing_Attribute_Rather_Than_Saving()
+    {
+        _repository.GetByIdAsync(BlueprintId, Arg.Any<CancellationToken>()).Returns((AttributeBlueprint?)null);
+        var service = CreateService();
+
+        var result = await service.SetAliasesAsync(BlueprintId, ["Display Size"], TestContext.Current.CancellationToken);
+
+        result.Error!.Code.Should().Be("ATTRIBUTE_BLUEPRINT_NOT_FOUND");
+        await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
     private AttributeBlueprintService CreateService(IClock? clock = null)
         => new(
             _repository,
             _measurementUnitRepository,
+            _categoryRepository,
             _unitOfWork,
             _dependencyGateway,
             clock ?? _clock,

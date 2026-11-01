@@ -1,11 +1,15 @@
-using EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
+﻿using EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
 
 namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
 
 public sealed class AttributeBlueprintType : ObjectType<AttributeBlueprintSnapshot>
 {
     protected override void Configure(IObjectTypeDescriptor<AttributeBlueprintSnapshot> descriptor)
-        => descriptor.Field(blueprint => blueprint.Id).Type<NonNullType<IdType>>();
+    {
+        descriptor.Field(blueprint => blueprint.Id).Type<NonNullType<IdType>>();
+        descriptor.Field(blueprint => blueprint.ScopeCategoryId).Type<IdType>();
+        descriptor.Field(blueprint => blueprint.UnitId).Type<IdType>();
+    }
 }
 
 public sealed class AttributeBlueprintOptionType : ObjectType<AttributeBlueprintOptionSnapshot>

@@ -1,4 +1,4 @@
-using EwaysVNext.Database;
+﻿using EwaysVNext.Database;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
@@ -26,13 +26,35 @@ internal sealed class AttributeBlueprintRepository(EwaysVNextDbContext db) : EfC
             (!excludingId.HasValue || blueprint.Id != excludingId.Value), ct);
     }
 
+    /// <summary>
+    /// Whether another live attribute already claims this key in the same scope. Null
+    /// <paramref name="scopeCategoryId"/> is the global scope, and matches only other global
+    /// attributes — the same comparison the NULLS NOT DISTINCT index makes.
+    /// </summary>
+    public async Task<bool> CanonicalKeyExistsAsync(string canonicalKey, long? scopeCategoryId,
+        long? excludingId = null, CancellationToken ct = default)
+    {
+        if (string.IsNullOrEmpty(canonicalKey)) return false;
+
+        return await db.AttributeBlueprints.AnyAsync(blueprint =>
+            !blueprint.DeletedAt.HasValue &&
+            blueprint.CanonicalKey == canonicalKey &&
+            blueprint.ScopeCategoryId == scopeCategoryId &&
+            (!excludingId.HasValue || blueprint.Id != excludingId.Value), ct);
+    }
+
     public async Task<AttributeBlueprintSnapshot?> GetSnapshotByIdAsync(long id, CancellationToken ct = default)
         => await db.AttributeBlueprints.Where(blueprint => blueprint.Id == id)
             .Select(blueprint => new AttributeBlueprintSnapshot(
                 blueprint.Id,
                 blueprint.Name,
+                blueprint.CanonicalKey,
                 blueprint.DataType.ToString(),
                 blueprint.Status.ToString(),
+                blueprint.Scope.ToString(),
+                blueprint.ScopeCategoryId,
+                blueprint.Aliases,
+                blueprint.UnitId,
                 blueprint.DeletedAt,
                 blueprint.CreatedAt,
                 blueprint.UpdatedAt,
@@ -75,8 +97,13 @@ internal sealed class AttributeBlueprintRepository(EwaysVNextDbContext db) : EfC
                 .Select(blueprint => new AttributeBlueprintSnapshot(
                     blueprint.Id,
                     blueprint.Name,
+                    blueprint.CanonicalKey,
                     blueprint.DataType.ToString(),
                     blueprint.Status.ToString(),
+                    blueprint.Scope.ToString(),
+                    blueprint.ScopeCategoryId,
+                    blueprint.Aliases,
+                    blueprint.UnitId,
                     blueprint.DeletedAt,
                     blueprint.CreatedAt,
                     blueprint.UpdatedAt,
@@ -103,8 +130,13 @@ internal sealed class AttributeBlueprintRepository(EwaysVNextDbContext db) : EfC
             .Select(blueprint => new AttributeBlueprintSnapshot(
                 blueprint.Id,
                 blueprint.Name,
+                blueprint.CanonicalKey,
                 blueprint.DataType.ToString(),
                 blueprint.Status.ToString(),
+                blueprint.Scope.ToString(),
+                blueprint.ScopeCategoryId,
+                blueprint.Aliases,
+                blueprint.UnitId,
                 blueprint.DeletedAt,
                 blueprint.CreatedAt,
                 blueprint.UpdatedAt,
@@ -132,6 +164,7 @@ internal sealed class AttributeBlueprintRepository(EwaysVNextDbContext db) : EfC
         AttributeBlueprintDataTypeFilter.Number => AttributeBlueprintDataType.Number,
         AttributeBlueprintDataTypeFilter.Boolean => AttributeBlueprintDataType.Boolean,
         AttributeBlueprintDataTypeFilter.Date => AttributeBlueprintDataType.Date,
+        AttributeBlueprintDataTypeFilter.Option => AttributeBlueprintDataType.Option,
         _ => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, "Unsupported attribute blueprint data type.")
     };
 }

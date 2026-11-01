@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
+﻿namespace EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
 
 public sealed record AttributeBlueprintFilter(
     string? NameContains = null,
@@ -10,7 +10,8 @@ public enum AttributeBlueprintDataTypeFilter
     Text = 1,
     Number = 2,
     Boolean = 3,
-    Date = 4
+    Date = 4,
+    Option = 5
 }
 
 public enum AttributeBlueprintStatusFilter

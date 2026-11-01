@@ -1,4 +1,4 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Services;
 using EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
@@ -42,7 +42,7 @@ public sealed class AttributeBlueprintQueryServiceTests
     [Fact]
     public async Task GetUsage_Returns_Dependency_Counts()
     {
-        var snapshot = new AttributeBlueprintSnapshot(42, "Color", "Text", "Active", null, DateTimeOffset.UtcNow, null, []);
+        var snapshot = new AttributeBlueprintSnapshot(42, "Color", "color", "Text", "Active", "Global", null, [], null, null, DateTimeOffset.UtcNow, null, []);
         _repository.GetSnapshotByIdAsync(42, Arg.Any<CancellationToken>()).Returns(snapshot);
         _dependencyGateway.GetDependenciesAsync(42, Arg.Any<CancellationToken>()).Returns(new AttributeBlueprintDependencies(3, 2));
         var service = new AttributeBlueprintQueryService(_repository, _dependencyGateway);

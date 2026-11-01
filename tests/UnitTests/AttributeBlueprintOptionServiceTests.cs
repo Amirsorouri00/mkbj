@@ -3,6 +3,7 @@ using EwaysVNext.Domain.Common;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Services;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Validation;
 using EwaysVNext.Persistence;
@@ -17,6 +18,7 @@ public sealed class AttributeBlueprintOptionServiceTests
     private const long OptionId = 101;
     private readonly IAttributeBlueprintRepository _repository = Substitute.For<IAttributeBlueprintRepository>();
     private readonly IMeasurementUnitRepository _measurementUnitRepository = Substitute.For<IMeasurementUnitRepository>();
+    private readonly ICategoryRepository _categoryRepository = Substitute.For<ICategoryRepository>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
     private readonly IAttributeBlueprintDependencyGateway _dependencyGateway = Substitute.For<IAttributeBlueprintDependencyGateway>();
     private readonly IIdGenerator _idGenerator = Substitute.For<IIdGenerator>();
@@ -397,6 +399,7 @@ public sealed class AttributeBlueprintOptionServiceTests
         => new(
             _repository,
             _measurementUnitRepository,
+            _categoryRepository,
             _unitOfWork,
             _dependencyGateway,
             _clock,

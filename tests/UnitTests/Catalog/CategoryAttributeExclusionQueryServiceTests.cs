@@ -1,4 +1,4 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Domain.Common;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
@@ -37,7 +37,8 @@ public class CategoryAttributeExclusionQueryServiceTests
     }
 
     private static AttributeBlueprintSnapshot BlueprintSnapshot(long id, string name)
-        => new(id, name, "Text", "Active", null, TestTime.Now, null, Array.Empty<AttributeBlueprintOptionSnapshot>());
+        => new(id, name, name.ToLowerInvariant(), "Text", "Active", "Global", null, [], null, null, TestTime.Now, null,
+            Array.Empty<AttributeBlueprintOptionSnapshot>());
 
     [Fact]
     public async Task GetEffectiveAttributesAsync_Returns_Direct_Assignment_As_Not_Inherited_And_Not_Excluded()

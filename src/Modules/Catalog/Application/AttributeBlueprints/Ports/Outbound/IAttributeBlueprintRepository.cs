@@ -1,4 +1,4 @@
-
+﻿
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
 using EwaysVNext.Queries.Application.Paginations;
@@ -12,6 +12,13 @@ public interface IAttributeBlueprintRepository
     Task AddAsync(AttributeBlueprint attributeBlueprint, CancellationToken ct = default);
 
     Task<bool> NameExistsAsync(string name, long? excludingId = null, CancellationToken ct = default);
+
+    /// <summary>
+    /// Whether another live attribute already claims <paramref name="canonicalKey"/> within the
+    /// same scope; a null <paramref name="scopeCategoryId"/> means the global scope.
+    /// </summary>
+    Task<bool> CanonicalKeyExistsAsync(string canonicalKey, long? scopeCategoryId,
+        long? excludingId = null, CancellationToken ct = default);
 
     Task<AttributeBlueprintSnapshot?> GetSnapshotByIdAsync(long id, CancellationToken ct = default);
 

@@ -1,5 +1,6 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Database;
+using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -107,6 +108,67 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
             reloaded.Aliases.Should().BeEquivalentTo(["electric-kettles", "tea-makers"]);
             reloaded.CanonicalKey.Should().Be($"kettles-{suffix}");
         }
+    }
+
+    [Fact]
+    public async Task Two_Global_Attributes_With_The_Same_Canonical_Key_Are_Rejected()
+    {
+        using var factory = fixture.CreateFactory();
+        var suffix = Guid.NewGuid().ToString("N")[..8];
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            db.Set<AttributeBlueprint>().Add(AttributeBlueprint.Create(
+                NextId(), $"Screen Size {suffix}", AttributeBlueprintDataType.Number, DateTimeOffset.UtcNow));
+            await db.SaveChangesAsync();
+        }
+
+        var act = async () =>
+        {
+            using var scope = factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            db.Set<AttributeBlueprint>().Add(AttributeBlueprint.Create(
+                NextId(), $"screen  size  {suffix}", AttributeBlueprintDataType.Number, DateTimeOffset.UtcNow));
+            await db.SaveChangesAsync();
+        };
+
+        var postgres = (await act.Should().ThrowAsync<DbUpdateException>())
+            .Which.InnerException.Should().BeOfType<PostgresException>().Which;
+
+        postgres.SqlState.Should().Be("23505");
+        postgres.ConstraintName.Should().Be("ux_attribute_blueprints_scope_key",
+            "scope_category_id is null for every global attribute, so this only holds because the "
+            + "index is NULLS NOT DISTINCT");
+    }
+
+    [Fact]
+    public async Task The_Same_Attribute_Key_Under_Different_Categories_Is_Allowed()
+    {
+        using var factory = fixture.CreateFactory();
+        var suffix = Guid.NewGuid().ToString("N")[..8];
+
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+
+        var first = AttributeBlueprint.Create(
+            NextId(), $"Size A {suffix}", AttributeBlueprintDataType.Option, DateTimeOffset.UtcNow);
+        var second = AttributeBlueprint.Create(
+            NextId(), $"Size B {suffix}", AttributeBlueprintDataType.Option, DateTimeOffset.UtcNow);
+        first.SetScope(AttributeScope.Category, 101, DateTimeOffset.UtcNow);
+        second.SetScope(AttributeScope.Category, 102, DateTimeOffset.UtcNow);
+        db.Set<AttributeBlueprint>().AddRange(first, second);
+        await db.SaveChangesAsync();
+
+        // Both now answer to the same key, in different categories. The names still differ,
+        // because the name index is global and exact and would otherwise be what rejects this.
+        first.Rename($"Size {suffix}", DateTimeOffset.UtcNow);
+        second.Rename($"size  {suffix}", DateTimeOffset.UtcNow);
+
+        var act = async () => await db.SaveChangesAsync();
+
+        await act.Should().NotThrowAsync(
+            "\"Size\" may mean shoe size in one category and screen size in another");
     }
 
     [Fact]

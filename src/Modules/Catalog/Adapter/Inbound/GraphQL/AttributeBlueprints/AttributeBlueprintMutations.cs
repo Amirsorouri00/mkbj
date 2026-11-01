@@ -1,4 +1,4 @@
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
+﻿using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
 using EwaysVNext.Presentation.Endpoint.GraphQL;
 using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
@@ -59,6 +59,21 @@ public sealed class AttributeBlueprintMutations
         [Service] IAttributeBlueprintService blueprints, CancellationToken ct)
         => (isArchived ? await blueprints.ArchiveAsync(attributeBlueprintId, ct)
             : await blueprints.UnarchiveAsync(attributeBlueprintId, ct)).ValueOrThrow(true);
+
+    [Authorize(Policy = "Admin")]
+    public async Task<bool> SetAttributeBlueprintScope(SetAttributeBlueprintScopeInput input,
+        [Service] IAttributeBlueprintService blueprints, CancellationToken ct)
+        => (await blueprints.SetScopeAsync(input.AttributeBlueprintId, input.Scope, input.CategoryId, ct)).ValueOrThrow(true);
+
+    [Authorize(Policy = "Admin")]
+    public async Task<bool> SetAttributeBlueprintAliases(SetAttributeBlueprintAliasesInput input,
+        [Service] IAttributeBlueprintService blueprints, CancellationToken ct)
+        => (await blueprints.SetAliasesAsync(input.AttributeBlueprintId, input.Aliases ?? [], ct)).ValueOrThrow(true);
+
+    [Authorize(Policy = "Admin")]
+    public async Task<bool> SetAttributeBlueprintUnit(SetAttributeBlueprintUnitInput input,
+        [Service] IAttributeBlueprintService blueprints, CancellationToken ct)
+        => (await blueprints.SetUnitAsync(input.AttributeBlueprintId, input.UnitId, ct)).ValueOrThrow(true);
 
     [Authorize(Policy = "Admin")]
     public async Task<bool> DeleteAttributeBlueprint(long attributeBlueprintId, [Service] IAttributeBlueprintService blueprints, CancellationToken ct)
