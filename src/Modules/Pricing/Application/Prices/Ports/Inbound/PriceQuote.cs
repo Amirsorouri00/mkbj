@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
+﻿namespace EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
 
 /// <summary>Where a quoted price came from, which an order line records verbatim.</summary>
 public enum PriceSource
@@ -36,3 +36,21 @@ public sealed record FxSnapshot(
     decimal Rate,
     DateTimeOffset RateAt,
     string Provenance);
+
+/// <summary>
+/// One variant's price in one currency, with the ±5% band a composed line may move inside.
+/// </summary>
+/// <remarks>
+/// <c>Lo</c> and <c>Hi</c> travel with the reference price rather than being recomputed by the
+/// caller, so the band a quote was issued against and the band an order is checked against are
+/// the same arithmetic on the same number. <c>Fx</c> is null when no conversion happened — the
+/// price was already in this currency, or an admin set it here directly.
+/// </remarks>
+public sealed record PriceQuote(
+    long VariantId,
+    string Currency,
+    long ReferenceMinor,
+    long LoMinor,
+    long HiMinor,
+    PriceSource Source,
+    FxSnapshot? Fx);
