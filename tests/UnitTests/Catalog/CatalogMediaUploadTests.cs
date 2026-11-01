@@ -1,4 +1,4 @@
-using AwesomeAssertions;
+﻿using AwesomeAssertions;
 using EwaysVNext.Audit;
 using EwaysVNext.Core.Application;
 using EwaysVNext.Core.Application.FileTypeDetection;
@@ -105,6 +105,62 @@ public sealed class CatalogMediaUploadTests
         stored.Should().BeEquivalentTo(FileSamples.Png,
             "identifying the file consumes its first bytes, and a forward-only upload cannot be "
             + "rewound — those bytes have to be replayed in front of the remainder");
+    }
+
+    [Fact]
+    public async Task A_Stream_That_Cannot_Rewind_Still_Reaches_Storage_Whole()
+    {
+        Draft();
+        byte[]? stored = null;
+        await _media.PutAsync(
+            Arg.Any<string>(),
+            Arg.Do<Stream>(stream =>
+            {
+                using var buffer = new MemoryStream();
+                stream.CopyTo(buffer);
+                stored = buffer.ToArray();
+            }),
+            Arg.Any<string>(), Arg.Any<CancellationToken>());
+
+        var command = new UploadMediaCommand(
+            ProductId, new ForwardOnlyStream(FileSamples.Png), FileSamples.Png.Length, null,
+            MediaUsageRights.Allowed, null);
+
+        await CreateService().UploadMediaAsync(command, _actor, Ct);
+
+        stored.Should().BeEquivalentTo(FileSamples.Png,
+            "identifying the file consumes its first bytes and this stream cannot be rewound, so "
+            + "they have to be replayed in front of the remainder");
+    }
+
+    /// <summary>A stream with no rewind, like a raw network body before anything buffers it.</summary>
+    private sealed class ForwardOnlyStream(byte[] content) : Stream
+    {
+        private readonly MemoryStream _inner = new(content);
+
+        public override bool CanRead => true;
+        public override bool CanSeek => false;
+        public override bool CanWrite => false;
+        public override long Length => throw new NotSupportedException();
+
+        public override long Position
+        {
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
+        }
+
+        public override int Read(byte[] buffer, int offset, int count) => _inner.Read(buffer, offset, count);
+        public override int Read(Span<byte> buffer) => _inner.Read(buffer);
+        public override void Flush() { }
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) _inner.Dispose();
+            base.Dispose(disposing);
+        }
     }
 
     [Fact]

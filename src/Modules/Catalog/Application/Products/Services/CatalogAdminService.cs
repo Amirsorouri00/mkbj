@@ -402,14 +402,25 @@ public sealed class CatalogAdminService(
     /// <summary>
     /// Reads enough of the stream to identify it and hands back a stream that still starts at
     /// byte zero, since the caller has to upload the whole thing afterwards.
+    /// <para>
+    /// A rewind is preferred where the stream allows one: an ASP.NET form file is buffered and
+    /// therefore seekable, and a plain seekable stream is what the storage client needs to know
+    /// the content length. The replay path remains for a stream that cannot be rewound.
+    /// </para>
     /// </summary>
     private async Task<(FileTypeDetectionResult Detected, Stream Replayed)> SniffAsync(
         Stream content, CancellationToken ct)
     {
         var header = new byte[fileTypes.HeaderLength];
         var read = await content.ReadAtLeastAsync(header, header.Length, throwOnEndOfStream: false, ct);
-
         var detected = fileTypes.Detect(header.AsSpan(0, read));
+
+        if (content.CanSeek)
+        {
+            content.Seek(0, SeekOrigin.Begin);
+            return (detected, content);
+        }
+
         return (detected, new ConcatenatedStream(header.AsMemory(0, read), content));
     }
 

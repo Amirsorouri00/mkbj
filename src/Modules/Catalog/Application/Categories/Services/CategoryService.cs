@@ -163,6 +163,25 @@ public sealed class CategoryService : Ports.Inbound.ICategoryService
         return Result.Success<CategoryAdminDto>(ToAdminDto(category));
     }
 
+    public async Task<Result> SetAliasesAsync(long categoryId, IReadOnlyCollection<string> aliases,
+        CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(aliases);
+
+        var input = ValidateCategoryId(categoryId);
+        if (input.IsFailure) return input;
+
+        var category = await _categories.GetByIdAsync(categoryId, ct);
+        if (category is null) return Result.Failure(NotFound);
+        if (category.Status == CategoryStatus.Deleted) return Result.Failure(Deleted);
+
+        try { category.SetAliases(aliases, _clock.UtcNow); }
+        catch (DomainException error) { return Result.Failure(ToError(error)); }
+
+        var saved = await _unitOfWork.TrySaveChangesAsync(ct);
+        return saved == SaveOutcome.Saved ? Result.Success() : Result.Failure(ToError(saved));
+    }
+
     public async Task<Result> MoveAsync(MoveCategoryCommand command,
         CancellationToken ct = default)
     {

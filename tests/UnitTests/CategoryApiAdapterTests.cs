@@ -838,6 +838,8 @@ public sealed class CategoryApiAdapterTests
             SetCategoryStatusCommand command, CancellationToken ct = default) =>
             Task.FromResult(Result.Failure<CategoryAdminDto>(error));
         public Task<Result> MoveAsync(MoveCategoryCommand command, CancellationToken ct = default) => Task.FromResult(Result.Failure(error));
+        public Task<Result> SetAliasesAsync(long categoryId, IReadOnlyCollection<string> aliases,
+            CancellationToken ct = default) => Task.FromResult(Result.Failure(error));
         public Task<Result> DeactivateManyAsync(BulkDeactivateCategoriesCommand command,
             CancellationToken ct = default) => Task.FromResult(Result.Failure(error));
         public Task<Result> DeleteAsync(DeleteCategoryCommand command, CancellationToken ct = default) => Task.FromResult(Result.Failure(error));
@@ -870,6 +872,13 @@ public sealed class CategoryApiAdapterTests
                 command.CategoryId, null, "Category", "category", null, 0, command.Status)));
         }
         public Task<Result> MoveAsync(MoveCategoryCommand command, CancellationToken ct = default) => Task.FromResult(Result.Success());
+        public List<string> AliasCommands { get; } = [];
+        public Task<Result> SetAliasesAsync(long categoryId, IReadOnlyCollection<string> aliases,
+            CancellationToken ct = default)
+        {
+            AliasCommands.AddRange(aliases);
+            return Task.FromResult(Result.Success());
+        }
         public Task<Result> DeactivateManyAsync(BulkDeactivateCategoriesCommand command,
             CancellationToken ct = default)
         {
