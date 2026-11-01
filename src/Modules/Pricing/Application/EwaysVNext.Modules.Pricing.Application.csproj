@@ -5,5 +5,7 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\EwaysVNext.Persistence.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Core\Application\EwaysVNext.Core.Application.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Events\Application\EwaysVNext.Events.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Jobs\Application\EwaysVNext.Jobs.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Audit\Application\EwaysVNext.Audit.Application.csproj" />
   </ItemGroup>
 </Project>

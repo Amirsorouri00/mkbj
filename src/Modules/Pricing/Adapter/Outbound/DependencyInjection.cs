@@ -18,6 +18,7 @@ public static class DependencyInjection
         services.AddScoped<IResolvedRateProjection, ResolvedRateProjection>();
         services.AddScoped<IPricingPolicyGateway, PricingPolicyGateway>();
         services.AddScoped<IPricingChangeNotifier, PricingChangeNotifier>();
+        services.AddScoped<ICatalogVariantGateway, CatalogVariantGateway>();
         return services;
     }
 }

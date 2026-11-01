@@ -28,6 +28,8 @@ public static class ModuleInstaller
         services.AddScoped<FxBookLoader>();
         services.AddScoped<IPriceQuotePort, PriceQuoteService>();
         services.AddScoped<IFxSnapshotPort, FxSnapshotService>();
+        services.AddScoped<IPricePublishingPort, PricePublishingService>();
+        services.AddScoped<IPricingAdminService, PricingAdminService>();
 
         services
             .AddPersistenceInterceptors()
