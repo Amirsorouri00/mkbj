@@ -5,12 +5,14 @@ using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.
 using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.Adapter.Outbound.Repositories.AttributeBlueprints;
 using EwaysVNext.Modules.Catalog.Adapter.Outbound.Repositories.Brands;
+using EwaysVNext.Modules.Catalog.Adapter.Outbound.Storefront;
+using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
+using EwaysVNext.Modules.Catalog.Application.Storefront.Ports.Inbound;
 using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.Adapter.Outbound.Persistence.Categories;
 using EwaysVNext.Modules.Catalog.Adapter.Outbound.Persistence.Products;
 using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
 
 namespace EwaysVNext.Modules.Catalog.Adapter.Outbound;
 
@@ -28,6 +30,8 @@ public static class DependencyInjection
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ICategoryProductRepository, CategoryProductRepository>();
         services.AddScoped<ICatalogProductLookup, CatalogProductLookup>();
+        services.AddScoped<IStorefrontRefreshTrigger, StorefrontRefreshTrigger>();
+        services.AddScoped<ICatalogChangeNotifier, CatalogChangeNotifier>();
         return services;
     }
 }
