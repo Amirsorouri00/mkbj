@@ -34,6 +34,7 @@ public static class DependencyInjection
         services.AddScoped<IStorefrontRefreshTrigger, StorefrontRefreshTrigger>();
         services.AddScoped<ICatalogChangeNotifier, CatalogChangeNotifier>();
         services.AddScoped<ICatalogMediaStore, ObjectStorageCatalogMediaStore>();
+        services.AddScoped<ISellableVariantReader, SellableVariantReader>();
         return services;
     }
 }

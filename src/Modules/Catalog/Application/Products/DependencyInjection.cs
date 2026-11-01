@@ -13,6 +13,14 @@ public static class DependencyInjection
         services.TryAddSingleton<IClock, SystemClock>();
         services.AddOptions<CatalogMediaOptions>().BindConfiguration(CatalogMediaOptions.SectionName);
         services.AddScoped<ICatalogAdminService, CatalogAdminService>();
+
+        // One service behind two ports: both answer from the same definition of "sellable", and
+        // a second implementation is how the two would quietly disagree.
+        services.AddScoped<SellableVariantService>();
+        services.AddScoped<ISellableVariantPort>(
+            provider => provider.GetRequiredService<SellableVariantService>());
+        services.AddScoped<IVariantLookupPort>(
+            provider => provider.GetRequiredService<SellableVariantService>());
         return services;
     }
 }
