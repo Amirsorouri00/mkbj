@@ -15,9 +15,9 @@ namespace EwaysVNext.Modules.Partners.Adapter.Inbound.GraphQL;
 /// reached by a different protocol is not a different permission question.
 /// </summary>
 [ExtendObjectType(typeof(Query))]
-[Authorize(Policy = AuthPolicies.AdminSuper)]
 public sealed class PartnerAdminGraphQLQueries
 {
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.PartnersManage)]
     public Task<PaginatedQuery<PartnerListItem>> AdminPartnersAsync(
         int? page, int? pageSize,
@@ -25,6 +25,7 @@ public sealed class PartnerAdminGraphQLQueries
         CancellationToken ct) =>
         queries.ListAsync(page ?? 1, pageSize ?? 20, ct);
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.PartnersManage)]
     public async Task<PartnerDetail> AdminPartnerAsync(
         long id,
@@ -33,6 +34,7 @@ public sealed class PartnerAdminGraphQLQueries
         CancellationToken ct) =>
         ResultGraphQLExtensions.ValueOrThrow(await queries.GetAsync(id, clock.UtcNow, ct));
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.PartnersManage)]
     public Task<PaginatedQuery<ApiKeyUsageItem>> AdminPartnerUsageAsync(
         long id, DateTimeOffset? from, DateTimeOffset? to, int? page, int? pageSize,

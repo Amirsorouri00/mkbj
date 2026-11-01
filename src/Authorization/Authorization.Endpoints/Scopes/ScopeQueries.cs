@@ -10,9 +10,9 @@ namespace AuthorizationService.Endpoints.Scopes;
 [ExtendObjectType(typeof(Query))]
 // Who may do what is not public information, and it maps the admin surface for anyone
 // probing it.
-[Authorize(Policy = AuthPolicies.AdminStaff)]
 public sealed class ScopeQueries
 {
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
     public async Task<IReadOnlyList<ScopeDto>> Scopes(
         [Service] IScopeService service,
         CancellationToken cancellationToken)

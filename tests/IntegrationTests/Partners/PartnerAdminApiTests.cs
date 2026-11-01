@@ -207,6 +207,20 @@ public sealed class PartnerAdminApiTests(PostgresFixture fixture)
     }
 
     [Fact]
+    public async Task Staff_Cannot_Reach_The_Partner_Surface_Over_GraphQL()
+    {
+        using var factory = CreateFactory();
+        using var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", AdminJwtFactory.CreateStaffToken());
+
+        var json = await GraphQl(client, """{ adminPartners { totalCount } }""");
+
+        json.Should().Contain("AUTH_NOT_AUTHORIZED",
+            "the same data over a different protocol is not a different permission question");
+    }
+
+    [Fact]
     public async Task Staff_Cannot_Reach_The_Partner_Surface()
     {
         using var factory = CreateFactory();

@@ -19,6 +19,7 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\Domain\EwaysVNext.Domain.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
     <ProjectReference Include="..\Application\EwaysVNext.Modules.Customer.Application.csproj" />
+    <ProjectReference Include="..\..\..\Database\EwaysVNext.Database.csproj" />
   </ItemGroup>
   
 </Project>

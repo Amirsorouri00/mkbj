@@ -1,7 +1,10 @@
 using EwaysVNext.Database;
 using EwaysVNext.DependencyInjection;
+using EwaysVNext.Modules.Customer.Adapter.Inbound.GraphQL;
+using EwaysVNext.Modules.Customer.Adapter.Inbound.Rest;
 using EwaysVNext.Modules.Customer.Adapter.Outbound;
 using EwaysVNext.Modules.Customer.Application;
+using EwaysVNext.Modules.Customer.QueryApplication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +19,9 @@ public static class ModuleInstaller
     {
         services.AddCustomerApplication();
         services.AddCustomerOutboundAdapters();
+        services.AddCustomerRestAdapter();
+        services.AddCustomerGraphQL();
+        services.AddCustomerQueryApplication();
 
         var applicationAssembly = typeof(CustomerAggregate).Assembly;
         services

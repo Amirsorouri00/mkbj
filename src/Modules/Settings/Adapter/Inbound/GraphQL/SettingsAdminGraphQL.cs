@@ -16,19 +16,21 @@ using HotChocolate.Authorization;
 namespace EwaysVNext.Modules.Settings.Adapter.Inbound.GraphQL;
 
 [ExtendObjectType(typeof(Query))]
-[Authorize(Policy = AuthPolicies.AdminSuper)]
 public sealed class SettingsAdminGraphQLQueries
 {
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.SettingsManage)]
     public Task<SellerView> AdminSellerAsync(
         [Service] ISettingsAdminQueries queries, CancellationToken ct) =>
         queries.GetSellerAsync(ct);
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.SettingsManage)]
     public Task<IReadOnlyList<PaymentInstructionVersionView>> AdminPaymentInstructionsAsync(
         [Service] ISettingsAdminQueries queries, CancellationToken ct) =>
         queries.GetPaymentInstructionsAsync(ct);
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.SettingsManage)]
     public Task<CommerceLimitsView> AdminCommerceLimitsAsync(
         [Service] ISettingsAdminQueries queries, CancellationToken ct) =>
@@ -36,9 +38,9 @@ public sealed class SettingsAdminGraphQLQueries
 }
 
 [ExtendObjectType(typeof(Mutation))]
-[Authorize(Policy = AuthPolicies.AdminSuper)]
 public sealed class SettingsAdminGraphQLMutations
 {
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.SettingsManage)]
     public Task<bool> UpdateSellerAsync(
         string legalName, string uen, string address, string email, bool gstRegistered,
@@ -48,6 +50,7 @@ public sealed class SettingsAdminGraphQLMutations
             new UpdateSellerCommand(legalName, uen, address, email, gstRegistered, invoiceFooter, requiredBuyerFields),
             Actor(user), ct));
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.SettingsManage)]
     public async Task<int> PublishPaymentInstructionAsync(
         string text, ClaimsPrincipal user,
@@ -55,6 +58,7 @@ public sealed class SettingsAdminGraphQLMutations
         ResultGraphQLExtensions.ValueOrThrow(
             await service.PublishPaymentInstructionAsync(text, Actor(user), ct));
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.SettingsManage)]
     public Task<bool> ActivatePaymentInstructionAsync(
         int version, ClaimsPrincipal user,
@@ -66,6 +70,7 @@ public sealed class SettingsAdminGraphQLMutations
     /// more sharply: GraphQL has no decimal scalar, so a Float would make rounding the client's
     /// problem on every request.
     /// </summary>
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.SettingsManage)]
     public Task<bool> UpdateCommerceLimitsAsync(
         string minUsd, string maxUsd, int bulkDefaultMax, int compositionDeadlineMs, int compositionMaxLines,

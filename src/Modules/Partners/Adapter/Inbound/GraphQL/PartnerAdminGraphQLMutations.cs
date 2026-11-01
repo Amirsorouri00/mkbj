@@ -24,9 +24,9 @@ public sealed record IssuedApiKeyPayload(
     DateTimeOffset? ExpiresAt);
 
 [ExtendObjectType(typeof(Mutation))]
-[Authorize(Policy = AuthPolicies.AdminSuper)]
 public sealed class PartnerAdminGraphQLMutations
 {
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.PartnersManage)]
     public async Task<long> CreatePartnerAsync(
         string name, IReadOnlyList<string> scopes, int? rateLimitPerMinute, int? bulkMaxItems,
@@ -34,28 +34,33 @@ public sealed class PartnerAdminGraphQLMutations
         ResultGraphQLExtensions.ValueOrThrow(await service.CreateAsync(
             new CreatePartnerCommand(name, scopes, rateLimitPerMinute, bulkMaxItems), Actor(user), ct));
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.PartnersManage)]
     public Task<bool> SuspendPartnerAsync(
         long id, ClaimsPrincipal user, [Service] IPartnerAdminService service, CancellationToken ct) =>
         Act(service.SuspendAsync(id, Actor(user), ct));
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.PartnersManage)]
     public Task<bool> ReactivatePartnerAsync(
         long id, ClaimsPrincipal user, [Service] IPartnerAdminService service, CancellationToken ct) =>
         Act(service.ReactivateAsync(id, Actor(user), ct));
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.PartnersManage)]
     public Task<bool> SetPartnerScopesAsync(
         long id, IReadOnlyList<string> scopes, ClaimsPrincipal user,
         [Service] IPartnerAdminService service, CancellationToken ct) =>
         Act(service.SetScopesAsync(id, scopes, Actor(user), ct));
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.PartnersManage)]
     public Task<bool> SetPartnerLimitsAsync(
         long id, int rateLimitPerMinute, int bulkMaxItems, ClaimsPrincipal user,
         [Service] IPartnerAdminService service, CancellationToken ct) =>
         Act(service.SetLimitsAsync(id, rateLimitPerMinute, bulkMaxItems, Actor(user), ct));
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.PartnersManage)]
     public async Task<IssuedApiKeyPayload> IssuePartnerApiKeyAsync(
         long id, IReadOnlyList<string>? scopes, DateTimeOffset? expiresAt, ClaimsPrincipal user,
@@ -63,6 +68,7 @@ public sealed class PartnerAdminGraphQLMutations
         Payload(ResultGraphQLExtensions.ValueOrThrow(
             await service.IssueKeyAsync(id, scopes, expiresAt, Actor(user), ct)));
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.PartnersManage)]
     public async Task<IssuedApiKeyPayload> RotatePartnerApiKeyAsync(
         long id, long keyId, double? overlapHours, ClaimsPrincipal user,
@@ -72,6 +78,7 @@ public sealed class PartnerAdminGraphQLMutations
             overlapHours is { } hours ? TimeSpan.FromHours(hours) : null,
             Actor(user), ct)));
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     [RequirePermission(AdminPermissions.PartnersManage)]
     public Task<bool> RevokePartnerApiKeyAsync(
         long id, long keyId, ClaimsPrincipal user,

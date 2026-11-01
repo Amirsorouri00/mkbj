@@ -9,6 +9,8 @@
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+      <ProjectReference Include="..\..\src\Modules\Partners\Adapter\Inbound\GraphQL\EwaysVNext.Modules.Partners.Adapter.Inbound.GraphQL.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Settings\Adapter\Inbound\GraphQL\EwaysVNext.Modules.Settings.Adapter.Inbound.GraphQL.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="xunit.v3" />

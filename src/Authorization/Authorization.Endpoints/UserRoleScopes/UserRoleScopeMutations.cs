@@ -11,9 +11,9 @@ namespace AuthorizationService.Endpoints.UserRoleScopes;
 [ExtendObjectType(typeof(Mutation))]
 // Editing the permission matrix is a super-admin act: an ungated mutation here lets a
 // caller grant themselves any permission, this one included.
-[Authorize(Policy = AuthPolicies.AdminSuper)]
 public sealed class UserRoleScopeMutations
 {
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     public async Task<BootstrapAdminPayload> BootstrapAdmin(
         BootstrapAdminInput input,
         ClaimsPrincipal caller,
@@ -34,6 +34,7 @@ public sealed class UserRoleScopeMutations
         return new BootstrapAdminPayload(assignment);
     }
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     public async Task<AssignUserRoleScopePayload> AssignUserRoleScope(
         AssignUserRoleScopeInput input,
         [Service] IUserRoleScopeService service,
@@ -45,6 +46,7 @@ public sealed class UserRoleScopeMutations
         return new AssignUserRoleScopePayload(assignment);
     }
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     public async Task<RemoveUserRoleScopePayload> RemoveUserRoleScope(
         RemoveUserRoleScopeInput input,
         [Service] IUserRoleScopeService service,

@@ -6,6 +6,8 @@
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+      <ProjectReference Include="..\..\..\QueryApplication\EwaysVNext.Modules.Customer.QueryApplication.csproj" />
+      <ProjectReference Include="..\Rest\EwaysVNext.Modules.Customer.Adapter.Inbound.Rest.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="HotChocolate.AspNetCore" />

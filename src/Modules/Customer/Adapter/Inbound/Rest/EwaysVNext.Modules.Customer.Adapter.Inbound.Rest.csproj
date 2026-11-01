@@ -11,5 +11,6 @@
     <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
     <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Presentation.Endpoint\EwaysVNext.Presentation.Endpoint.csproj" />
     <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Core\Application\EwaysVNext.Core.Application.csproj" />
+    <ProjectReference Include="..\..\..\QueryApplication\EwaysVNext.Modules.Customer.QueryApplication.csproj" />
   </ItemGroup>
 </Project>

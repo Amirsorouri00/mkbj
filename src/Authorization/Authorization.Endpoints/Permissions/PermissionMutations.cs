@@ -10,9 +10,9 @@ namespace AuthorizationService.Endpoints.Permissions;
 [ExtendObjectType(typeof(Mutation))]
 // Editing the permission matrix is a super-admin act: an ungated mutation here lets a
 // caller grant themselves any permission, this one included.
-[Authorize(Policy = AuthPolicies.AdminSuper)]
 public sealed class PermissionMutations
 {
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     public async Task<CreatePermissionPayload> CreatePermission(
         CreatePermissionInput input,
         [Service] IPermissionService service,
@@ -23,6 +23,7 @@ public sealed class PermissionMutations
         return permission.ValueOrThrow(new CreatePermissionPayload(permission.Value!));
     }
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     public async Task<UpdatePermissionPayload> UpdatePermission(
         UpdatePermissionInput input,
         [Service] IPermissionService service,
@@ -33,6 +34,7 @@ public sealed class PermissionMutations
         return permission.ValueOrThrow( new UpdatePermissionPayload(permission.Value!));
     }
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     public async Task<DeletePermissionPayload> DeletePermission(
         DeletePermissionInput input,
         [Service] IPermissionService service,

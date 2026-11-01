@@ -10,9 +10,9 @@ namespace AuthorizationService.Endpoints.Scopes;
 [ExtendObjectType(typeof(Mutation))]
 // Editing the permission matrix is a super-admin act: an ungated mutation here lets a
 // caller grant themselves any permission, this one included.
-[Authorize(Policy = AuthPolicies.AdminSuper)]
 public sealed class ScopeMutations
 {
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     public async Task<CreateScopePayload> CreateScope(
         CreateScopeInput input,
         [Service] IScopeService service,
@@ -23,6 +23,7 @@ public sealed class ScopeMutations
         return new CreateScopePayload(scope);
     }
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     public async Task<UpdateScopePayload> UpdateScope(
         UpdateScopeInput input,
         [Service] IScopeService service,
@@ -33,6 +34,7 @@ public sealed class ScopeMutations
         return new UpdateScopePayload(scope);
     }
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     public async Task<DeleteScopePayload> DeleteScope(
         DeleteScopeInput input,
         [Service] IScopeService service,

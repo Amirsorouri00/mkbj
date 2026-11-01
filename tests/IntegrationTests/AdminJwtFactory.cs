@@ -35,7 +35,15 @@ internal static class AdminJwtFactory
         };
 
         if (extra is not null)
-            claims.AddRange(extra);
+        {
+            var overrides = extra.ToList();
+
+            // Replace rather than append. A token carrying two different "email" claims is
+            // malformed, and which one a reader sees depends on inbound claim mapping — the
+            // caller's value must win, not sit behind the generic default.
+            claims.RemoveAll(claim => overrides.Any(given => ClaimsMatch(claim.Type, given.Type)));
+            claims.AddRange(overrides);
+        }
 
         var token = new JwtSecurityToken(
             issuer: Issuer,
@@ -46,6 +54,15 @@ internal static class AdminJwtFactory
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
+    /// <summary>
+    /// Treats the short claim name and the mapped URI as the same claim, which is what a reader
+    /// sees after ASP.NET Core's inbound mapping has run.
+    /// </summary>
+    private static bool ClaimsMatch(string existing, string given) =>
+        string.Equals(existing, given, StringComparison.Ordinal)
+        || (existing == ClaimTypes.Email && given == EwaysClaimTypes.Email)
+        || (existing == EwaysClaimTypes.Email && given == ClaimTypes.Email);
 
     public static string CreateSuperAdminToken(Guid? sub = null) =>
         CreateToken(AdminRoles.BackofficeRealm, AdminRoles.SuperAdmin, sub);

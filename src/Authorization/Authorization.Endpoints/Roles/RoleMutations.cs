@@ -10,9 +10,9 @@ namespace AuthorizationService.Endpoints.Roles;
 [ExtendObjectType(typeof(Mutation))]
 // Editing the permission matrix is a super-admin act: an ungated mutation here lets a
 // caller grant themselves any permission, this one included.
-[Authorize(Policy = AuthPolicies.AdminSuper)]
 public sealed class RoleMutations
 {
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     public async Task<CreateRolePayload> CreateRole(
         CreateRoleInput input,
         [Service] IRoleService service,
@@ -23,6 +23,7 @@ public sealed class RoleMutations
         return new CreateRolePayload(role);
     }
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     public async Task<UpdateRolePayload> UpdateRole(
         UpdateRoleInput input,
         [Service] IRoleService service,
@@ -33,6 +34,7 @@ public sealed class RoleMutations
         return new UpdateRolePayload(role);
     }
 
+    [Authorize(Policy = AuthPolicies.AdminSuper)]
     public async Task<DeleteRolePayload> DeleteRole(
         DeleteRoleInput input,
         [Service] IRoleService service,

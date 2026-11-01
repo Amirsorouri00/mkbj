@@ -10,20 +10,22 @@ namespace AuthorizationService.Endpoints.Permissions;
 [ExtendObjectType(typeof(Query))]
 // Who may do what is not public information, and it maps the admin surface for anyone
 // probing it.
-[Authorize(Policy = AuthPolicies.AdminStaff)]
 public sealed class PermissionQueries
 {
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
     public async Task<IReadOnlyList<PermissionDto>> Permissions(
         [Service] IPermissionService service,
         CancellationToken cancellationToken)
         => (await service.ListAsync(cancellationToken)).ValueOrThrow();
 
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
     public async Task<PermissionDto?> Permission(
         Guid id,
         [Service] IPermissionService service,
         CancellationToken cancellationToken)
         => (await service.GetByIdAsync(id, cancellationToken)).ValueOrDefault();
 
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
     public async Task<PermissionDto?> PermissionByCode(
         string code,
         [Service] IPermissionService service,
