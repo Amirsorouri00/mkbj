@@ -1,5 +1,8 @@
 ﻿using AwesomeAssertions;
 using EwaysVNext.Audit;
+using EwaysVNext.Core.Application.FileTypeDetection;
+using EwaysVNext.Core.Implementation.FileTypeDetection;
+using EwaysVNext.Modules.Catalog.Application.Products;
 using EwaysVNext.Core.Application;
 using EwaysVNext.Domain.Common;
 using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Outbound;
@@ -10,6 +13,9 @@ using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
 using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
 using EwaysVNext.Modules.Catalog.Application.Products.Services;
 using EwaysVNext.Persistence;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using Xunit;
 
@@ -27,6 +33,10 @@ public sealed class CatalogAdminServiceTests
     private const long CategoryId = 20;
 
     private readonly IProductRepository _products = Substitute.For<IProductRepository>();
+    private readonly ICatalogMediaStore _media = Substitute.For<ICatalogMediaStore>();
+    private readonly IFileTypeDetector _fileTypes = new FileTypeDetector();
+    private readonly IOptions<CatalogMediaOptions> _mediaOptions = Options.Create(new CatalogMediaOptions());
+    private readonly ILogger<CatalogAdminService> _logger = NullLogger<CatalogAdminService>.Instance;
     private readonly IBrandRepository _brands = Substitute.For<IBrandRepository>();
     private readonly ICategoryRepository _categories = Substitute.For<ICategoryRepository>();
     private readonly ICategoryProductRepository _categoryProducts = Substitute.For<ICategoryProductRepository>();
@@ -49,7 +59,7 @@ public sealed class CatalogAdminServiceTests
     }
 
     private CatalogAdminService CreateService() => new(
-        _products, _brands, _categories, _categoryProducts, _audit, _notifier, _unitOfWork, _ids, _clock);
+        _products, _media, _fileTypes, _mediaOptions, _logger, _brands, _categories, _categoryProducts, _audit, _notifier, _unitOfWork, _ids, _clock);
 
     private Product Draft(string title = "Demo Kettle") =>
         Product.CreateDraft(ProductId, BrandId, CategoryId, title, "demo-kettle", null, null, _clock.UtcNow);

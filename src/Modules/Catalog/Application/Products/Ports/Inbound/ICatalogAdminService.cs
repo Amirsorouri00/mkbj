@@ -38,6 +38,16 @@ public interface ICatalogAdminService
         AdminActor actor, CancellationToken ct = default);
 
     /// <summary>
+    /// Stores an image and attaches it to the product. The object goes to storage first, so a
+    /// failed save never leaves a row pointing at nothing.
+    /// </summary>
+    Task<Result<long>> UploadMediaAsync(UploadMediaCommand command, AdminActor actor,
+        CancellationToken ct = default);
+
+    Task<Result> RemoveMediaAsync(long productId, long mediaId, AdminActor actor,
+        CancellationToken ct = default);
+
+    /// <summary>
     /// Applies one edit to many products, reporting each separately. A batch of independent
     /// aggregates in one save is allowed: none of their invariants depends on another's.
     /// </summary>

@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using EwaysVNext.Core.Application.FileTypeDetection;
 using EwaysVNext.Audit;
 using EwaysVNext.Core.Application;
 using EwaysVNext.Domain.Common;
@@ -10,11 +11,17 @@ using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
 using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
 using EwaysVNext.Outcomes;
 using EwaysVNext.Persistence;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace EwaysVNext.Modules.Catalog.Application.Products.Services;
 
 public sealed class CatalogAdminService(
     IProductRepository products,
+    ICatalogMediaStore media,
+    IFileTypeDetector fileTypes,
+    IOptions<CatalogMediaOptions> mediaOptions,
+    ILogger<CatalogAdminService> logger,
     IBrandRepository brands,
     ICategoryRepository categories,
     ICategoryProductRepository categoryProducts,
@@ -31,6 +38,12 @@ public sealed class CatalogAdminService(
     /// thousands of aggregates holds its locks far too long.
     /// </summary>
     private const int MaxBulkProducts = 500;
+
+    /// <summary>
+    /// What a browser will render without a plugin and what the storefront is built around.
+    /// A denylist would be endless; this is the whole set the seller publishes.
+    /// </summary>
+    private static readonly HashSet<FileType> AllowedImageTypes = [FileType.Jpeg, FileType.Png, FileType.Webp];
 
     public async Task<Result<long>> CreateProductAsync(CreateProductCommand command, AdminActor actor,
         CancellationToken ct = default)
@@ -291,6 +304,126 @@ public sealed class CatalogAdminService(
 
         await notifier.SellabilityChangedAsync(ct);
         return Result.Success();
+    }
+
+    public async Task<Result<long>> UploadMediaAsync(UploadMediaCommand command, AdminActor actor,
+        CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        ArgumentNullException.ThrowIfNull(actor);
+
+        var limit = mediaOptions.Value.MaxBytes;
+        if (command.Length > limit)
+        {
+            // Refused from the declared length, before a byte is read: reading first is how a
+            // size limit becomes a way to fill the disk.
+            return Result.Failure<long>(new Error(
+                "MEDIA_TOO_LARGE",
+                $"An image cannot exceed {limit.ToString(CultureInfo.InvariantCulture)} bytes.",
+                413));
+        }
+
+        var product = await products.GetByIdAsync(command.ProductId, ct);
+        if (product is null) return Result.Failure<long>(ProductNotFound());
+
+        var (detected, replayed) = await SniffAsync(command.Content, ct);
+        if (!AllowedImageTypes.Contains(detected.FileType))
+        {
+            // Sniffed from the bytes, never from a declared content type or a file name: both
+            // are the uploader's claim, and an executable renamed to .png would pass either.
+            return Result.Failure<long>(new Error(
+                "MEDIA_TYPE_UNSUPPORTED", "An image must be a JPEG, a PNG or a WebP.", 415));
+        }
+
+        var mediaId = ids.Generate();
+        // GetExtension already carries the dot (".png"), so this does not add one.
+        var objectKey = $"products/{Key(command.ProductId)}/{Key(mediaId)}{detected.Extension}";
+        var sortOrder = command.SortOrder
+            ?? (product.Media.Count == 0 ? 0 : product.Media.Max(image => image.SortOrder) + 1);
+
+        await media.PutAsync(objectKey, replayed, detected.MimeType!, ct);
+
+        try
+        {
+            product.AddMedia(mediaId, objectKey, sortOrder, command.Alt, null, command.Rights, clock.UtcNow);
+            audit.Record(actor.ToAudit(), "product.media_added", TargetType, Key(command.ProductId),
+                before: null, after: new { MediaId = mediaId, ObjectKey = objectKey, Rights = command.Rights.ToString() });
+            await unitOfWork.SaveChangesAsync(ct);
+        }
+        catch (Exception exception)
+        {
+            // The object went up first so a saved row can never point at nothing. The cost is
+            // that a failed save leaves an orphan, which is cleaned up here — best effort,
+            // because the upload already failed and a second failure must not hide the first.
+            await ForgetObjectAsync(objectKey, ct);
+
+            if (exception is DomainException domainException)
+                return Result.Failure<long>(Domain(domainException));
+
+            throw;
+        }
+
+        // An image changes how a product looks, not whether it can be bought — except that a
+        // usable image is what lets it go active at all, and that transition is its own call.
+        await notifier.DisplayChangedAsync(ct);
+        return Result.Success(mediaId);
+    }
+
+    public async Task<Result> RemoveMediaAsync(long productId, long mediaId, AdminActor actor,
+        CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(actor);
+
+        var product = await products.GetByIdAsync(productId, ct);
+        if (product is null) return Result.Failure(ProductNotFound());
+
+        ProductMedia removed;
+        try
+        {
+            removed = product.RemoveMedia(mediaId, clock.UtcNow);
+        }
+        catch (DomainException exception)
+        {
+            return Result.Failure(Domain(exception));
+        }
+
+        audit.Record(actor.ToAudit(), "product.media_removed", TargetType, Key(productId),
+            new { MediaId = mediaId, removed.ObjectKey }, after: null);
+        await unitOfWork.SaveChangesAsync(ct);
+
+        // Saved first, deleted after: the reverse would leave a row pointing at a missing object
+        // if the save then failed, and a broken image is worse than an unreferenced one.
+        await ForgetObjectAsync(removed.ObjectKey, ct);
+
+        await notifier.DisplayChangedAsync(ct);
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Reads enough of the stream to identify it and hands back a stream that still starts at
+    /// byte zero, since the caller has to upload the whole thing afterwards.
+    /// </summary>
+    private async Task<(FileTypeDetectionResult Detected, Stream Replayed)> SniffAsync(
+        Stream content, CancellationToken ct)
+    {
+        var header = new byte[fileTypes.HeaderLength];
+        var read = await content.ReadAtLeastAsync(header, header.Length, throwOnEndOfStream: false, ct);
+
+        var detected = fileTypes.Detect(header.AsSpan(0, read));
+        return (detected, new ConcatenatedStream(header.AsMemory(0, read), content));
+    }
+
+    private async Task ForgetObjectAsync(string objectKey, CancellationToken ct)
+    {
+        try
+        {
+            await media.DeleteAsync(objectKey, ct);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            logger.LogWarning(exception,
+                "Could not delete the catalogue image {ObjectKey}; it is now unreferenced.", objectKey);
+        }
     }
 
     public async Task<Result<BulkEditResult>> BulkEditAsync(BulkProductEdit edit, AdminActor actor,

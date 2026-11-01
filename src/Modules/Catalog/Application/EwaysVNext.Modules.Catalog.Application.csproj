@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>EwaysVNext.Modules.Catalog.Application</RootNamespace>
@@ -8,10 +8,13 @@
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\EwaysVNext.Modules.Catalog.Contracts\EwaysVNext.Modules.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Core\Application\EwaysVNext.Core.Application.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Domain\EwaysVNext.Domain.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\EwaysVNext.Persistence.csproj" />

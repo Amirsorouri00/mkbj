@@ -35,6 +35,8 @@ public static class ModuleInstaller
 
         var applicationAssembly = typeof(Product).Assembly;
         services
+            // Product images are type-sniffed from their bytes before they reach storage.
+            .AddFileTypeDetection()
             .AddPersistenceInterceptors()
             .AddUserProfileService()
             .AddUnitOfWork<EwaysVNextDbContext>()

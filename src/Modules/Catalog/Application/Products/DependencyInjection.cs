@@ -11,6 +11,7 @@ public static class DependencyInjection
     public static IServiceCollection AddProductApplication(this IServiceCollection services)
     {
         services.TryAddSingleton<IClock, SystemClock>();
+        services.AddOptions<CatalogMediaOptions>().BindConfiguration(CatalogMediaOptions.SectionName);
         services.AddScoped<ICatalogAdminService, CatalogAdminService>();
         return services;
     }

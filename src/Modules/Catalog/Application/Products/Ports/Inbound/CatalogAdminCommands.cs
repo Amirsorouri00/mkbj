@@ -35,6 +35,22 @@ public sealed record AddVariantCommand(
     string? Sku,
     IReadOnlyDictionary<string, string> Attributes);
 
+/// <summary>
+/// An image an admin is uploading.
+/// </summary>
+/// <remarks>
+/// <c>Length</c> is passed separately rather than read from the stream: a multipart body is not
+/// seekable, and the size has to be refused before the bytes are read, not after.
+/// A null <c>SortOrder</c> puts the image last.
+/// </remarks>
+public sealed record UploadMediaCommand(
+    long ProductId,
+    Stream Content,
+    long Length,
+    string? Alt,
+    MediaUsageRights Rights,
+    int? SortOrder);
+
 public sealed record IdentifierInput(
     ProductIdentifierType Type,
     string Value,
