@@ -1,6 +1,9 @@
 ﻿using EwaysVNext.Database;
 using EwaysVNext.DependencyInjection;
+using EwaysVNext.Modules.Pricing.Adapter.Inbound.GraphQL;
+using EwaysVNext.Modules.Pricing.Adapter.Inbound.Rest;
 using EwaysVNext.Modules.Pricing.Adapter.Outbound;
+using EwaysVNext.Modules.Pricing.QueryApplication;
 using EwaysVNext.Modules.Pricing.Application;
 using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound;
 using EwaysVNext.Modules.Pricing.Application.Fx.Services;
@@ -24,6 +27,9 @@ public static class ModuleInstaller
         ArgumentNullException.ThrowIfNull(configuration);
 
         services.AddPricingOutboundAdapters(configuration);
+        services.AddPricingQueryApplication();
+        services.AddPricingRestAdapter();
+        services.AddPricingGraphQL();
         services.AddScoped<ResolvedRateProjectionService>();
         services.AddScoped<FxBookLoader>();
         services.AddScoped<IPriceQuotePort, PriceQuoteService>();
