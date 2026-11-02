@@ -6,5 +6,6 @@
     <ProjectReference Include="..\..\..\..\Database\EwaysVNext.Database.csproj" />
     <ProjectReference Include="..\..\..\Catalog\Application\EwaysVNext.Modules.Catalog.Application.csproj" />
     <ProjectReference Include="..\..\..\Settings\Application\EwaysVNext.Modules.Settings.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Jobs\Implementation\EwaysVNext.Jobs.Implementation.csproj" />
   </ItemGroup>
 </Project>

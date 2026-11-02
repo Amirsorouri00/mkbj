@@ -23,7 +23,7 @@ public static class ModuleInstaller
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        services.AddPricingOutboundAdapters();
+        services.AddPricingOutboundAdapters(configuration);
         services.AddScoped<ResolvedRateProjectionService>();
         services.AddScoped<FxBookLoader>();
         services.AddScoped<IPriceQuotePort, PriceQuoteService>();
