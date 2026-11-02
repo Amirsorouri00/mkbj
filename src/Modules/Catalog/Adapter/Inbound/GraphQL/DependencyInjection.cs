@@ -1,6 +1,7 @@
 ﻿using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Brands;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Products;
+using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Shop;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.CategoryAttributeAssignment;
 using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.CategoryAttributeExclusion;
@@ -40,7 +41,8 @@ public static class DependencyInjection
             .AddType<CategoryAttributeAssignmentQueryResolvers>()
             .AddType<CategoryAttributeAssignmentMutationResolvers>()
             .AddType<CategoryAttributeExclusionMutationResolvers>()
-            .AddType<CategoryAttributeExclusionQueryResolvers>();
+            .AddType<CategoryAttributeExclusionQueryResolvers>()
+            .AddType<ShopQueries>();
 
         return services;
     }
