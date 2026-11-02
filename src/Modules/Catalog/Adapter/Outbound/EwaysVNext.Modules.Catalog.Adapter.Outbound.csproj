@@ -15,6 +15,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Jobs\Implementation\EwaysVNext.Jobs.Implementation.csproj" />
     <ProjectReference Include="..\..\Application\EwaysVNext.Modules.Catalog.Application.csproj" />
     <ProjectReference Include="..\..\QueryApplication\EwaysVNext.Modules.Catalog.QueryApplication.csproj" />
     <ProjectReference Include="..\..\..\..\BuildingBlocks\Persistence\EwaysVNext.Persistence.csproj" />

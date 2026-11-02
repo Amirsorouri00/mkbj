@@ -1,5 +1,9 @@
 using AwesomeAssertions;
 using EwaysVNext.Database.Catalog.Views;
+using EwaysVNext.IntegrationTests.Support;
+using EwaysVNext.Modules.Catalog.Adapter.Outbound.Storefront;
+using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
+using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
 
@@ -91,6 +95,79 @@ public sealed class StorefrontViewTests(PostgresFixture fixture)
         (await act.Should().ThrowAsync<PostgresException>()).Which.SqlState
             .Should().Be("42501", "the function must refuse the name, not fail by accident");
     }
+
+    /// <summary>
+    /// Acceptance 11: a variant an admin deactivates stops being purchasable at once, and leaves
+    /// the storefront at the next refresh.
+    /// </summary>
+    /// <remarks>
+    /// The gap between the two is the design, not a defect (ADR-0020). A stale listing shows a
+    /// variant that can no longer be bought; a stale <i>purchasing</i> path would sell it. Only
+    /// the second matters, and the live port is what purchasing reads.
+    /// </remarks>
+    [Fact]
+    public async Task Acceptance11_Deactivated_Variant_Leaves_Plp_After_Refresh()
+    {
+        using var factory = fixture.CreateFactory();
+        using var scope = factory.Services.CreateScope();
+        var services = scope.ServiceProvider;
+
+        var scenario = await StorefrontScenario.CreateAsync(services, Ct);
+
+        (await VariantRowsAsync(scenario.P1Blue)).Should().NotBeEmpty(
+            "the scenario refreshes, so both of P1's variants are on the listing");
+
+        Succeeded(await services.GetRequiredService<ICatalogAdminService>()
+            .SetVariantActiveAsync(scenario.P1, scenario.P1Blue, active: false, scenario.Staff, Ct));
+
+        (await services.GetRequiredService<ISellableVariantPort>()
+            .GetSellableAsync([scenario.P1Blue], Ct))
+            .Should().BeEmpty("purchasing reads live tables and must never lag behind a takedown");
+
+        (await VariantRowsAsync(scenario.P1Blue)).Should().NotBeEmpty(
+            "the listing is allowed to lag until the next refresh");
+
+        await services.GetRequiredService<IStorefrontViewRefresher>().RefreshAllAsync(Ct);
+
+        (await VariantRowsAsync(scenario.P1Blue)).Should().BeEmpty();
+        (await ProductVariantCountsAsync(scenario.P1)).Should().OnlyContain(count => count == 1);
+    }
+
+    [Fact]
+    public async Task Plp_Views_Never_Contain_Draft_Or_Deactivated_Products()
+    {
+        using var factory = fixture.CreateFactory();
+        using var scope = factory.Services.CreateScope();
+
+        var scenario = await StorefrontScenario.CreateAsync(scope.ServiceProvider, Ct);
+
+        (await ProductCurrenciesAsync(scenario.P3)).Should().BeEmpty(
+            "a Draft product has a price, and a price is not permission to sell it");
+        (await ProductCurrenciesAsync(scenario.P4)).Should().BeEmpty(
+            "an admin took it down; it was active once, which must not matter");
+
+        (await ProductCurrenciesAsync(scenario.P1))
+            .Should().BeEquivalentTo(["USD", "EUR", "SGD", "AED", "GBP"],
+                "a USD-based product is shown in every enabled currency the rates can reach");
+    }
+
+    private async Task<List<string>> VariantRowsAsync(long variantId) =>
+        await QueryAsync(fixture.AppConnectionString,
+            "SELECT currency FROM catalog.mv_storefront_variant WHERE variant_id = @id",
+            ("id", variantId));
+
+    private async Task<List<string>> ProductCurrenciesAsync(long productId) =>
+        [.. (await QueryAsync(fixture.AppConnectionString,
+            "SELECT currency FROM catalog.mv_storefront_product WHERE product_id = @id",
+            ("id", productId))).Select(code => code.Trim())];
+
+    private async Task<List<int>> ProductVariantCountsAsync(long productId) =>
+        [.. (await QueryAsync(fixture.AppConnectionString,
+            "SELECT variant_count::text FROM catalog.mv_storefront_product WHERE product_id = @id",
+            ("id", productId))).Select(int.Parse)];
+
+    private static void Succeeded(EwaysVNext.Outcomes.Result result) =>
+        result.IsSuccess.Should().BeTrue(result.Error?.Message);
 
     private static (string Schema, string Name) Split(string qualified)
     {

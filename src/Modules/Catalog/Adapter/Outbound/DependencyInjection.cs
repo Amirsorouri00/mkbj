@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using EwaysVNext.Jobs;
+using EwaysVNext.Jobs.Implementation;
+using Microsoft.Extensions.DependencyInjection;
 using EwaysVNext.Modules.Catalog.Adapter.Outbound.Dependencies.AttributeBlueprints;
 using EwaysVNext.Modules.Catalog.Adapter.Outbound.Repositories;
 using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Outbound;
@@ -35,6 +37,14 @@ public static class DependencyInjection
         services.AddScoped<ICatalogChangeNotifier, CatalogChangeNotifier>();
         services.AddScoped<ICatalogMediaStore, ObjectStorageCatalogMediaStore>();
         services.AddScoped<ISellableVariantReader, SellableVariantReader>();
+        services.AddScoped<IStorefrontViewRefresher, StorefrontViewRefresher>();
+
+        // The 24-hour backstop. The debounced trigger covers ordinary edits; this catches a
+        // refresh that was dropped, and anything that changed the views without going through the
+        // catalogue — an expiring FX rate ages a row out with no edit behind it.
+        services.AddJobHandler<RefreshStorefrontViewsJobHandler, RefreshStorefrontViewsPayload>();
+        services.AddRecurringJob(JobTypes.RefreshStorefrontViews, TimeSpan.FromHours(24));
+
         return services;
     }
 }
