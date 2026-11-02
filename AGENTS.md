@@ -35,9 +35,15 @@ instruction and the commerce limits, three singletons seeded by migration. Custo
 around website and partner-linked buyers with contact-change history
 ([ADR-0022](docs/adr/0022-remove-iran-specific-modules.md) removed the Iran-market domain it
 replaced). Catalog owns brands, categories, attribute blueprints, products with their variants,
-identifiers and media, and the publishing and sellable-variant ports. Pricing is being built now:
-it owns reference prices, currency overrides and FX rates, and is the only module that may read
-Catalog and Settings — through its `Adapter.Outbound`, never its Application.
+identifiers and media, and the publishing and sellable-variant ports. Pricing owns currencies,
+append-only FX rates and their overrides, reference prices and per-currency price overrides, the
+±5% price band and the quote port; it is the only module that may read Catalog and Settings —
+through its `Adapter.Outbound`, never its Application.
+
+**The two answer different questions and must stay apart.** Catalog says what is *buyable* and
+nothing about price; Pricing says what something *costs* and nothing about availability. A
+variant with no usable price is omitted from a quote, never reported as an error, so "published"
+never implies "priced".
 
 Planned (not yet present; do not reference them):
 
@@ -147,6 +153,9 @@ dotnet run --project src/Host/EwaysVNext.Host -- --migrate
 # Other host modes (one image, four roles)
 dotnet run --project src/Host/EwaysVNext.Host -- --worker          # background worker only
 dotnet run --project src/Host/EwaysVNext.Host -- --seed            # refuses in Production
+#   Runs every registered IDataSeeder in Order, the demo catalogue (160 products /
+#   400 variants, deterministic) last. A seeder reports failure by throwing; --seed
+#   turns that into exit code 2.
 dotnet run --project src/Host/EwaysVNext.Host -- --probe <url>     # 0 healthy, 1 not, 64 usage
 
 # One DbContext for the whole app, so this is the only migration command
@@ -282,6 +291,11 @@ is indistinguishable from one that works.
 - **Expecting auto-migrations on startup** — run `--migrate`.
 - **`Guid.NewGuid()` for a key**, or a numeric key without `ValueGeneratedNever()`.
 - **A `decimal` money column** — minor units, always.
+- **Treating "sellable" as "priced"** — they are separate ports and separate modules; a quote
+  omits what it cannot price rather than failing.
+- **Multi-statement raw SQL with parameters** — Npgsql's extended protocol refuses it (`08P01`),
+  and every sub-statement sees one snapshot. Write it as a single CTE.
+- **`$1` placeholders in `ExecuteSqlRaw`** — EF binds `DbParameter`s by **name**; use `@p0`.
 - **Assuming cross-module calls are atomic** — each module commits independently.
 - **Trusting a green Debug run for a release** — `TreatWarningsAsErrors` is on in Release only,
   and the Release build was broken for a long time while Debug CI stayed green. CI gates on it.

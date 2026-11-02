@@ -110,8 +110,11 @@ Verified there today:
   that a scope is required, that suspension and revocation take effect, and that the rate limit
   partitions per partner. It proves nothing about any real partner endpoint, since none exist
   yet — those arrive with Sales.
-- **Anything in a later phase.** Pricing, the composition engine, orders, invoices, imports and
-  the admin surface do not exist yet, so nothing covers them.
+- **The ECB.** `EcbFxRateProvider` is unit-tested against recorded XML, and the demo seed falls
+  back to fixed rates when the fetch fails. Nothing proves the live endpoint's shape has not
+  changed, and nothing exercises what happens after `Fx:MaxRateAge` has elapsed in production.
+- **Anything in a later phase.** The composition engine, orders, invoices, imports and the admin
+  surface do not exist yet, so nothing covers them.
 
 ## Two places the HTTP suite cannot reach, and what covers them instead
 
@@ -147,6 +150,27 @@ Both were found by mutation testing, and both would otherwise have read as cover
   boundary at all (Postgres stores microseconds, `DateTimeOffset` keeps ticks), a production
   scheme router the suite substitutes and therefore never exercised, and an architecture rule
   whose name match let the planted probe through.
+
+## What phase 2's suites cover
+
+- **The catalogue and pricing halves of acceptance 8 and 13 are tested over HTTP**, with positive
+  controls, the same way phase 1's were: staff refused and a super admin accepted on the same
+  route, so a route broken for everyone cannot pass as correct security.
+- **The storage adapter is exercised on a forward-only stream.** The fast path rewinds a seekable
+  stream, which is what an ASP.NET form file is — so without `ForwardOnlyStream` in the unit
+  tests, the replay path that production's concatenated stream actually takes would be covered by
+  nothing.
+- **The resolved-rate projection is tested against Postgres, not the model.** Its single-CTE
+  shape exists because the obvious `DELETE; INSERT` fails only on a real connection: Npgsql
+  refuses parameters on a multi-statement command and every sub-statement shares one snapshot.
+  EF InMemory would have run the wrong thing happily.
+- **The demo seed runs on its own database, through the seeder list.** The assertion that
+  `IDataSeeder` resolves a `DemoCatalogDataSeeder` is the one that matters: calling the seeder
+  directly would pass with the registration missing, leaving a correct seed that `--seed` cannot
+  reach.
+- **A `.csproj` reference is evidence; a compiled assembly reference is not.** The compiler elides
+  a project reference nothing uses, so `SanctionedReferences` rows could be deleted with every
+  boundary test still green. `Module_Project_References_Are_Sanctioned` reads the project files.
 
 ## Two habits this repository insists on
 
