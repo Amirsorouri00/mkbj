@@ -1,6 +1,7 @@
 ﻿using AuthorizationService.Endpoints;
 using AuthorizationService.Implementation.Persistence;
 using EwaysVNext.Database;
+using EwaysVNext.Core.Application;
 using EwaysVNext.Host;
 using EwaysVNext.Host.Authentication;
 using EwaysVNext.Host.Authentication.Extensions;
@@ -18,6 +19,7 @@ using EwaysVNext.Storage.Implementation;
 using EwaysVNext.Presentation.Endpoint.GraphQL;
 using EwaysVNext.Presentation.Endpoint.Security;
 using EwaysVNext.Host.RateLimiting;
+using EwaysVNext.Host.Seeding;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -64,6 +66,10 @@ builder.Services.AddUnifiedDatabase(builder.Configuration, builder.Environment.I
 builder.Services.AddObjectStorage(builder.Configuration);
 builder.Services.AddJobs(builder.Configuration);
 builder.Services.AddAudit();
+
+// Demo data, run only by --seed, which refuses in Production. Registering it is harmless: a
+// serving process never calls a seeder.
+builder.Services.AddScoped<IDataSeeder, DemoCatalogDataSeeder>();
 builder.Services.AddAuthorizationSystem(builder.Configuration);
 
 builder.Services.AddMultiRealmKeycloakAuthentication(builder.Configuration);

@@ -1,6 +1,7 @@
 ﻿using AuthorizationService.Implementation.Persistence;
 using EwaysVNext.Core.Application;
 using EwaysVNext.Database;
+using EwaysVNext.Host.Seeding;
 using EwaysVNext.Outcomes.Extensions;
 using Microsoft.EntityFrameworkCore;
 
@@ -65,16 +66,29 @@ public static class HostCommands
     {
         // Seed data is demo data. A partner invoice composed from fictitious SKUs is precisely
         // what the PRD forbids, so this refuses rather than trusting the operator to remember.
-        if (app.Environment.IsProduction())
+        // The rule lives in DemoSeedGuard so it can be tested without starting a host.
+        var allowed = DemoSeedGuard.EnsureAllowed(app.Environment);
+        if (allowed.IsFailure)
         {
-            Console.Error.WriteLine(ProgramMessages.SeedRefusedInProduction);
+            Console.Error.WriteLine(allowed.Error!.Message);
             return 2;
         }
 
         await using var scope = app.Services.CreateAsyncScope();
 
-        foreach (var seeder in scope.ServiceProvider.GetServices<IDataSeeder>().OrderBy(s => s.Order))
-            await seeder.SeedAsync();
+        // Every seeder, in order, the demo catalogue among them. A seeder has no way to return a
+        // refusal, so a throw is how one reports failure — caught here and turned back into the
+        // exit code the init container reads.
+        try
+        {
+            foreach (var seeder in scope.ServiceProvider.GetServices<IDataSeeder>().OrderBy(s => s.Order))
+                await seeder.SeedAsync();
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            Console.Error.WriteLine(MessageFormat.Format(ProgramMessages.SeedFailedFormat, exception.Message));
+            return 2;
+        }
 
         Console.WriteLine(ProgramMessages.SeedDone);
         return 0;

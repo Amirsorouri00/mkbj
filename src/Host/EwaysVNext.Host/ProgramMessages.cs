@@ -1,4 +1,4 @@
-namespace EwaysVNext.Host;
+﻿namespace EwaysVNext.Host;
 
 internal static class ProgramMessages
 {
@@ -7,6 +7,7 @@ internal static class ProgramMessages
     public const string MigrateAuthorizationSkippedFormat = "[migrate] Authorization skipped ({0} is non-relational).";
     public const string MigrateDone = "[migrate] Done.";
     public const string SeedDone = "[seed] Done.";
+    public const string SeedFailedFormat = "[seed] Failed: {0}";
     public const string SeedRefusedInProduction =
         "--seed refuses to run when ASPNETCORE_ENVIRONMENT=Production";
     public const string ProbeUsage = "usage: --probe <url>";
