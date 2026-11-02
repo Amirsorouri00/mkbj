@@ -35,7 +35,8 @@ instruction and the commerce limits, three singletons seeded by migration. Custo
 around website and partner-linked buyers with contact-change history
 ([ADR-0022](docs/adr/0022-remove-iran-specific-modules.md) removed the Iran-market domain it
 replaced). Catalog owns brands, categories, attribute blueprints, products with their variants,
-identifiers and media, and the publishing and sellable-variant ports. Pricing owns currencies,
+identifiers and media, the publishing and sellable-variant ports, and the storefront read side —
+four materialized views refreshed by a job, behind `IStorefrontQueries`. Pricing owns currencies,
 append-only FX rates and their overrides, reference prices and per-currency price overrides, the
 ±5% price band and the quote port; it is the only module that may read Catalog and Settings —
 through its `Adapter.Outbound`, never its Application.
@@ -228,8 +229,16 @@ realm is open self-service registration.
 | `/api/v1/admin/partners` | `admin:super` + `partners.manage` |
 | `/api/v1/admin/settings` | `admin:super` + `settings.manage` |
 | `/api/v1/admin/customers` | `admin:staff` + `customers.manage` |
+| `/api/v1/admin/catalog` | `admin:staff` + `catalog.manage` |
+| `/api/v1/admin/pricing` | `admin:staff` + `catalog.manage` for prices; `admin:super` + `fx.manage` for rates and currency enablement |
 | `/api/v1/shop/me` | `shop:customer` — creates the customer record on first call |
-| `/graphql` | per resolver, as above |
+| `/api/v1/shop/*` (home, categories, products, facets, search, currencies) | **anonymous** |
+| `/graphql` | per resolver, as above; the `shop*` fields are anonymous |
+
+The storefront is anonymous on purpose: a shop that demands a token to show a product page is a
+shop nobody indexes and nobody shares a link to. It reads the materialized views only (ADR-0020),
+so nothing it returns may price a basket — the cart and the composition engine read
+`ISellableVariantPort` and `IPriceQuotePort` against live tables.
 
 A partner's own id is never bindable: it reaches a port through `PartnerPrincipal` alone, and
 `PartnerTenancyArchitectureTests` fails the build if any inbound request shape carries a
@@ -242,6 +251,11 @@ A partner's own id is never bindable: it reaches a port through `PartnerPrincipa
   name order — grants and anything else the EF model cannot express. The scripts are idempotent
   and run on every migrate.
 - There is one `EwaysVNextDbContext` and one history table; `Authorization` has its own.
+- **EF validates a plpgsql body at `CREATE` time, and reports a reserved parameter name as a
+  syntax error positioned inside the body.** It reads like a truncated statement. `concurrently`,
+  `user`, `end` and friends are not available as parameter names.
+- **The storefront views are versioned, never edited in place** — a change adds `…V2` to
+  `StorefrontViewSql` plus a migration that drops and recreates the view with its indexes.
 - Development falls back to EF InMemory with no connection string. **InMemory is not a database**:
   it ignores check constraints and filtered unique indexes and evaluates untranslatable LINQ
   client-side. Never let it stand in for a persistence test.
@@ -296,6 +310,10 @@ is indistinguishable from one that works.
 - **Multi-statement raw SQL with parameters** — Npgsql's extended protocol refuses it (`08P01`),
   and every sub-statement sees one snapshot. Write it as a single CTE.
 - **`$1` placeholders in `ExecuteSqlRaw`** — EF binds `DbParameter`s by **name**; use `@p0`.
+- **PascalCase aliases in `SqlQueryRaw<TRow>`** — the snake_case convention applies to ad-hoc
+  query types too, so `AS "BrandId"` is looked up as `brand_id` and reported missing. A **scalar**
+  `SqlQueryRaw<T>` is the opposite: it wants a column named exactly `Value`.
+- **Reading a storefront view in a purchasing path** — ADR-0020; they are stale by construction.
 - **Assuming cross-module calls are atomic** — each module commits independently.
 - **Trusting a green Debug run for a release** — `TreatWarningsAsErrors` is on in Release only,
   and the Release build was broken for a long time while Debug CI stayed green. CI gates on it.

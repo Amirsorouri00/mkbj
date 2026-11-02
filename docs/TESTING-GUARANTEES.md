@@ -113,6 +113,11 @@ Verified there today:
 - **The ECB.** `EcbFxRateProvider` is unit-tested against recorded XML, and the demo seed falls
   back to fixed rates when the fetch fails. Nothing proves the live endpoint's shape has not
   changed, and nothing exercises what happens after `Fx:MaxRateAge` has elapsed in production.
+- **Search quality.** The storefront's full-text configuration is `simple` — no stemming, no stop
+  words — and the trigram fallback uses Postgres' default 0.3 threshold. Tests prove the
+  mechanisms fire; nothing measures whether the results are good.
+- **Refresh cost.** Every storefront test refreshes a shop of a handful of products. Nothing
+  measures a full refresh of a real catalogue, and `CONCURRENTLY` roughly doubles the work.
 - **Anything in a later phase.** The composition engine, orders, invoices, imports and the admin
   surface do not exist yet, so nothing covers them.
 
@@ -171,6 +176,26 @@ Both were found by mutation testing, and both would otherwise have read as cover
 - **A `.csproj` reference is evidence; a compiled assembly reference is not.** The compiler elides
   a project reference nothing uses, so `SanctionedReferences` rows could be deleted with every
   boundary test still green. `Module_Project_References_Are_Sanctioned` reads the project files.
+
+## What phase 3's suites cover
+
+- **The storefront's staleness window is asserted, not just tolerated.** Acceptance 11 checks both
+  halves: a deactivated variant leaves the live sellable port at once, and stays on the listing
+  until the next refresh. A test that demanded the listing update instantly would be testing
+  against ADR-0020 rather than against the code.
+- **The view's price and the quote's price are held together to the minor unit.** They are two
+  implementations of one rule — one in SQL, one in C# — so nothing but a test keeps them in step,
+  and a cent of drift is a listing that advertises a price the cart then changes.
+- **The two API surfaces are held to each other.** `ShopProducts_Matches_Rest_For_Same_Filter`
+  sends one filter through REST and GraphQL and compares the product id sequence, because "both
+  surfaces exist" is not the same as "both surfaces answer the same".
+- **`.AllowAnonymous()` is a guard that can be observed failing.** There is no fallback
+  authorization policy today, so removing it from every shop route changes nothing; one test
+  configures that policy in the test host, and without the attribute the storefront starts
+  demanding a token.
+- **The read-time FX guard is tested with real seconds.** `now()` is the database's clock and no
+  test clock moves it, so the test sets a rate valid for two seconds, refreshes, waits it out, and
+  requires the offer to disappear while the view row is still there.
 
 ## Two habits this repository insists on
 

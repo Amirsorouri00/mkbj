@@ -64,11 +64,17 @@ boundary. But the coupling is real and has two consequences nobody should discov
 the migrations create, and the application role `eways_app` owns nothing (ADR-0017 D6) — so the
 refresh job cannot run as the application role.
 
-Phase 3 must resolve this one of two ways: run the refresh under a role that owns the views, or
-wrap it in a `SECURITY DEFINER` function owned by `eways_migrator` with `EXECUTE` granted to
-`eways_app`. The second keeps the application's grant narrow and is the expected choice, but it is
-a decision phase 3 makes explicitly, not a detail to be discovered when the first refresh fails
-with "must be owner of materialized view".
+Phase 3 chose the second of the two options it was given: `catalog.refresh_storefront_view(
+view_name text, use_concurrently boolean)`, `SECURITY DEFINER`, owned by `eways_migrator`, with
+`EXECUTE` revoked from `PUBLIC` and granted to `eways_app` in a repeatable script. The name is
+checked against the four known views inside the function rather than interpolated — a
+`SECURITY DEFINER` function that trusts an identifier from its caller is a privilege escalation,
+since the caller owns nothing and the function owns the schema. `search_path` is pinned for the
+same reason.
+
+The parameter is `use_concurrently` because `concurrently` is a reserved word, and plpgsql
+validates the body at `CREATE` time: the refusal arrives as a syntax error positioned inside the
+body, which reads like a truncated statement rather than a reserved name.
 
 ## Consequences
 
@@ -83,3 +89,38 @@ with "must be owner of materialized view".
 - **Refresh cost grows with the catalogue**, and `CONCURRENTLY` roughly doubles the work. At a size
   where a full refresh stops being cheap, the answer is incremental refresh of changed rows, not
   more frequent full refreshes.
+
+## Amendments from phase 3
+
+### `pricing.resolved_fx_rates` is the views' rate source
+
+The views do not resolve a rate themselves. Pricing projects the currently applicable rate for
+each `(base, quote)` pair into `pricing.resolved_fx_rates` — override, peg or provider, already
+decided — and the views join that one row. Resolution logic exists once, in `FxRateResolver`;
+the view reads its conclusion. `StorefrontPriceParityTests` holds the two together to the minor
+unit.
+
+### `fx_valid_until` is filtered again at read time
+
+A rate can expire between two refreshes, and the row stays in the view until the next one. Every
+read of `mv_storefront_variant` therefore repeats `(fx_valid_until IS NULL OR fx_valid_until >=
+now())`. Without it the storefront would quote a price the live quote path now refuses — which is
+precisely the drift this ADR's invariant forbids, arriving through the back door of a view that
+was correct when it was built.
+
+### Views are versioned V1 → V2, never edited in place
+
+The SQL lives in `StorefrontViewSql` as `VariantV1`, `ProductV1`, `FacetsV1`, `HomeV1`. A change
+to a view's shape adds a V2 constant and a migration that drops and recreates the view with its
+indexes; it does not amend the V1 text, because a migration that has already run cannot be
+changed and the constant it read must keep saying what it applied.
+
+### The phase 4 popularity obligation, restated
+
+`popularity_30d` is `0::bigint` in V1, and `mv_home` emits `best_sellers` rows only
+`WHERE popularity_30d > 0` — so the section is empty rather than ranking everything equally. The
+phase 4–5 task that creates `sales.orders` and `sales.order_lines` must, in the same change, add
+`ProductV2` and `HomeV2`, a migration that drops and recreates both views with their V1 indexes,
+and replace the constant with a 30-day sum over non-cancelled order lines. An integration test
+that a completed order moves its product into `best_sellers` is part of that task, not a
+follow-up.
