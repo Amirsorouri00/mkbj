@@ -1,4 +1,6 @@
 using EwaysVNext.Core.Application;
+using EwaysVNext.Database;
+using Microsoft.EntityFrameworkCore;
 using EwaysVNext.Host.Seeding;
 using EwaysVNext.Modules.Catalog.Application.Products.Domain;
 using EwaysVNext.Modules.Catalog.Adapter.Outbound.Storefront;
@@ -70,12 +72,15 @@ public sealed record StorefrontScenario(
         var rootId = await ActiveCategoryAsync(categories, $"sf-{suffix}", null, ct);
         var childId = await ActiveCategoryAsync(categories, $"kettles-{suffix}", rootId, ct);
 
+        // Named "colour" exactly, not suffixed: the facet view matches a blueprint's canonical
+        // key against the key stored on the variant, so a suffixed blueprint would never line up
+        // with a "colour" attribute and the attribute facets would silently come back empty.
+        // Blueprints are global, so this one is shared with whatever earlier test created it.
+        var colourId = await ColourBlueprintAsync(services, attributes, ct);
+
         // On the root, because the view looks for a filterable assignment anywhere on the
-        // variant's ancestor path — inheriting down the tree is the behaviour under test.
-        var colourId = Value(await attributes.CreateAsync(
-            $"colour-{suffix}", AttributeBlueprintDataType.Option,
-            [new AttributeBlueprintOptionInput("Red", null), new AttributeBlueprintOptionInput("Blue", null)],
-            ct));
+        // variant's ancestor path — inheriting down the tree is the behaviour under test. The
+        // assignment is per category, so it is this scenario's own.
 
         Succeeded(await assignments.AssignAsync(
             rootId, colourId, isRequired: false, isFilterable: true, isSearchable: false,
@@ -121,6 +126,24 @@ public sealed record StorefrontScenario(
         return new StorefrontScenario(
             rootId, childId, brandA, brandB,
             p1, p1Red, p1Blue, p2, p2Variant, p3, p3Variant, p4, p4Variant, staff, super);
+    }
+
+    /// <summary>
+    /// The one global <c>colour</c> blueprint, created on first use and reused afterwards.
+    /// </summary>
+    private static async Task<long> ColourBlueprintAsync(
+        IServiceProvider services, IAttributeBlueprintService attributes, CancellationToken ct)
+    {
+        var db = services.GetRequiredService<EwaysVNextDbContext>();
+        var existing = await db.AttributeBlueprints
+            .FirstOrDefaultAsync(blueprint => blueprint.CanonicalKey == "colour", ct);
+
+        if (existing is not null) return existing.Id;
+
+        return Value(await attributes.CreateAsync(
+            "colour", AttributeBlueprintDataType.Option,
+            [new AttributeBlueprintOptionInput("Red", null), new AttributeBlueprintOptionInput("Blue", null)],
+            ct));
     }
 
     private static async Task<long> ActiveCategoryAsync(

@@ -19,4 +19,15 @@ public interface IStorefrontQueries
 
     Task<Result<ProductDetailDto>> GetProductBySlugAsync(
         string slug, string currency, CancellationToken ct = default);
+
+    Task<Result<ProductPageDto>> GetProductsAsync(
+        ProductListQuery query, CancellationToken ct = default);
+
+    /// <summary>A listing with nothing but a search term — the same path, named for its caller.</summary>
+    Task<Result<ProductPageDto>> SearchAsync(
+        string q, string currency, string? cursor, int? limit, CancellationToken ct = default);
+
+    /// <summary>Facets for one category, or for the whole catalogue when it is null.</summary>
+    Task<Result<FacetSetDto>> GetFacetsAsync(
+        long? categoryId, string currency, CancellationToken ct = default);
 }

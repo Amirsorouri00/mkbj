@@ -51,3 +51,42 @@ public sealed record ProductDetailDto(
     IReadOnlyList<string> ImageUrls,
     IReadOnlyList<VariantOfferDto> Variants,
     IReadOnlyDictionary<string, IReadOnlyList<string>> AttributeOptions);
+
+/// <summary>
+/// One listing request. Every filter is optional; the currency is not.
+/// </summary>
+/// <remarks>
+/// <c>PriceMinMinor</c> and <c>PriceMaxMinor</c> are in the <b>requested</b> currency, because
+/// that is the only price a visitor has seen. Converting their bounds back to a base currency
+/// would filter on a number nobody was shown.
+/// </remarks>
+public sealed record ProductListQuery(
+    string Currency,
+    long? CategoryId,
+    IReadOnlyList<long>? BrandIds,
+    IReadOnlyDictionary<string, IReadOnlyList<string>>? Attributes,
+    long? PriceMinMinor,
+    long? PriceMaxMinor,
+    string? Q,
+    StorefrontSort? Sort,
+    string? Cursor,
+    int? Limit);
+
+/// <remarks>
+/// <c>UsedTypoFallback</c> is surfaced rather than hidden: a page that silently answered a
+/// different question than the one asked is how "search is broken" reports start.
+/// </remarks>
+public sealed record ProductPageDto(
+    IReadOnlyList<ProductCardDto> Items, string? NextCursor, bool UsedTypoFallback);
+
+public sealed record FacetValueDto(string Value, string Label, long Count);
+
+public sealed record FacetGroupDto(string Key, IReadOnlyList<FacetValueDto> Values);
+
+/// <remarks><c>To</c> is null for the open-ended top bucket.</remarks>
+public sealed record PriceBucketDto(MoneyDto From, MoneyDto? To, long Count);
+
+public sealed record FacetSetDto(
+    IReadOnlyList<FacetGroupDto> Attributes,
+    IReadOnlyList<FacetValueDto> Brands,
+    IReadOnlyList<PriceBucketDto> PriceBuckets);

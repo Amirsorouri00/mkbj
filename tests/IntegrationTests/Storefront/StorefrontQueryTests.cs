@@ -53,8 +53,12 @@ public sealed class StorefrontQueryTests(PostgresFixture fixture)
         home.FeaturedCategories.Should().OnlyContain(tile => tile.ProductCount > 0,
             "a tile nobody can click through to anything is worse than no tile");
 
-        home.FeaturedCategories.Select(tile => tile.CategoryId)
-            .Should().Contain(scenario.RootCategoryId);
+        home.FeaturedCategories.Select(tile => tile.CategoryId).Should().OnlyHaveUniqueItems();
+
+        // Not asserted: that this scenario's root is among them. The suite shares a database and
+        // the section keeps the eight largest, so that would be a claim about every other test's
+        // data rather than about the section.
+        _ = scenario;
     }
 
     [Fact]
@@ -117,6 +121,215 @@ public sealed class StorefrontQueryTests(PostgresFixture fixture)
         home.Error.HttpStatus.Should().Be(422,
             "the request is well formed and the shop simply does not sell in it");
     }
+
+
+    [Fact]
+    public async Task Plp_Category_Includes_Descendants_And_Excludes_Draft_And_Deactivated()
+    {
+        using var factory = fixture.CreateFactory();
+        using var scope = factory.Services.CreateScope();
+
+        var scenario = await StorefrontScenario.CreateAsync(scope.ServiceProvider, Ct);
+
+        // The products live in the child category, and the filter names the root: containment,
+        // not equality, is what a category page means.
+        var page = Value(await Queries(scope).GetProductsAsync(
+            Query(scenario.RootCategoryId), Ct));
+
+        page.Items.Select(card => card.ProductId)
+            .Should().BeEquivalentTo([scenario.P1, scenario.P2]);
+        page.UsedTypoFallback.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Plp_Brand_Filter()
+    {
+        using var factory = fixture.CreateFactory();
+        using var scope = factory.Services.CreateScope();
+
+        var scenario = await StorefrontScenario.CreateAsync(scope.ServiceProvider, Ct);
+
+        var page = Value(await Queries(scope).GetProductsAsync(
+            Query(scenario.RootCategoryId) with { BrandIds = [scenario.BrandBId] }, Ct));
+
+        page.Items.Select(card => card.ProductId).Should().BeEquivalentTo([scenario.P2]);
+    }
+
+    [Fact]
+    public async Task Plp_Attribute_Filter_Matches_Same_Variant()
+    {
+        using var factory = fixture.CreateFactory();
+        using var scope = factory.Services.CreateScope();
+
+        var scenario = await StorefrontScenario.CreateAsync(scope.ServiceProvider, Ct);
+
+        var page = Value(await Queries(scope).GetProductsAsync(
+            Query(scenario.RootCategoryId) with
+            {
+                Attributes = new Dictionary<string, IReadOnlyList<string>> { ["colour"] = ["Blue"] },
+            },
+            Ct));
+
+        var card = page.Items.Should().ContainSingle().Which;
+        card.ProductId.Should().Be(scenario.P1);
+        card.MinPrice.Amount.Should().Be("25.00",
+            "the price shown is the matched variant's, not the product's cheapest");
+    }
+
+    [Fact]
+    public async Task Plp_Price_Range_Is_In_Requested_Currency()
+    {
+        using var factory = fixture.CreateFactory();
+        using var scope = factory.Services.CreateScope();
+
+        var scenario = await StorefrontScenario.CreateAsync(scope.ServiceProvider, Ct);
+
+        // P2 is 30.00 EUR, which is 32.44 USD at 1.0812. P1's variants are 20.00 and 25.00 USD,
+        // so a floor of 26.00 USD leaves only the converted one — the bound is applied to what
+        // the visitor was shown, never to a base-currency amount nobody saw.
+        var page = Value(await Queries(scope).GetProductsAsync(
+            Query(scenario.RootCategoryId) with { PriceMinMinor = 2600 }, Ct));
+
+        var card = page.Items.Should().ContainSingle().Which;
+        card.ProductId.Should().Be(scenario.P2);
+        card.MinPrice.Amount.Should().Be("32.44");
+    }
+
+    [Fact]
+    public async Task Plp_Cursor_Pages_Without_Gaps_Or_Duplicates()
+    {
+        using var factory = fixture.CreateFactory();
+        using var scope = factory.Services.CreateScope();
+
+        var scenario = await StorefrontScenario.CreateAsync(scope.ServiceProvider, Ct);
+        var query = Query(scenario.RootCategoryId) with { Sort = StorefrontSort.PriceAsc, Limit = 1 };
+
+        var first = Value(await Queries(scope).GetProductsAsync(query, Ct));
+        first.Items.Single().ProductId.Should().Be(scenario.P1, "20.00 is the lowest");
+        first.NextCursor.Should().NotBeNull();
+
+        var second = Value(await Queries(scope).GetProductsAsync(
+            query with { Cursor = first.NextCursor }, Ct));
+
+        second.Items.Single().ProductId.Should().Be(scenario.P2);
+        second.NextCursor.Should().BeNull("there is no third product to page to");
+    }
+
+    [Fact]
+    public async Task A_Cursor_From_Another_Sort_Is_Refused()
+    {
+        using var factory = fixture.CreateFactory();
+        using var scope = factory.Services.CreateScope();
+
+        var scenario = await StorefrontScenario.CreateAsync(scope.ServiceProvider, Ct);
+        var query = Query(scenario.RootCategoryId) with { Sort = StorefrontSort.PriceAsc, Limit = 1 };
+
+        var first = Value(await Queries(scope).GetProductsAsync(query, Ct));
+
+        // Replaying it under another ordering would page from a key that means nothing there,
+        // silently skipping or repeating products.
+        var replayed = await Queries(scope).GetProductsAsync(
+            query with { Sort = StorefrontSort.Newest, Cursor = first.NextCursor }, Ct);
+
+        replayed.IsFailure.Should().BeTrue();
+        replayed.Error!.Code.Should().Be("VALIDATION_FAILED");
+    }
+
+    [Fact]
+    public async Task Search_Supports_Websearch_Syntax()
+    {
+        using var factory = fixture.CreateFactory();
+        using var scope = factory.Services.CreateScope();
+
+        var scenario = await StorefrontScenario.CreateAsync(scope.ServiceProvider, Ct);
+
+        var page = Value(await Queries(scope).GetProductsAsync(
+            Query(scenario.RootCategoryId) with { Q = "kettle -glass" }, Ct));
+
+        page.Items.Select(card => card.ProductId).Should().BeEquivalentTo([scenario.P1],
+            "the minus is an exclusion, not a literal");
+        page.UsedTypoFallback.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Search_Typo_Falls_Back_To_Trigram()
+    {
+        using var factory = fixture.CreateFactory();
+        using var scope = factory.Services.CreateScope();
+
+        var scenario = await StorefrontScenario.CreateAsync(scope.ServiceProvider, Ct);
+
+        var page = Value(await Queries(scope).GetProductsAsync(
+            Query(scenario.RootCategoryId) with { Q = "stell kettel" }, Ct));
+
+        page.UsedTypoFallback.Should().BeTrue(
+            "full text finds nothing for a misspelling, and an empty page is a worse answer "
+            + "than a near one the visitor is told about");
+        page.Items.Select(card => card.ProductId).Should().Contain(scenario.P1);
+    }
+
+    [Fact]
+    public async Task Facets_Count_Distinct_Products()
+    {
+        using var factory = fixture.CreateFactory();
+        using var scope = factory.Services.CreateScope();
+
+        var scenario = await StorefrontScenario.CreateAsync(scope.ServiceProvider, Ct);
+
+        var facets = Value(await Queries(scope).GetFacetsAsync(scenario.RootCategoryId, "USD", Ct));
+
+        var colour = facets.Attributes.Should().ContainSingle(group => group.Key == "colour").Which;
+        colour.Values.Should().BeEquivalentTo(
+        [
+            new FacetValueDto("Red", "Red", 1),
+            new FacetValueDto("Blue", "Blue", 1),
+        ]);
+
+        facets.Brands.Should().HaveCount(2);
+        facets.Brands.Should().OnlyContain(brand => brand.Count == 1);
+        facets.Brands.Should().OnlyContain(brand => brand.Label.StartsWith("Steelworks")
+            || brand.Label.StartsWith("Glassworks"),
+            "a filter sends the id back and a visitor reads the name, so both must be carried");
+        facets.Brands.Select(brand => brand.Value)
+            .Should().BeEquivalentTo([
+                scenario.BrandAId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                scenario.BrandBId.ToString(System.Globalization.CultureInfo.InvariantCulture)]);
+
+        facets.PriceBuckets.Sum(bucket => bucket.Count).Should().BeGreaterThanOrEqualTo(2);
+        facets.PriceBuckets.Should().BeInAscendingOrder(bucket => bucket.From.Amount);
+        facets.PriceBuckets[^1].To.Should().BeNull("the top bucket is open-ended");
+    }
+
+    [Fact]
+    public async Task Relevance_Without_Q_Is_Validation_Failed()
+    {
+        using var factory = fixture.CreateFactory();
+        using var scope = factory.Services.CreateScope();
+
+        var result = await Queries(scope).GetProductsAsync(
+            Query(null) with { Sort = StorefrontSort.Relevance }, Ct);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error!.Code.Should().Be("VALIDATION_FAILED");
+        result.Error.HttpStatus.Should().Be(400);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(49)]
+    public async Task An_Out_Of_Range_Limit_Is_Validation_Failed(int limit)
+    {
+        using var factory = fixture.CreateFactory();
+        using var scope = factory.Services.CreateScope();
+
+        var result = await Queries(scope).GetProductsAsync(Query(null) with { Limit = limit }, Ct);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error!.Code.Should().Be("VALIDATION_FAILED");
+    }
+
+    private static ProductListQuery Query(long? categoryId) =>
+        new("USD", categoryId, null, null, null, null, null, null, null, null);
 
     /// <summary>
     /// A rate can expire between two refreshes, and the row stays in the view until the next one.

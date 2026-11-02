@@ -93,4 +93,20 @@ internal static class StorefrontSql
           AND (v.fx_valid_until IS NULL OR v.fx_valid_until >= now())
         ORDER BY v.price_minor, v.variant_id
         """;
+
+    /// <summary>
+    /// Every facet row for one category, in one currency.
+    /// </summary>
+    /// <remarks>
+    /// The view already carries both halves of a brand facet: <c>facet_key</c> is the brand id, a
+    /// filter sends that back, and <c>facet_value</c> is the display name a visitor reads. For an
+    /// attribute the key is the attribute and the value is the value; for a price bucket the key
+    /// is literally <c>bucket</c> and the value is its lower bound. No join is needed for any of
+    /// them.
+    /// </remarks>
+    public const string Facets = """
+        SELECT facet_kind, facet_key, facet_value, product_count
+        FROM catalog.mv_category_facets
+        WHERE category_id = @categoryId AND currency = @currency
+        """;
 }
