@@ -1,5 +1,5 @@
-using System.Reflection;
 using AwesomeAssertions;
+using EwaysVNext.Modules.Sales.Application.Composition;
 using Xunit;
 
 namespace EwaysVNext.UnitTests.Sales.Composition;
@@ -9,22 +9,14 @@ namespace EwaysVNext.UnitTests.Sales.Composition;
 /// </summary>
 /// <remarks>
 /// A composition's seed is stored with the order so the basket can be reproduced and explained.
-/// That only works while the sequence a seed produces never changes — which is why
+/// That only holds while the sequence a seed produces never changes — which is why
 /// <c>System.Random</c> is not used, and why this pins the published values rather than merely
-/// checking that the numbers look random. A change to these constants would make every past
-/// order irreproducible, silently.
-/// <para>
-/// The type is internal, so the tests reach it through reflection rather than widening it for
-/// their own convenience.
-/// </para>
+/// checking that the numbers look random. Changing these constants would make every past order
+/// irreproducible, and nothing else would notice.
 /// </remarks>
 public sealed class SplitMix64Tests
 {
-    private static readonly Type Type =
-        typeof(EwaysVNext.Modules.Sales.Application.Composition.CompositionEngine).Assembly
-            .GetType("EwaysVNext.Modules.Sales.Application.Composition.SplitMix64", throwOnError: true)!;
-
-    /// <summary>The reference outputs for seed 42, from the published algorithm.</summary>
+    /// <summary>The published outputs for seed 42.</summary>
     private static readonly ulong[] ExpectedForSeed42 =
     [
         0xBDD732262FEB6E95UL,
@@ -33,14 +25,10 @@ public sealed class SplitMix64Tests
     ];
 
     [Fact]
-    public void The_Sequence_For_A_Seed_Never_Changes()
-    {
-        var produced = Take(seed: 42, count: ExpectedForSeed42.Length);
-
-        produced.Should().Equal(ExpectedForSeed42,
+    public void The_Sequence_For_A_Seed_Never_Changes() =>
+        Take(seed: 42, count: ExpectedForSeed42.Length).Should().Equal(ExpectedForSeed42,
             "a seed is persisted with the order, so changing what it produces makes every past "
             + "basket irreproducible");
-    }
 
     [Fact]
     public void The_Same_Seed_Replays_Exactly() =>
@@ -63,41 +51,43 @@ public sealed class SplitMix64Tests
     [Fact]
     public void Next_Stays_Inside_Its_Range()
     {
-        var instance = Create(seed: 7);
-        var next = Type.GetMethod("Next", BindingFlags.Public | BindingFlags.Instance)!;
+        var random = new SplitMix64(7);
 
         for (var i = 0; i < 1000; i++)
         {
-            var value = (int)next.Invoke(instance, [5, 9])!;
-            value.Should().BeInRange(5, 8, "the upper bound is exclusive");
+            random.Next(5, 9).Should().BeInRange(5, 8, "the upper bound is exclusive");
         }
     }
 
     [Fact]
     public void Next_Covers_Its_Whole_Range()
     {
-        var instance = Create(seed: 99);
-        var next = Type.GetMethod("Next", BindingFlags.Public | BindingFlags.Instance)!;
-
+        var random = new SplitMix64(99);
         var seen = new HashSet<int>();
-        for (var i = 0; i < 1000; i++) seen.Add((int)next.Invoke(instance, [0, 4])!);
 
-        // A generator that never returns one value would make a whole slice of the catalogue
+        for (var i = 0; i < 1000; i++) seen.Add(random.Next(0, 4));
+
+        // A generator that never returned one value would make a slice of the catalogue
         // unreachable, which no range check would notice.
         seen.Should().BeEquivalentTo([0, 1, 2, 3]);
     }
 
-    private static object Create(long seed) => Activator.CreateInstance(Type, seed)!;
+    [Fact]
+    public void A_Single_Value_Range_Is_Refused_Rather_Than_Looping()
+    {
+        var random = new SplitMix64(1);
+        var act = () => random.Next(3, 3);
+
+        act.Should().Throw<ArgumentOutOfRangeException>(
+            "an empty range is a caller bug, and modulo zero would be worse");
+    }
 
     private static List<ulong> Take(long seed, int count)
     {
-        var instance = Create(seed);
-        var nextULong = Type.GetMethod("NextULong", BindingFlags.Public | BindingFlags.Instance)!;
-
+        var random = new SplitMix64(seed);
         var values = new List<ulong>(count);
 
-        // Boxed, so the struct's state has to be read back each time rather than mutating a copy.
-        for (var i = 0; i < count; i++) values.Add((ulong)nextULong.Invoke(instance, null)!);
+        for (var i = 0; i < count; i++) values.Add(random.NextULong());
 
         return values;
     }
