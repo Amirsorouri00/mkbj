@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
@@ -18,5 +18,6 @@
     <ProjectReference Include="..\..\src\Modules\Partners\Installer\EwaysVNext.Modules.Partners.Installer.csproj" />
     <ProjectReference Include="..\..\src\Modules\Settings\Installer\EwaysVNext.Modules.Settings.Installer.csproj" />
     <ProjectReference Include="..\..\src\Modules\Pricing\Installer\EwaysVNext.Modules.Pricing.Installer.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sales\Installer\EwaysVNext.Modules.Sales.Installer.csproj" />
   </ItemGroup>
 </Project>

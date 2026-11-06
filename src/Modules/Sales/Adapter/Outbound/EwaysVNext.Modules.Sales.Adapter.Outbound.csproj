@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>EwaysVNext.Modules.Sales.Adapter.Outbound</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\EwaysVNext.Modules.Sales.Application.csproj" />
+    <ProjectReference Include="..\..\QueryApplication\EwaysVNext.Modules.Sales.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Persistence\EwaysVNext.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\..\Database\EwaysVNext.Database.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Storage\Application\EwaysVNext.Storage.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Jobs\Implementation\EwaysVNext.Jobs.Implementation.csproj" />
+    <ProjectReference Include="..\..\..\Catalog\Application\EwaysVNext.Modules.Catalog.Application.csproj" />
+    <ProjectReference Include="..\..\..\Pricing\Application\EwaysVNext.Modules.Pricing.Application.csproj" />
+    <ProjectReference Include="..\..\..\Customer\Application\EwaysVNext.Modules.Customer.Application.csproj" />
+    <ProjectReference Include="..\..\..\Settings\Application\EwaysVNext.Modules.Settings.Application.csproj" />
+  </ItemGroup>
+</Project>

@@ -28,7 +28,7 @@ receipt before the commercial invoice is issued.
 
 ### Modules
 
-Present today: **Catalog**, **Customer**, **Partners**, **Settings**, **Pricing**.
+Present today: **Catalog**, **Customer**, **Partners**, **Settings**, **Pricing**, **Sales**.
 Partners owns B2B partners, peppered API keys, the `PartnerApiKey` authentication scheme, the
 usage log and the admin surface. Settings owns the seller profile, the versioned payment
 instruction and the commerce limits, three singletons seeded by migration. Customer was rebuilt
@@ -46,11 +46,21 @@ nothing about price; Pricing says what something *costs* and nothing about avail
 variant with no usable price is omitted from a quote, never reported as an error, so "published"
 never implies "priced".
 
+Sales is being built now: carts, orders, the amount-driven composition engine, invoices and
+refunds. It is the only module that reads four others — Catalog for what is sellable, Pricing for
+what it costs, Customer for who is billed and Settings for the seller block — all through its
+`Adapter.Outbound`, and **none of those calls shares a transaction with the order it writes**.
+
+**The composition engine is pure.** No ports, no IO, no clock: its seed is persisted with the
+order, so a basket has to be reproducible from its inputs years later.
+`SalesArchitectureTests` fails the build on a dependency that would break that, and on the phrase
+"tax invoice" anywhere in the module — the seller is not GST-registered, and in Singapore that
+phrase is reserved for one who is.
+
 Planned (not yet present; do not reference them):
 
 | Module | Phase | Owns |
 |---|---|---|
-| Sales | 4–5 | Carts, orders, composition engine, invoices, refunds |
 | Sourcing | 7 | Import jobs, staging, crawling, publishing |
 | Admin | 6 | Cross-module composition and the admin GraphQL |
 
@@ -87,7 +97,7 @@ Authorization/                   ← RBAC subsystem (permissions, roles, scopes)
 Database/                        ← The ONE EwaysVNextDbContext, every module's EF configurations,
                                     DatabaseMigrator, Migrations/, repeatable Scripts/*.sql
 Host/EwaysVNext.Host/            ← Entry point: module wiring, host commands, the pipeline
-Modules/{Catalog,Customer,Partners,Settings,Pricing}/
+Modules/{Catalog,Customer,Partners,Settings,Pricing,Sales}/
 ├── Application/                 ← Hexagon: Domain + Ports + Service
 ├── Adapter/Inbound/{Rest,GraphQL}/
 ├── Adapter/Outbound/            ← Repositories and ACL gateways

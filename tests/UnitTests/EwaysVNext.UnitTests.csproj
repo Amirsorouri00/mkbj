@@ -52,6 +52,10 @@
     <ProjectReference Include="..\..\src\Modules\Catalog\Adapter\Inbound\Rest\EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest.csproj" />
     <ProjectReference Include="..\..\src\Modules\Pricing\Installer\EwaysVNext.Modules.Pricing.Installer.csproj" />
     <ProjectReference Include="..\..\src\Modules\Pricing\Application\EwaysVNext.Modules.Pricing.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sales\Installer\EwaysVNext.Modules.Sales.Installer.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sales\Application\EwaysVNext.Modules.Sales.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sales\Adapter\Outbound\EwaysVNext.Modules.Sales.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sales\QueryApplication\EwaysVNext.Modules.Sales.QueryApplication.csproj" />
     <ProjectReference Include="..\..\src\Host\EwaysVNext.Host\EwaysVNext.Host.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -16,7 +16,8 @@ public sealed class HexagonalBoundaryTests
 {
     // Final set (later phases append as they create each module):
     // Catalog, Customer, Partners, Settings, Pricing, Sales, Sourcing, Admin.
-    public static readonly string[] ModuleNames = ["Catalog", "Customer", "Partners", "Settings", "Pricing"];
+    public static readonly string[] ModuleNames =
+        ["Catalog", "Customer", "Partners", "Settings", "Pricing", "Sales"];
 
     /// <summary>
     /// Rows are (consumerModule, providerModule): `EwaysVNext.Modules.{consumer}.Adapter.Outbound`
@@ -31,6 +32,15 @@ public sealed class HexagonalBoundaryTests
         // limit from Settings. Both go through its Adapter.Outbound, never its Application.
         { "Pricing", "Catalog" },
         { "Pricing", "Settings" },
+
+        // Sales composes a basket from what Catalog says is sellable at what Pricing says it
+        // costs, bills a Customer and prints the Settings seller block. Four providers, all read
+        // through its Adapter.Outbound — and none of those calls is in the same transaction as
+        // the order it writes.
+        { "Sales", "Catalog" },
+        { "Sales", "Pricing" },
+        { "Sales", "Customer" },
+        { "Sales", "Settings" },
     };
 
     public static TheoryData<string> Modules => new(ModuleNames);
@@ -242,7 +252,8 @@ public sealed class HexagonalBoundaryTests
         !path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
         && !path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
 
-    private static string Root
+    /// <summary>The solution directory. Internal so SalesArchitectureTests can scan sources too.</summary>
+    internal static string Root
     {
         get
         {

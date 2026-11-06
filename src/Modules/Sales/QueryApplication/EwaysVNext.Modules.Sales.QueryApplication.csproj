@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>EwaysVNext.Modules.Sales.QueryApplication</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Queries\Application\EwaysVNext.Queries.Application.csproj" />
+    <ProjectReference Include="..\..\..\Database\EwaysVNext.Database.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Core\Application\EwaysVNext.Core.Application.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>EwaysVNext.Host</RootNamespace>
@@ -38,5 +38,6 @@
     <ProjectReference Include="..\..\Authorization\Authorization.Implementation\Authorization.Implementation.csproj" />
     <ProjectReference Include="..\..\Authorization\Authorization.Endpoints\Authorization.Endpoints.csproj" />
     <ProjectReference Include="..\..\Modules\Pricing\Installer\EwaysVNext.Modules.Pricing.Installer.csproj" />
+    <ProjectReference Include="..\..\Modules\Sales\Installer\EwaysVNext.Modules.Sales.Installer.csproj" />
   </ItemGroup>
 </Project>
