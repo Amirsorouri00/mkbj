@@ -12,4 +12,10 @@ namespace EwaysVNext.Modules.Sales.Application.Composition;
 /// </remarks>
 public static class CompositionEngine
 {
+    /// <summary>
+    /// Persisted with every order, so a basket stays explainable after the strategy changes.
+    /// Bump it when the algorithm changes in a way that would compose a different basket from
+    /// the same seed.
+    /// </summary>
+    public const string StrategyVersion = "v1";
 }
