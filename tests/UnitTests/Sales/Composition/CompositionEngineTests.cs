@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using EwaysVNext.Modules.Sales.Application.Composition;
+using EwaysVNext.Tools.CompositionSimulator;
 using Xunit;
 
 namespace EwaysVNext.UnitTests.Sales.Composition;
@@ -116,10 +117,19 @@ public sealed class CompositionEngineTests
             "the same amount against the same catalogue will fail the same way");
     }
 
+    /// <summary>
+    /// The same seed over the same candidates always gives the same basket, whatever order the
+    /// candidates arrived in.
+    /// </summary>
+    /// <remarks>
+    /// Run against the shared seeded catalogue — 400 candidates over five decades — rather than
+    /// the small hand-built pool, because input-order independence is easy to satisfy by
+    /// accident when there are only sixty candidates and most attempts pick the same handful.
+    /// </remarks>
     [Fact]
     public void Is_Deterministic_Per_Seed_And_Independent_Of_Input_Order()
     {
-        var pool = Pool();
+        var pool = SeedLikeCatalog.For("USD");
 
         var forwards = CompositionEngine.Compose(
             1_284_599, pool, Options(1_284_599), 7, Budget()).Value!;

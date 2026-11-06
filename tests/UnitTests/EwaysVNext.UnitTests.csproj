@@ -8,6 +8,9 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\tools\CompositionSimulator\SeedLikeCatalog.cs" Link="Sales\Composition\SeedLikeCatalog.cs" />
+
+
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
       <ProjectReference Include="..\..\src\Modules\Partners\Adapter\Inbound\GraphQL\EwaysVNext.Modules.Partners.Adapter.Inbound.GraphQL.csproj" />
       <ProjectReference Include="..\..\src\Modules\Settings\Adapter\Inbound\GraphQL\EwaysVNext.Modules.Settings.Adapter.Inbound.GraphQL.csproj" />
@@ -16,6 +19,8 @@
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
     <PackageReference Include="AwesomeAssertions" />
+    <PackageReference Include="FsCheck" />
+    <PackageReference Include="FsCheck.Xunit.v3" />
     <PackageReference Include="NSubstitute" />
     <PackageReference Include="HotChocolate.AspNetCore" />
     <PackageReference Include="HotChocolate.AspNetCore.Authorization" />
