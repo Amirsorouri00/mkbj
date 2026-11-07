@@ -128,13 +128,15 @@ public sealed class CartServiceTests
     {
         public CartWorld()
         {
-            Service = new CartServiceFactory(this).Build();
+            Service = new CartService(
+                new FakeCarts(this), Catalog, Pricing, Customers,
+                new CountingUnitOfWork(this), new SequentialIds(), new FixedClock());
         }
 
         public SalesWorld.FakeCatalog Catalog { get; } = new([]);
         public CountingPricing Pricing { get; } = new();
         public SalesWorld.FakeCustomers Customers { get; } = new([]);
-        public ICartService Service { get; }
+        public CartService Service { get; }
 
         public Cart? Stored { get; set; }
         public int Saves { get; set; }
@@ -193,18 +195,6 @@ public sealed class CartServiceTests
 
         public Task<SaveOutcome> TrySaveChangesAsync(CancellationToken ct = default) =>
             throw new NotSupportedException();
-    }
-
-    private sealed class CartServiceFactory(CartWorld world)
-    {
-        public ICartService Build() => new CartService(
-            new FakeCarts(world),
-            world.Catalog,
-            world.Pricing,
-            world.Customers,
-            new CountingUnitOfWork(world),
-            new SequentialIds(),
-            new FixedClock());
     }
 
     private sealed class SequentialIds : IIdGenerator

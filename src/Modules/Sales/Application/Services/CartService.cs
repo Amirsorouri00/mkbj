@@ -100,7 +100,7 @@ internal sealed class CartService(
             caller.IdentityUserId, caller.Email, caller.EmailVerified, ct);
 
         if (customer.IsFailure) return Result.Failure<CartView>(customer.Error!);
-        if (!customer.Value.IsActive) return Result.Failure<CartView>(SalesErrors.CustomerSuspended);
+        if (!customer.Value!.IsActive) return Result.Failure<CartView>(SalesErrors.CustomerSuspended);
 
         // Read once: every price on this cart must be quoted at the same instant.
         var now = clock.UtcNow;
@@ -125,18 +125,18 @@ internal sealed class CartService(
 
         try
         {
-            mutate(cart, quoted.Value, now);
+            mutate(cart, quoted.Value!, now);
         }
         catch (DomainException exception)
         {
             return Result.Failure<CartView>(FromDomain(exception));
         }
 
-        cart.Reprice(target, quoted.Value.Prices, now);
+        cart.Reprice(target, quoted.Value!.Prices, now);
 
         await unitOfWork.SaveChangesAsync(ct);
 
-        return Result.Success(View(cart, shown, quoted.Value));
+        return Result.Success(View(cart, shown, quoted.Value!));
     }
 
     /// <summary>
@@ -148,8 +148,7 @@ internal sealed class CartService(
     /// not an offer.
     /// </remarks>
     private async Task<Result<LivePrices>> QuoteAsync(
-        IReadOnlyCollection<long> variantIds, string currency, DateTimeOffset now,
-        CancellationToken ct)
+        HashSet<long> variantIds, string currency, DateTimeOffset now, CancellationToken ct)
     {
         if (variantIds.Count == 0) return Result.Success(LivePrices.Empty);
 
@@ -163,7 +162,7 @@ internal sealed class CartService(
 
         return Result.Success(new LivePrices(
             sellable.ToDictionary(variant => variant.VariantId),
-            quotes.Value.ToDictionary(quote => quote.VariantId, quote => quote.ReferenceMinor)));
+            quotes.Value!.ToDictionary(quote => quote.VariantId, quote => quote.ReferenceMinor)));
     }
 
     private static CartView View(

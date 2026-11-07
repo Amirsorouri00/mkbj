@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using EwaysVNext.Core.Application.Security;
+using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
@@ -42,6 +44,19 @@ public static class CallerClaims
     /// header, so this is the same value the response carries and the order stores — one thread
     /// from a partner's support ticket to a log line.
     /// </remarks>
+    /// <summary>
+    /// The shop customer behind a request, or null if this is not one.
+    /// </summary>
+    /// <remarks>
+    /// The reading is <see cref="ShopIdentityClaims"/>'s, so the REST and GraphQL surfaces
+    /// cannot disagree about who is shopping; this only maps the result onto the port's own
+    /// type, which Application owns and knows nothing about claims.
+    /// </remarks>
+    public static ShopCaller? ShopCallerOf(ClaimsPrincipal? user) =>
+        ShopIdentityClaims.Read(user) is { } identity
+            ? new ShopCaller(identity.IdentityUserId, identity.Email, identity.EmailVerified)
+            : null;
+
     public static string CorrelationIdOf(HttpContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
