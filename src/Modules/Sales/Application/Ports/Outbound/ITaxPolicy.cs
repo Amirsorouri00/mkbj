@@ -1,7 +1,6 @@
-namespace EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using EwaysVNext.Modules.Sales.Application.Domain.Documents;
 
-/// <summary>How much tax is due, and what the document says about it.</summary>
-public sealed record TaxAssessment(long TaxMinor, string Statement);
+namespace EwaysVNext.Modules.Sales.Application.Ports.Outbound;
 
 /// <summary>
 /// The seller's tax position, as a port rather than a constant.

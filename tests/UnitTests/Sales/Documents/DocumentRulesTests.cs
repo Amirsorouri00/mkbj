@@ -1,7 +1,6 @@
 using System.Text.Json;
 using AwesomeAssertions;
 using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
 using EwaysVNext.Modules.Sales.Application.Services;
 using Xunit;
 
