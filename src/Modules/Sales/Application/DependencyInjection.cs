@@ -23,6 +23,8 @@ public static class DependencyInjection
         services.AddScoped<LiveRequoter>();
         services.AddScoped<IPartnerOrderService, PartnerOrderService>();
         services.AddScoped<ICartService, CartService>();
+        services.AddScoped<ICheckoutService, CheckoutService>();
+        services.AddScoped<IShopCustomerResolver, ShopCustomerResolver>();
         services.AddScoped<IInvoiceService, InvoiceService>();
 
         return services;

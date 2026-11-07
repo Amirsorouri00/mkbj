@@ -257,7 +257,7 @@ internal sealed class PartnerOrderQueries(EwaysVNextDbContext db) : IPartnerOrde
         row.TotalMinor,
         row.SubtotalMinor,
         row.TaxMinor,
-        Status(
+        OrderStatusMapping.Describe(
             row.Status, row.PaymentStatus, row.PaymentSource, row.FulfillmentStatus,
             row.FulfillmentSource, row.Documents.Select(d => d.Type)),
         [.. row.Lines.Select(line => new OrderLineDto(
@@ -281,7 +281,7 @@ internal sealed class PartnerOrderQueries(EwaysVNextDbContext db) : IPartnerOrde
         row.ExternalCustomerId,
         row.Currency.Trim(),
         row.TotalMinor,
-        Status(
+        OrderStatusMapping.Describe(
             row.Status, row.PaymentStatus, row.PaymentSource, row.FulfillmentStatus,
             row.FulfillmentSource, row.DocumentTypes),
         row.Invoice?.Id,
@@ -304,36 +304,6 @@ internal sealed class PartnerOrderQueries(EwaysVNextDbContext db) : IPartnerOrde
         row.ExternalOrderId,
         row.IssuedAt,
         JsonSerializer.SerializeToElement(row.Content, DocumentContentJson.Options));
-
-    /// <summary>
-    /// The document status is derived from the documents, here as on the aggregate, so the two
-    /// can never disagree.
-    /// </summary>
-    private static OrderStatusDto Status(
-        OrderStatus order,
-        PaymentStatus payment,
-        PaymentSource? paymentSource,
-        FulfillmentStatus fulfillment,
-        FulfillmentSource? fulfillmentSource,
-        IEnumerable<DocumentType> documentTypes)
-    {
-        var types = documentTypes.ToList();
-
-        var documents =
-            types.Contains(DocumentType.CreditNote) ? DocumentStatus.CreditNoted
-            : types.Contains(DocumentType.Commercial) ? DocumentStatus.Invoiced
-            : types.Contains(DocumentType.ProForma) ? DocumentStatus.ProFormaIssued
-            : DocumentStatus.None;
-
-        return new OrderStatusDto(
-            order.ToString(),
-            payment.ToString(),
-            paymentSource?.ToString(),
-            fulfillment.ToString(),
-            fulfillmentSource?.ToString(),
-            DocumentWording.FulfillmentStatement,
-            documents.ToString());
-    }
 
     private sealed record DocumentStub(long Id, string Number);
 

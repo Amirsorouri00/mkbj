@@ -12,7 +12,9 @@ public static class DependencyInjection
         services
             .AddGraphQLBootstrap()
             .AddType<ShopCartQueries>()
-            .AddType<ShopCartMutations>();
+            .AddType<ShopCartMutations>()
+            .AddType<ShopOrderQueriesGraph>()
+            .AddType<ShopCheckoutMutations>();
 
         return services;
     }

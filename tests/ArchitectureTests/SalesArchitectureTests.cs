@@ -81,6 +81,62 @@ public sealed class SalesArchitectureTests
                 .Select(property => $"{type.Name}.{property.Name}"))
             .Should().BeEmpty();
 
+    /// <summary>
+    /// A shop request may name one amount, and only one: the total the customer was shown.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Prices come from Pricing. A shop request shape that could carry one would let the browser
+    /// set it, and the bug would look like ordinary parameter passing in review — a field named
+    /// <c>unitPrice</c> on an add-to-cart request reads as helpful until someone sends a cent.
+    /// </para>
+    /// <para>
+    /// <c>ExpectedTotal</c> is the exception because it cannot cause a price. It is a claim about
+    /// what was displayed, compared against a live quote, and its only possible effect is a
+    /// refusal.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public void Shop_Request_Dtos_Accept_No_Money_Except_ExpectedTotal()
+    {
+        string[] moneyWords = ["Price", "Amount", "Total", "Money"];
+
+        var carriers = new[] { "MoneyRequest", "MoneyGraph" };
+
+        var shapes = ShopRequestShapes().ToList();
+
+        // No money-shaped field anywhere, except the one claim about what was displayed.
+        shapes
+            .Where(type => !carriers.Contains(type.Name, StringComparer.Ordinal))
+            .SelectMany(type => type.GetProperties()
+                .Where(property => moneyWords.Any(word =>
+                    property.Name.Contains(word, StringComparison.OrdinalIgnoreCase)))
+                .Where(property => property.Name != "ExpectedTotal")
+                .Select(property => $"{type.Name}.{property.Name}"))
+            .Should().BeEmpty();
+
+        // And the money carriers themselves are reachable only through that one field, so the
+        // exemption above cannot be used to smuggle a second amount in under another name.
+        shapes
+            .SelectMany(type => type.GetProperties()
+                .Where(property => carriers.Contains(
+                    property.PropertyType.Name, StringComparer.Ordinal))
+                .Where(property => property.Name != "ExpectedTotal")
+                .Select(property => $"{type.Name}.{property.Name}"))
+            .Should().BeEmpty();
+    }
+
+    private static IEnumerable<Type> ShopRequestShapes() =>
+        typeof(EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Shop.AddCartLineRequest).Assembly
+            .GetTypes()
+            .Where(type => type.Namespace == "EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Shop"
+                && type.Name.EndsWith("Request", StringComparison.Ordinal))
+        .Concat(typeof(EwaysVNext.Modules.Sales.Adapter.Inbound.GraphQL.Shop.AddToCartInput).Assembly
+            .GetTypes()
+            .Where(type => type.Namespace == "EwaysVNext.Modules.Sales.Adapter.Inbound.GraphQL.Shop"
+                && (type.Name.EndsWith("Input", StringComparison.Ordinal)
+                    || type.Name == "MoneyGraph")));
+
     private static bool IsBuildOutput(string path) =>
         path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
         || path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
