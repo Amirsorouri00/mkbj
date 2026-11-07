@@ -24,6 +24,14 @@ namespace EwaysVNext.Database.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "unaccent");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.HasSequence("cn_number_seq", "sales");
+
+            modelBuilder.HasSequence("inv_number_seq", "sales");
+
+            modelBuilder.HasSequence("order_number_seq", "sales");
+
+            modelBuilder.HasSequence("pf_number_seq", "sales");
+
             modelBuilder.Entity("EwaysVNext.Audit.Implementation.AuditEvent", b =>
                 {
                     b.Property<long>("Id")
@@ -1502,6 +1510,242 @@ namespace EwaysVNext.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EwaysVNext.Modules.Sales.Application.Domain.Orders.Order", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Buyer")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("buyer");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("channel");
+
+                    b.Property<string>("CorrelationId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("correlation_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("char(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<long>("CustomerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("customer_id");
+
+                    b.Property<string>("ExternalCustomerId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("external_customer_id");
+
+                    b.Property<string>("ExternalOrderId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("external_order_id");
+
+                    b.Property<string>("FulfillmentSource")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("fulfillment_source");
+
+                    b.Property<string>("FulfillmentStatus")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("fulfillment_status");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("number");
+
+                    b.Property<long?>("PartnerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("partner_id");
+
+                    b.Property<string>("PaymentSource")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("payment_source");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("payment_status");
+
+                    b.Property<string>("RequestFingerprint")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("request_fingerprint");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("order_status");
+
+                    b.Property<long>("SubtotalMinor")
+                        .HasColumnType("bigint")
+                        .HasColumnName("subtotal_minor");
+
+                    b.Property<long>("TaxMinor")
+                        .HasColumnType("bigint")
+                        .HasColumnName("tax_minor");
+
+                    b.Property<long>("TotalMinor")
+                        .HasColumnType("bigint")
+                        .HasColumnName("total_minor");
+
+                    b.Property<long>("UsdEquivalentMinor")
+                        .HasColumnType("bigint")
+                        .HasColumnName("usd_equivalent_minor");
+
+                    b.HasKey("Id")
+                        .HasName("pk_orders");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_orders_pending")
+                        .HasFilter("order_status = 'PendingPayment'");
+
+                    b.HasIndex("Number")
+                        .IsUnique()
+                        .HasDatabaseName("ux_orders_number");
+
+                    b.HasIndex("PartnerId", "ExternalOrderId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_orders_partner_external")
+                        .HasFilter("channel = 'PartnerApi'");
+
+                    b.HasIndex("PartnerId", "Id")
+                        .IsDescending(false, true)
+                        .HasDatabaseName("ix_orders_partner")
+                        .HasFilter("channel = 'PartnerApi'");
+
+                    b.HasIndex("CreatedAt", "Channel", "Currency")
+                        .HasDatabaseName("ix_orders_created");
+
+                    b.HasIndex("CustomerId", "Channel", "Id")
+                        .IsDescending(false, false, true)
+                        .HasDatabaseName("ix_orders_customer");
+
+                    b.ToTable("orders", "sales", t =>
+                        {
+                            t.HasCheckConstraint("ck_orders_partner_fields", "(channel = 'PartnerApi') = (partner_id IS NOT NULL AND external_order_id IS NOT NULL AND request_fingerprint IS NOT NULL AND external_customer_id IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_orders_total_positive", "total_minor > 0");
+
+                            t.HasCheckConstraint("ck_orders_totals_add_up", "subtotal_minor + tax_minor = total_minor");
+                        });
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Sales.Application.Domain.Telemetry.CompositionAttempt", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("at");
+
+                    b.Property<int>("CandidatePoolSize")
+                        .HasColumnType("integer")
+                        .HasColumnName("candidate_pool_size");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("char(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<long>("DurationMs")
+                        .HasColumnType("bigint")
+                        .HasColumnName("duration_ms");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("error_code");
+
+                    b.Property<int>("Iterations")
+                        .HasColumnType("integer")
+                        .HasColumnName("iterations");
+
+                    b.Property<int>("Lines")
+                        .HasColumnType("integer")
+                        .HasColumnName("lines");
+
+                    b.Property<long?>("OrderId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("order_id");
+
+                    b.Property<long?>("PartnerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("partner_id");
+
+                    b.Property<int>("Recompositions")
+                        .HasColumnType("integer")
+                        .HasColumnName("recompositions");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<long>("Seed")
+                        .HasColumnType("bigint")
+                        .HasColumnName("seed");
+
+                    b.Property<string>("StrategyVersion")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("strategy_version");
+
+                    b.Property<bool>("Succeeded")
+                        .HasColumnType("boolean")
+                        .HasColumnName("succeeded");
+
+                    b.Property<long>("TargetMinor")
+                        .HasColumnType("bigint")
+                        .HasColumnName("target_minor");
+
+                    b.HasKey("Id")
+                        .HasName("pk_composition_attempts");
+
+                    b.HasIndex(new[] { "At" }, "ix_composition_attempts_at")
+                        .IsDescending()
+                        .HasDatabaseName("ix_composition_attempts_at");
+
+                    b.HasIndex(new[] { "At" }, "ix_composition_attempts_failures")
+                        .IsDescending()
+                        .HasDatabaseName("ix_composition_attempts_failures")
+                        .HasFilter("NOT succeeded");
+
+                    b.ToTable("composition_attempts", "sales");
+                });
+
             modelBuilder.Entity("EwaysVNext.Modules.Settings.Application.Settings.Domain.CommerceLimits", b =>
                 {
                     b.Property<long>("Id")
@@ -2012,6 +2256,405 @@ namespace EwaysVNext.Database.Migrations
 
                     b.Navigation("Provenance")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Sales.Application.Domain.Orders.Order", b =>
+                {
+                    b.OwnsOne("EwaysVNext.Modules.Sales.Application.Domain.Orders.CompositionTrace", "CompositionTrace", b1 =>
+                        {
+                            b1.Property<long>("order_id")
+                                .HasColumnType("bigint")
+                                .HasColumnName("order_id");
+
+                            b1.Property<string>("Attempts")
+                                .IsRequired()
+                                .HasColumnType("jsonb")
+                                .HasColumnName("attempts");
+
+                            b1.Property<int>("CandidatePoolSize")
+                                .HasColumnType("integer")
+                                .HasColumnName("candidate_pool_size");
+
+                            b1.Property<long>("DurationMs")
+                                .HasColumnType("bigint")
+                                .HasColumnName("duration_ms");
+
+                            b1.Property<int>("Iterations")
+                                .HasColumnType("integer")
+                                .HasColumnName("iterations");
+
+                            b1.Property<long>("Seed")
+                                .HasColumnType("bigint")
+                                .HasColumnName("seed");
+
+                            b1.Property<string>("StrategyVersion")
+                                .IsRequired()
+                                .HasMaxLength(16)
+                                .HasColumnType("character varying(16)")
+                                .HasColumnName("strategy_version");
+
+                            b1.HasKey("order_id")
+                                .HasName("pk_order_composition_traces");
+
+                            b1.ToTable("order_composition_traces", "sales");
+
+                            b1.WithOwner()
+                                .HasForeignKey("order_id")
+                                .HasConstraintName("fk_order_composition_traces_orders_order_id");
+                        });
+
+                    b.OwnsMany("EwaysVNext.Modules.Sales.Application.Domain.Orders.OrderDocument", "Documents", b1 =>
+                        {
+                            b1.Property<long>("Id")
+                                .HasColumnType("bigint")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("Content")
+                                .IsRequired()
+                                .HasColumnType("jsonb")
+                                .HasColumnName("content");
+
+                            b1.Property<DateTimeOffset>("IssuedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("issued_at");
+
+                            b1.Property<string>("Number")
+                                .IsRequired()
+                                .HasMaxLength(32)
+                                .HasColumnType("character varying(32)")
+                                .HasColumnName("number");
+
+                            b1.Property<string>("PdfObjectKey")
+                                .IsRequired()
+                                .HasMaxLength(256)
+                                .HasColumnType("character varying(256)")
+                                .HasColumnName("pdf_object_key");
+
+                            b1.Property<long?>("RelatedDocumentId")
+                                .HasColumnType("bigint")
+                                .HasColumnName("related_document_id");
+
+                            b1.Property<uint>("RowVersion")
+                                .IsConcurrencyToken()
+                                .ValueGeneratedOnAddOrUpdate()
+                                .HasColumnType("xid")
+                                .HasColumnName("xmin");
+
+                            b1.Property<string>("Type")
+                                .IsRequired()
+                                .HasMaxLength(32)
+                                .HasColumnType("character varying(32)")
+                                .HasColumnName("type");
+
+                            b1.Property<long>("order_id")
+                                .HasColumnType("bigint")
+                                .HasColumnName("order_id");
+
+                            b1.HasKey("Id")
+                                .HasName("pk_order_documents");
+
+                            b1.HasIndex("order_id")
+                                .HasDatabaseName("ix_order_documents_order_id");
+
+                            b1.HasIndex("Type", "Number")
+                                .IsUnique()
+                                .HasDatabaseName("ux_order_documents_type_number");
+
+                            b1.ToTable("order_documents", "sales", t =>
+                                {
+                                    t.HasCheckConstraint("ck_order_documents_credit_note_link", "(type = 'CreditNote') = (related_document_id IS NOT NULL)");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("order_id")
+                                .HasConstraintName("fk_order_documents_orders_order_id");
+                        });
+
+                    b.OwnsMany("EwaysVNext.Modules.Sales.Application.Domain.Orders.OrderLine", "Lines", b1 =>
+                        {
+                            b1.Property<long>("Id")
+                                .HasColumnType("bigint")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("Attributes")
+                                .IsRequired()
+                                .HasColumnType("jsonb")
+                                .HasColumnName("attributes");
+
+                            b1.Property<bool>("BandEnforced")
+                                .HasColumnType("boolean")
+                                .HasColumnName("band_enforced");
+
+                            b1.Property<string>("BrandName")
+                                .IsRequired()
+                                .HasMaxLength(256)
+                                .HasColumnType("character varying(256)")
+                                .HasColumnName("brand_name");
+
+                            b1.PrimitiveCollection<string[]>("CategoryPath")
+                                .IsRequired()
+                                .HasColumnType("text[]")
+                                .HasColumnName("category_path");
+
+                            b1.Property<int>("DeviationBps")
+                                .HasColumnType("integer")
+                                .HasColumnName("deviation_bps");
+
+                            b1.Property<int>("LineNo")
+                                .HasColumnType("integer")
+                                .HasColumnName("line_no");
+
+                            b1.Property<long>("LineTotalMinor")
+                                .HasColumnType("bigint")
+                                .HasColumnName("line_total_minor");
+
+                            b1.Property<long>("ProductId")
+                                .HasColumnType("bigint")
+                                .HasColumnName("product_id");
+
+                            b1.Property<string>("ProductTitle")
+                                .IsRequired()
+                                .HasMaxLength(512)
+                                .HasColumnType("character varying(512)")
+                                .HasColumnName("product_title");
+
+                            b1.Property<int>("Quantity")
+                                .HasColumnType("integer")
+                                .HasColumnName("quantity");
+
+                            b1.Property<uint>("RowVersion")
+                                .IsConcurrencyToken()
+                                .ValueGeneratedOnAddOrUpdate()
+                                .HasColumnType("xid")
+                                .HasColumnName("xmin");
+
+                            b1.Property<string>("Sku")
+                                .IsRequired()
+                                .HasMaxLength(128)
+                                .HasColumnType("character varying(128)")
+                                .HasColumnName("sku");
+
+                            b1.Property<long>("UnitPriceMinor")
+                                .HasColumnType("bigint")
+                                .HasColumnName("unit_price_minor");
+
+                            b1.Property<long>("VariantId")
+                                .HasColumnType("bigint")
+                                .HasColumnName("variant_id");
+
+                            b1.Property<long>("order_id")
+                                .HasColumnType("bigint")
+                                .HasColumnName("order_id");
+
+                            b1.HasKey("Id")
+                                .HasName("pk_order_lines");
+
+                            b1.HasIndex("ProductId")
+                                .HasDatabaseName("ix_order_lines_product");
+
+                            b1.HasIndex("order_id")
+                                .HasDatabaseName("ix_order_lines_order_id");
+
+                            b1.ToTable("order_lines", "sales", t =>
+                                {
+                                    t.HasCheckConstraint("ck_order_lines_partner_band", "NOT band_enforced OR (unit_price_minor * 100 >= reference_price_minor * 95 AND unit_price_minor * 100 <= reference_price_minor * 105)");
+
+                                    t.HasCheckConstraint("ck_order_lines_quantity_positive", "quantity > 0");
+
+                                    t.HasCheckConstraint("ck_order_lines_total", "line_total_minor = quantity * unit_price_minor");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("order_id")
+                                .HasConstraintName("fk_order_lines_orders_order_id");
+
+                            b1.OwnsOne("EwaysVNext.Modules.Sales.Application.Domain.Orders.PriceSnapshot", "Price", b2 =>
+                                {
+                                    b2.Property<long>("OrderLineId")
+                                        .HasColumnType("bigint")
+                                        .HasColumnName("id");
+
+                                    b2.Property<long>("BaseAmountMinor")
+                                        .HasColumnType("bigint")
+                                        .HasColumnName("base_amount_minor");
+
+                                    b2.Property<string>("BaseCurrency")
+                                        .IsRequired()
+                                        .HasColumnType("char(3)")
+                                        .HasColumnName("base_currency");
+
+                                    b2.Property<long?>("FxOverrideId")
+                                        .HasColumnType("bigint")
+                                        .HasColumnName("fx_override_id");
+
+                                    b2.Property<string>("FxProvenance")
+                                        .HasMaxLength(64)
+                                        .HasColumnType("character varying(64)")
+                                        .HasColumnName("fx_provenance");
+
+                                    b2.Property<decimal?>("FxRate")
+                                        .HasColumnType("numeric(18,10)")
+                                        .HasColumnName("fx_rate");
+
+                                    b2.Property<DateTimeOffset?>("FxRateAt")
+                                        .HasColumnType("timestamp with time zone")
+                                        .HasColumnName("fx_rate_at");
+
+                                    b2.Property<long?>("FxRateId")
+                                        .HasColumnType("bigint")
+                                        .HasColumnName("fx_rate_id");
+
+                                    b2.Property<long>("ReferenceMinor")
+                                        .HasColumnType("bigint")
+                                        .HasColumnName("reference_price_minor");
+
+                                    b2.Property<string>("Source")
+                                        .IsRequired()
+                                        .HasMaxLength(32)
+                                        .HasColumnType("character varying(32)")
+                                        .HasColumnName("price_source");
+
+                                    b2.HasKey("OrderLineId");
+
+                                    b2.ToTable("order_lines", "sales");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("OrderLineId")
+                                        .HasConstraintName("fk_order_lines_order_lines_id");
+                                });
+
+                            b1.Navigation("Price")
+                                .IsRequired();
+                        });
+
+                    b.OwnsMany("EwaysVNext.Modules.Sales.Application.Domain.Orders.PaymentRecord", "Payments", b1 =>
+                        {
+                            b1.Property<long>("Id")
+                                .HasColumnType("bigint")
+                                .HasColumnName("id");
+
+                            b1.Property<long>("AmountMinor")
+                                .HasColumnType("bigint")
+                                .HasColumnName("amount_minor");
+
+                            b1.Property<string>("Method")
+                                .HasMaxLength(64)
+                                .HasColumnType("character varying(64)")
+                                .HasColumnName("method");
+
+                            b1.Property<DateTimeOffset>("RecordedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("recorded_at");
+
+                            b1.Property<string>("Reference")
+                                .HasMaxLength(128)
+                                .HasColumnType("character varying(128)")
+                                .HasColumnName("reference");
+
+                            b1.Property<uint>("RowVersion")
+                                .IsConcurrencyToken()
+                                .ValueGeneratedOnAddOrUpdate()
+                                .HasColumnType("xid")
+                                .HasColumnName("xmin");
+
+                            b1.Property<string>("Source")
+                                .IsRequired()
+                                .HasMaxLength(32)
+                                .HasColumnType("character varying(32)")
+                                .HasColumnName("source");
+
+                            b1.Property<Guid?>("VerifiedBy")
+                                .HasColumnType("uuid")
+                                .HasColumnName("verified_by");
+
+                            b1.Property<long>("order_id")
+                                .HasColumnType("bigint")
+                                .HasColumnName("order_id");
+
+                            b1.HasKey("Id")
+                                .HasName("pk_order_payments");
+
+                            b1.HasIndex("order_id")
+                                .HasDatabaseName("ix_order_payments_order_id");
+
+                            b1.ToTable("order_payments", "sales", t =>
+                                {
+                                    t.HasCheckConstraint("ck_order_payments_amount_positive", "amount_minor > 0");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("order_id")
+                                .HasConstraintName("fk_order_payments_orders_order_id");
+                        });
+
+                    b.OwnsMany("EwaysVNext.Modules.Sales.Application.Domain.Orders.Refund", "Refunds", b1 =>
+                        {
+                            b1.Property<long>("Id")
+                                .HasColumnType("bigint")
+                                .HasColumnName("id");
+
+                            b1.Property<long>("AmountMinor")
+                                .HasColumnType("bigint")
+                                .HasColumnName("amount_minor");
+
+                            b1.Property<long>("CreditNoteDocumentId")
+                                .HasColumnType("bigint")
+                                .HasColumnName("credit_note_document_id");
+
+                            b1.Property<string>("ExternalReference")
+                                .HasMaxLength(128)
+                                .HasColumnType("character varying(128)")
+                                .HasColumnName("external_reference");
+
+                            b1.Property<string>("Reason")
+                                .IsRequired()
+                                .HasMaxLength(512)
+                                .HasColumnType("character varying(512)")
+                                .HasColumnName("reason");
+
+                            b1.Property<DateTimeOffset>("RecordedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("recorded_at");
+
+                            b1.Property<Guid>("RecordedBy")
+                                .HasColumnType("uuid")
+                                .HasColumnName("recorded_by");
+
+                            b1.Property<uint>("RowVersion")
+                                .IsConcurrencyToken()
+                                .ValueGeneratedOnAddOrUpdate()
+                                .HasColumnType("xid")
+                                .HasColumnName("xmin");
+
+                            b1.Property<long>("order_id")
+                                .HasColumnType("bigint")
+                                .HasColumnName("order_id");
+
+                            b1.HasKey("Id")
+                                .HasName("pk_order_refunds");
+
+                            b1.HasIndex("order_id")
+                                .HasDatabaseName("ix_order_refunds_order_id");
+
+                            b1.ToTable("order_refunds", "sales", t =>
+                                {
+                                    t.HasCheckConstraint("ck_order_refunds_amount_positive", "amount_minor > 0");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("order_id")
+                                .HasConstraintName("fk_order_refunds_orders_order_id");
+                        });
+
+                    b.Navigation("CompositionTrace");
+
+                    b.Navigation("Documents");
+
+                    b.Navigation("Lines");
+
+                    b.Navigation("Payments");
+
+                    b.Navigation("Refunds");
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Settings.Application.Settings.Domain.PaymentInstructionVersion", b =>

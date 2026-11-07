@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>EwaysVNext.Database</RootNamespace>
@@ -25,6 +25,7 @@
     <ProjectReference Include="..\Modules\Catalog\Application\EwaysVNext.Modules.Catalog.Application.csproj" />
     <ProjectReference Include="..\Modules\Customer\Application\EwaysVNext.Modules.Customer.Application.csproj" />
     <ProjectReference Include="..\Modules\Pricing\Application\EwaysVNext.Modules.Pricing.Application.csproj" />
+    <ProjectReference Include="..\Modules\Sales\Application\EwaysVNext.Modules.Sales.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Migrations\" />

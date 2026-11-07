@@ -62,6 +62,12 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
     public DbSet<EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer> Customers
         => Set<EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer>();
 
+    public DbSet<EwaysVNext.Modules.Sales.Application.Domain.Orders.Order> Orders
+        => Set<EwaysVNext.Modules.Sales.Application.Domain.Orders.Order>();
+
+    public DbSet<EwaysVNext.Modules.Sales.Application.Domain.Telemetry.CompositionAttempt> CompositionAttempts
+        => Set<EwaysVNext.Modules.Sales.Application.Domain.Telemetry.CompositionAttempt>();
+
     public DbSet<EwaysVNext.Audit.Implementation.AuditEvent> AuditEvents
         => Set<EwaysVNext.Audit.Implementation.AuditEvent>();
 
@@ -74,6 +80,8 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
 
         modelBuilder.HasPostgresExtension("pg_trgm");
         modelBuilder.HasPostgresExtension("unaccent");
+
+        Sales.Configurations.SalesSequences.Configure(modelBuilder);
 
         var isInMemory = Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory";
 
