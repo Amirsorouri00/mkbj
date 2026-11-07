@@ -76,6 +76,9 @@ public sealed class Order : AggregateRoot<long>
         : _documents.Any(d => d.Type == DocumentType.ProForma) ? DocumentStatus.ProFormaIssued
         : DocumentStatus.None;
 
+    /// <summary>Everything refunded so far, derived from the refunds themselves.</summary>
+    public long RefundedMinor => _refunds.Sum(refund => refund.AmountMinor);
+
     /// <summary>The commercial invoice, which a refund is issued against.</summary>
     /// <remarks>
     /// Throws rather than returning null: a caller asking for it has already decided the order is
@@ -132,7 +135,7 @@ public sealed class Order : AggregateRoot<long>
             Buyer = buyer,
         };
 
-        order.AddLines(lines, header.RequestedTotalMinor);
+        order.AddLines(lines, header.RequestedTotalMinor, LinePricing.WithinBand);
 
         order.SubtotalMinor = order.TotalMinor - tax.TaxMinor;
         order.TaxMinor = tax.TaxMinor;
@@ -159,7 +162,228 @@ public sealed class Order : AggregateRoot<long>
         return order;
     }
 
-    private void AddLines(IReadOnlyList<OrderLineInput> lines, long requestedTotalMinor)
+    /// <summary>
+    /// Creates a website order: ordered, unpaid, with a pro forma telling the buyer what to pay.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The opposite of the partner path, and deliberately so. A website buyer pays externally,
+    /// afterwards, and an administrator confirms receipt — so nothing here may claim the money
+    /// arrived. A commercial invoice issued now would be a document saying a sale is settled
+    /// when nobody has checked a bank statement.
+    /// </para>
+    /// <para>
+    /// The payment instruction is copied onto the pro forma rather than referenced. The seller
+    /// may change bank details tomorrow; the buyer must keep paying against what they were
+    /// actually given.
+    /// </para>
+    /// </remarks>
+    public static Order CheckoutWebsite(
+        WebsiteOrderHeader header,
+        IReadOnlyList<OrderLineInput> lines,
+        IssuedDocumentRef proForma,
+        SellerBlock seller,
+        IReadOnlyList<string> requiredBuyerFields,
+        BuyerBlock buyer,
+        TaxAssessment tax,
+        PaymentInstructionBlock instruction,
+        DateTimeOffset now)
+    {
+        ArgumentNullException.ThrowIfNull(header);
+        ArgumentNullException.ThrowIfNull(lines);
+        ArgumentNullException.ThrowIfNull(proForma);
+        ArgumentNullException.ThrowIfNull(seller);
+        ArgumentNullException.ThrowIfNull(requiredBuyerFields);
+        ArgumentNullException.ThrowIfNull(buyer);
+        ArgumentNullException.ThrowIfNull(tax);
+        ArgumentNullException.ThrowIfNull(instruction);
+
+        var order = new Order
+        {
+            Id = header.OrderId,
+            Number = header.Number,
+            Channel = OrderChannel.Website,
+            CustomerId = header.CustomerId,
+            Currency = header.Currency,
+            UsdEquivalentMinor = header.UsdEquivalentMinor,
+            CorrelationId = header.CorrelationId,
+            CreatedAt = now,
+            Buyer = buyer,
+        };
+
+        order.AddLines(
+            lines,
+            lines.Sum(line => checked(line.Quantity * line.UnitPriceMinor)),
+            LinePricing.AtReference);
+
+        order.SubtotalMinor = order.TotalMinor - tax.TaxMinor;
+        order.TaxMinor = tax.TaxMinor;
+
+        order.Status = OrderStatus.PendingPayment;
+        order.PaymentStatus = PaymentStatus.Unpaid;
+        order.FulfillmentStatus = FulfillmentStatus.Unfulfilled;
+
+        order.IssueDocument(
+            DocumentType.ProForma, proForma, seller, requiredBuyerFields, tax, now,
+            paymentInstruction: instruction, related: null, refund: null);
+
+        return order;
+    }
+
+    /// <summary>
+    /// Records that an administrator saw the money arrive, and invoices for it.
+    /// </summary>
+    /// <remarks>
+    /// The pro forma is left exactly as it was. The buyer has a copy of it, and a document that
+    /// changed after they were given it is not a record of anything.
+    /// </remarks>
+    public void ConfirmExternalPayment(
+        long paymentRecordId,
+        IssuedDocumentRef invoice,
+        Guid verifiedBy,
+        string method,
+        string? reference,
+        SellerBlock seller,
+        IReadOnlyList<string> requiredBuyerFields,
+        TaxAssessment tax,
+        DateTimeOffset now)
+    {
+        ArgumentNullException.ThrowIfNull(invoice);
+        ArgumentNullException.ThrowIfNull(seller);
+        ArgumentNullException.ThrowIfNull(requiredBuyerFields);
+        ArgumentNullException.ThrowIfNull(tax);
+
+        if (Status != OrderStatus.PendingPayment)
+        {
+            throw new DomainException(
+                "ORDER_STATE_CONFLICT",
+                $"An order that is {Status} cannot have its payment confirmed.");
+        }
+
+        PaymentStatus = PaymentStatus.Paid;
+        PaymentSource = Orders.PaymentSource.AdminConfirmed;
+        FulfillmentStatus = FulfillmentStatus.Fulfilled;
+        FulfillmentSource = Orders.FulfillmentSource.SystemAutomatic;
+        Status = OrderStatus.Completed;
+
+        _payments.Add(new PaymentRecord(
+            paymentRecordId, Orders.PaymentSource.AdminConfirmed, TotalMinor, now,
+            method, reference, verifiedBy));
+
+        IssueDocument(
+            DocumentType.Commercial, invoice, seller, requiredBuyerFields, tax, now,
+            paymentInstruction: null, related: null, refund: null);
+    }
+
+    /// <summary>
+    /// Cancels an order nobody has paid for.
+    /// </summary>
+    /// <remarks>
+    /// Cancelling twice is a no-op rather than a conflict: the caller asked for a state the order
+    /// is already in, and refusing would make a retried request look like a failure. Cancelling
+    /// something paid for is a different matter — that is a refund, and it has its own method.
+    /// </remarks>
+    public void Cancel(DateTimeOffset now)
+    {
+        if (Status == OrderStatus.Cancelled) return;
+
+        if (PaymentStatus != PaymentStatus.Unpaid)
+        {
+            throw new DomainException(
+                "ORDER_STATE_CONFLICT",
+                "An order that has been paid for is refunded, not cancelled.");
+        }
+
+        Status = OrderStatus.Cancelled;
+        _ = now;
+    }
+
+    /// <summary>
+    /// Sends money back, against a credit note linked to the invoice it reverses.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The invoice is never touched. Accounting runs on documents that do not change after they
+    /// are issued, so a refund adds a credit note pointing at the invoice rather than reducing
+    /// it — which is also what lets a partial refund be told from a mistake.
+    /// </para>
+    /// <para>
+    /// Both channels refund the same way. A partner order is paid and invoiced the moment it
+    /// exists, so there is nothing about it that makes reversing it different.
+    /// </para>
+    /// </remarks>
+    public Refund RecordRefund(
+        long refundId,
+        IssuedDocumentRef creditNote,
+        long amountMinor,
+        string reason,
+        Guid recordedBy,
+        string? externalReference,
+        SellerBlock seller,
+        IReadOnlyList<string> requiredBuyerFields,
+        DateTimeOffset now)
+    {
+        ArgumentNullException.ThrowIfNull(creditNote);
+        ArgumentNullException.ThrowIfNull(seller);
+        ArgumentNullException.ThrowIfNull(requiredBuyerFields);
+
+        if (amountMinor <= 0)
+        {
+            throw new DomainException(
+                "VALIDATION_FAILED", "A refund must be for more than nothing.");
+        }
+
+        // A fully refunded order is a legal state to attempt from: what refuses it is the
+        // refundable check below, which says how much is left rather than that the order is in
+        // the wrong state. The caller asked for an amount, and the amount is the problem.
+        if (PaymentStatus == PaymentStatus.Unpaid)
+        {
+            throw new DomainException(
+                "ORDER_STATE_CONFLICT", "Nothing has been paid on this order to refund.");
+        }
+
+        var invoice = CommercialInvoice;
+
+        if (amountMinor > TotalMinor - RefundedMinor)
+        {
+            throw new DomainException(
+                "REFUND_EXCEEDS_REFUNDABLE",
+                $"Only {Text(TotalMinor - RefundedMinor)} remains refundable on this order.");
+        }
+
+        var refund = new Refund(
+            refundId, amountMinor, reason, recordedBy, now, creditNote.DocumentId,
+            externalReference);
+
+        _refunds.Add(refund);
+
+        PaymentStatus = RefundedMinor == TotalMinor
+            ? PaymentStatus.Refunded
+            : PaymentStatus.PartiallyRefunded;
+
+        IssueDocument(
+            DocumentType.CreditNote, creditNote, seller, requiredBuyerFields,
+            new TaxAssessment(TaxMinor, invoice.Content.TaxStatement), now,
+            paymentInstruction: null, related: invoice, refund: refund);
+
+        return refund;
+    }
+
+    /// <summary>What a line's unit price is allowed to be.</summary>
+    /// <remarks>
+    /// The two channels price differently on purpose. A composed basket may move a unit price
+    /// inside ±5% to total an amount exactly; a website order is sold at the displayed price,
+    /// which is the catalogue's, and a line that drifted from it would mean the customer was
+    /// charged something other than what they saw.
+    /// </remarks>
+    private enum LinePricing
+    {
+        WithinBand,
+        AtReference,
+    }
+
+    private void AddLines(
+        IReadOnlyList<OrderLineInput> lines, long requestedTotalMinor, LinePricing pricing)
     {
         if (lines.Count == 0)
             throw new DomainException("ORDER_LINES_EMPTY", "An order must have at least one line.");
@@ -184,9 +408,19 @@ public sealed class Order : AggregateRoot<long>
                     $"Variant {Text(line.Variant.VariantId)} appears on more than one line.");
             }
 
-            AssertBand(line.UnitPriceMinor, line.Price.ReferenceMinor);
+            if (pricing == LinePricing.WithinBand)
+            {
+                AssertBand(line.UnitPriceMinor, line.Price.ReferenceMinor);
+            }
+            else if (line.UnitPriceMinor != line.Price.ReferenceMinor)
+            {
+                throw new DomainException(
+                    "ORDER_LINE_PRICE_NOT_REFERENCE",
+                    $"Line {Text(lineNo)} is priced at {Text(line.UnitPriceMinor)} rather than "
+                    + $"the catalogue's {Text(line.Price.ReferenceMinor)}.");
+            }
 
-            var entity = new OrderLine(line, lineNo++);
+            var entity = new OrderLine(line, lineNo++, pricing == LinePricing.WithinBand);
             _lines.Add(entity);
             total = checked(total + entity.LineTotalMinor);
         }

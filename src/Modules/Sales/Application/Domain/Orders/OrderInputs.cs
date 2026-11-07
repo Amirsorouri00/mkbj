@@ -102,3 +102,19 @@ public static class OrderNumberFormat
     private static string Format(string prefix, long sequence) =>
         $"{prefix}-{sequence.ToString("D6", System.Globalization.CultureInfo.InvariantCulture)}";
 }
+
+/// <summary>
+/// Everything about a website order that is settled before its lines are known.
+/// </summary>
+/// <remarks>
+/// Shorter than a partner order's header, and the absences are the point: a website buyer has no
+/// external order id to be idempotent against and no partner to bill. What makes a checkout
+/// unique is the cart it emptied.
+/// </remarks>
+public sealed record WebsiteOrderHeader(
+    long OrderId,
+    string Number,
+    long CustomerId,
+    string Currency,
+    long UsdEquivalentMinor,
+    string CorrelationId);

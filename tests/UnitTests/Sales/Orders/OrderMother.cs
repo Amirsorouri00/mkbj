@@ -102,4 +102,44 @@ internal static class OrderMother
             buyer ?? Buyer,
             tax ?? NoTax,
             Now);
+
+    public static readonly PaymentInstructionBlock Instruction = new(
+        InstructionId: 3001, Version: 4, Text: "Pay DBS 123-456-789, quote the order number.");
+
+    public static WebsiteOrderHeader WebsiteHeader() => new(
+        OrderId: 2002,
+        Number: OrderNumberFormat.Order(456),
+        CustomerId: 42,
+        Currency: "USD",
+        UsdEquivalentMinor: 4_000,
+        CorrelationId: "corr-web");
+
+    public static IssuedDocumentRef ProForma() =>
+        new(DocumentId: 6001, Number: OrderNumberFormat.Document(DocumentType.ProForma, 456));
+
+    public static IssuedDocumentRef CreditNote(long id = 7001) =>
+        new(id, OrderNumberFormat.Document(DocumentType.CreditNote, id));
+
+    /// <summary>A placed website order: unpaid, pro forma issued, nothing fulfilled.</summary>
+    public static Order WebsiteOrder(IReadOnlyList<OrderLineInput>? lines = null) =>
+        Order.CheckoutWebsite(
+            WebsiteHeader(),
+            lines ?? Lines(),
+            ProForma(),
+            Seller,
+            RequiredBuyerFields,
+            Buyer,
+            NoTax,
+            Instruction,
+            Now);
+
+    /// <summary>A website order an administrator has confirmed payment on.</summary>
+    public static Order PaidWebsiteOrder()
+    {
+        var order = WebsiteOrder();
+        order.ConfirmExternalPayment(
+            paymentRecordId: 9002, Invoice(), Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            "bank-transfer", "TT-1", Seller, RequiredBuyerFields, NoTax, Now.AddHours(2));
+        return order;
+    }
 }

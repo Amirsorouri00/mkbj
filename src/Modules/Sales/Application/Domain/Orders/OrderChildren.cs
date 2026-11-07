@@ -16,7 +16,7 @@ public sealed class OrderLine : Entity<long>
 {
     private OrderLine() { }
 
-    internal OrderLine(OrderLineInput input, int lineNo)
+    internal OrderLine(OrderLineInput input, int lineNo, bool bandEnforced)
     {
         Id = input.LineId;
         LineNo = lineNo;
@@ -35,7 +35,7 @@ public sealed class OrderLine : Entity<long>
         // Truncated towards zero, so a deviation never reads as larger than it was.
         DeviationBps = (int)((input.UnitPriceMinor - input.Price.ReferenceMinor) * 10_000
             / input.Price.ReferenceMinor);
-        BandEnforced = true;
+        BandEnforced = bandEnforced;
     }
 
     public int LineNo { get; private set; }
@@ -56,7 +56,14 @@ public sealed class OrderLine : Entity<long>
     /// <summary>How far the unit price sat from the catalogue's, in basis points.</summary>
     public int DeviationBps { get; private set; }
 
-    /// <summary>Whether the ±5% band was checked when this line was created.</summary>
+    /// <summary>
+    /// Whether the ±5% band was checked when this line was created.
+    /// </summary>
+    /// <remarks>
+    /// False on a website line, and that is not a weaker rule but a different one. The band
+    /// exists so a composed basket may move a price to hit an amount exactly; a website customer
+    /// buys at the price they were shown, which must equal the catalogue's exactly.
+    /// </remarks>
     public bool BandEnforced { get; private set; }
 }
 
