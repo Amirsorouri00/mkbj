@@ -10,5 +10,6 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\Events\Application\EwaysVNext.Events.Application.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Audit\Application\EwaysVNext.Audit.Application.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Jobs\Application\EwaysVNext.Jobs.Application.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
   </ItemGroup>
 </Project>

@@ -14,6 +14,8 @@ public static class DependencyInjection
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
+        services.AddOptions<SalesOptions>().BindConfiguration(SalesOptions.SectionName);
+
         return services;
     }
 }
