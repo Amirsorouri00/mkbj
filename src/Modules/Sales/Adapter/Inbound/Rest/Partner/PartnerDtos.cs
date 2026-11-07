@@ -22,6 +22,25 @@ public sealed record CreatePartnerOrderRequest(
 
 public sealed record PartnerCustomerRequest(string? Email, string? Phone, string? FullName);
 
+public sealed record CreateBulkOrdersRequest(IReadOnlyList<CreatePartnerOrderRequest>? Items);
+
+/// <remarks>
+/// One entry per submitted item, in the order submitted, whatever happened to it. A batch that
+/// returned only its successes would leave the partner to work out which of a hundred orders it
+/// still has to place.
+/// </remarks>
+public sealed record BulkOutcomeResponse(
+    int Index,
+    string ExternalOrderId,
+    string Status,
+    PartnerOrderResponse? Order,
+    BulkErrorResponse? Error,
+    IReadOnlyList<string> Warnings);
+
+public sealed record BulkErrorResponse(string Code, string Message, bool Retryable);
+
+public sealed record BulkOrdersResponse(IReadOnlyList<BulkOutcomeResponse> Items);
+
 public sealed record MoneyDto(string Amount, string Currency);
 
 public sealed record PartnerInvoiceResponse(

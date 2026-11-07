@@ -1,4 +1,5 @@
 using EwaysVNext.Modules.Sales.Adapter.Outbound.Candidates;
+using EwaysVNext.Modules.Sales.Adapter.Outbound.Documents;
 using EwaysVNext.Modules.Sales.Adapter.Outbound.Gateways;
 using EwaysVNext.Modules.Sales.Adapter.Outbound.Persistence;
 using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
@@ -19,6 +20,10 @@ public static class DependencyInjection
         services.AddScoped<ISalesSettingsGateway, SalesSettingsGateway>();
 
         services.AddScoped<ICompositionAttemptRecorder, CompositionAttemptRecorder>();
+
+        // The renderer holds no state and reads nothing but its argument.
+        services.AddSingleton<IDocumentPdfRenderer, QuestPdfDocumentRenderer>();
+        services.AddScoped<IDocumentStore, ObjectStorageDocumentStore>();
         services.AddSingleton<ICompositionBudgetFactory, StopwatchBudgetFactory>();
         services.AddSingleton<ICompositionSeedSource, RandomSeedSource>();
 

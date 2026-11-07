@@ -22,6 +22,7 @@ public static class DependencyInjection
         services.AddScoped<ITaxPolicy, NonGstTaxPolicy>();
         services.AddScoped<LiveRequoter>();
         services.AddScoped<IPartnerOrderService, PartnerOrderService>();
+        services.AddScoped<IInvoiceService, InvoiceService>();
 
         return services;
     }

@@ -3,6 +3,9 @@
     <RootNamespace>EwaysVNext.Modules.Sales.Adapter.Outbound</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="QuestPDF" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Application\EwaysVNext.Modules.Sales.Application.csproj" />
     <ProjectReference Include="..\..\QueryApplication\EwaysVNext.Modules.Sales.QueryApplication.csproj" />
     <ProjectReference Include="..\..\..\..\BuildingBlocks\Persistence\EwaysVNext.Persistence.csproj" />

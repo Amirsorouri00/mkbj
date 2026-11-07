@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using EwaysVNext.Outcomes;
 
 namespace EwaysVNext.Presentation.Endpoint;
@@ -23,6 +23,21 @@ public static class EndpointResult
     {
         public Task ExecuteAsync(HttpContext httpContext) =>
             ErrorResponse.WriteAsync(httpContext, error, details, items);
+    }
+
+    /// <summary>
+    /// Sends the caller to a short-lived link instead of proxying the bytes.
+    /// </summary>
+    /// <remarks>
+    /// Always <c>302 Found</c>, never <c>301</c>: these links expire within minutes, and a
+    /// cached permanent redirect would send a client to a dead URL for as long as it kept the
+    /// cache. The body is empty by design — the response is the <c>Location</c>.
+    /// </remarks>
+    public static IResult RedirectTo(Uri location)
+    {
+        ArgumentNullException.ThrowIfNull(location);
+
+        return Results.Redirect(location.ToString(), permanent: false);
     }
 
     public static IResult Unauthorized(string? message = null) =>

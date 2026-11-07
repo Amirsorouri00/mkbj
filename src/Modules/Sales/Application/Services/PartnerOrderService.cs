@@ -11,7 +11,9 @@ using EwaysVNext.Modules.Sales.Application.Money;
 using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
 using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
 using EwaysVNext.Outcomes;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace EwaysVNext.Modules.Sales.Application.Services;
 
@@ -46,6 +48,8 @@ internal sealed class PartnerOrderService(
     LiveRequoter requoter,
     IIdGenerator ids,
     IClock clock,
+    IServiceScopeFactory scopes,
+    IOptions<SalesOptions> options,
     ILogger<PartnerOrderService> logger) : IPartnerOrderService
 {
     /// <summary>
@@ -135,10 +139,99 @@ internal sealed class PartnerOrderService(
         return Result.Success(new PartnerOrderCreated(orderId, replayed, warnings));
     }
 
-    public Task<IReadOnlyList<BulkItemOutcome>> CreateBulkAsync(
+    /// <summary>
+    /// Places many orders at once, each on its own and none able to spoil another.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Every item runs in its own DI scope, which is what makes isolation real rather than
+    /// hoped for: one shared <c>DbContext</c> across a hundred orders would mean one poisoned
+    /// change tracker failing the rest, and one failed save rolling back its neighbours.
+    /// </para>
+    /// <para>
+    /// Parallelism is bounded because each item composes a basket, and an unbounded batch of a
+    /// hundred would starve every other request on the machine. The deadline bounds the whole
+    /// batch: items not <b>started</b> by then are handed back as retryable rather than left to
+    /// run while the caller's connection times out.
+    /// </para>
+    /// <para>
+    /// Items already running are allowed to finish. Abandoning a composition half way through
+    /// would leave the partner unable to tell whether that order exists.
+    /// </para>
+    /// </remarks>
+    public async Task<IReadOnlyList<BulkItemOutcome>> CreateBulkAsync(
         PartnerPrincipal principal, IReadOnlyList<BulkItem> items, string correlationId,
-        CancellationToken ct = default) =>
-        throw new NotImplementedException("Bulk orders arrive in task 16.");
+        CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(principal);
+        ArgumentNullException.ThrowIfNull(items);
+
+        var settings = options.Value;
+        using var deadline = new CancellationTokenSource(
+            TimeSpan.FromSeconds(settings.BulkDeadlineSeconds));
+
+        var outcomes = new BulkItemOutcome[items.Count];
+
+        await Parallel.ForEachAsync(
+            items.Select((item, index) => (item, index)),
+            new ParallelOptions
+            {
+                MaxDegreeOfParallelism = settings.BulkParallelism,
+                CancellationToken = ct,
+            },
+            async (entry, itemCt) =>
+            {
+                outcomes[entry.index] = deadline.IsCancellationRequested
+                    ? Deadline(entry.item)
+                    : await RunOneAsync(principal, entry.item, correlationId, itemCt);
+            });
+
+        return outcomes;
+    }
+
+    private static BulkItemOutcome Deadline(BulkItem item) => new(
+        item.Index,
+        item.Command.ExternalOrderId,
+        BulkItemStatus.Failed,
+        OrderId: null,
+        SalesErrors.BatchDeadlineExceeded,
+        []);
+
+    private async Task<BulkItemOutcome> RunOneAsync(
+        PartnerPrincipal principal, BulkItem item, string correlationId, CancellationToken ct)
+    {
+        try
+        {
+            await using var scope = scopes.CreateAsyncScope();
+            var service = scope.ServiceProvider.GetRequiredService<IPartnerOrderService>();
+
+            var created = await service.CreateAsync(principal, item.Command, correlationId, ct);
+
+            return created.IsFailure
+                ? new BulkItemOutcome(
+                    item.Index, item.Command.ExternalOrderId, BulkItemStatus.Failed,
+                    null, created.Error, [])
+                : new BulkItemOutcome(
+                    item.Index,
+                    item.Command.ExternalOrderId,
+                    created.Value!.Replayed ? BulkItemStatus.Replayed : BulkItemStatus.Created,
+                    created.Value.OrderId,
+                    null,
+                    created.Value.Warnings);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            // One item's bug is that item's failure. A batch that aborted on the first
+            // unexpected error would discard ninety-nine orders that were fine.
+            logger.LogError(
+                exception, "Bulk item {Index} ({ExternalOrderId}) failed.",
+                item.Index, item.Command.ExternalOrderId);
+
+            return new BulkItemOutcome(
+                item.Index, item.Command.ExternalOrderId, BulkItemStatus.Failed,
+                null, SalesErrors.Internal("That order could not be placed."), []);
+        }
+    }
 
     private static Result<PartnerOrderCreated> Replay(PartnerOrderKey existing, string fingerprint) =>
         // Same request, same answer. A different one under the same key is the partner's bug,

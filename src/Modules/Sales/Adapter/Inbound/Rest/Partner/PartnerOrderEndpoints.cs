@@ -1,7 +1,9 @@
 using System.Globalization;
 using EwaysVNext.Core.Application;
 using EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Common;
+using EwaysVNext.Modules.Sales.Application;
 using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
+using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
 using EwaysVNext.Modules.Sales.QueryApplication.Partner;
 using EwaysVNext.Outcomes;
 using EwaysVNext.Presentation.Endpoint;
@@ -42,6 +44,9 @@ public sealed class PartnerOrderEndpoints : IEndpoint
         var orders = app.MapGroup(OrdersPath).WithTags("Partner Orders");
 
         orders.MapPost("/", CreateAsync)
+            .RequireAuthorization(AuthPolicies.Partner(PartnerScopes.OrdersCreate));
+
+        orders.MapPost("/bulk", CreateBulkAsync)
             .RequireAuthorization(AuthPolicies.Partner(PartnerScopes.OrdersCreate));
 
         orders.MapGet("/", ListAsync)
@@ -109,6 +114,101 @@ public sealed class PartnerOrderEndpoints : IEndpoint
         context.Response.Headers[ReplayHeader] = "true";
 
         return PartnerResults.Ok(body);
+    }
+
+    /// <summary>
+    /// Many orders in one call, each succeeding or failing on its own.
+    /// </summary>
+    /// <remarks>
+    /// Always 200, even when every item failed. The HTTP status is about the batch request,
+    /// which was understood and processed; what happened to each order is in its own outcome.
+    /// A 4xx here would tell a partner to retry the whole batch, including the orders that
+    /// succeeded.
+    /// </remarks>
+    private static async Task<IResult> CreateBulkAsync(
+        HttpContext context,
+        IPartnerOrderService service,
+        IPartnerOrderQueries queries,
+        ISalesSettingsGateway settings,
+        CancellationToken ct)
+    {
+        if (!PartnerPrincipal.TryFrom(context.User, out var principal))
+            return EndpointResult.Unauthorized();
+
+        var read = await PartnerResults.ReadAsync<CreateBulkOrdersRequest>(context, ct);
+        if (read.IsFailure) return EndpointResult.Fail(read.Error!);
+
+        var items = read.Value!.Items ?? [];
+        if (items.Count == 0)
+            return EndpointResult.Fail(SalesErrors.ValidationFailed("items must not be empty."));
+
+        // From the key's own claim, never the request: a partner must not raise its own batch
+        // limit by asking.
+        var limits = await settings.GetCommerceLimitsAsync(ct);
+        var maxItems = CallerClaims.BulkMaxItemsOf(context.User, limits.BulkDefaultMax);
+
+        if (items.Count > maxItems)
+        {
+            return EndpointResult.Fail(SalesErrors.ValidationFailed(
+                $"A batch may hold at most {maxItems.ToString(CultureInfo.InvariantCulture)} items."));
+        }
+
+        var correlationId = CallerClaims.CorrelationIdOf(context);
+        var accepted = new List<BulkItem>(items.Count);
+        var rejected = new List<BulkOutcomeResponse>();
+
+        for (var index = 0; index < items.Count; index++)
+        {
+            var validated = PartnerContracts.Validate(items[index]);
+
+            if (validated.IsFailure)
+            {
+                rejected.Add(new BulkOutcomeResponse(
+                    index,
+                    items[index].ExternalOrderId ?? string.Empty,
+                    "failed",
+                    null,
+                    new BulkErrorResponse(
+                        validated.Error!.Code, validated.Error.Message, validated.Error.Retryable),
+                    []));
+
+                continue;
+            }
+
+            var (externalOrderId, externalCustomerId, amountMinor, currency, contact) = validated.Value;
+
+            accepted.Add(new BulkItem(index, new CreatePartnerOrderCommand(
+                externalOrderId, externalCustomerId, amountMinor, currency, contact)));
+        }
+
+        var outcomes = await service.CreateBulkAsync(principal!, accepted, correlationId, ct);
+
+        // One query for every order the batch produced, rather than one per item.
+        var createdIds = outcomes
+            .Where(outcome => outcome.OrderId is not null)
+            .Select(outcome => outcome.OrderId!.Value)
+            .ToList();
+
+        var views = (await queries.GetManyAsync(principal!, createdIds, ct))
+            .ToDictionary(order => order.Id);
+
+        var body = rejected
+            .Concat(outcomes.Select(outcome => new BulkOutcomeResponse(
+                outcome.Index,
+                outcome.ExternalOrderId,
+                outcome.Status.ToString().ToLowerInvariant(),
+                outcome.OrderId is { } id && views.TryGetValue(id, out var view)
+                    ? PartnerContracts.ToResponse(view, correlationId, outcome.Warnings)
+                    : null,
+                outcome.Error is null
+                    ? null
+                    : new BulkErrorResponse(
+                        outcome.Error.Code, outcome.Error.Message, outcome.Error.Retryable),
+                outcome.Warnings)))
+            .OrderBy(outcome => outcome.Index)
+            .ToList();
+
+        return PartnerResults.Ok(new BulkOrdersResponse(body));
     }
 
     /// <summary>

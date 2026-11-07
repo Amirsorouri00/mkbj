@@ -9,6 +9,7 @@ using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
 using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
 using EwaysVNext.Modules.Sales.Application.Services;
 using EwaysVNext.Outcomes;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace EwaysVNext.UnitTests.Sales.Services;
@@ -59,10 +60,25 @@ internal sealed class SalesWorld
             new LiveRequoter(Catalog, Pricing),
             new SequentialIds(),
             new FixedClock(),
+            Scopes,
+            Microsoft.Extensions.Options.Options.Create(
+                new EwaysVNext.Modules.Sales.Application.SalesOptions()),
             NullLogger<PartnerOrderService>.Instance);
+
+        Scopes.Register<IPartnerOrderService>(Service);
     }
 
     public List<string> Journal { get; } = [];
+
+    /// <summary>
+    /// Scopes that hand back this world's own service.
+    /// </summary>
+    /// <remarks>
+    /// Bulk runs each item in a fresh scope and resolves the service from it. These tests are
+    /// about one order at a time, so the "fresh" scope returns the same instance — the bulk
+    /// behaviour has its own tests.
+    /// </remarks>
+    public ScopeFactory Scopes { get; } = new();
 
     public PartnerPrincipal Principal { get; }
     public FakeCatalog Catalog { get; }
@@ -326,6 +342,33 @@ internal sealed class SalesWorld
 
         public ICompositionBudget Start(TimeSpan deadline) =>
             Expired ? new ExpiredBudget() : new IterationBudget(500_000);
+    }
+
+    /// <summary>A scope factory whose scopes resolve whatever has been registered with it.</summary>
+    internal sealed class ScopeFactory : IServiceScopeFactory, IServiceScope, IServiceProvider
+    {
+        private readonly Dictionary<Type, object> _services = [];
+
+        private int _scopesCreated;
+
+        /// <summary>Counted atomically: a batch creates scopes from several threads at once.</summary>
+        public int ScopesCreated => _scopesCreated;
+
+        public void Register<T>(T instance) where T : notnull => _services[typeof(T)] = instance;
+
+        public IServiceScope CreateScope()
+        {
+            Interlocked.Increment(ref _scopesCreated);
+            return this;
+        }
+
+        public IServiceProvider ServiceProvider => this;
+
+        public object? GetService(Type serviceType) => _services.GetValueOrDefault(serviceType);
+
+        public void Dispose()
+        {
+        }
     }
 
     private sealed class FixedSeeds : ICompositionSeedSource
