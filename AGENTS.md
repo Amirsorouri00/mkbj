@@ -46,8 +46,8 @@ nothing about price; Pricing says what something *costs* and nothing about avail
 variant with no usable price is omitted from a quote, never reported as an error, so "published"
 never implies "priced".
 
-Sales is being built now: carts, orders, the amount-driven composition engine, invoices and
-refunds. It is the only module that reads four others — Catalog for what is sellable, Pricing for
+Sales owns carts, orders, the amount-driven composition engine, invoices and refunds, on both
+channels. It is the only module that reads four others — Catalog for what is sellable, Pricing for
 what it costs, Customer for who is billed and Settings for the seller block — all through its
 `Adapter.Outbound`, and **none of those calls shares a transaction with the order it writes**.
 
@@ -63,6 +63,11 @@ Planned (not yet present; do not reference them):
 |---|---|---|
 | Sourcing | 7 | Import jobs, staging, crawling, publishing |
 | Admin | 6 | Cross-module composition and the admin GraphQL |
+
+**A shop request may name one amount, and only one**: `expectedTotal`, the figure the customer
+was shown. It is compared against a live quote and can cause a refusal, never a price —
+`Shop_Request_Dtos_Accept_No_Money_Except_ExpectedTotal` fails the build on any other
+money-shaped field, because one would let the browser set what it pays.
 
 `HexagonalBoundaryTests.ModuleNames` is the authoritative list. A module missing from it escapes
 every boundary rule with the build still green, so adding the name is part of adding the module.
@@ -244,7 +249,9 @@ realm is open self-service registration.
 | `/api/v1/orders`, `/orders/bulk` | `partner:orders.create`; read with `partner:orders.read` |
 | `/api/v1/customers/{id}/orders` | `partner:customers.read` |
 | `/api/v1/invoices/{id}`, `/{id}/pdf`, `/invoices/search` | `partner:invoices.read` |
+| `/api/v1/admin/orders` | `admin:staff` + `orders.manage`; refunds take `admin:super` + `refunds.manage` |
 | `/api/v1/shop/me` | `shop:customer` — creates the customer record on first call |
+| `/api/v1/shop/{cart,checkout,orders,documents}` | `shop:customer` — the caller's own cart and orders only |
 | `/api/v1/shop/*` (home, categories, products, facets, search, currencies) | **anonymous** |
 | `/graphql` | per resolver, as above; the `shop*` fields are anonymous |
 

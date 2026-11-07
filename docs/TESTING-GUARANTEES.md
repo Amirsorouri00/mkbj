@@ -218,6 +218,25 @@ Both were found by mutation testing, and both would otherwise have read as cover
   so the "second" mutation ran on a file still carrying the first and the identical failure count
   looked like proof. It wasn't.
 
+## What phase 5's suites cover
+
+- **The refusal path is what the Docker is for.** A checkout whose price moved must leave
+  nothing behind, and the test asserts the absence: no order in the customer's history, and the
+  next attempt at the total the refusal showed succeeds. A test that only checked the 409 would
+  pass while an invoice number had already been drawn from a gapless sequence.
+- **The super-admin refund gate is tested in the unit suite, not over HTTP.** The route policy
+  refuses a staff token before the service is reached, so an integration test passes with the
+  service check deleted. Mutation-checking it is the only way to know the second gate works.
+- **Two assertions hold documents still.** The pro forma is compared before and after payment is
+  confirmed, and the commercial invoice before and after two refunds. Both are byte-for-byte on
+  the stored content, because "we never edit an issued document" is otherwise a claim nobody has
+  watched fail.
+- **The cart's quantity range and one-line-per-variant rule are checked against real Postgres.**
+  InMemory ignores check constraints, so the aggregate's rules and the database's would drift
+  without this.
+- **The dashboard's composition statistics are Postgres-only.** `percentile_cont` has no LINQ
+  translation; the integration suite is the only place that SQL runs.
+
 ## The shared database is a shared fixture, and nothing enforces cleanup
 
 `IntegrationTests` runs against one database. Most rows are per-test, but the
