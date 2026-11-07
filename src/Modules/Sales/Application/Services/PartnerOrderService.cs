@@ -123,12 +123,16 @@ internal sealed class PartnerOrderService(
 
         if (saved.IsFailure) return Result.Failure<PartnerOrderCreated>(saved.Error!);
 
-        // 6. Push the partner's latest contact details back, after the sale is safe.
-        var warnings = resolved.SyncNeeded
+        var (orderId, replayed) = saved.Value;
+
+        // 6. Push the partner's latest contact details back, after the sale is safe — and only
+        // for an order this request actually created. A request that lost the insert race has
+        // not changed anything, and the winner already synced.
+        var warnings = resolved.SyncNeeded && !replayed
             ? await SyncContactAsync(principal, customerId.Value, resolved.Supplied!, correlationId, ct)
             : [];
 
-        return Result.Success(new PartnerOrderCreated(saved.Value, Replayed: false, warnings));
+        return Result.Success(new PartnerOrderCreated(orderId, replayed, warnings));
     }
 
     public Task<IReadOnlyList<BulkItemOutcome>> CreateBulkAsync(
@@ -307,7 +311,15 @@ internal sealed class PartnerOrderService(
         return Result.Failure<ComposedBasket>(SalesErrors.ExactCompositionUnavailable);
     }
 
-    private async Task<Result<long>> SaveAsync(
+    /// <summary>
+    /// Stores the order, or reports that an identical request won the race.
+    /// </summary>
+    /// <remarks>
+    /// The flag matters as much as the id. A request that lost the race did not create anything,
+    /// and answering it with 201 would tell a partner counting created responses that it had
+    /// placed ten orders when it had placed one.
+    /// </remarks>
+    private async Task<Result<(long OrderId, bool Replayed)>> SaveAsync(
         PartnerPrincipal principal,
         CreatePartnerOrderCommand command,
         string correlationId,
@@ -361,22 +373,24 @@ internal sealed class PartnerOrderService(
             // should have caught, with one exception: the buyer-field rule, which the caller can
             // actually act on.
             return exception.Code == "INVOICE_BUYER_FIELDS_MISSING"
-                ? Result.Failure<long>(SalesErrors.InvoiceBuyerFieldsMissing)
-                : Result.Failure<long>(SalesErrors.Internal(exception.Message));
+                ? Result.Failure<(long, bool)>(SalesErrors.InvoiceBuyerFieldsMissing)
+                : Result.Failure<(long, bool)>(SalesErrors.Internal(exception.Message));
         }
 
-        if (await orders.TryInsertPartnerOrderAsync(order, ct)) return Result.Success(orderId);
+        if (await orders.TryInsertPartnerOrderAsync(order, ct))
+            return Result.Success((orderId, false));
 
         // Lost the race against another copy of this request. Whatever that one created is the
-        // answer, decided the same way step 1 decides it.
+        // answer, decided the same way step 1 decides it — and reported as a replay, because
+        // this request created nothing.
         var winner = await orders.FindPartnerOrderKeyAsync(
             principal.PartnerId, command.ExternalOrderId, ct);
 
         return winner is null
-            ? Result.Failure<long>(SalesErrors.Internal("The order could not be stored."))
+            ? Result.Failure<(long, bool)>(SalesErrors.Internal("The order could not be stored."))
             : winner.RequestFingerprint == fingerprint
-                ? Result.Success(winner.OrderId)
-                : Result.Failure<long>(SalesErrors.OrderIdempotencyConflict);
+                ? Result.Success((winner.OrderId, true))
+                : Result.Failure<(long, bool)>(SalesErrors.OrderIdempotencyConflict);
     }
 
     /// <summary>

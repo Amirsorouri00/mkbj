@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using AwesomeAssertions;
+using EwaysVNext.Modules.Settings.Application.Settings.Domain;
 using EwaysVNext.Core.Application;
 using EwaysVNext.Core.Application.Security;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -77,13 +78,58 @@ public sealed class Acceptance13StaffPermissionTests(PostgresFixture fixture)
         using var factory = fixture.CreateFactory();
         using var client = Client(factory, AdminJwtFactory.CreateSuperAdminToken());
 
-        using var response = await Send(client, method, route, body);
+        try
+        {
+            using var response = await Send(client, method, route, body);
 
-        // The positive control. Without it, a route that is broken for everyone would pass the
-        // refusal test and look like correct security.
-        response.StatusCode.Should().BeOneOf(
-            [HttpStatusCode.OK, HttpStatusCode.Created],
-            $"{method} {route} must work for the role that owns it");
+            // The positive control. Without it, a route that is broken for everyone would pass
+            // the refusal test and look like correct security.
+            response.StatusCode.Should().BeOneOf(
+                [HttpStatusCode.OK, HttpStatusCode.Created],
+                $"{method} {route} must work for the role that owns it");
+        }
+        finally
+        {
+            // These routes write the settings singletons, which every later test in this shared
+            // database then runs against. Leaving maxUsd at $20,000 made a Sales test two phases
+            // later refuse with AMOUNT_OUT_OF_RANGE instead of the rule it was testing — and it
+            // took a full run to notice, because the class passes on its own.
+            await RestoreSettingsAsync(client);
+        }
+    }
+
+    /// <summary>Puts the settings singletons back to what the migration seeded.</summary>
+    private static async Task RestoreSettingsAsync(HttpClient client)
+    {
+        using var seller = await Send(
+            client, "PUT", "/api/v1/admin/settings/seller",
+            $$"""
+            {
+              "legalName": "{{SettingsDefaults.LegalName}}",
+              "uen": "{{SettingsDefaults.Uen}}",
+              "address": "{{SettingsDefaults.Address}}",
+              "email": "{{SettingsDefaults.Email}}",
+              "gstRegistered": false,
+              "invoiceFooter": "{{SettingsDefaults.InvoiceFooter}}",
+              "requiredBuyerFields": ["email|phone"]
+            }
+            """);
+
+        seller.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var limits = await Send(
+            client, "PUT", "/api/v1/admin/settings/commerce-limits",
+            $$"""
+            {
+              "minUsd": "10.00",
+              "maxUsd": "1000000.00",
+              "bulkDefaultMax": {{SettingsDefaults.BulkDefaultMax}},
+              "compositionDeadlineMs": {{SettingsDefaults.CompositionDeadlineMs}},
+              "compositionMaxLines": {{SettingsDefaults.CompositionMaxLines}}
+            }
+            """);
+
+        limits.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
