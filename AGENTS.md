@@ -28,7 +28,8 @@ receipt before the commercial invoice is issued.
 
 ### Modules
 
-Present today: **Catalog**, **Customer**, **Partners**, **Settings**, **Pricing**, **Sales**.
+Present today: **Catalog**, **Customer**, **Partners**, **Settings**, **Pricing**, **Sales**,
+**Admin**.
 Partners owns B2B partners, peppered API keys, the `PartnerApiKey` authentication scheme, the
 usage log and the admin surface. Settings owns the seller profile, the versioned payment
 instruction and the commerce limits, three singletons seeded by migration. Customer was rebuilt
@@ -47,7 +48,11 @@ variant with no usable price is omitted from a quote, never reported as an error
 never implies "priced".
 
 Sales owns carts, orders, the amount-driven composition engine, invoices and refunds, on both
-channels. It is the only module that reads four others — Catalog for what is sellable, Pricing for
+channels. Admin owns nothing: it is a data-less composition module (ADR-0006) that reads other
+modules' **QueryApplication** only — Sales and Customer today, Sourcing in phase 7 — and arranges
+what they return into the dashboard, customer 360, order 360 and audit verification.
+`AdminArchitectureTests` fails the build if it acquires a table, a `DbContext` or a read side of
+its own. It is the only module that reads four others — Catalog for what is sellable, Pricing for
 what it costs, Customer for who is billed and Settings for the seller block — all through its
 `Adapter.Outbound`, and **none of those calls shares a transaction with the order it writes**.
 
@@ -62,7 +67,6 @@ Planned (not yet present; do not reference them):
 | Module | Phase | Owns |
 |---|---|---|
 | Sourcing | 7 | Import jobs, staging, crawling, publishing |
-| Admin | 6 | Cross-module composition and the admin GraphQL |
 
 **A shop request may name one amount, and only one**: `expectedTotal`, the figure the customer
 was shown. It is compared against a live quote and can cause a refusal, never a price —

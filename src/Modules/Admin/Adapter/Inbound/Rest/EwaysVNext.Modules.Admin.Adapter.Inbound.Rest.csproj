@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>EwaysVNext.Modules.Admin.Adapter.Inbound.Rest</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\EwaysVNext.Modules.Admin.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Presentation.Endpoint\EwaysVNext.Presentation.Endpoint.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Authorization\Authorization.Abstractions\Authorization.Abstractions.csproj" />
+  </ItemGroup>
+</Project>

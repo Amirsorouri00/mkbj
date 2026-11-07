@@ -113,6 +113,25 @@
   </Folder>
   <Folder Name="/src/Modules/" />
 
+  <Folder Name="/src/Modules/Admin/" />
+  <Folder Name="/src/Modules/Admin/Application/">
+    <Project Path="src/Modules/Admin/Application/EwaysVNext.Modules.Admin.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Admin/Adapter/Outbound/">
+    <Project Path="src/Modules/Admin/Adapter/Outbound/EwaysVNext.Modules.Admin.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Admin/Adapter/" />
+  <Folder Name="/src/Modules/Admin/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Admin/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Admin/Adapter/Inbound/Rest/EwaysVNext.Modules.Admin.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Admin/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Admin/Adapter/Inbound/GraphQL/EwaysVNext.Modules.Admin.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Admin/Installer/">
+    <Project Path="src/Modules/Admin/Installer/EwaysVNext.Modules.Admin.Installer.csproj" />
+  </Folder>
+
   <Folder Name="/src/Modules/Sales/" />
   <Folder Name="/src/Modules/Sales/Application/">
     <Project Path="src/Modules/Sales/Application/EwaysVNext.Modules.Sales.Application.csproj" />

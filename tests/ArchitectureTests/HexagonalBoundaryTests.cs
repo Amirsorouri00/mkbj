@@ -17,7 +17,36 @@ public sealed class HexagonalBoundaryTests
     // Final set (later phases append as they create each module):
     // Catalog, Customer, Partners, Settings, Pricing, Sales, Sourcing, Admin.
     public static readonly string[] ModuleNames =
-        ["Catalog", "Customer", "Partners", "Settings", "Pricing", "Sales"];
+        ["Catalog", "Customer", "Partners", "Settings", "Pricing", "Sales", "Admin"];
+
+    /// <summary>
+    /// The modules Admin's composition layer may read, and it reads their
+    /// <b>QueryApplication</b> only (ADR-0006/0007).
+    /// </summary>
+    /// <remarks>
+    /// Phase 0 allowed Admin any module's QueryApplication or Application. That was too loose to
+    /// be a rule: it would have let the composition layer call a write service and still pass.
+    /// These rows name the providers explicitly, and <c>Admin.Application</c> — the hexagon
+    /// itself — still references no other module at all.
+    /// <para>
+    /// Sourcing joins this list in phase 7, with the import section of the dashboard.
+    /// </para>
+    /// </remarks>
+    public static readonly string[] AdminReadModules = ["Sales", "Customer"];
+
+    /// <summary>
+    /// The one Application assembly Admin is allowed to drag in, and why.
+    /// </summary>
+    /// <remarks>
+    /// <c>CustomerAdminDetail</c> embeds <c>AddressSnapshot</c>, which lives in Customer's
+    /// Application because it is a shared contract record. Reading the address therefore means
+    /// referencing that assembly at compile time. Admin uses no service and no aggregate from
+    /// it — <c>Admin_Uses_No_Other_Modules_Services</c> is what holds that — and the exception is
+    /// pinned to this one name so a second one cannot slip in beside it.
+    /// </remarks>
+    public static readonly string[] AdminTransitiveApplications = ["Customer"];
+
+    public static TheoryData<string> AdminReadReferences => new(AdminReadModules);
 
     /// <summary>
     /// Rows are (consumerModule, providerModule): `EwaysVNext.Modules.{consumer}.Adapter.Outbound`
@@ -45,6 +74,8 @@ public sealed class HexagonalBoundaryTests
 
     public static TheoryData<string> Modules => new(ModuleNames);
 
+    private static readonly string[] ModulesAdminMayNotRead = ["Admin", "Partners"];
+
     /// <summary>Modules that reference no other module, so they may never be a sanctioned consumer.</summary>
     private static readonly string[] ModulesThatConsumeNothing = ["Catalog", "Customer", "Settings", "Partners"];
 
@@ -55,6 +86,15 @@ public sealed class HexagonalBoundaryTests
     [Fact]
     public void Pricing_Application_References_No_Other_Module() =>
         OtherModuleReferences("Pricing", "EwaysVNext.Modules.Pricing.Application").Should().BeEmpty();
+
+    [Theory, MemberData(nameof(AdminReadReferences))]
+    public void Admin_Read_Row_Is_Well_Formed(string provider)
+    {
+        ModuleNames.Should().Contain(provider);
+        ModulesAdminMayNotRead.Should().NotContain(provider,
+            "Admin does not read itself, and nothing may read into Partners — a partner id "
+            + "arrives as an authenticated principal, never as a lookup");
+    }
 
     [Fact]
     public void Src_Modules_Are_Exactly_ModuleNames() =>
@@ -115,6 +155,7 @@ public sealed class HexagonalBoundaryTests
 
     [Theory, MemberData(nameof(Modules))]
     public void QueryApplication_Never_Writes(string module) =>
+        // Admin has no read side of its own; SourceFiles returns empty for a missing directory.
         SourceFiles($"src/Modules/{module}/QueryApplication")
             .Where(f => Regex.IsMatch(File.ReadAllText(f), @"SaveChanges|IUnitOfWork|ExecuteUpdate|ExecuteDelete"))
             .Should().BeEmpty();
@@ -170,7 +211,9 @@ public sealed class HexagonalBoundaryTests
                 var isAdminComposition =
                     module == "Admin"
                     && assemblyName == "EwaysVNext.Modules.Admin.Adapter.Outbound"
-                    && layer is "QueryApplication" or "Application";
+                    && ((layer == "QueryApplication" && AdminReadModules.Contains(other, StringComparer.Ordinal))
+                        || (layer == "Application"
+                            && AdminTransitiveApplications.Contains(other, StringComparer.Ordinal)));
 
                 if (!isSanctionedGateway && !isAdminComposition)
                     violations.Add($"{assemblyName} -> {reference.Name}");
@@ -227,7 +270,8 @@ public sealed class HexagonalBoundaryTests
                 var isAdminComposition =
                     module == "Admin"
                     && projectName == "EwaysVNext.Modules.Admin.Adapter.Outbound"
-                    && layer is "QueryApplication" or "Application";
+                    && layer == "QueryApplication"
+                    && AdminReadModules.Contains(other, StringComparer.Ordinal);
 
                 if (!isSanctionedGateway && !isAdminComposition)
                     violations.Add($"{projectName} -> {referenced}");

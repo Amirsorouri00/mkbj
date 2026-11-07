@@ -1,4 +1,4 @@
-using AuthorizationService.Abstractions.Policies;
+﻿using AuthorizationService.Abstractions.Policies;
 
 namespace AuthorizationService.Implementation.Seeding;
 
@@ -51,6 +51,8 @@ public static class AdminPermissionMatrix
             "740123BD-BAA3-4F9B-9E3F-4D0B960AAAB7", "7A376C6A-5026-4FB1-AE11-E1ABF946F0A9"),
         Super(AdminPermissions.AdminAccountsManage, "Manage admin accounts",
             "630E0097-BB6C-4587-A8E1-FD0A561CDF32", "EC3C722E-B2B4-4D5A-B9C9-04FBB5985862"),
+        Super(AdminPermissions.AuditVerify, "Verify the audit log",
+            "0A5E9B4C-3D71-4F28-9C60-5E8B2A1D7F43", "C1B47D82-6E95-4A30-8F17-2D9C6B5E8A14"),
     ];
 
     private static MatrixRow Staff(string code, string name, string permissionId, string ruleId) =>

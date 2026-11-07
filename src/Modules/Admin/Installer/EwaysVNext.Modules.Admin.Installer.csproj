@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>EwaysVNext.Modules.Admin.Installer</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\EwaysVNext.Modules.Admin.Application.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\EwaysVNext.Modules.Admin.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\Rest\EwaysVNext.Modules.Admin.Adapter.Inbound.Rest.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\GraphQL\EwaysVNext.Modules.Admin.Adapter.Inbound.GraphQL.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\DependencyInjection\EwaysVNext.DependencyInjection.csproj" />
+  </ItemGroup>
+</Project>

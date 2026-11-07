@@ -1,4 +1,4 @@
-namespace AuthorizationService.Abstractions.Policies;
+﻿namespace AuthorizationService.Abstractions.Policies;
 
 /// <summary>
 /// The backoffice permission codes of spec §6.1. The split is the product's, not a technical one:
@@ -27,4 +27,13 @@ public static class AdminPermissions
     public const string SettingsManage = "settings.manage";
     public const string RefundsManage = "refunds.manage";
     public const string AdminAccountsManage = "admin-accounts.manage";
+
+    /// <summary>
+    /// Reading the audit chain's verdict.
+    /// </summary>
+    /// <remarks>
+    /// Its own permission, and super admin only. "Intact: false" is evidence that the record of
+    /// who did what has been edited, and that is not a staff-level conversation.
+    /// </remarks>
+    public const string AuditVerify = "audit.verify";
 }

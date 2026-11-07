@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>EwaysVNext.Modules.Admin.Adapter.Outbound</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\EwaysVNext.Modules.Admin.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Audit\Application\EwaysVNext.Audit.Application.csproj" />
+    <ProjectReference Include="..\..\..\Sales\QueryApplication\EwaysVNext.Modules.Sales.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\Customer\QueryApplication\EwaysVNext.Modules.Customer.QueryApplication.csproj" />
+  </ItemGroup>
+</Project>
