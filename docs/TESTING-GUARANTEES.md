@@ -197,6 +197,27 @@ Both were found by mutation testing, and both would otherwise have read as cover
   test clock moves it, so the test sets a rate valid for two seconds, refreshes, waits it out, and
   requires the offer to disappear while the view row is still there.
 
+## What phase 4's suites cover
+
+- **The composition engine is tested as a pure function, because it is one.** Property tests over
+  the PRD's 25 mandated amounts, with the seed persisted and replayed. If it ever needed a port or
+  a clock, `SalesArchitectureTests` would fail the build before a test could.
+- **Idempotency is tested concurrently, and it found a real defect.** Ten simultaneous retries of
+  one request: exactly one order, one 201, nine 200s carrying `Idempotent-Replay`. The first
+  implementation returned 201 to all ten and no sequential test could have seen it.
+- **Lazy invoice rendering is proved by breaking the object store.** Every call throws and
+  `POST /orders` still returns 201. That is the only way to show MinIO is not on the order path.
+- **The PDF is read back with PdfPig, not asserted against the layout API.** A test that checked
+  the calls would pass while the seller's UEN was missing from the page. The "no tax invoice" rule
+  is checked on rendered text, because a source scan cannot see a string built at render time.
+- **InMemory cannot see two things Sales depends on.** The ±5% band `CHECK` is ignored there, and
+  the `23505` unique-violation path that idempotency rides on never fires. Both are covered only
+  by `IntegrationTests` against real Postgres.
+- **Popularity's two clauses were mutation-checked separately.** Dropping the cancelled filter
+  fails one test; dropping the 30-day window fails another. The first attempt restored nothing,
+  so the "second" mutation ran on a file still carrying the first and the identical failure count
+  looked like proof. It wasn't.
+
 ## The shared database is a shared fixture, and nothing enforces cleanup
 
 `IntegrationTests` runs against one database. Most rows are per-test, but the

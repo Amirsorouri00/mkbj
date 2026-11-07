@@ -241,6 +241,9 @@ realm is open self-service registration.
 | `/api/v1/admin/customers` | `admin:staff` + `customers.manage` |
 | `/api/v1/admin/catalog` | `admin:staff` + `catalog.manage` |
 | `/api/v1/admin/pricing` | `admin:staff` + `catalog.manage` for prices; `admin:super` + `fx.manage` for rates and currency enablement |
+| `/api/v1/orders`, `/orders/bulk` | `partner:orders.create`; read with `partner:orders.read` |
+| `/api/v1/customers/{id}/orders` | `partner:customers.read` |
+| `/api/v1/invoices/{id}`, `/{id}/pdf`, `/invoices/search` | `partner:invoices.read` |
 | `/api/v1/shop/me` | `shop:customer` — creates the customer record on first call |
 | `/api/v1/shop/*` (home, categories, products, facets, search, currencies) | **anonymous** |
 | `/graphql` | per resolver, as above; the `shop*` fields are anonymous |
