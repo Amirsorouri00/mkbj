@@ -1,3 +1,4 @@
+using EwaysVNext.Modules.Sales.Adapter.Inbound.GraphQL.Admin;
 using EwaysVNext.Modules.Sales.Adapter.Inbound.GraphQL.Shop;
 using EwaysVNext.Presentation.Endpoint.GraphQL;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +15,9 @@ public static class DependencyInjection
             .AddType<ShopCartQueries>()
             .AddType<ShopCartMutations>()
             .AddType<ShopOrderQueriesGraph>()
-            .AddType<ShopCheckoutMutations>();
+            .AddType<ShopCheckoutMutations>()
+            .AddType<AdminOrderQueries>()
+            .AddType<AdminOrderMutations>();
 
         return services;
     }

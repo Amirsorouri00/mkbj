@@ -1,3 +1,4 @@
+using EwaysVNext.Modules.Sales.QueryApplication.Admin;
 using EwaysVNext.Modules.Sales.QueryApplication.Partner;
 using EwaysVNext.Modules.Sales.QueryApplication.Shop;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +11,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IPartnerOrderQueries, PartnerOrderQueries>();
         services.AddScoped<IShopOrderQueries, ShopOrderQueries>();
+        services.AddScoped<ISalesAdminQueries, SalesAdminQueries>();
 
         return services;
     }

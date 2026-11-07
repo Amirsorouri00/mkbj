@@ -328,10 +328,20 @@ internal sealed class SalesWorld
     {
         private long _next;
 
+        /// <remarks>
+        /// Each kind keeps its own prefix. A fake that answered INV- to every request would let
+        /// a service allocate a credit note number from the invoice sequence and still pass.
+        /// </remarks>
         public Task<string> NextAsync(DocumentNumberKind kind, CancellationToken ct = default) =>
-            Task.FromResult(kind == DocumentNumberKind.Order
-                ? OrderNumberFormat.Order(++_next)
-                : OrderNumberFormat.Document(DocumentType.Commercial, ++_next));
+            Task.FromResult(kind switch
+            {
+                DocumentNumberKind.Order => OrderNumberFormat.Order(++_next),
+                DocumentNumberKind.ProForma =>
+                    OrderNumberFormat.Document(DocumentType.ProForma, ++_next),
+                DocumentNumberKind.CreditNote =>
+                    OrderNumberFormat.Document(DocumentType.CreditNote, ++_next),
+                _ => OrderNumberFormat.Document(DocumentType.Commercial, ++_next),
+            });
     }
 
     internal sealed class FakeAttempts : ICompositionAttemptRecorder
