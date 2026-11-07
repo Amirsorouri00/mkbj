@@ -62,6 +62,25 @@ public sealed class SalesArchitectureTests
             .Where(file => File.ReadAllText(file).Contains("Tax Invoice", StringComparison.OrdinalIgnoreCase))
             .Should().BeEmpty();
 
+    /// <summary>
+    /// No partner request shape may carry a partner id.
+    /// </summary>
+    /// <remarks>
+    /// The authenticated key says which partner is calling. The moment a request can name one,
+    /// every partner-scoped query is one forgotten filter away from serving another partner's
+    /// orders — and the mistake would look like ordinary parameter passing in review.
+    /// </remarks>
+    [Fact]
+    public void Partner_Request_Dtos_Never_Accept_A_Partner_Id() =>
+        typeof(EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Partner.CreatePartnerOrderRequest)
+            .Assembly.GetTypes()
+            .Where(type => type.Namespace == "EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Partner"
+                && type.Name.EndsWith("Request", StringComparison.Ordinal))
+            .SelectMany(type => type.GetProperties()
+                .Where(property => property.Name.Contains("PartnerId", StringComparison.OrdinalIgnoreCase))
+                .Select(property => $"{type.Name}.{property.Name}"))
+            .Should().BeEmpty();
+
     private static bool IsBuildOutput(string path) =>
         path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
         || path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal);

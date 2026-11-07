@@ -1,9 +1,14 @@
+using EwaysVNext.Modules.Sales.QueryApplication.Partner;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EwaysVNext.Modules.Sales.QueryApplication;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddSalesQueryApplication(this IServiceCollection services) =>
-        services;
+    public static IServiceCollection AddSalesQueryApplication(this IServiceCollection services)
+    {
+        services.AddScoped<IPartnerOrderQueries, PartnerOrderQueries>();
+
+        return services;
+    }
 }

@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using AwesomeAssertions;
+using EwaysVNext.Modules.Settings.Application.Settings.Domain;
 using EwaysVNext.Modules.Settings.Application.Settings.Ports.Inbound;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -188,10 +189,33 @@ public sealed class SettingsAdminApiTests(PostgresFixture fixture)
 
         update.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var view = await GetJson(client, "/seller");
-        view.GetProperty("legalName").GetString().Should().Be(legalName);
-        view.GetProperty("requiredBuyerFields").EnumerateArray()
-            .Select(field => field.GetString()).Should().Equal("email|phone", "companyName");
+        try
+        {
+            var view = await GetJson(client, "/seller");
+            view.GetProperty("legalName").GetString().Should().Be(legalName);
+            view.GetProperty("requiredBuyerFields").EnumerateArray()
+                .Select(field => field.GetString()).Should().Equal("email|phone", "companyName");
+        }
+        finally
+        {
+            // The seller is a singleton in a database this whole suite shares, and
+            // requiredBuyerFields decides whether an invoice may be issued at all. Leaving
+            // "companyName" behind made every partner order placed afterwards fail with
+            // INVOICE_BUYER_FIELDS_MISSING — in the full run only, which is the worst way to
+            // find out.
+            using var restore = await client.PutAsJsonAsync($"{Base}/seller", new
+            {
+                legalName = SettingsDefaults.LegalName,
+                uen = SettingsDefaults.Uen,
+                address = SettingsDefaults.Address,
+                email = SettingsDefaults.Email,
+                gstRegistered = false,
+                invoiceFooter = SettingsDefaults.InvoiceFooter,
+                requiredBuyerFields = ContactOnly,
+            });
+
+            restore.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
     }
 
     [Fact]

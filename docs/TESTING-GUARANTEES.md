@@ -197,6 +197,26 @@ Both were found by mutation testing, and both would otherwise have read as cover
   test clock moves it, so the test sets a rate valid for two seconds, refreshes, waits it out, and
   requires the offer to disappear while the view row is still there.
 
+## The shared database is a shared fixture, and nothing enforces cleanup
+
+`IntegrationTests` runs against one database. Most rows are per-test, but the
+**settings singletons** — the seller profile, the payment instruction, the commerce limits — are
+not, and neither are the enabled currencies or the FX overrides. A test that changes one and does
+not put it back changes the world every later test runs in.
+
+This is not hypothetical. `SettingsAdminApiTests.Seller_Update_Round_Trips` left
+`requiredBuyerFields` as `["email|phone", "companyName"]`, and two phases later every partner
+order in the full run failed with `INVOICE_BUYER_FIELDS_MISSING` while passing when its class ran
+alone. Nothing had been wrong with the Sales code.
+
+So: **a test that writes a shared singleton restores it in a `finally`.** The pricing, currency
+and settings tests all do. Nothing checks that they do — the ordering needed to detect it would
+itself be the bug — which is why it is written here instead.
+
+The gap between writing and noticing is the dangerous part: nothing read `requiredBuyerFields`
+until Sales existed, so the damage sat invisible for two phases. The further apart the writer and
+the reader, the longer that lasts.
+
 ## Two habits this repository insists on
 
 **Mutation-test every guard.** Reintroduce the bug, watch the test fail, restore. A guard nobody
