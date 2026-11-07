@@ -65,6 +65,9 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
     public DbSet<EwaysVNext.Modules.Sales.Application.Domain.Orders.Order> Orders
         => Set<EwaysVNext.Modules.Sales.Application.Domain.Orders.Order>();
 
+    public DbSet<EwaysVNext.Modules.Sales.Application.Domain.Carts.Cart> Carts
+        => Set<EwaysVNext.Modules.Sales.Application.Domain.Carts.Cart>();
+
     public DbSet<EwaysVNext.Modules.Sales.Application.Domain.Telemetry.CompositionAttempt> CompositionAttempts
         => Set<EwaysVNext.Modules.Sales.Application.Domain.Telemetry.CompositionAttempt>();
 

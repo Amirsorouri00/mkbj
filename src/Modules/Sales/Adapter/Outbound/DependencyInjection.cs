@@ -12,6 +12,7 @@ public static class DependencyInjection
     public static IServiceCollection AddSalesOutboundAdapters(this IServiceCollection services)
     {
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<ICartRepository, CartRepository>();
         services.AddScoped<IDocumentNumberAllocator, DocumentNumberAllocator>();
 
         services.AddScoped<ISalesCatalogGateway, SalesCatalogGateway>();

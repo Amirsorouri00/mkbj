@@ -252,9 +252,18 @@ internal sealed class SalesWorld
                 customerId, Existing?.FullName, "Lim Trading", Existing?.Email, Existing?.Phone,
                 "2 Buyer Street", null)));
 
+        /// <summary>Set false for the suspended-account case.</summary>
+        public bool WebsiteActive { get; set; } = true;
+
+        public const long WebsiteCustomerId = 42;
+
         public Task<Result<SalesWebsiteCustomer>> EnsureWebsiteCustomerAsync(
-            Guid identityUserId, string email, bool emailVerified, CancellationToken ct = default) =>
-            Task.FromResult(Result.Success(new SalesWebsiteCustomer(42, emailVerified, true)));
+            Guid identityUserId, string email, bool emailVerified, CancellationToken ct = default)
+        {
+            journal.Add("customer:ensure-website");
+            return Task.FromResult(Result.Success(
+                new SalesWebsiteCustomer(WebsiteCustomerId, emailVerified, WebsiteActive)));
+        }
     }
 
     internal sealed class FakeSettings : ISalesSettingsGateway

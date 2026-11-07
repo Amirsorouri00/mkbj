@@ -1510,6 +1510,41 @@ namespace EwaysVNext.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EwaysVNext.Modules.Sales.Application.Domain.Carts.Cart", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("char(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<long>("CustomerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("customer_id");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_carts");
+
+                    b.HasIndex("CustomerId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_carts_customer");
+
+                    b.ToTable("carts", "sales");
+                });
+
             modelBuilder.Entity("EwaysVNext.Modules.Sales.Application.Domain.Orders.Order", b =>
                 {
                     b.Property<long>("Id")
@@ -2256,6 +2291,60 @@ namespace EwaysVNext.Database.Migrations
 
                     b.Navigation("Provenance")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("EwaysVNext.Modules.Sales.Application.Domain.Carts.Cart", b =>
+                {
+                    b.OwnsMany("EwaysVNext.Modules.Sales.Application.Domain.Carts.CartLine", "Lines", b1 =>
+                        {
+                            b1.Property<long>("Id")
+                                .HasColumnType("bigint")
+                                .HasColumnName("id");
+
+                            b1.Property<long>("DisplayedUnitPriceMinor")
+                                .HasColumnType("bigint")
+                                .HasColumnName("displayed_unit_price_minor");
+
+                            b1.Property<DateTimeOffset>("PriceQuotedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("price_quoted_at");
+
+                            b1.Property<int>("Quantity")
+                                .HasColumnType("integer")
+                                .HasColumnName("quantity");
+
+                            b1.Property<uint>("RowVersion")
+                                .IsConcurrencyToken()
+                                .ValueGeneratedOnAddOrUpdate()
+                                .HasColumnType("xid")
+                                .HasColumnName("xmin");
+
+                            b1.Property<long>("VariantId")
+                                .HasColumnType("bigint")
+                                .HasColumnName("variant_id");
+
+                            b1.Property<long>("cart_id")
+                                .HasColumnType("bigint")
+                                .HasColumnName("cart_id");
+
+                            b1.HasKey("Id")
+                                .HasName("pk_cart_lines");
+
+                            b1.HasIndex("cart_id", "VariantId")
+                                .IsUnique()
+                                .HasDatabaseName("ux_cart_lines_cart_variant");
+
+                            b1.ToTable("cart_lines", "sales", t =>
+                                {
+                                    t.HasCheckConstraint("ck_cart_lines_quantity", "quantity BETWEEN 1 AND 999");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("cart_id")
+                                .HasConstraintName("fk_cart_lines_carts_cart_id");
+                        });
+
+                    b.Navigation("Lines");
                 });
 
             modelBuilder.Entity("EwaysVNext.Modules.Sales.Application.Domain.Orders.Order", b =>

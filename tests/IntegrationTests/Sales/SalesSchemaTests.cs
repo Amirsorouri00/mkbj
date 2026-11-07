@@ -1,5 +1,7 @@
 using AwesomeAssertions;
+using EwaysVNext.Modules.Sales.Application.Domain.Carts;
 using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using EwaysVNext.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
@@ -178,6 +180,69 @@ public sealed class SalesSchemaTests(PostgresFixture fixture)
         (await allocator.NextAsync(DocumentNumberKind.CreditNote, Ct)).Should().StartWith("CN-");
         (await allocator.NextAsync(DocumentNumberKind.Order, Ct)).Should().StartWith("ORD-");
     }
+
+    [Fact]
+    public async Task A_Cart_Line_Quantity_Outside_One_To_999_Is_Rejected()
+    {
+        using var factory = fixture.CreateFactory();
+        var (_, lineId) = await InsertCartAsync(factory.Services);
+
+        await SetQuantityAsync(lineId, 1);
+        await SetQuantityAsync(lineId, 999);
+
+        (await Refused(() => SetQuantityAsync(lineId, 0)))
+            .Should().Be("ck_cart_lines_quantity");
+
+        (await Refused(() => SetQuantityAsync(lineId, 1_000)))
+            .Should().Be("ck_cart_lines_quantity", "a cart of 1,000 is a charge nobody meant");
+    }
+
+    [Fact]
+    public async Task One_Cart_Per_Customer_And_One_Line_Per_Variant()
+    {
+        using var factory = fixture.CreateFactory();
+        var customerId = SalesOrderMother.NextId();
+        var (cartId, _) = await InsertCartAsync(factory.Services, customerId);
+
+        (await Refused(() => ExecuteAsync(
+            "INSERT INTO sales.carts (id, customer_id, currency, updated_at) "
+            + "VALUES (@id, @customer, 'USD', now())",
+            ("id", SalesOrderMother.NextId()), ("customer", customerId))))
+            .Should().Be("ux_carts_customer", "\"the cart\" must have one meaning");
+
+        (await Refused(() => ExecuteAsync(
+            "INSERT INTO sales.cart_lines "
+            + "(id, cart_id, variant_id, quantity, displayed_unit_price_minor, price_quoted_at) "
+            + "VALUES (@id, @cart, @variant, 1, 1000, now())",
+            ("id", SalesOrderMother.NextId()), ("cart", cartId), ("variant", CartVariantId))))
+            .Should().Be("ux_cart_lines_cart_variant",
+                "two lines for one product would walk around the quantity ceiling");
+    }
+
+    private const long CartVariantId = 777;
+
+    /// <summary>One cart with one line, written through the model.</summary>
+    private static async Task<(long CartId, long LineId)> InsertCartAsync(
+        IServiceProvider services, long? customerId = null)
+    {
+        using var scope = services.CreateScope();
+
+        var cart = Cart.Create(
+            SalesOrderMother.NextId(), customerId ?? SalesOrderMother.NextId(), "USD",
+            DateTimeOffset.UtcNow);
+
+        cart.AddOrIncrement(SalesOrderMother.NextId(), CartVariantId, 2, 1_000, DateTimeOffset.UtcNow);
+
+        await scope.ServiceProvider.GetRequiredService<ICartRepository>().AddAsync(cart, Ct);
+        await scope.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync(Ct);
+
+        return (cart.Id, cart.Lines[0].Id);
+    }
+
+    private Task SetQuantityAsync(long lineId, int quantity) =>
+        ExecuteAsync(
+            "UPDATE sales.cart_lines SET quantity = @quantity WHERE id = @id",
+            ("quantity", quantity), ("id", lineId));
 
     private Task SetUnitAsync(long lineId, long quantity, long unitPriceMinor) =>
         ExecuteAsync(
