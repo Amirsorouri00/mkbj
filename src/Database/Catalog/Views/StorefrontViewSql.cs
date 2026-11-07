@@ -112,6 +112,84 @@ public static class StorefrontViewSql
         GROUP BY v.product_id, v.currency
         """;
 
+
+    /// <summary>
+    /// The product view with real popularity: units sold in the last 30 days.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// V1 shipped <c>popularity_30d</c> as a literal zero because the sales tables did not
+    /// exist. This is the V2 the phase 4 obligation in ADR-0020 requires, and it is a new
+    /// constant rather than an edit: the V1 text is what an already-applied migration ran, and
+    /// changing it would make that migration's record a lie.
+    /// </para>
+    /// <para>
+    /// Cancelled orders are excluded, because a cancelled sale is not evidence of demand. The
+    /// window is <c>now()</c>-relative and therefore moves between refreshes — popularity is a
+    /// display ranking, never an accounting figure.
+    /// </para>
+    /// </remarks>
+    public const string ProductV2 = """
+        CREATE MATERIALIZED VIEW catalog.mv_storefront_product AS
+        SELECT v.product_id, v.currency, min(v.slug) AS slug, min(v.title) AS title,
+               min(v.title_norm) AS title_norm, min(v.brand_id) AS brand_id,
+               min(v.brand_name) AS brand_name,
+               min(v.category_id) AS category_id,
+               min(v.ancestor_category_ids) AS ancestor_category_ids,
+               min(v.price_minor) AS min_price_minor, max(v.price_minor) AS max_price_minor,
+               count(*) AS variant_count, min(v.primary_image_key) AS primary_image_key,
+               (SELECT coalesce(array_agg(m.object_key ORDER BY m.sort_order, m.id), '{}')
+                  FROM catalog.product_media m
+                 WHERE m.product_id = v.product_id AND m.usage_rights = 'Allowed') AS image_keys,
+               (SELECT coalesce(jsonb_object_agg(f.key, f.vals), '{}'::jsonb)
+                  FROM (SELECT kv.key, jsonb_agg(DISTINCT kv.value ORDER BY kv.value) AS vals
+                          FROM catalog.mv_storefront_variant v2, jsonb_each_text(v2.attribute_values) kv
+                         WHERE v2.product_id = v.product_id AND v2.currency = v.currency
+                         GROUP BY kv.key) f) AS facet_values,
+               coalesce(pop.units_30d, 0)::bigint AS popularity_30d,
+               min(v.created_at) AS created_at
+        FROM catalog.mv_storefront_variant v
+        LEFT JOIN (
+            SELECT ol.product_id, sum(ol.quantity)::bigint AS units_30d
+            FROM sales.order_lines ol
+            JOIN sales.orders o ON o.id = ol.order_id
+            WHERE o.order_status <> 'Cancelled'
+              AND o.created_at >= now() - interval '30 days'
+            GROUP BY ol.product_id) pop ON pop.product_id = v.product_id
+        GROUP BY v.product_id, v.currency, pop.units_30d
+        """;
+
+    /// <summary>
+    /// The home view whose best sellers are now reachable.
+    /// </summary>
+    /// <remarks>
+    /// The SQL is V1's, unchanged. It already ranked by <c>popularity_30d DESC</c> and filtered
+    /// to rows above zero; with a real popularity column the section simply stops being empty.
+    /// It is recreated because it depends on the product view being replaced.
+    /// </remarks>
+    public const string HomeV2 = """
+        CREATE MATERIALIZED VIEW catalog.mv_home AS
+        SELECT 'new_arrivals'::text AS section, x.currency, x.rank, x.product_id,
+               NULL::bigint AS category_id
+        FROM (SELECT currency, product_id,
+                     row_number() OVER (PARTITION BY currency
+                                        ORDER BY created_at DESC, product_id DESC) AS rank
+              FROM catalog.mv_storefront_product) x WHERE x.rank <= 12
+        UNION ALL
+        SELECT 'best_sellers', x.currency, x.rank, x.product_id, NULL
+        FROM (SELECT currency, product_id,
+                     row_number() OVER (PARTITION BY currency
+                                        ORDER BY popularity_30d DESC, product_id DESC) AS rank
+              FROM catalog.mv_storefront_product WHERE popularity_30d > 0) x WHERE x.rank <= 12
+        UNION ALL
+        SELECT 'featured_categories', x.currency, x.rank, NULL, x.category_id
+        FROM (SELECT p.currency, p.ancestor_category_ids[1] AS category_id,
+                     row_number() OVER (PARTITION BY p.currency
+                                        ORDER BY count(*) DESC, p.ancestor_category_ids[1]) AS rank
+              FROM catalog.mv_storefront_product p
+              GROUP BY p.currency, p.ancestor_category_ids[1]) x WHERE x.rank <= 8
+        """;
+
     /// <summary>
     /// Grain: category × currency × kind × key × value, where category <c>0</c> is the whole
     /// catalogue.
@@ -259,6 +337,36 @@ public static class StorefrontViewSql
     /// The order a full refresh runs in: each view reads the one before it, so refreshing out of
     /// order would project yesterday's variants into today's products.
     /// </summary>
+
+    /// <summary>
+    /// Every index the product and home views carry, repeated verbatim from
+    /// <see cref="IndexesV1"/>.
+    /// </summary>
+    /// <remarks>
+    /// Dropping a materialized view drops its indexes with it, silently. A V2 migration that
+    /// forgot one would leave the shop working and slow — and the grain indexes are worse than
+    /// that: without them <c>REFRESH … CONCURRENTLY</c> stops being legal at all, and every
+    /// refresh would take an <c>ACCESS EXCLUSIVE</c> lock the storefront queues behind.
+    /// </remarks>
+    public const string ProductAndHomeIndexes = """
+        CREATE UNIQUE INDEX ux_mv_sp_grain ON catalog.mv_storefront_product (product_id, currency);
+        CREATE UNIQUE INDEX ux_mv_sp_slug ON catalog.mv_storefront_product (slug, currency);
+        CREATE INDEX ix_mv_sp_ancestors ON catalog.mv_storefront_product USING gin (ancestor_category_ids);
+        CREATE INDEX ix_mv_sp_title_trgm ON catalog.mv_storefront_product USING gin (title_norm gin_trgm_ops);
+        CREATE INDEX ix_mv_sp_currency_price ON catalog.mv_storefront_product (currency, min_price_minor);
+        CREATE INDEX ix_mv_sp_currency_created ON catalog.mv_storefront_product (currency, created_at);
+        CREATE UNIQUE INDEX ux_mv_home_grain ON catalog.mv_home (section, currency, rank);
+        """;
+
+    /// <summary>
+    /// Dropping the views in dependency order: home reads product, so home goes first.
+    /// </summary>
+    public static readonly IReadOnlyList<string> DropOrder =
+    [
+        "catalog.mv_home",
+        "catalog.mv_storefront_product",
+    ];
+
     public static readonly IReadOnlyList<string> RefreshOrder =
     [
         "catalog.mv_storefront_variant",

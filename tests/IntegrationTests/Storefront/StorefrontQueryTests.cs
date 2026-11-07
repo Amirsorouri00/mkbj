@@ -17,7 +17,7 @@ public sealed class StorefrontQueryTests(PostgresFixture fixture)
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
     [Fact]
-    public async Task Home_Has_New_Arrivals_Newest_First_And_No_Best_Sellers_Before_Sales()
+    public async Task Home_Has_New_Arrivals_Newest_First_And_Unsold_Products_Are_Not_Best_Sellers()
     {
         using var factory = fixture.CreateFactory();
         using var scope = factory.Services.CreateScope();
@@ -27,9 +27,11 @@ public sealed class StorefrontQueryTests(PostgresFixture fixture)
 
         home.Currency.Should().Be("USD");
 
-        home.BestSellers.Should().BeEmpty(
-            "popularity is 0 until the sales tables exist, and a section ranked by a column that "
-            + "is always zero would be a fabricated one");
+        // Phase 3 asserted this section was empty, because popularity was a literal zero. It is
+        // a real column now, and the suite shares a database, so what this scenario can claim is
+        // only that its own unsold products are absent from it.
+        home.BestSellers.Select(card => card.ProductId).Should().NotContain(
+            [scenario.P1, scenario.P2], "a product with no sales is not a best seller");
 
         var ours = home.NewArrivals.Select(card => card.ProductId).ToList();
         ours.Should().Contain([scenario.P1, scenario.P2]);

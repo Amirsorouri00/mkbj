@@ -87,6 +87,12 @@ public sealed class PostgresFixture : IAsyncLifetime
             // The suite fires many requests from one address; without this the per-IP limiter
             // would reject them and every test would be measuring the limiter.
             ["RateLimiting:AnonymousPermitPerMinute"] = "100000",
+            // A refused port, so the demo seeder falls back to its fixed rates. Reaching the
+            // real ECB would publish today's EUR/USD under provider "ecb" for today's date,
+            // and a test ingesting its own "ecb" batch for the same day is then silently a
+            // no-op against the pair/provider/date unique index — leaving every conversion
+            // assertion to depend on the actual foreign exchange market.
+            ["Fx:Ecb:BaseUrl"] = "http://127.0.0.1:1/",
         };
 
         if (overrides is not null)

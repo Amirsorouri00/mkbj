@@ -24,11 +24,17 @@ internal static class SalesOrderMother
     public static BuyerBlock Buyer(long customerId) => new(
         customerId, "C-77", "Pat Lim", "Lim Trading", "pat@example.com", null, "2 Buyer Street", null);
 
+    /// <summary>
+    /// A partner order. <paramref name="productId"/> is for tests that have to line up with a
+    /// real catalogue row — popularity, say, which is a join on the product id.
+    /// </summary>
     public static Order PartnerOrder(
         long partnerId,
         string externalOrderId,
         long quantity = 1,
-        long unitPriceMinor = ReferenceMinor)
+        long unitPriceMinor = ReferenceMinor,
+        long? productId = null,
+        long? variantId = null)
     {
         var orderId = NextId();
         var total = quantity * unitPriceMinor;
@@ -50,7 +56,7 @@ internal static class SalesOrderMother
                 new OrderLineInput(
                     NextId(),
                     new VariantSnapshot(
-                        NextId(), NextId(), "SKU-1", "A kettle", "Demo Brand",
+                        variantId ?? NextId(), productId ?? NextId(), "SKU-1", "A kettle", "Demo Brand",
                         ["Kitchen", "Kettles"],
                         new Dictionary<string, string> { ["colour"] = "Red" }),
                     (int)quantity,

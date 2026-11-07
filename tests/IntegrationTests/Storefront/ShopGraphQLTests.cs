@@ -92,7 +92,7 @@ public sealed class ShopGraphQLTests(PostgresFixture fixture)
         using var scope = factory.Services.CreateScope();
         using var client = factory.CreateClient();
 
-        _ = await StorefrontScenario.CreateAsync(scope.ServiceProvider, Ct);
+        var scenario = await StorefrontScenario.CreateAsync(scope.ServiceProvider, Ct);
 
         const string Query = """
             query { shopHome(currency: "USD") { currency newArrivals { productId } bestSellers { productId } } }
@@ -104,8 +104,13 @@ public sealed class ShopGraphQLTests(PostgresFixture fixture)
 
         var home = response.Data!.GetProperty("shopHome");
         home.GetProperty("currency").GetString().Should().Be("USD");
-        home.GetProperty("bestSellers").GetArrayLength().Should().Be(0,
-            "popularity is zero until the sales tables exist");
+        // Not "the section is empty": the suite shares a database and other tests sell things.
+        // What is this scenario's to claim is that its own products, which nobody bought, are
+        // not among the best sellers.
+        home.GetProperty("bestSellers").EnumerateArray()
+            .Select(card => card.GetProperty("productId").GetInt64())
+            .Should().NotContain([scenario.P1, scenario.P2],
+                "a product with no sales is not a best seller");
     }
 
     [Fact]
