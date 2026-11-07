@@ -1,3 +1,6 @@
+using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
+using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using EwaysVNext.Modules.Sales.Application.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +18,10 @@ public static class DependencyInjection
         ArgumentNullException.ThrowIfNull(configuration);
 
         services.AddOptions<SalesOptions>().BindConfiguration(SalesOptions.SectionName);
+
+        services.AddScoped<ITaxPolicy, NonGstTaxPolicy>();
+        services.AddScoped<LiveRequoter>();
+        services.AddScoped<IPartnerOrderService, PartnerOrderService>();
 
         return services;
     }
