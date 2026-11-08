@@ -15,27 +15,21 @@ the other is the mistake this split exists to prevent.
 |---|---|
 | Machine | Windows 11 (10.0.26200), 24 logical processors, 31.6 GB RAM |
 | Docker | 29.5.2 |
-| Git SHA | `e33097c` |
-| Image | **not the production image** — see "What this run is not", below |
-| Catalogue | 400 sellable variants in each of USD, EUR, SGD, AED, GBP (`catalog.mv_storefront_variant`), from `--seed` |
+| Git SHA | `201c71b` |
+| Stack | `build/compose/docker-compose.yml` + `docker-compose.smoke.yml`, brought up by `tools/smoke/smoke.sh --keep` |
+| Image | `eways-api:latest`, built by `build/docker/api.Dockerfile` from `mcr.microsoft.com/dotnet/aspnet@sha256:a9298ccc39c6258ae71228479e2f3f8d2ceb6639a9927262a4b0ff7d319a0e7e` |
+| Catalogue | 400 sellable variants in each of USD, EUR, SGD, AED, GBP, from `--seed` |
 | Commerce limits | min USD 10.00, max USD 1,000,000.00, composition deadline 8,000 ms, max 200 lines |
 
-### What this run is not
+The load ran **on the production compose stack**: the real image, migrated by the real `--migrate`
+against the real roles script, with k6 inside the stack's own network reaching the API by service
+name. The database was queried as `eways_app`, the role that owns nothing — the same role the
+application uses, under the production grants.
 
-The plan calls for this on the `build/compose` production stack. It was run against the host
-process instead, because `mcr.microsoft.com` refused every TLS handshake from this machine for the
-duration of the work and the API image cannot be built without it. What changed, and what did not:
-
-- **Same code, same configuration shape.** Release build, `ASPNETCORE_ENVIRONMENT=Staging`, the
-  same `--migrate` and `--seed`, the same Postgres 17 and MinIO containers the dev stack uses.
-- **Not the chiselled runtime image**, not Kestrel behind Caddy, and not the production grants —
-  the load database was migrated and queried as `postgres`, not `eways_app`.
-- **Not the network topology**: k6 ran in a container and reached the host over
-  `host.docker.internal`, adding a hop the compose stack would not have.
-
-The p95 figure below clears its target by two orders of magnitude, so none of those differences
-is load-bearing for the verdict. They would matter for a number that was close. **The release
-gate stays open until this is repeated on the compose stack.**
+An earlier revision of this report measured a locally built host against the dev containers,
+because `mcr.microsoft.com` refused every TLS handshake from this machine for most of that day and
+the image could not be built. Those numbers have been replaced, not adjusted. The figures below
+are from the arrangement that ships.
 
 ## 2. Representative distribution
 
@@ -84,126 +78,137 @@ Every log decade of the amount, in every currency, is at or above 99%. There are
 ## 5. Live load (k6)
 
 `tests/load/partner-orders.js`, 5 minutes, constant arrival rate of **90 orders/second** across
-10–50 VUs, amounts drawn from the same log-uniform distribution, currency picked per request.
+10–50 VUs, amounts drawn from the same log-uniform distribution, currency picked per request. k6
+ran as a container on the stack's own network, reaching the API at `http://api:8080`.
 
 **On the arrival rate.** The first attempt used ten VUs looping freely. That issues roughly 2,150
 orders a second against a partner whose own ceiling is 6,000 a minute, so 95.5% of the run came
-back `429` and the percentiles described the rate limiter rather than the order path. 90/s sits
-just under the partner's limit, which is what the PRD's latency target is about.
+back `429` and the percentiles described the rate limiter. 90/s sits just under the partner's
+limit, which is what the PRD's latency target is about.
 
 | Metric | Value |
 |---|---|
-| Requests | 27,000 (90.00/s, 5m00s) |
-| `http_req_duration{name:create_order}` p50 | 35.80 ms |
-| … p95 | **43.50 ms** |
-| … p99 | 56.79 ms |
-| … max | 93.50 ms |
-| Successful orders (`order_composed_ms`) p95 | 43.71 ms |
-| Unexpected failures (`order_refused`) | **0.00%** (0 of 27,000) |
-| Policy refusals | 3.23% (873), all `AMOUNT_OUT_OF_RANGE` |
+| Requests | 27,001 (90.01/s, 5m00s) |
+| `http_req_duration{name:create_order}` p50 | 20.82 ms |
+| … p95 | **23.79 ms** |
+| … p99 | 27.41 ms |
+| … max | 63.43 ms |
+| Successful orders (`order_composed_ms`) p95 | 23.84 ms |
+| Unexpected failures (`order_refused`) | **0.00%** (0 of 27,001) |
+| Policy refusals | 3.43% (928), all `AMOUNT_OUT_OF_RANGE` |
 
-**Checks per currency** — all five pass the `rate>0.99` threshold:
+**Checks per currency** — all five at 100%, against a `rate>0.99` threshold:
 
 | Currency | Passed |
 |---|---:|
-| USD | 100.00% (5,412 / 5,412) |
-| EUR | 100.00% (5,448 / 5,448) |
-| SGD | 100.00% (5,426 / 5,426) |
-| AED | 100.00% (5,381 / 5,381) |
-| GBP | 100.00% (5,333 / 5,333) |
+| USD | 100.00% (5,432 / 5,432) |
+| EUR | 100.00% (5,403 / 5,403) |
+| SGD | 100.00% (5,397 / 5,397) |
+| AED | 100.00% (5,332 / 5,332) |
+| GBP | 100.00% (5,437 / 5,437) |
 
-**Thresholds: all passed.** `p(95)<10000` on the order request, `rate<0.01` on unexpected
-failures, and `rate>0.99` on checks in each of the five currencies.
+**Thresholds: all passed.**
 
-**About the 873 refusals.** They are the seller's own minimum order amount, which is held in USD
+The containerized stack is about twice as fast as the locally built host an earlier revision
+measured (p95 23.79 ms against 43.50 ms). That direction is the opposite of what an extra network
+hop would suggest, and the honest answer is that the two runs are not a controlled comparison —
+different runtime image, different filesystem, different logging sinks, and the Windows host was
+also running the dev stack at the time. It is recorded because the number moved, not because the
+cause is known.
+
+**About the 928 refusals.** They are the seller's own minimum order amount, which is held in USD
 while this draw picks an amount in the local currency: the bottom of the AED range is about
 USD 2.72 and does not clear a ten-dollar floor, while the same figure in USD does. An earlier run
 counted these as failures and reported AED at 89.18% against USD's 100.00% — a number that looks
-like a currency-specific defect and is in fact the limit working. They are now counted as the
-policy refusals they are, alongside `EXACT_COMPOSITION_UNAVAILABLE`.
+like a currency-specific defect and is in fact the limit working. They are counted as the policy
+refusals they are, alongside `EXACT_COMPOSITION_UNAVAILABLE`.
 
 ## 6. Live composition telemetry
 
-From `sales.composition_attempts`, the engine's own record of the same 5-minute run — the server
-side of the k6 numbers above.
+From `sales.composition_attempts` on the stack's own database, read as `eways_app` — the engine's
+own record of the same run.
 
 | Currency | Attempts | Succeeded | p50 ms | p95 ms | p99 ms | Mean lines |
 |---|---:|---:|---:|---:|---:|---:|
-| USD | 5,412 | 5,412 | 8 | 10 | 14 | 4.6 |
-| EUR | 5,418 | 5,418 | 8 | 10 | 14 | 4.6 |
-| SGD | 5,292 | 5,292 | 8 | 10 | 13 | 4.7 |
-| AED | 4,786 | 4,786 | 8 | 10 | 14 | 4.8 |
-| GBP | 5,219 | 5,219 | 8 | 10 | 14 | 4.5 |
+| USD | 5,444 | 5,444 | 5 | 6 | 7 | 4.6 |
+| EUR | 5,351 | 5,351 | 5 | 6 | 7 | 4.6 |
+| SGD | 5,302 | 5,302 | 5 | 6 | 7 | 4.6 |
+| AED | 4,727 | 4,727 | 5 | 6 | 7 | 4.8 |
+| GBP | 5,321 | 5,321 | 5 | 6 | 7 | 4.5 |
 
-**Failures: none.** No row in the window has `succeeded = false`, in any currency.
+**Failures: none.** No row has `succeeded = false`, in any currency.
 
-Two things are worth reading off this table. The engine takes about 10 ms of the request's 43 ms
-under load — four times its single-threaded cost in §3, which is what contention looks like — so
-roughly three quarters of the response time is the quote, the order write, the invoice and the
-framework, not the composition. And mean lines agree with the simulator to within 0.2, which is
-the check that the two sections describe the same engine on the same catalogue.
+Two things are worth reading off this table. The engine takes about 6 ms of the request's 24 ms
+under load, so roughly three quarters of the response time is the quote, the order write, the
+invoice and the framework, not the composition — the composition engine is not the thing to
+optimise. And mean lines agree with the simulator to within 0.2, which is the check that §3 and §6
+describe the same engine on the same catalogue.
+
+**Where the headroom runs out.** During the run `docker stats` showed the API at ~138% CPU and
+Postgres at ~97% — that is one core's worth of database, with 24 available. At 90 orders/second
+the database is the first thing to saturate, not the engine and not the application. Nobody has
+measured where it actually tops out, and the arrival rate here was chosen to stay under the
+partner rate limit rather than to find a ceiling.
 
 ## 7. Verdict against PRD targets
 
 | Target | Result |
 |---|---|
-| **99% composition success on the documented distribution** | **Met.** 100.00% over 10,025 simulated compositions, every currency, every decade; and 100.00% over 26,127 live ones. |
-| **p95 under 10 s for a single order under the declared load** | **Met.** 43.50 ms at 90 orders/second for 5 minutes — a margin of about 230×. |
+| **99% composition success on the documented distribution** | **Met.** 100.00% over 10,025 simulated compositions, every currency, every decade; and 100.00% over 26,145 live ones on the production stack. |
+| **p95 under 10 s for a single order under the declared load** | **Met.** 23.79 ms at 90 orders/second for 5 minutes, on the compose stack — a margin of about 420×. |
 
-**Release gate §16 — "agreement on the load profile" — stays open.** Two things are unsettled, and
-neither is a measurement:
+**Release gate §16 is now one question, not two.** The measurement half is closed: this ran on the
+production arrangement, which is what the gate asked for. What remains is commercial.
 
-1. **The declared load is a guess.** 90 orders/second was chosen to sit under the partner rate
-   limit, not because anyone expects that volume. The real profile is a commercial question.
-2. **This did not run on the compose stack** (§1). The margin is wide enough that the verdict is
-   not in doubt, but the gate asks for the production arrangement and has not had it.
+**The declared load is still a guess.** 90 orders/second was chosen to sit under the partner rate
+limit, not because anyone expects that volume. Nobody has said what this system must carry, and
+until somebody does, "p95 under load" is a sentence with an undefined subject. Two related facts
+for whoever answers it:
 
-Also worth recording: the partner rate limit is capped at 6,000 requests/minute by domain
-validation (`Rate limit must be between 1 and 6000 requests per minute`). A partner expecting more
-than 100 orders a second cannot be configured for it today.
+- The partner rate limit is capped at 6,000 requests/minute by domain validation, so a partner
+  expecting more than 100 orders a second cannot be configured for it today.
+- Postgres was the first resource to saturate (§6). A higher target is a database question before
+  it is an application one.
 
 ## 8. Reproduction
 
 ```bash
-# 1. The simulator. No database, no host, no Docker — the engine is pure.
-dotnet run --project tools/CompositionSimulator/EwaysVNext.Tools.CompositionSimulator.csproj \
-  -c Release -- --samples 2000 --seed 20261028 --deadline-ms 8000 \
-  --out docs/reports/composition-coverage
+# 1. The simulator. No database, no host, no Docker — the engine is pure, so this needs nothing
+#    running and gives the same report on any machine from the same seed.
+dotnet run --project tools/CompositionSimulator/EwaysVNext.Tools.CompositionSimulator.csproj -c Release -- --samples 2000 --seed 20261028 --deadline-ms 8000 --out docs/reports/composition-coverage
 ```
 
 ```bash
-# 2. A host to load. On the compose stack this is `KEEP=1 bash tools/smoke/smoke.sh`; this run
-#    used the dev dependencies and a locally built host, for the reason in section 1.
-docker compose -f build/compose/docker-compose.dev.yml up -d
+# 2. The production stack, seeded, left running. Prints "14 passed, 0 failed" on the way.
+bash tools/smoke/smoke.sh --keep
 ```
 
 ```bash
-# 3. Migrate and seed. Note the port: the dev stack publishes Postgres on 55432, because 5432 is
-#    often taken by a local install that will accept the connection and refuse the password.
-export ConnectionStrings__Default="Host=127.0.0.1;Port=55432;Database=eways_load;Username=postgres;Password=dev-postgres"
-export ASPNETCORE_ENVIRONMENT=Staging Fx__Ecb__BaseUrl="http://127.0.0.1:1/"
-dotnet run --project src/Host/EwaysVNext.Host -c Release -- --migrate
-dotnet run --project src/Host/EwaysVNext.Host -c Release -- --seed
+# 3. A Backoffice token. Direct grants go on, one user is created, and both are restored from a
+#    trap. The admin password is the one the script generated into .env.smoke.
+eval "$(bash tools/smoke/backoffice-token.sh http://127.0.0.1:18081 admin "$(grep '^KC_BOOTSTRAP_ADMIN_PASSWORD=' build/compose/.env.smoke | cut -d= -f2-)")"
 ```
 
 ```bash
-# 4. A Backoffice token, then a partner and a key. The script turns direct grants on, creates one
-#    user, and puts both back from a trap.
-eval "$(bash tools/smoke/backoffice-token.sh http://127.0.0.1:8081 admin admin)"
+# 4. A load partner at the maximum configurable rate limit, and a key for it. Note the scopes take
+#    colons, and customers:write is required because the order creates the customer.
+curl -fsS -X POST http://127.0.0.1:18080/api/v1/admin/partners -H "Authorization: Bearer $BACKOFFICE_TOKEN" -H 'Content-Type: application/json' -d '{"name":"Load Partner","scopes":["orders:create","orders:read","invoices:read","customers:read","customers:write"],"rateLimitPerMinute":6000,"bulkMaxItems":100}'
 ```
 
 ```bash
-# 5. The load run itself.
-docker run --rm -i -v "$PWD:/work" -w /work --add-host=host.docker.internal:host-gateway \
-  -e BASE_URL=http://host.docker.internal:18080 -e API_KEY="$PARTNER_KEY" \
-  -e RATE=90 -e DURATION=5m grafana/k6:0.54.0 \
-  run --summary-export=/work/docs/reports/k6-partner-orders.json tests/load/partner-orders.js
+# 5. The load run, inside the stack's own network. `eways_default` is the compose project's
+#    network — not `eways-dev_default`, which is the dev stack and resolves no `api` host.
+docker run --rm -i --network eways_default -v "$PWD:/work" -w /work -e BASE_URL=http://api:8080 -e API_KEY="$PARTNER_KEY" -e RATE=90 -e DURATION=5m grafana/k6:0.54.0 run --summary-export=/work/docs/reports/k6-partner-orders.json tests/load/partner-orders.js
 ```
 
 ```bash
-# 6. The server side of the same run.
-docker exec eways-dev-postgres-1 psql -U postgres -d eways_load -At -F '|' -c \
-  "SELECT currency, count(*), count(*) FILTER (WHERE succeeded), round(percentile_cont(0.5) WITHIN GROUP (ORDER BY duration_ms)), round(percentile_cont(0.95) WITHIN GROUP (ORDER BY duration_ms)), round(percentile_cont(0.99) WITHIN GROUP (ORDER BY duration_ms)), round(avg(lines),1) FROM sales.composition_attempts WHERE at > now() - interval '6 minutes' GROUP BY currency ORDER BY currency;"
+# 6. The server side of the same run, read as the application's own role.
+docker compose -f build/compose/docker-compose.yml -f build/compose/docker-compose.smoke.yml --env-file build/compose/.env.smoke exec -T -e PGPASSWORD="$APP_DB_PASSWORD" postgres psql -U eways_app -d eways -At -F '|' -c "SELECT currency, count(*), count(*) FILTER (WHERE succeeded), round(percentile_cont(0.5) WITHIN GROUP (ORDER BY duration_ms)), round(percentile_cont(0.95) WITHIN GROUP (ORDER BY duration_ms)), round(percentile_cont(0.99) WITHIN GROUP (ORDER BY duration_ms)), round(avg(lines),1) FROM sales.composition_attempts GROUP BY currency ORDER BY currency;"
+```
+
+```bash
+# 7. Tear it down. The smoke script does this from a trap unless --keep was passed.
+docker compose -f build/compose/docker-compose.yml -f build/compose/docker-compose.smoke.yml --env-file build/compose/.env.smoke down -v
 ```
 
 Raw output: [`composition-coverage.md`](composition-coverage.md),

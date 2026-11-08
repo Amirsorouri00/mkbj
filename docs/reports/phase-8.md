@@ -133,12 +133,10 @@ confidence in one direction and false alarm in the other.
   TLS handshake from this machine for most of this phase — dozens of attempts over several hours,
   while Docker Hub worked throughout — and the run happened as soon as it came back. What that
   first real run found is in its own section below.
-- **The load run was not on the compose stack.** Same cause. It ran against the Release host
-  process with the dev Postgres and MinIO containers — same code, same configuration shape, not
-  the chiselled image, not behind Caddy, not under the production grants. The p95 clears its
-  target by about 230×, so the verdict is not in doubt, but the gate asks for the production
-  arrangement and has not had it. [`coverage-and-load.md` §1](coverage-and-load.md) says so in its
-  own section.
+- ~~The load run was not on the compose stack.~~ **Done.** Rerun there once the image could be
+  built: 27,001 orders at 90/second for five minutes, p95 **23.79 ms**, 0% unexpected failures,
+  every currency at 100%. k6 ran inside the stack's own network and the telemetry was read as
+  `eways_app`, under the production grants. The earlier local figures were replaced, not adjusted.
 - **The contract snapshots are in-code lists, not snapshot files.** The plan called for
   `tests/IntegrationTests/Contracts/Snapshots/{openapi-v1.json,schema.graphql}` and a `git status`
   check over them. They are instead explicit arrays of partner routes and field names inside
@@ -158,11 +156,17 @@ confidence in one direction and false alarm in the other.
 
 ## Risks
 
-- **Release gate §16 — agreement on the load profile — is open, and it is not a measurement
-  problem.** 90 orders/second was picked to sit under the partner rate limit, not because anyone
-  expects that volume. What load this must carry is a commercial question nobody has answered.
+- **Release gate §16 is now one question, not two.** The measurement half is closed: the load ran
+  on the production compose stack, which is what the gate asked for. What stays open is
+  commercial — 90 orders/second was picked to sit under the partner rate limit, not because anyone
+  expects that volume, so "p95 under load" still has an undefined subject.
 - **The partner rate limit is capped at 6,000/minute by domain validation.** A partner expecting
   more than 100 orders a second cannot be configured for it today.
+- **Postgres saturates before anything else.** During the load run the API sat at ~138% CPU and
+  Postgres at ~97% — one core's worth of database, with 24 available. The composition engine is
+  about 6 ms of a 24 ms request, so it is not what to optimise. Nobody has measured where the
+  database actually tops out; the arrival rate was chosen to stay under the rate limit, not to
+  find a ceiling.
 - **Rate limiting is in-process** (ADR-0010). With replicas > 1 each instance keeps its own window,
   so the effective limit multiplies by the replica count.
 - **The GraphQL depth and cost limits are not proven by any test.** The test that appears to cover
@@ -194,14 +198,14 @@ confidence in one direction and false alarm in the other.
 | 13 | Staff cannot manage credentials, FX, settings or refunds | `Acceptance13StaffPermissionTests`, `PricingRestTests` (`Acceptance13`) | Met |
 | 14 | Bulk 100 items → per-item outcomes, successes committed, failures isolated | `PartnerBulkAcceptanceTests` (`Acceptance14`) | Met |
 | 15 | Import preserves provenance, rejects invalid, enforces restrictions | `SourcePolicyTests`, `PublishPipelineTests`, `ImportAcceptanceTests` | **Partly** — the crawler half is met; the keyword-search half is the phase 7 gap, and the Brave integration has never run live |
-| 16 | Load test records p50/p95/p99 and coverage across currencies and range | [`coverage-and-load.md`](coverage-and-load.md) | **Partly** — every number recorded, but not on the compose stack |
+| 16 | Load test records p50/p95/p99 and coverage across currencies and range | [`coverage-and-load.md`](coverage-and-load.md) | Met — recorded on the production compose stack |
 
 Scenarios 1–14 carry an `Acceptance##` tag in the test itself, so the mapping above is read off
 the source rather than asserted here. 15 and 16 have no single owning test — one is split across
-the sourcing suites, the other is a report — which is exactly why both are the partial ones.
+the sourcing suites, the other is a report — which is why they were the last two to settle.
 
-Fourteen of sixteen met in full; two partly, each for a reason named above and in the phase that
-owns it.
+Fifteen of sixteen met in full. Only 15 is partial, and its gap is the keyword-search half of
+importing, which phase 7 recorded as a deliberate omission rather than a failure.
 
 ## Reproduction
 
