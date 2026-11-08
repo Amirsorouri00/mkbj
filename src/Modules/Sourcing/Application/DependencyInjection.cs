@@ -12,6 +12,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddSourcingApplication(this IServiceCollection services)
     {
+        services.AddScoped<StagingService>();
         services.AddScoped<RecordProcessor>();
         services.AddScoped<RecordPublisher>();
 

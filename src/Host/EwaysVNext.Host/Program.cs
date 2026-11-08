@@ -67,7 +67,7 @@ builder.Services
     .AddSettingsModule(builder.Configuration)
     .AddSalesModule(builder.Configuration)
     .AddAdminModule()
-    .AddSourcingModule();
+    .AddSourcingModule(builder.Configuration);
 builder.Services.AddUnifiedDatabase(builder.Configuration, builder.Environment.IsDevelopment());
 builder.Services.AddObjectStorage(builder.Configuration);
 builder.Services.AddJobs(builder.Configuration);

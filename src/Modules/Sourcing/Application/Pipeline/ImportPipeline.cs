@@ -31,6 +31,8 @@ namespace EwaysVNext.Modules.Sourcing.Application.Pipeline;
 public sealed class ImportPipeline(
     IImportJobRepository jobs,
     IStagedRecordRepository records,
+    IEnumerable<ISourceAdapter> adapters,
+    StagingService staging,
     RecordProcessor processor,
     RecordPublisher publisher,
     IUnitOfWork unitOfWork,
@@ -71,6 +73,12 @@ public sealed class ImportPipeline(
         var now = clock.UtcNow;
         job.MarkRunning(now);
 
+        // Discovery first, to exhaustion, then processing. Interleaving them would mean a job
+        // that finished processing before discovery had found the rest, and "is this job done?"
+        // would have no answer that stayed true.
+        if (job.Checkpoint.Phase == ImportPhase.Discover)
+            return await DiscoverAsync(job, now, ct);
+
         var batch = await records.NextForProcessingAsync(
             jobId, job.Checkpoint.ProcessedThroughRecordId, BatchSize, ct);
 
@@ -102,6 +110,68 @@ public sealed class ImportPipeline(
 
         return Result.Success(new ImportStepResult(true, counters));
     }
+
+    /// <summary>
+    /// One batch of finding things, staged as it goes.
+    /// </summary>
+    /// <remarks>
+    /// When discovery runs out, the checkpoint moves to processing rather than completing the
+    /// job: everything staged still has to be normalized, matched, validated and published.
+    /// </remarks>
+    private async Task<Result<ImportStepResult>> DiscoverAsync(
+        ImportJob job, DateTimeOffset now, CancellationToken ct)
+    {
+        var adapter = adapters.FirstOrDefault(candidate => candidate.Handles(job.Mode));
+
+        if (adapter is null)
+        {
+            job.Fail(
+                "IMPORT_MODE_UNSUPPORTED",
+                $"Nothing can discover listings for a {job.Mode} job.",
+                now);
+
+            await unitOfWork.SaveChangesAsync(ct);
+
+            return Result.Success(new ImportStepResult(false, job.Counters));
+        }
+
+        var batch = await adapter.DiscoverAsync(
+            Spec(job), job.Checkpoint.AdapterCursor, BatchSize, ct);
+
+        var result = await staging.StageAsync(job, batch, ct);
+
+        var counters = job.Counters with
+        {
+            Discovered = job.Counters.Discovered + result.Discovered,
+            Duplicate = job.Counters.Duplicate + result.Duplicate,
+        };
+
+        job.AdvanceCheckpoint(
+            result.More
+                ? job.Checkpoint with { Phase = ImportPhase.Discover, AdapterCursor = result.Cursor }
+                : job.Checkpoint with { Phase = ImportPhase.Process, AdapterCursor = null },
+            counters,
+            now);
+
+        await unitOfWork.SaveChangesAsync(ct);
+
+        // More work either way: either more to discover, or everything staged to process.
+        return Result.Success(new ImportStepResult(true, counters));
+    }
+
+    private static ImportJobSpec Spec(ImportJob job) => new(
+        job.Id,
+        job.Mode,
+        job.Sources,
+        job.Queries,
+        job.IncludeDomains,
+        job.ExcludeDomains,
+        job.Limits,
+        job.TargetCategoryId,
+        job.FileRightsAttested,
+        job.FileObjectKey,
+        job.FileFormat,
+        job.Mapping);
 
     private async Task<ImportCounters> ProcessOneAsync(
         ImportJob job, StagedRecord record, ImportCounters counters, CancellationToken ct)

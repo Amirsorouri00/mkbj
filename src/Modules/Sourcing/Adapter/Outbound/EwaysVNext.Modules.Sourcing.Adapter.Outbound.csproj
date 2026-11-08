@@ -9,6 +9,7 @@
     <ProjectReference Include="..\..\Application\EwaysVNext.Modules.Sourcing.Application.csproj" />
     <ProjectReference Include="..\..\..\..\Database\EwaysVNext.Database.csproj" />
     <ProjectReference Include="..\..\..\..\BuildingBlocks\Jobs\Application\EwaysVNext.Jobs.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Jobs\Implementation\EwaysVNext.Jobs.Implementation.csproj" />
     <ProjectReference Include="..\..\..\..\BuildingBlocks\Storage\Application\EwaysVNext.Storage.Application.csproj" />
     <ProjectReference Include="..\..\..\Catalog\Application\EwaysVNext.Modules.Catalog.Application.csproj" />
     <ProjectReference Include="..\..\..\Pricing\Application\EwaysVNext.Modules.Pricing.Application.csproj" />

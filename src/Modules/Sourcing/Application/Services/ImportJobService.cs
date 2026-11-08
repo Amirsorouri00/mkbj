@@ -20,6 +20,7 @@ namespace EwaysVNext.Modules.Sourcing.Application.Services;
 /// </remarks>
 internal sealed class ImportJobService(
     IImportJobRepository jobs,
+    IImportStepScheduler scheduler,
     IAuditTrail audit,
     IUnitOfWork unitOfWork,
     IIdGenerator ids,
@@ -50,11 +51,15 @@ internal sealed class ImportJobService(
 
         await unitOfWork.SaveChangesAsync(ct);
 
+        // Only a job that is already runnable. A file job is a draft until its columns are
+        // mapped, and scheduling it now would queue a step with nothing to read.
+        if (job.AcceptsWork) await scheduler.ScheduleAsync(job.Id, job.StepSequence, ct);
+
         return Result.Success(job.Id);
     }
 
     public Task<Result> StartAsync(long jobId, AdminActor actor, CancellationToken ct = default) =>
-        TransitionAsync(jobId, actor, "started", (job, now) => job.Start(now), ct);
+        TransitionAsync(jobId, actor, "started", (job, now) => job.Start(now), ct, schedule: true);
 
     public Task<Result> PauseAsync(long jobId, AdminActor actor, CancellationToken ct = default) =>
         TransitionAsync(jobId, actor, "paused", (job, now) => job.Pause(now), ct);
@@ -71,14 +76,15 @@ internal sealed class ImportJobService(
                 job.Resume(now);
                 job.BumpStepSequence(now);
             },
-            ct);
+            ct,
+            schedule: true);
 
     public Task<Result> CancelAsync(long jobId, AdminActor actor, CancellationToken ct = default) =>
         TransitionAsync(jobId, actor, "cancelled", (job, now) => job.Cancel(now), ct);
 
     private async Task<Result> TransitionAsync(
         long jobId, AdminActor actor, string action, Action<ImportJob, DateTimeOffset> change,
-        CancellationToken ct)
+        CancellationToken ct, bool schedule = false)
     {
         ArgumentNullException.ThrowIfNull(actor);
 
@@ -101,6 +107,11 @@ internal sealed class ImportJobService(
             before, Snapshot(job));
 
         await unitOfWork.SaveChangesAsync(ct);
+
+        // After the commit, never inside it: a step queued in the same transaction would either
+        // vanish with a rollback or be claimed before the rows it refers to exist.
+        if (schedule && job.AcceptsWork)
+            await scheduler.ScheduleAsync(job.Id, job.StepSequence, ct);
 
         return Result.Success();
     }
