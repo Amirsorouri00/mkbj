@@ -40,5 +40,6 @@
     <ProjectReference Include="..\..\Modules\Pricing\Installer\EwaysVNext.Modules.Pricing.Installer.csproj" />
     <ProjectReference Include="..\..\Modules\Sales\Installer\EwaysVNext.Modules.Sales.Installer.csproj" />
     <ProjectReference Include="..\..\Modules\Admin\Installer\EwaysVNext.Modules.Admin.Installer.csproj" />
+    <ProjectReference Include="..\..\Modules\Sourcing\Installer\EwaysVNext.Modules.Sourcing.Installer.csproj" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
@@ -30,5 +30,6 @@
       <ProjectReference Include="..\..\src\Modules\Customer\QueryApplication\EwaysVNext.Modules.Customer.QueryApplication.csproj" />
       <ProjectReference Include="..\..\src\Modules\Catalog\Application\EwaysVNext.Modules.Catalog.Application.csproj" />
       <ProjectReference Include="..\..\src\Modules\Pricing\Installer\EwaysVNext.Modules.Pricing.Installer.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Sourcing\Application\EwaysVNext.Modules.Sourcing.Application.csproj" />
   </ItemGroup>
 </Project>

@@ -13,6 +13,7 @@ using EwaysVNext.Modules.Customer;
 using EwaysVNext.Modules.Partners;
 using EwaysVNext.Modules.Admin;
 using EwaysVNext.Modules.Sales;
+using EwaysVNext.Modules.Sourcing;
 using EwaysVNext.Modules.Settings;
 using EwaysVNext.Presentation.Endpoint;
 using EwaysVNext.Audit.Implementation;
@@ -65,7 +66,8 @@ builder.Services
     .AddPartnersModule(builder.Configuration)
     .AddSettingsModule(builder.Configuration)
     .AddSalesModule(builder.Configuration)
-    .AddAdminModule();
+    .AddAdminModule()
+    .AddSourcingModule();
 builder.Services.AddUnifiedDatabase(builder.Configuration, builder.Environment.IsDevelopment());
 builder.Services.AddObjectStorage(builder.Configuration);
 builder.Services.AddJobs(builder.Configuration);

@@ -71,6 +71,18 @@ public sealed class EwaysVNextDbContext(DbContextOptions<EwaysVNextDbContext> op
     public DbSet<EwaysVNext.Modules.Sales.Application.Domain.Telemetry.CompositionAttempt> CompositionAttempts
         => Set<EwaysVNext.Modules.Sales.Application.Domain.Telemetry.CompositionAttempt>();
 
+    public DbSet<EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs.ImportJob> ImportJobs
+        => Set<EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs.ImportJob>();
+
+    public DbSet<EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords.StagedRecord> StagedRecords
+        => Set<EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords.StagedRecord>();
+
+    public DbSet<EwaysVNext.Modules.Sourcing.Application.Domain.SourceListings.SourceListing> SourceListings
+        => Set<EwaysVNext.Modules.Sourcing.Application.Domain.SourceListings.SourceListing>();
+
+    public DbSet<EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies.SourcePolicy> SourcePolicies
+        => Set<EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies.SourcePolicy>();
+
     public DbSet<EwaysVNext.Audit.Implementation.AuditEvent> AuditEvents
         => Set<EwaysVNext.Audit.Implementation.AuditEvent>();
 
