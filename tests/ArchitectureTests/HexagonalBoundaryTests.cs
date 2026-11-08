@@ -17,7 +17,7 @@ public sealed class HexagonalBoundaryTests
     // Final set (later phases append as they create each module):
     // Catalog, Customer, Partners, Settings, Pricing, Sales, Sourcing, Admin.
     public static readonly string[] ModuleNames =
-        ["Catalog", "Customer", "Partners", "Settings", "Pricing", "Sales", "Admin"];
+        ["Catalog", "Customer", "Partners", "Settings", "Pricing", "Sales", "Admin", "Sourcing"];
 
     /// <summary>
     /// The modules Admin's composition layer may read, and it reads their
@@ -70,6 +70,12 @@ public sealed class HexagonalBoundaryTests
         { "Sales", "Pricing" },
         { "Sales", "Customer" },
         { "Sales", "Settings" },
+
+        // Sourcing stages a listing, validates it, and then publishes it as a real product at a
+        // real price. Both reach the provider through its Adapter.Outbound, never its
+        // Application, and neither call shares a transaction with the staged record it came from.
+        { "Sourcing", "Catalog" },
+        { "Sourcing", "Pricing" },
     };
 
     public static TheoryData<string> Modules => new(ModuleNames);

@@ -113,6 +113,28 @@
   </Folder>
   <Folder Name="/src/Modules/" />
 
+  <Folder Name="/src/Modules/Sourcing/" />
+  <Folder Name="/src/Modules/Sourcing/Application/">
+    <Project Path="src/Modules/Sourcing/Application/EwaysVNext.Modules.Sourcing.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Sourcing/Adapter/Outbound/">
+    <Project Path="src/Modules/Sourcing/Adapter/Outbound/EwaysVNext.Modules.Sourcing.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Sourcing/Adapter/" />
+  <Folder Name="/src/Modules/Sourcing/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Sourcing/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Sourcing/Adapter/Inbound/Rest/EwaysVNext.Modules.Sourcing.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Sourcing/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Sourcing/Adapter/Inbound/GraphQL/EwaysVNext.Modules.Sourcing.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Sourcing/QueryApplication/">
+    <Project Path="src/Modules/Sourcing/QueryApplication/EwaysVNext.Modules.Sourcing.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Sourcing/Installer/">
+    <Project Path="src/Modules/Sourcing/Installer/EwaysVNext.Modules.Sourcing.Installer.csproj" />
+  </Folder>
+
   <Folder Name="/src/Modules/Admin/" />
   <Folder Name="/src/Modules/Admin/Application/">
     <Project Path="src/Modules/Admin/Application/EwaysVNext.Modules.Admin.Application.csproj" />

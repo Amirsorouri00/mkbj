@@ -42,6 +42,8 @@
     <ProjectReference Include="..\..\src\BuildingBlocks\Persistence\EwaysVNext.Persistence.csproj" />
     <ProjectReference Include="..\..\src\BuildingBlocks\Storage\Implementation\EwaysVNext.Storage.Implementation.csproj" />
     <ProjectReference Include="..\..\src\Database\EwaysVNext.Database.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sourcing\Application\EwaysVNext.Modules.Sourcing.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sourcing\Adapter\Outbound\EwaysVNext.Modules.Sourcing.Adapter.Outbound.csproj" />
     <ProjectReference Include="..\..\src\Modules\Admin\Application\EwaysVNext.Modules.Admin.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Admin\Adapter\Outbound\EwaysVNext.Modules.Admin.Adapter.Outbound.csproj" />
     <ProjectReference Include="..\..\src\Modules\Catalog\Application\EwaysVNext.Modules.Catalog.Application.csproj" />

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>EwaysVNext.Modules.Sourcing.Installer</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\EwaysVNext.Modules.Sourcing.Application.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\EwaysVNext.Modules.Sourcing.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\Rest\EwaysVNext.Modules.Sourcing.Adapter.Inbound.Rest.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\GraphQL\EwaysVNext.Modules.Sourcing.Adapter.Inbound.GraphQL.csproj" />
+    <ProjectReference Include="..\QueryApplication\EwaysVNext.Modules.Sourcing.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\DependencyInjection\EwaysVNext.DependencyInjection.csproj" />
+  </ItemGroup>
+</Project>

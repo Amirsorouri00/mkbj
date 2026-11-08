@@ -29,7 +29,7 @@ receipt before the commercial invoice is issued.
 ### Modules
 
 Present today: **Catalog**, **Customer**, **Partners**, **Settings**, **Pricing**, **Sales**,
-**Admin**.
+**Admin**, **Sourcing**.
 Partners owns B2B partners, peppered API keys, the `PartnerApiKey` authentication scheme, the
 usage log and the admin surface. Settings owns the seller profile, the versioned payment
 instruction and the commerce limits, three singletons seeded by migration. Customer was rebuilt
@@ -47,8 +47,10 @@ nothing about price; Pricing says what something *costs* and nothing about avail
 variant with no usable price is omitted from a quote, never reported as an error, so "published"
 never implies "priced".
 
-Sales owns carts, orders, the amount-driven composition engine, invoices and refunds, on both
-channels. Admin owns nothing: it is a data-less composition module (ADR-0006) that reads other
+Sourcing owns import jobs, staged records, source rights policies and the pipeline that turns a
+listing into a published product — it reads Catalog and Pricing through its `Adapter.Outbound`
+and publishes through their ports. Sales owns carts, orders, the amount-driven composition
+engine, invoices and refunds, on both channels. Admin owns nothing: it is a data-less composition module (ADR-0006) that reads other
 modules' **QueryApplication** only — Sales and Customer today, Sourcing in phase 7 — and arranges
 what they return into the dashboard, customer 360, order 360 and audit verification.
 `AdminArchitectureTests` fails the build if it acquires a table, a `DbContext` or a read side of
@@ -61,12 +63,6 @@ order, so a basket has to be reproducible from its inputs years later.
 `SalesArchitectureTests` fails the build on a dependency that would break that, and on the phrase
 "tax invoice" anywhere in the module — the seller is not GST-registered, and in Singapore that
 phrase is reserved for one who is.
-
-Planned (not yet present; do not reference them):
-
-| Module | Phase | Owns |
-|---|---|---|
-| Sourcing | 7 | Import jobs, staging, crawling, publishing |
 
 **A shop request may name one amount, and only one**: `expectedTotal`, the figure the customer
 was shown. It is compared against a live quote and can cause a refusal, never a price —

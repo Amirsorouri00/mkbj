@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>EwaysVNext.Modules.Sourcing.Adapter.Inbound.GraphQL</RootNamespace>
+    <NoWarn>$(NoWarn);CA1822</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="HotChocolate.AspNetCore" />
+    <PackageReference Include="HotChocolate.AspNetCore.Authorization" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\EwaysVNext.Modules.Sourcing.Application.csproj" />
+    <ProjectReference Include="..\..\..\QueryApplication\EwaysVNext.Modules.Sourcing.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Core\Application\EwaysVNext.Core.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Presentation.Endpoint\EwaysVNext.Presentation.Endpoint.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Authorization\Authorization.Abstractions\Authorization.Abstractions.csproj" />
+  </ItemGroup>
+</Project>
