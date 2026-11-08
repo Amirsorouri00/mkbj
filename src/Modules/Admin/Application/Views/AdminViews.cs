@@ -44,13 +44,24 @@ public sealed record SalesSnapshot(
 public sealed record FailureCodeCount(string ErrorCode, int Count);
 
 /// <remarks>
-/// <c>Imports</c> is absent until the Sourcing module exists (phase 7). An empty import section
-/// would read as "nothing is importing" rather than "nothing imports yet", and a dashboard that
-/// lies quietly is worse than one with a hole in it.
+/// The "7d" fields are named for the window an operator reads them in, not for the date the
+/// query used. Sourcing reports them as "since", and the gateway maps one to the other.
 /// </remarks>
+public sealed record ImportSnapshot(
+    int JobsQueued,
+    int JobsRunning,
+    int JobsPaused,
+    int JobsFailed7d,
+    int JobsCompleted7d,
+    int RecordsNeedsReview,
+    int RecordsValidUnpublished,
+    int RecordsInvalid,
+    int RecordsPublished7d);
+
 public sealed record AdminDashboard(
     DateTimeOffset GeneratedAt,
     SalesSnapshot Sales,
+    ImportSnapshot Imports,
     IReadOnlyList<FailureCodeCount> RecentFailureCodes);
 
 public sealed record OrderStatusView(

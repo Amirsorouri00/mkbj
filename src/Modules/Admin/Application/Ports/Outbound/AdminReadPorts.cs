@@ -21,6 +21,16 @@ public interface ISalesReadPort
     Task<Result<OrderSheet>> GetOrderAsync(long orderId, CancellationToken ct = default);
 }
 
+/// <remarks>
+/// The window is passed in rather than chosen here, so the dashboard decides what "recently"
+/// means in one place instead of each provider having an opinion.
+/// </remarks>
+public interface ISourcingReadPort
+{
+    Task<ImportSnapshot> GetDashboardCountsAsync(
+        DateTimeOffset since, CancellationToken ct = default);
+}
+
 public interface ICustomerReadPort
 {
     Task<Result<CustomerProfile>> GetAsync(long customerId, CancellationToken ct = default);

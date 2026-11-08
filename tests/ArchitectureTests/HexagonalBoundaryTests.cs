@@ -32,7 +32,7 @@ public sealed class HexagonalBoundaryTests
     /// Sourcing joins this list in phase 7, with the import section of the dashboard.
     /// </para>
     /// </remarks>
-    public static readonly string[] AdminReadModules = ["Sales", "Customer"];
+    public static readonly string[] AdminReadModules = ["Sales", "Customer", "Sourcing"];
 
     /// <summary>
     /// The one Application assembly Admin is allowed to drag in, and why.

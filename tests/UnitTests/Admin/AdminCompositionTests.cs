@@ -38,7 +38,8 @@ public sealed class AdminCompositionTests
             ],
         };
 
-        var dashboard = await new AdminDashboardService(sales, new FixedClock()).GetAsync(Ct);
+        var dashboard = await new AdminDashboardService(
+            sales, new FakeSourcing(), new FixedClock()).GetAsync(Ct);
 
         dashboard.GeneratedAt.Should().Be(Now, "a dashboard without a time is one nobody can date");
 
@@ -50,6 +51,10 @@ public sealed class AdminCompositionTests
             new FailureCodeCount("EXACT_COMPOSITION_UNAVAILABLE", 1));
 
         dashboard.Sales.RecentFailures.Should().HaveCount(5, "the detail is kept beside the roll-up");
+
+        // The import section is composed in, and its window is the dashboard's decision.
+        dashboard.Imports.JobsQueued.Should().Be(1);
+        dashboard.Imports.RecordsPublished7d.Should().Be(9);
     }
 
     [Fact]
@@ -130,6 +135,18 @@ public sealed class AdminCompositionTests
                         Now),
                     null, 4_000, "corr", LineCount: 2, [], [], []))
                 : Result.Failure<OrderSheet>(OrderError));
+    }
+
+    private sealed class FakeSourcing : ISourcingReadPort
+    {
+        public DateTimeOffset? AskedSince { get; private set; }
+
+        public Task<ImportSnapshot> GetDashboardCountsAsync(
+            DateTimeOffset since, CancellationToken ct = default)
+        {
+            AskedSince = since;
+            return Task.FromResult(new ImportSnapshot(1, 2, 3, 4, 5, 6, 7, 8, 9));
+        }
     }
 
     private sealed class FakeCustomers : ICustomerReadPort

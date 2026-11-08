@@ -9,6 +9,7 @@ public static class DependencyInjection
     public static IServiceCollection AddAdminOutboundAdapters(this IServiceCollection services)
     {
         services.AddScoped<ISalesReadPort, SalesReadGateway>();
+        services.AddScoped<ISourcingReadPort, SourcingReadGateway>();
         services.AddScoped<ICustomerReadPort, CustomerReadGateway>();
         services.AddScoped<IAuditReadPort, AuditReadGateway>();
 

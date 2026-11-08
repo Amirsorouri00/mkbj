@@ -7,5 +7,6 @@
     <ProjectReference Include="..\..\..\..\BuildingBlocks\Audit\Application\EwaysVNext.Audit.Application.csproj" />
     <ProjectReference Include="..\..\..\Sales\QueryApplication\EwaysVNext.Modules.Sales.QueryApplication.csproj" />
     <ProjectReference Include="..\..\..\Customer\QueryApplication\EwaysVNext.Modules.Customer.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\Sourcing\QueryApplication\EwaysVNext.Modules.Sourcing.QueryApplication.csproj" />
   </ItemGroup>
 </Project>

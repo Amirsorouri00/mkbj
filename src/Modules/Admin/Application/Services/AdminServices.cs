@@ -17,17 +17,20 @@ namespace EwaysVNext.Modules.Admin.Application.Services;
 /// dashboard asks which kinds are happening.
 /// </para>
 /// <para>
-/// There is no import section yet. The Sourcing module arrives in phase 7, and a section of
-/// zeros would read as "nothing is importing" rather than "nothing imports yet".
+/// The import window is a week, chosen here rather than by Sourcing: what "recently" means on a
+/// dashboard is a presentation decision, and a provider that picked its own would make two
+/// sections of one screen disagree about the period they cover.
 /// </para>
 /// </remarks>
-internal sealed class AdminDashboardService(ISalesReadPort sales, IClock clock)
-    : IAdminDashboardService
+internal sealed class AdminDashboardService(
+    ISalesReadPort sales, ISourcingReadPort sourcing, IClock clock) : IAdminDashboardService
 {
     public async Task<AdminDashboard> GetAsync(CancellationToken ct = default)
     {
         var now = clock.UtcNow;
+
         var snapshot = await sales.GetDashboardAsync(now, ct);
+        var imports = await sourcing.GetDashboardCountsAsync(now.AddDays(-7), ct);
 
         var codes = snapshot.RecentFailures
             .GroupBy(failure => failure.ErrorCode, StringComparer.Ordinal)
@@ -38,7 +41,7 @@ internal sealed class AdminDashboardService(ISalesReadPort sales, IClock clock)
             .ThenBy(code => code.ErrorCode, StringComparer.Ordinal)
             .ToList();
 
-        return new AdminDashboard(now, snapshot, codes);
+        return new AdminDashboard(now, snapshot, imports, codes);
     }
 }
 
