@@ -1,0 +1,21 @@
+headers {
+  ~X-Correlation-Id: {{$guid}}
+}
+
+docs {
+  # EwaysVNext
+
+  Three surfaces, and they authenticate differently — which is the thing to understand before
+  sending anything.
+
+  * **partner/** — a B2B partner's API key, sent as `Authorization: Bearer pk_...`. Set
+    `partnerKey` in the environment.
+  * **shop/** — a website customer's Keycloak token from the Shop realm. The storefront requests
+    need no token at all.
+  * **admin/** — a Backoffice token. Staff and super admin are different, and the requests say
+    which they need.
+
+  Every request sends a correlation id. The response echoes it in `X-Correlation-Id`, and it is
+  what you quote in a support request — so a run through this collection leaves a trail you can
+  follow in the logs afterwards.
+}

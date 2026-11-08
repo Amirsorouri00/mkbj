@@ -1,0 +1,36 @@
+meta {
+  name: Create orders in bulk
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/orders/bulk
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{partnerKey}}
+}
+
+body:json {
+  {
+    "items": [
+      { "externalOrderId": "BULK-{{$timestamp}}-1", "externalCustomerId": "C-77", "amount": "250.00", "currency": "USD", "customer": { "email": "pat@example.com" } },
+      { "externalOrderId": "BULK-{{$timestamp}}-2", "externalCustomerId": "C-78", "amount": "300.00", "currency": "USD", "customer": { "email": "sam@example.com" } }
+    ]
+  }
+}
+
+docs {
+  **Always 200, even when every item failed.** The status is about the batch request, which was
+  understood; what happened to each order is in its own outcome. A 4xx would tell you to
+  resubmit the whole batch including the orders that succeeded.
+
+  Items come back in the order you sent them, each with a verdict. Isolation is the promise:
+  one item failing does not affect its neighbours.
+
+  `BATCH_DEADLINE_EXCEEDED` is retryable and applies per item — anything not *started* before
+  the deadline comes back with it, while items already running are allowed to finish.
+}

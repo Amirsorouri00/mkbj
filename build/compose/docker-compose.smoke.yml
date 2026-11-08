@@ -1,0 +1,45 @@
+# Smoke overlay for the production stack.
+#
+# Runs the real docker-compose.yml — the same images, the same wiring, the same roles script —
+# and changes only what a smoke test on one machine needs:
+#
+#   * Staging rather than Production, because --seed refuses to run in Production and a smoke
+#     test with no catalogue proves nothing about a shop.
+#   * The service ports published on 127.0.0.1, so the script can reach them without going
+#     through Caddy and its certificates. Loopback only: this is not a way to expose a database.
+#   * Caddy removed, because a smoke run has no DNS and no ACME account, and waiting for a
+#     certificate that can never be issued is the slowest possible failure.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.smoke.yml --env-file .env.smoke up -d
+name: eways
+
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:${SMOKE_POSTGRES_PORT:-55432}:5432"
+
+  minio:
+    ports:
+      - "127.0.0.1:${SMOKE_MINIO_PORT:-59000}:9000"
+
+  keycloak:
+    ports:
+      - "127.0.0.1:${SMOKE_KEYCLOAK_PORT:-58081}:8080"
+
+  api:
+    environment:
+      # --seed refuses in Production by design. Staging is the nearest thing that still runs
+      # every production code path.
+      ASPNETCORE_ENVIRONMENT: Staging
+    ports:
+      - "127.0.0.1:${SMOKE_API_PORT:-58080}:8080"
+
+  worker:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Staging
+
+  # Nothing in a smoke run reaches the stack through a public hostname, and a proxy waiting on a
+  # certificate it cannot get would hold the whole run open.
+  caddy:
+    profiles: ["never"]

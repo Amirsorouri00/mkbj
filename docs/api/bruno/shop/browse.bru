@@ -1,0 +1,20 @@
+meta {
+  name: Browse products
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/shop/products?currency=USD
+  auth: none
+}
+
+docs {
+  **No token.** The storefront is anonymous on purpose: a shop that demands one to show a
+  product page is a shop nobody indexes and nobody shares a link to.
+
+  Served from materialized views, which are stale by construction (ADR-0020). That is safe
+  because nothing here can price a basket — the cart and checkout read live tables, so a stale
+  listing cannot sell at the wrong price. The worst case is a customer seeing an old figure and
+  checkout refusing with `PRICE_CHANGED`.
+}

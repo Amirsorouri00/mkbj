@@ -1,0 +1,40 @@
+meta {
+  name: Refund an order
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/admin/orders/:id/refunds
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 1
+}
+
+auth:bearer {
+  token: {{superToken}}
+}
+
+body:json {
+  {
+    "amount": "10.00",
+    "reason": "Damaged in transit",
+    "externalReference": "RTN-1"
+  }
+}
+
+docs {
+  **Super admin only**, and checked twice: the route policy refuses a staff token, and the
+  service checks again before the order is even loaded. This is the one operation that moves
+  money out of the business, and a route is one mapping mistake away from being wrong.
+
+  A refund **credits**, it does not edit. The invoice is untouched and a credit note is issued
+  against it — accounting runs on documents that do not change once issued, and the linkage is
+  the only way to tell a partial refund from an edited invoice.
+
+  Over the refundable remainder is **422 `REFUND_EXCEEDS_REFUNDABLE`**, which tells you how much
+  is left rather than merely refusing.
+}

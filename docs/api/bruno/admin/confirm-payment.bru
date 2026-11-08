@@ -1,0 +1,37 @@
+meta {
+  name: Confirm payment
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/admin/orders/:id/confirm-payment
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 1
+}
+
+auth:bearer {
+  token: {{staffToken}}
+}
+
+body:json {
+  {
+    "method": "bank-transfer",
+    "reference": "TT-1"
+  }
+}
+
+docs {
+  Staff, with `orders.manage`. This is the step that turns a pro forma into a commercial
+  invoice, and it exists because somebody has to look at a bank statement.
+
+  The pro forma is left exactly as it was — the buyer holds a copy, and a document that changed
+  after they were given it is not a record of anything.
+
+  A second confirmation is **409**, not a second invoice. Cancelling a paid order is also 409:
+  that is a refund, and it has its own route.
+}

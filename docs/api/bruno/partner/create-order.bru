@@ -1,0 +1,45 @@
+meta {
+  name: Create order
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/orders
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{partnerKey}}
+}
+
+body:json {
+  {
+    "externalOrderId": "PO-{{$timestamp}}",
+    "externalCustomerId": "C-77",
+    "amount": "500.00",
+    "currency": "USD",
+    "customer": {
+      "email": "pat@example.com",
+      "phone": "+6580000000",
+      "fullName": "Pat Lim"
+    }
+  }
+}
+
+docs {
+  You send an **amount**; the system composes a real basket of active SKUs totalling it exactly.
+
+  `externalOrderId` is the idempotency key. Send the same one twice with the same body and you
+  get the original order back with `Idempotent-Replay: true` and a 200 instead of a 201 — which
+  is how you tell a retry from a new order. Send it with a *different* body and you get
+  `ORDER_IDEMPOTENCY_CONFLICT`, because answering with either order would be wrong.
+
+  `amount` is a string with exactly two decimals. A JSON number would lose a cent somewhere
+  between your client and ours.
+
+  Refusals worth handling: `AMOUNT_OUT_OF_RANGE` (422), `EXACT_COMPOSITION_UNAVAILABLE` (422 —
+  no basket totals that amount, so try a different one), and `COMPOSITION_TIMEOUT` (503, and the
+  only one marked retryable — a second attempt gets a different seed and may well work).
+}

@@ -1,0 +1,15 @@
+vars {
+  baseUrl: http://127.0.0.1:58080
+}
+
+vars:secret [
+  partnerKey,
+  shopToken,
+  staffToken,
+  superToken
+]
+
+docs {
+  Matches the ports `build/compose/docker-compose.smoke.yml` publishes on loopback. Bring the
+  stack up with `tools/smoke/smoke.sh --keep` and the collection will reach it.
+}

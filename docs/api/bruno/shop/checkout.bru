@@ -1,0 +1,36 @@
+meta {
+  name: Checkout
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/v1/shop/checkout
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{shopToken}}
+}
+
+body:json {
+  {
+    "expectedTotal": { "amount": "40.00", "currency": "USD" }
+  }
+}
+
+docs {
+  `expectedTotal` is the only money a shop request may carry, and it is a claim about what was
+  **displayed** — not an instruction about what to charge. It can cause a refusal and never a
+  price.
+
+  A **409 `PRICE_CHANGED`** carries the fresh cart in `details.cart`, because the next thing the
+  customer will do is look at what it now costs. Nothing is written: no order, and no invoice
+  number drawn from a gapless sequence.
+
+  On success you get **201** and an order that is `PendingPayment` with a pro forma attached.
+  Nothing is invoiced until an administrator confirms the money arrived — this system cannot see
+  a bank account, and a commercial invoice issued now would say a sale was settled when nobody
+  had checked.
+}

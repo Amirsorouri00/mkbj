@@ -1,0 +1,32 @@
+meta {
+  name: Add to cart
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/shop/cart/lines
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{shopToken}}
+}
+
+body:json {
+  {
+    "variantId": 1,
+    "quantity": 2
+  }
+}
+
+docs {
+  Notice what you **cannot** send: a price. A cart that accepted one from the browser would let
+  the browser set it. The price comes from Pricing, live, on every cart operation — an
+  architecture test fails the build if a money-shaped field ever appears on a shop request.
+
+  The response includes `changes`: anything repriced or removed since you last looked. It is
+  part of the cart, not an error channel, and a client that ignores it still shows the right
+  total.
+}

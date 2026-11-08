@@ -25,9 +25,22 @@ services:
       timeout: 5s
       retries: 10
 
+  # MinIO no longer publishes anonymously pullable images: docker.io/minio/minio and
+  # quay.io/minio/minio both refuse an unauthenticated pull, so the pinned tag below cannot be
+  # fetched without an account. MINIO_IMAGE/MINIO_MC_IMAGE default to an archived mirror of the
+  # same AGPL build, matching docker-compose.dev.yml, so a fresh deployment comes up with no
+  # credentials. Point them back at minio/minio once you hold some: the entrypoint override
+  # runs the same binary with the same arguments either way.
+  #
+  # A production deployment should pin a digest it has pulled and scanned itself rather than
+  # relying on either default.
   minio:
-    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    image: ${MINIO_IMAGE:-bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c}
     restart: unless-stopped
+    # The official image runs as root; the mirror runs as uid 1001 and cannot write a freshly
+    # created named volume. Matching the official image keeps the two interchangeable.
+    user: "0"
+    entrypoint: ["/bin/sh", "-c", "exec $$(command -v minio || echo /opt/bitnami/minio/bin/minio) \"$$@\"", "--"]
     command: server /data --console-address :9001
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER in .env}
@@ -35,7 +48,9 @@ services:
     volumes:
       - minio_data:/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      # The mirror puts mc somewhere other than the path, so this resolves it rather than
+      # assuming. `mc ready` needs no alias configured against a local server.
+      test: ["CMD-SHELL", "$$(command -v mc || echo /opt/bitnami/minio-client/bin/mc) ready local"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -43,7 +58,7 @@ services:
   # Creates the buckets and the application's own MinIO user, then exits. The API never uses the
   # root credentials.
   minio-init:
-    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
+    image: ${MINIO_MC_IMAGE:-bitnamilegacy/minio-client:latest}
     restart: "no"
     depends_on:
       minio:
@@ -58,13 +73,16 @@ services:
       - -c
       - |
         set -e
-        mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"
-        mc mb --ignore-existing local/catalog-media local/import-staging local/documents
+        # Resolved rather than assumed: the official image has mc on PATH, the mirror keeps
+        # it under /opt/bitnami.
+        MC=$$(command -v mc || echo /opt/bitnami/minio-client/bin/mc)
+        "$$MC" alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"
+        "$$MC" mb --ignore-existing local/catalog-media local/import-staging local/documents
         # Published product images are served to anonymous browsers through Caddy.
         # import-staging and documents stay private: documents are reached only by presigned URL.
-        mc anonymous set download local/catalog-media
-        mc admin user add local "$$MINIO_APP_ACCESS_KEY" "$$MINIO_APP_SECRET_KEY"
-        mc admin policy attach local readwrite --user "$$MINIO_APP_ACCESS_KEY" || true
+        "$$MC" anonymous set download local/catalog-media
+        "$$MC" admin user add local "$$MINIO_APP_ACCESS_KEY" "$$MINIO_APP_SECRET_KEY"
+        "$$MC" admin policy attach local readwrite --user "$$MINIO_APP_ACCESS_KEY" || true
 
   # Runs to completion before api and worker start. The host never migrates on startup.
   migrations:
@@ -104,8 +122,11 @@ services:
       Minio__AccessKey: ${MINIO_APP_ACCESS_KEY:?set MINIO_APP_ACCESS_KEY in .env}
       Minio__SecretKey: ${MINIO_APP_SECRET_KEY:?set MINIO_APP_SECRET_KEY in .env}
       ApiKeys__Pepper: ${API_KEYS_PEPPER:?set API_KEYS_PEPPER in .env}
-      Brave__ApiKey: ${BRAVE_API_KEY:?set BRAVE_API_KEY in .env}
-      Anthropic__ApiKey: ${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY in .env}
+      # Optional, and ":-" not ":?" on purpose: catalogue discovery and enrichment each
+      # disable themselves without a key. Demanding one would make a seller who wants neither
+      # buy two subscriptions to start the stack at all.
+      Brave__ApiKey: ${BRAVE_API_KEY:-}
+      Anthropic__ApiKey: ${ANTHROPIC_API_KEY:-}
       Keycloak__InternalUrl: http://keycloak:8080
       Keycloak__ExternalUrl: https://${AUTH_HOST:?set AUTH_HOST in .env}
     healthcheck:
@@ -135,8 +156,11 @@ services:
       Minio__AccessKey: ${MINIO_APP_ACCESS_KEY:?set MINIO_APP_ACCESS_KEY in .env}
       Minio__SecretKey: ${MINIO_APP_SECRET_KEY:?set MINIO_APP_SECRET_KEY in .env}
       ApiKeys__Pepper: ${API_KEYS_PEPPER:?set API_KEYS_PEPPER in .env}
-      Brave__ApiKey: ${BRAVE_API_KEY:?set BRAVE_API_KEY in .env}
-      Anthropic__ApiKey: ${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY in .env}
+      # Optional, and ":-" not ":?" on purpose: catalogue discovery and enrichment each
+      # disable themselves without a key. Demanding one would make a seller who wants neither
+      # buy two subscriptions to start the stack at all.
+      Brave__ApiKey: ${BRAVE_API_KEY:-}
+      Anthropic__ApiKey: ${ANTHROPIC_API_KEY:-}
       Keycloak__InternalUrl: http://keycloak:8080
       Keycloak__ExternalUrl: https://${AUTH_HOST:?set AUTH_HOST in .env}
     healthcheck:
@@ -186,8 +210,11 @@ services:
       KC_SMTP_HOST: ${KC_SMTP_HOST:?set KC_SMTP_HOST in .env}
       KC_SMTP_PORT: ${KC_SMTP_PORT:?set KC_SMTP_PORT in .env}
       KC_SMTP_FROM: ${KC_SMTP_FROM:?set KC_SMTP_FROM in .env}
-      KC_SMTP_USER: ${KC_SMTP_USER:?set KC_SMTP_USER in .env}
-      KC_SMTP_PASSWORD: ${KC_SMTP_PASSWORD:?set KC_SMTP_PASSWORD in .env}
+      # ":-" not ":?": a relay on a private network often takes no credentials, and demanding
+      # them would make an operator invent a username to start the stack. .env.example ships
+      # both empty, which under ":?" meant the documented setup could not start at all.
+      KC_SMTP_USER: ${KC_SMTP_USER:-}
+      KC_SMTP_PASSWORD: ${KC_SMTP_PASSWORD:-}
       KC_SMTP_FROM_DISPLAY_NAME: ${KC_SMTP_FROM_DISPLAY_NAME:?set KC_SMTP_FROM_DISPLAY_NAME in .env}
       # "true" for a submission relay on 587. A relay on 465 is implicit TLS, not STARTTLS.
       KC_SMTP_STARTTLS: ${KC_SMTP_STARTTLS:?set KC_SMTP_STARTTLS in .env}

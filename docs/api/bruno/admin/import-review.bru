@@ -1,0 +1,27 @@
+meta {
+  name: Review queue
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/admin/imports/records?status=NeedsReview
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{staffToken}}
+}
+
+docs {
+  What the import pipeline could not decide by itself.
+
+  Two kinds of thing land here. A **field** question — most often `RIGHTS_UNKNOWN`, meaning no
+  policy exists for that source and somebody must take responsibility before republishing
+  somebody else's words. And a **match** question — `FUZZY_MATCH` or `AMBIGUOUS_MATCH`, where a
+  listing looks like an existing product. Attaching it to the wrong one rewrites something
+  customers are already buying, so near-ties are never resolved automatically.
+
+  Approving does not publish: it makes the record valid and the next pipeline step picks it up.
+  So clearing a hundred records does not mean waiting on a hundred round trips.
+}

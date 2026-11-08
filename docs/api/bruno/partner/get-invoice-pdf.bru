@@ -1,0 +1,29 @@
+meta {
+  name: Get invoice PDF
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/v1/invoices/:id/pdf
+  auth: bearer
+}
+
+params:path {
+  id: 1
+}
+
+auth:bearer {
+  token: {{partnerKey}}
+}
+
+docs {
+  A **302** to a presigned link that expires in five minutes, not the bytes. The object store
+  serves them, so a large download never occupies an application thread.
+
+  Found rather than Moved Permanently on purpose: the link expires, and a cached permanent
+  redirect would send you to a dead URL for ever. Follow it, do not store it.
+
+  The PDF is rendered on first request and kept. A reprint is the same document — byte for byte
+  — because "is this the invoice we sent?" has to have an answer.
+}
