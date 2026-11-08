@@ -174,15 +174,36 @@ check "the browsable API UI is not exposed" \
 check "every response carries a correlation id" \
   bash -c "curl -fsS -D - -o /dev/null '${API}/health/live' | grep -qi 'x-correlation-id'"
 
+# These two are functions, not `bash -c`. A `bash -c` is a fresh shell: it inherits neither the
+# `compose` function nor the readonly paths this script works from, so the command inside it died
+# with "compose: command not found" and the check reported a failure that was entirely its own.
+# Both looked like product defects — the grants not applied, the worker not started — and neither
+# was. A check that cannot fail for the right reason is worse than no check.
+
 # The application role owns nothing: it can read and write rows and cannot change the schema.
 # This is the check that proves the roles script ran in the arrangement that ships.
-check "the application role cannot create tables" \
-  bash -c "compose exec -T -e PGPASSWORD=\$(grep '^APP_DB_PASSWORD=' '${ENV_FILE}' | cut -d= -f2) \
-    postgres psql -U eways_app -d eways -c 'CREATE TABLE smoke_should_fail (id int);' 2>&1 \
-    | grep -qi 'permission denied'"
+app_role_cannot_create_tables() {
+  local password refusal
+  password="$(grep '^APP_DB_PASSWORD=' "${ENV_FILE}" | cut -d= -f2-)"
 
-check "the worker container is running" \
-  bash -c "[[ \$(compose ps -q worker | wc -l) -gt 0 ]]"
+  # Captured, not piped. `set -o pipefail` is on, and psql exits non-zero precisely when the
+  # statement is refused — which is the outcome this check is looking for — so piping it into
+  # grep returns psql's failure whatever grep matched. The check reported FAIL against a
+  # correctly locked-down database: the most misleading way for a security check to be wrong,
+  # because the obvious reading is that the grants are missing.
+  refusal="$(compose exec -T -e "PGPASSWORD=${password}" postgres \
+    psql -U eways_app -d eways -c 'CREATE TABLE smoke_should_fail (id int);' 2>&1 || true)"
+
+  grep -qi 'permission denied' <<<"${refusal}"
+}
+
+worker_is_running() {
+  [[ -n "$(compose ps -q worker)" ]]
+}
+
+check "the application role cannot create tables" app_role_cannot_create_tables
+
+check "the worker container is running" worker_is_running
 
 printf '\n%d passed, %d failed\n' "${PASSED}" "${FAILED}"
 

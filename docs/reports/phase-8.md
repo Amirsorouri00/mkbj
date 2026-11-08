@@ -12,6 +12,8 @@ Verified at `ff36f60` on `feature/ecommerce-mvp`:
   - ArchitectureTests 97 · UnitTests 1,666 · PersistenceContractTests 18 · IntegrationTests 439
 - `docker compose -f build/compose/docker-compose.yml --env-file build/compose/ci.env config
   --quiet` — exit 0, and the same with the smoke overlay added.
+- `bash tools/smoke/smoke.sh` — **14 passed, 0 failed** against the production compose stack:
+  the real image, the real Dockerfile, the real `--migrate`, the real roles script.
 
 ## What works
 
@@ -50,7 +52,7 @@ checklist is what to verify before exposing this to anything.
 
 ## What running it found that no test had
 
-Five, and the pattern is worth naming: every one lives in a file no test reads, or in an
+Six, and the pattern is worth naming: every one lives in a file no test reads, or in an
 assumption no test states.
 
 1. **Both Keycloak realm exports were missing the `basic` client scope.** That scope is what puts
@@ -74,20 +76,63 @@ assumption no test states.
 4. **The smoke stack's default ports sat inside a Windows reserved range** (58034–58133), where
    binding fails with a socket permission error that says nothing about reservations.
 
-5. **An order-dependent test from phase 4.** `Best_Sellers_Rank_By_Units_Sold_In_The_Last_Thirty_Days`
+5. **The migrations container had never been able to start.** It exited 139 with no output. The
+   cause is a genuine collision between two sound decisions: one image serves four roles, so
+   `--migrate` is a flag on the same host — and the host composes its entire service graph before
+   any flag is dispatched. Several modules validate configuration at registration, eagerly and on
+   purpose, so a deployment with a missing secret fails while starting rather than on the first
+   request that needs it. Compose gave the migrator a connection string and nothing else, so that
+   validation killed it: `ApiKeys:Pepper must be set to at least 32 characters`.
+
+   **`--migrate` is the documented way to apply migrations, so nobody had ever deployed this via
+   compose.** Fixed by giving the migrator what the host validates, with `Jobs__Mode: Disabled` so
+   it cannot claim a job and run application code against a schema it is halfway through changing.
+   Weakening the eager validation was considered and rejected — an empty pepper that still hashes
+   and still verifies while offering no protection is exactly what it prevents — as was giving the
+   migrator a smaller service graph, which would let it and the application disagree about the EF
+   model.
+
+6. **An order-dependent test from phase 4.** `Best_Sellers_Rank_By_Units_Sold_In_The_Last_Thirty_Days`
    asserted that two products appear in order in the homepage best-sellers section. That section
    is a global top 12 and every other test sells into the same database, so the second product
    gets displaced: green alone, red in a full run. It now asserts the ordering invariant — rows in
    descending popularity, none with zero sales — rather than which products occupy the list.
 
+## What the first real smoke run said about the smoke run
+
+Fourteen checks, and **three of them were broken** — in ways that could only surface once the
+stack got far enough for them to execute at all. This is recorded because it is half of what that
+first run was worth.
+
+- **Two checks ran their command through `bash -c`.** That is a fresh shell: it inherits neither
+  the `compose` function nor the script's readonly paths, so the command died with
+  `compose: command not found` and the check reported failure. They read as "the grants are not
+  applied" and "the worker did not start" — two product defects, neither of which existed. Both
+  are now plain functions.
+
+- **The grants check then failed a second time, for a different reason.** The script runs under
+  `set -o pipefail`, and `psql` exits non-zero *precisely when the statement is refused* — the
+  outcome the check is looking for — so the pipeline returned psql's failure whatever `grep`
+  matched. It reported FAIL against a database whose grants were working correctly, which is the
+  most misleading way for a security check to be wrong: the obvious reading sends somebody
+  hunting a hole in the roles script that is not there. It now captures the output and greps the
+  variable.
+
+Both repaired checks were then mutation-checked in both directions against the live stack: each
+passes against a correct arrangement and fails against a broken one (a superuser that *can*
+create a table; a service name that does not exist).
+
+The lesson is not about shell quoting. **Nothing in this script had ever executed before**, and a
+check that cannot fail for the right reason is worse than no check — it manufactures false
+confidence in one direction and false alarm in the other.
+
 ## Incomplete, by decision
 
-- **The smoke script has never completed a green end-to-end run.** `mcr.microsoft.com` refused
-  every TLS handshake from this machine for the whole of this phase — dozens of attempts over
-  several hours, while Docker Hub worked throughout — so the API image cannot be built. The script
-  ran as far as the image build, which is how defects 2 and 4 above were found, and both compose
-  configurations validate. **This is the one phase-8 step that is not done.** It must be run before
-  release.
+- ~~The smoke script has never completed a green end-to-end run.~~ **Done.** It now reports
+  **14 passed, 0 failed** against the production compose stack. `mcr.microsoft.com` refused every
+  TLS handshake from this machine for most of this phase — dozens of attempts over several hours,
+  while Docker Hub worked throughout — and the run happened as soon as it came back. What that
+  first real run found is in its own section below.
 - **The load run was not on the compose stack.** Same cause. It ran against the Release host
   process with the dev Postgres and MinIO containers — same code, same configuration shape, not
   the chiselled image, not behind Caddy, not under the production grants. The p95 clears its

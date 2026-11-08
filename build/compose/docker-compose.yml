@@ -97,6 +97,30 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__Default: Host=postgres;Port=5432;Database=eways;Username=eways_migrator;Password=${MIGRATOR_DB_PASSWORD:?set MIGRATOR_DB_PASSWORD in .env}
+      # Everything below this line is configuration the migrator never reads.
+      #
+      # One image, four roles (ADR): `--migrate` is a flag on the same host, and the host builds
+      # its whole service graph before any flag is dispatched. Several modules validate their
+      # configuration at registration — eagerly and on purpose, so a deployment with a missing
+      # secret fails while starting rather than on the first request that needs it — and that
+      # validation runs for the migrator too.
+      #
+      # Without these the container died with exit 139 and no output anybody looked at. The
+      # alternative, a migrator that composes a smaller graph, would let the migrator and the
+      # application disagree about the model, which is the one thing a migrator must never do.
+      #
+      # Jobs are off: a migrator that claimed a job would run application code against a schema
+      # it is in the middle of changing.
+      Jobs__Mode: Disabled
+      ApiKeys__Pepper: ${API_KEYS_PEPPER:?set API_KEYS_PEPPER in .env}
+      Minio__Endpoint: http://minio:9000
+      Minio__PublicEndpoint: https://${STORAGE_HOST:?set STORAGE_HOST in .env}
+      Minio__AccessKey: ${MINIO_APP_ACCESS_KEY:?set MINIO_APP_ACCESS_KEY in .env}
+      Minio__SecretKey: ${MINIO_APP_SECRET_KEY:?set MINIO_APP_SECRET_KEY in .env}
+      Brave__ApiKey: ${BRAVE_API_KEY:-}
+      Anthropic__ApiKey: ${ANTHROPIC_API_KEY:-}
+      Keycloak__InternalUrl: http://keycloak:8080
+      Keycloak__ExternalUrl: https://${AUTH_HOST:?set AUTH_HOST in .env}
 
   api:
     build:
