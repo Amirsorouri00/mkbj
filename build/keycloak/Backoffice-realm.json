@@ -98,6 +98,7 @@
         "post.logout.redirect.uris": "${KC_ADMIN_WEB_ORIGIN}/*"
       },
       "defaultClientScopes": [
+        "basic",
         "profile",
         "email",
         "roles"

@@ -85,6 +85,7 @@
         "post.logout.redirect.uris": "${KC_SHOP_WEB_ORIGIN}/*"
       },
       "defaultClientScopes": [
+        "basic",
         "profile",
         "email",
         "roles"

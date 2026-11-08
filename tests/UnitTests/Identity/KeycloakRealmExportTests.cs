@@ -143,14 +143,53 @@ public sealed partial class KeycloakRealmExportTests
             .Should().OnlyContain(entry => entry.Contains("${", StringComparison.Ordinal));
     }
 
+    [Theory]
+    [InlineData(ShopFile)]
+    [InlineData(BackofficeFile)]
+    public void Every_Client_Requests_The_Basic_Scope(string file)
+    {
+        // Keycloak's `basic` client scope is what puts `sub` in an access token. Without it the
+        // token is otherwise perfectly valid — correct issuer, correct signature, correct roles —
+        // and the host rejects every one of them, because it requires a subject. The response is a
+        // bare 401 with no body and no log line naming the cause, so the realm looks fine, the
+        // login looks fine, and nothing works.
+        //
+        // Both exports shipped without it. This is the guard that says so.
+        var json = JsonNode.Parse(File.ReadAllText(Repo($"build/keycloak/{file}")))!.AsObject();
+
+        var clients = json["clients"]!.AsArray();
+        clients.Should().NotBeEmpty("a realm with no clients cannot issue a token at all");
+
+        foreach (var client in clients)
+        {
+            var scopes = client!["defaultClientScopes"]!.AsArray()
+                .Select(scope => scope!.GetValue<string>())
+                .ToList();
+
+            scopes.Should().Contain(
+                "basic",
+                "{0} in {1} would otherwise issue access tokens with no sub claim, which the host refuses",
+                client["clientId"]!.GetValue<string>(),
+                file);
+        }
+    }
+
     [Fact]
     public void Production_Compose_Fails_Fast_On_Missing_Smtp()
     {
         var compose = File.ReadAllText(Repo("build/compose/docker-compose.yml"));
 
+        // KC_SMTP_USER and KC_SMTP_PASSWORD are deliberately NOT in this list. `${VAR:?}` refuses
+        // an empty value as well as an unset one, so requiring them would make an unauthenticated
+        // relay impossible to configure — and an unauthenticated relay is an ordinary thing to
+        // have, including in tools/smoke, which uses mailpit. The variables below are the ones
+        // that actually carry the intent: a deployment that has not said where mail goes, from
+        // whom, on which port, under which transport security, must refuse to start rather than
+        // accept registrations whose verification email silently goes nowhere.
         foreach (var variable in new[]
                  {
-                     "KC_SMTP_HOST", "KC_SMTP_PORT", "KC_SMTP_FROM", "KC_SMTP_USER", "KC_SMTP_PASSWORD",
+                     "KC_SMTP_HOST", "KC_SMTP_PORT", "KC_SMTP_FROM",
+                     "KC_SMTP_FROM_DISPLAY_NAME", "KC_SMTP_STARTTLS",
                  })
         {
             compose.Should().MatchRegex($@"\$\{{{variable}:\?[^}}]+\}}",

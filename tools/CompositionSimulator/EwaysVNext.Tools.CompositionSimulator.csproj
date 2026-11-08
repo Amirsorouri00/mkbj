@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>EwaysVNext.Tools.CompositionSimulator</RootNamespace>
+    <AssemblyName>EwaysVNext.Tools.CompositionSimulator</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\Sales\Application\EwaysVNext.Modules.Sales.Application.csproj" />
+  </ItemGroup>
+</Project>

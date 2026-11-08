@@ -1,0 +1,265 @@
+{
+  "generatedUtc": "2026-11-08T18:48:38.1700458\u002B00:00",
+  "samplesPerCurrency": 2000,
+  "seed": 20261028,
+  "deadlineMs": 8000,
+  "maxLines": 20,
+  "distribution": "log-uniform 10.00-1,000,000.00 plus the five mandated amounts",
+  "currencies": [
+    {
+      "Currency": "USD",
+      "Attempts": 2005,
+      "Successes": 2005,
+      "successRate": 1,
+      "failures": {},
+      "p50Ms": 0.3985,
+      "p95Ms": 0.6669799999999999,
+      "p99Ms": 0.813324,
+      "meanLines": 4.644389027431421,
+      "meanDeviationBps": 2.7511396642272414,
+      "mandatedMisses": [],
+      "buckets": [
+        {
+          "Decade": 3,
+          "Attempts": 383,
+          "Successes": 383,
+          "rate": 1
+        },
+        {
+          "Decade": 4,
+          "Attempts": 426,
+          "Successes": 426,
+          "rate": 1
+        },
+        {
+          "Decade": 5,
+          "Attempts": 386,
+          "Successes": 386,
+          "rate": 1
+        },
+        {
+          "Decade": 6,
+          "Attempts": 389,
+          "Successes": 389,
+          "rate": 1
+        },
+        {
+          "Decade": 7,
+          "Attempts": 420,
+          "Successes": 420,
+          "rate": 1
+        },
+        {
+          "Decade": 8,
+          "Attempts": 1,
+          "Successes": 1,
+          "rate": 1
+        }
+      ]
+    },
+    {
+      "Currency": "EUR",
+      "Attempts": 2005,
+      "Successes": 2005,
+      "successRate": 1,
+      "failures": {},
+      "p50Ms": 0.109,
+      "p95Ms": 0.12825999999999999,
+      "p99Ms": 0.23034800000000005,
+      "meanLines": 4.620448877805487,
+      "meanDeviationBps": 2.5186693385899988,
+      "mandatedMisses": [],
+      "buckets": [
+        {
+          "Decade": 2,
+          "Attempts": 1,
+          "Successes": 1,
+          "rate": 1
+        },
+        {
+          "Decade": 3,
+          "Attempts": 383,
+          "Successes": 383,
+          "rate": 1
+        },
+        {
+          "Decade": 4,
+          "Attempts": 400,
+          "Successes": 400,
+          "rate": 1
+        },
+        {
+          "Decade": 5,
+          "Attempts": 404,
+          "Successes": 404,
+          "rate": 1
+        },
+        {
+          "Decade": 6,
+          "Attempts": 397,
+          "Successes": 397,
+          "rate": 1
+        },
+        {
+          "Decade": 7,
+          "Attempts": 420,
+          "Successes": 420,
+          "rate": 1
+        }
+      ]
+    },
+    {
+      "Currency": "SGD",
+      "Attempts": 2005,
+      "Successes": 2005,
+      "successRate": 1,
+      "failures": {},
+      "p50Ms": 0.1106,
+      "p95Ms": 0.15298,
+      "p99Ms": 0.25424400000000014,
+      "meanLines": 4.663840399002494,
+      "meanDeviationBps": 2.2684452416586334,
+      "mandatedMisses": [],
+      "buckets": [
+        {
+          "Decade": 3,
+          "Attempts": 354,
+          "Successes": 354,
+          "rate": 1
+        },
+        {
+          "Decade": 4,
+          "Attempts": 404,
+          "Successes": 404,
+          "rate": 1
+        },
+        {
+          "Decade": 5,
+          "Attempts": 397,
+          "Successes": 397,
+          "rate": 1
+        },
+        {
+          "Decade": 6,
+          "Attempts": 406,
+          "Successes": 406,
+          "rate": 1
+        },
+        {
+          "Decade": 7,
+          "Attempts": 443,
+          "Successes": 443,
+          "rate": 1
+        },
+        {
+          "Decade": 8,
+          "Attempts": 1,
+          "Successes": 1,
+          "rate": 1
+        }
+      ]
+    },
+    {
+      "Currency": "AED",
+      "Attempts": 2005,
+      "Successes": 2005,
+      "successRate": 1,
+      "failures": {},
+      "p50Ms": 0.1094,
+      "p95Ms": 0.13649999999999998,
+      "p99Ms": 0.28346000000000016,
+      "meanLines": 4.597506234413965,
+      "meanDeviationBps": 2.292816528237905,
+      "mandatedMisses": [],
+      "buckets": [
+        {
+          "Decade": 3,
+          "Attempts": 396,
+          "Successes": 396,
+          "rate": 1
+        },
+        {
+          "Decade": 4,
+          "Attempts": 420,
+          "Successes": 420,
+          "rate": 1
+        },
+        {
+          "Decade": 5,
+          "Attempts": 385,
+          "Successes": 385,
+          "rate": 1
+        },
+        {
+          "Decade": 6,
+          "Attempts": 415,
+          "Successes": 415,
+          "rate": 1
+        },
+        {
+          "Decade": 7,
+          "Attempts": 388,
+          "Successes": 388,
+          "rate": 1
+        },
+        {
+          "Decade": 8,
+          "Attempts": 1,
+          "Successes": 1,
+          "rate": 1
+        }
+      ]
+    },
+    {
+      "Currency": "GBP",
+      "Attempts": 2005,
+      "Successes": 2005,
+      "successRate": 1,
+      "failures": {},
+      "p50Ms": 0.1077,
+      "p95Ms": 0.12415999999999999,
+      "p99Ms": 0.19670800000000016,
+      "meanLines": 4.527680798004988,
+      "meanDeviationBps": 2.6751010815599177,
+      "mandatedMisses": [],
+      "buckets": [
+        {
+          "Decade": 2,
+          "Attempts": 1,
+          "Successes": 1,
+          "rate": 1
+        },
+        {
+          "Decade": 3,
+          "Attempts": 404,
+          "Successes": 404,
+          "rate": 1
+        },
+        {
+          "Decade": 4,
+          "Attempts": 408,
+          "Successes": 408,
+          "rate": 1
+        },
+        {
+          "Decade": 5,
+          "Attempts": 444,
+          "Successes": 444,
+          "rate": 1
+        },
+        {
+          "Decade": 6,
+          "Attempts": 370,
+          "Successes": 370,
+          "rate": 1
+        },
+        {
+          "Decade": 7,
+          "Attempts": 378,
+          "Successes": 378,
+          "rate": 1
+        }
+      ]
+    }
+  ]
+}

@@ -272,4 +272,7 @@
   <Folder Name="/tests/IntegrationTests/">
     <Project Path="tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj" />
   </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/CompositionSimulator/EwaysVNext.Tools.CompositionSimulator.csproj" />
+  </Folder>
 </Solution>

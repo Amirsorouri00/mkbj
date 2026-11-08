@@ -16,14 +16,14 @@ auth:bearer {
 
 body:json {
   {
-    "externalOrderId": "PO-{{$timestamp}}",
-    "externalCustomerId": "C-77",
+    "external_order_id": "PO-{{$timestamp}}",
+    "external_customer_id": "C-77",
     "amount": "500.00",
     "currency": "USD",
     "customer": {
       "email": "pat@example.com",
       "phone": "+6580000000",
-      "fullName": "Pat Lim"
+      "full_name": "Pat Lim"
     }
   }
 }
@@ -31,7 +31,7 @@ body:json {
 docs {
   You send an **amount**; the system composes a real basket of active SKUs totalling it exactly.
 
-  `externalOrderId` is the idempotency key. Send the same one twice with the same body and you
+  `external_order_id` is the idempotency key. Send the same one twice with the same body and you
   get the original order back with `Idempotent-Replay: true` and a 200 instead of a 201 — which
   is how you tell a retry from a new order. Send it with a *different* body and you get
   `ORDER_IDEMPOTENCY_CONFLICT`, because answering with either order would be wrong.

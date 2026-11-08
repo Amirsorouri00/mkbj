@@ -20,7 +20,7 @@ readonly ENV_FILE="${COMPOSE_DIR}/.env.smoke"
 KEEP=0
 [[ "${1:-}" == "--keep" ]] && KEEP=1
 
-readonly API_PORT="${SMOKE_API_PORT:-58080}"
+readonly API_PORT="${SMOKE_API_PORT:-18080}"
 readonly API="http://127.0.0.1:${API_PORT}"
 
 compose() {
@@ -77,12 +77,12 @@ ACME_EMAIL=smoke@example.invalid
 API_KEYS_PEPPER=$(generate)
 APP_DB_PASSWORD=$(generate)
 AUTH_HOST=localhost
-KC_ADMIN_WEB_ORIGIN=http://127.0.0.1:58080
-KC_API_PUBLIC_URL=http://127.0.0.1:58081
+KC_ADMIN_WEB_ORIGIN=http://127.0.0.1:18080
+KC_API_PUBLIC_URL=http://127.0.0.1:18081
 KC_BOOTSTRAP_ADMIN_PASSWORD=$(generate)
 KC_BOOTSTRAP_ADMIN_USERNAME=admin
 KC_DB_PASSWORD=$(generate)
-KC_SHOP_WEB_ORIGIN=http://127.0.0.1:58080
+KC_SHOP_WEB_ORIGIN=http://127.0.0.1:18080
 KC_SMTP_FROM=smoke@example.invalid
 KC_SMTP_FROM_DISPLAY_NAME=Eways Smoke
 KC_SMTP_HOST=mailpit

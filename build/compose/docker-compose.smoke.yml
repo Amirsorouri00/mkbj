@@ -17,15 +17,15 @@ name: eways
 services:
   postgres:
     ports:
-      - "127.0.0.1:${SMOKE_POSTGRES_PORT:-55432}:5432"
+      - "127.0.0.1:${SMOKE_POSTGRES_PORT:-15432}:5432"
 
   minio:
     ports:
-      - "127.0.0.1:${SMOKE_MINIO_PORT:-59000}:9000"
+      - "127.0.0.1:${SMOKE_MINIO_PORT:-19000}:9000"
 
   keycloak:
     ports:
-      - "127.0.0.1:${SMOKE_KEYCLOAK_PORT:-58081}:8080"
+      - "127.0.0.1:${SMOKE_KEYCLOAK_PORT:-18081}:8080"
 
   api:
     environment:
@@ -33,7 +33,7 @@ services:
       # every production code path.
       ASPNETCORE_ENVIRONMENT: Staging
     ports:
-      - "127.0.0.1:${SMOKE_API_PORT:-58080}:8080"
+      - "127.0.0.1:${SMOKE_API_PORT:-18080}:8080"
 
   worker:
     environment:
