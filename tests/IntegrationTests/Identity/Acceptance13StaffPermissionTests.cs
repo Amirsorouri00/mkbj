@@ -38,6 +38,11 @@ public sealed class Acceptance13StaffPermissionTests(PostgresFixture fixture)
         { "POST", "/api/v1/admin/settings/payment-instructions", """{"text":"Probe instruction"}""" },
         { "PUT", "/api/v1/admin/settings/commerce-limits",
             """{"minUsd":"10.00","maxUsd":"20000.00","bulkDefaultMax":10,"compositionDeadlineMs":5000,"compositionMaxLines":50}""" },
+
+        // Phases 5 and 6. Money leaving the business, and the verdict on whether the record of
+        // who did what can still be trusted — neither is a staff-level act.
+        { "POST", "/api/v1/admin/orders/1/refunds", """{"amount":"1.00","reason":"Probe"}""" },
+        { "GET", "/api/v1/admin/audit/verify", null },
     };
 
     private static HttpClient Client(WebApplicationFactory<Program> factory, string token)
@@ -71,6 +76,14 @@ public sealed class Acceptance13StaffPermissionTests(PostgresFixture fixture)
             $"{method} {route} is super-admin work");
     }
 
+    /// <summary>
+    /// The same routes answer a super admin — with anything but 403.
+    /// </summary>
+    /// <remarks>
+    /// A 404 counts as allowed. <c>/orders/1/refunds</c> names an order that does not exist, and
+    /// that is the point: the route must get far enough to look for it. Asserting 200 would mean
+    /// seeding a paid order per route, and would quietly turn a gate test into a workflow test.
+    /// </remarks>
     [Theory]
     [MemberData(nameof(SuperAdminOnlyRoutes))]
     public async Task Super_Admin_Is_Allowed_On_The_Same_Routes(string method, string route, string? body)
@@ -84,8 +97,11 @@ public sealed class Acceptance13StaffPermissionTests(PostgresFixture fixture)
 
             // The positive control. Without it, a route that is broken for everyone would pass
             // the refusal test and look like correct security.
+            // NotFound counts: /orders/1/refunds names an order that does not exist, and the
+            // point is that the route got far enough to look for it. Demanding 200 would mean
+            // seeding a paid order per route and would turn a gate test into a workflow test.
             response.StatusCode.Should().BeOneOf(
-                [HttpStatusCode.OK, HttpStatusCode.Created],
+                [HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.NotFound],
                 $"{method} {route} must work for the role that owns it");
         }
         finally
@@ -182,6 +198,8 @@ public sealed class Acceptance13StaffPermissionTests(PostgresFixture fixture)
     [InlineData("""mutation { createPartner(name: "x", scopes: ["orders:read"]) }""")]
     [InlineData("""mutation { updateCommerceLimits(minUsd: "1.00", maxUsd: "2.00", bulkDefaultMax: 1, compositionDeadlineMs: 1000, compositionMaxLines: 1) }""")]
     [InlineData("""mutation { createPermission(input: { code: "x", name: "x", rules: [] }) { permission { id } } }""")]
+    [InlineData("""mutation { refundOrder(input: { orderId: 1, amount: "1.00", reason: "x" }) { summary { id } } }""")]
+    [InlineData("""query { adminAuditVerification { intact } }""")]
     public async Task Staff_Is_Forbidden_On_GraphQL(string query)
     {
         using var factory = fixture.CreateFactory();
