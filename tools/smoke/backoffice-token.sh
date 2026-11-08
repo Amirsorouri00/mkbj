@@ -49,6 +49,19 @@ GRANTS_WERE="$(printf '%s' "${CLIENT_JSON}" \
 
 api PUT "${REALM}/clients/${CLIENT_UUID}" -d '{"directAccessGrantsEnabled": true}' >/dev/null
 
+# --- anything a previous run left behind ---------------------------------------------------
+#
+# The trap below undoes this run. It cannot undo a run that died before the cleanup script was
+# written — a failed token request, an interrupted shell — and those leave a super_admin in the
+# realm. Sweeping the prefix first means repeated runs cannot accumulate accounts, which is the
+# failure mode that turns a tidy helper into five stray admins nobody remembers creating.
+STALE="$(api GET "${REALM}/users?max=200" \
+  | python -c "import json,sys; print(' '.join(u['id'] for u in json.load(sys.stdin) if u['username'].startswith('smoke-')))")"
+
+for stale in ${STALE}; do
+  api DELETE "${REALM}/users/${stale}" >/dev/null 2>&1 || true
+done
+
 # --- one user, in one role -------------------------------------------------------------------
 api POST "${REALM}/users" -d "$(python - "${TEMP_USER}" "${TEMP_PASSWORD}" <<'PY'
 import json, sys

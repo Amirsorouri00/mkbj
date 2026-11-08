@@ -1,4 +1,4 @@
-# Onboarding — EwaysVNext
+﻿# Onboarding — EwaysVNext
 
 What this is, how to run it, and where things live.
 
@@ -102,6 +102,40 @@ dotnet test EwaysVNext.slnx
 Four suites; **IntegrationTests needs Docker**, the rest need nothing. Read
 [`TESTING-GUARANTEES.md`](TESTING-GUARANTEES.md) before trusting a green run — it says what each
 suite cannot see.
+
+## Before a release
+
+Two things `dotnet test` does not do.
+
+```bash
+# The production stack, end to end. Builds the real image with the real Dockerfile, migrates with
+# the real roles script, runs 14 checks, tears it all down from a trap even on failure.
+bash tools/smoke/smoke.sh
+```
+
+```bash
+# Composition coverage: how often the engine can hit an exact amount, across the whole range.
+# Pure — no database, no host, no container, and the same seed gives the same report anywhere.
+dotnet run --project tools/CompositionSimulator/EwaysVNext.Tools.CompositionSimulator.csproj -c Release
+```
+
+Then read [`RUNBOOK.md`](RUNBOOK.md) and [`SECURITY-CHECKLIST.md`](SECURITY-CHECKLIST.md).
+
+## Poking at the API by hand
+
+[`api/bruno/`](api/bruno/) is a Bruno collection covering the partner, shop and admin paths. It
+holds no credentials — every one is a `{{var}}` you supply:
+
+```bash
+npx @usebruno/cli run docs/api/bruno/shop --env local
+```
+
+Two things that cost an hour each if you guess:
+
+- **The partner endpoints take snake_case on the wire** (`external_order_id`), while the shop and
+  admin endpoints take camelCase. The partner contract follows PRD §9; the rest follow the DTOs.
+- **Partner scopes use colons** — `orders:create`, not `orders.create`. The authorization policy
+  name is `partner:orders:create`.
 
 ## Reading order
 

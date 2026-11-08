@@ -9,12 +9,18 @@ before trusting a green run.
 
 ## The four suites
 
-| Suite | Needs | Runs against | Catches |
-|---|---|---|---|
-| `ArchitectureTests` | nothing | compiled assemblies + source text | boundary violations, forbidden constructs, build-layout and documentation drift |
-| `UnitTests` | nothing | pure code | domain rules, value objects, helpers |
-| `PersistenceContractTests` | nothing | the EF model on **two** providers | mapping, naming, translation and materialization faults |
-| `IntegrationTests` | **Docker** | the real host on real Postgres + S3 | HTTP behaviour, grants, concurrency, containers |
+| Suite | Tests | Needs | Runs against | Catches |
+|---|---:|---|---|---|
+| `ArchitectureTests` | 97 | nothing | compiled assemblies + source text | boundary violations, forbidden constructs, build-layout and documentation drift |
+| `UnitTests` | 1,666 | nothing | pure code | domain rules, value objects, helpers |
+| `PersistenceContractTests` | 18 | nothing | the EF model on **two** providers | mapping, naming, translation and materialization faults |
+| `IntegrationTests` | 439 | **Docker** | the real host on real Postgres + S3 | HTTP behaviour, grants, concurrency, containers |
+| **Total** | **2,220** | | | 1 skipped — an Identity assertion parked since phase 1 |
+
+Counts are from `dotnet test EwaysVNext.slnx -c Release` on 2026-11-08 and go stale the moment
+somebody adds a test. They are here to give a sense of scale, not as a number to assert against:
+a test whose job is to agree with a number in a document fails on every honest change and gets
+deleted. The run is the source of truth.
 
 ```bash
 dotnet test EwaysVNext.slnx
@@ -87,8 +93,12 @@ Verified there today:
 
 ## What no suite proves
 
-- **Performance.** There is no load test. Nothing here measures throughput or latency, and no
-  number in any document is measured. The composition simulator and k6 script arrive in phase 8.
+- **Performance — but it is now measured outside the suite.** No test measures throughput or
+  latency, and none ever should: a p95 assertion on a build agent is a flaky test, not a guarantee.
+  The numbers live in [`reports/coverage-and-load.md`](reports/coverage-and-load.md), produced by
+  `tools/CompositionSimulator` (pure, deterministic, no IO) and `tests/load/partner-orders.js`
+  (k6, against a running host). **Neither runs under `dotnet test`.** Both are reports: they
+  describe one run on one machine, and the load half has not yet been run on the compose stack.
 - **MinIO specifically.** The storage tests run against LocalStack's S3. MinIO no longer publishes
   anonymously pullable images — `docker.io/minio/minio` and `quay.io/minio/minio` both refuse an
   unauthenticated pull — so the dev stack runs an archived mirror of the same AGPL server. The
@@ -108,8 +118,8 @@ Verified there today:
 - **The partner probe endpoints prove the gates, not the product.** `/test/partner/{scope}` exists
   only in the integration suite and returns the partner id. It proves that a key authenticates,
   that a scope is required, that suspension and revocation take effect, and that the rate limit
-  partitions per partner. It proves nothing about any real partner endpoint, since none exist
-  yet — those arrive with Sales.
+  partitions per partner. The real partner endpoints now exist and have their own tests; the probe
+  still proves only the gate.
 - **The ECB.** `EcbFxRateProvider` is unit-tested against recorded XML, and the demo seed falls
   back to fixed rates when the fetch fails. Nothing proves the live endpoint's shape has not
   changed, and nothing exercises what happens after `Fx:MaxRateAge` has elapsed in production.
@@ -118,8 +128,23 @@ Verified there today:
   mechanisms fire; nothing measures whether the results are good.
 - **Refresh cost.** Every storefront test refreshes a shop of a handful of products. Nothing
   measures a full refresh of a real catalogue, and `CONCURRENTLY` roughly doubles the work.
-- **Anything in a later phase.** The composition engine, orders, invoices, imports and the admin
-  surface do not exist yet, so nothing covers them.
+- **A contract snapshot proves the shape has not changed, not that it is right.** The OpenAPI and
+  GraphQL SDL snapshots fail when the published contract moves, which is what makes an accidental
+  breaking change visible in a diff. A snapshot taken over a wrong shape locks the wrong shape in.
+- **The audit coverage theory proves a row, not its contents.** It proves that every admin write
+  records an audit event with an action, a target and an actor. It does not check the `before` and
+  `after` payloads, so an audit row that records the wrong values still passes.
+- **The authorization allowlist proves that every endpoint is gated, not that it is gated
+  correctly.** It fails the build when a new route carries no policy. Whether the policy it
+  carries is the right one is not checked by it.
+- **The GraphQL limits test proves a framework default, not the configured limits.** See the
+  honest note in the test itself: HotChocolate's built-in coordinate-cycle guard refuses the
+  probe query, and its message happens to contain "depth". Both `AddMaxExecutionDepthRule` and
+  `EnforceCostLimits` can be deleted with the test still green.
+- **The smoke script is not run by CI.** `tools/smoke/smoke.sh` brings up the production compose
+  stack and checks fourteen things a release has to get right. It needs Docker and about ten
+  minutes, so it is run by hand before a release, not on every push. Three defects in the
+  production compose file were found by running it and by nothing else.
 
 ## Two places the HTTP suite cannot reach, and what covers them instead
 

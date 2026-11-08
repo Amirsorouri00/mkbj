@@ -254,7 +254,8 @@ realm is open self-service registration.
 | `/api/v1/shop/me` | `shop:customer` — creates the customer record on first call |
 | `/api/v1/shop/{cart,checkout,orders,documents}` | `shop:customer` — the caller's own cart and orders only |
 | `/api/v1/shop/*` (home, categories, products, facets, search, currencies) | **anonymous** |
-| `/graphql` | per resolver, as above; the `shop*` fields are anonymous |
+| `/graphql` | per resolver, as above; the `shop*` fields are anonymous. Depth 10 and a 20,000 field/type cost ceiling apply to the whole schema |
+| `/openapi/v1.json` | **anonymous, in every environment** (`OpenApi:Expose`, default true) — the partner contract is public. Scalar's browsable UI stays Development-only |
 
 The storefront is anonymous on purpose: a shop that demands a token to show a product page is a
 shop nobody indexes and nobody shares a link to. It reads the materialized views only (ADR-0020),
@@ -283,7 +284,7 @@ A partner's own id is never bindable: it reaches a port through `PartnerPrincipa
 
 ## Testing
 
-Four suites. **IntegrationTests needs Docker**; the other three need nothing.
+Four suites, **2,220 tests** at 2026-11-08 (97 architecture, 1,666 unit, 18 persistence contract, 439 integration; 1 skipped). **IntegrationTests needs Docker**; the other three need nothing.
 
 - **ArchitectureTests** — boundary rules over compiled assemblies, plus source scans (no
   user-initiated transactions, no ambient clock, no Wolverine), the `build/` layout and the
@@ -348,3 +349,27 @@ is indistinguishable from one that works.
 - [`docs/TESTING-GUARANTEES.md`](docs/TESTING-GUARANTEES.md) — what the tests do and do not prove
 - [`docs/adr/`](docs/adr/) — decision records; 0017–0022 cover this MVP
 - [`tests/ArchitectureTests/HexagonalBoundaryTests.cs`](tests/ArchitectureTests/HexagonalBoundaryTests.cs) — the executable rules
+- [`docs/RUNBOOK.md`](docs/RUNBOOK.md) — deploy, roll back, restore, and what to do at 3 a.m.
+- [`docs/SECURITY-CHECKLIST.md`](docs/SECURITY-CHECKLIST.md) — what to verify before exposing this
+- [`docs/api/bruno/`](docs/api/bruno/) — a Bruno collection for the partner, shop and admin paths.
+  It is a client, not a test suite, and holds no secrets: every credential is a `{{var}}`.
+- [`docs/reports/coverage-and-load.md`](docs/reports/coverage-and-load.md) — composition coverage
+  and the k6 numbers
+
+## Ops package
+
+```bash
+# The production stack, end to end: builds the real image, migrates with the real roles script,
+# runs 14 release checks, tears everything down from a trap. Needs Docker, takes ~10 minutes.
+bash tools/smoke/smoke.sh          # --keep leaves it running
+
+# Composition coverage. Pure — no database, no host, no container.
+dotnet run --project tools/CompositionSimulator/EwaysVNext.Tools.CompositionSimulator.csproj -c Release
+
+# A Backoffice token without weakening the committed realm (restores it from a trap).
+eval "$(bash tools/smoke/backoffice-token.sh http://127.0.0.1:8081 admin admin)"
+```
+
+**Load and coverage are not part of `dotnet test`,** and should not be: a latency assertion on a
+build agent is a flaky test, not a guarantee. They produce reports — one run, one machine — and
+the report says which machine.
