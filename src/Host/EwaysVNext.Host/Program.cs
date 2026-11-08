@@ -21,6 +21,7 @@ using EwaysVNext.Jobs.Implementation;
 using EwaysVNext.Storage.Implementation;
 using EwaysVNext.Presentation.Endpoint.GraphQL;
 using EwaysVNext.Presentation.Endpoint.Security;
+using EwaysVNext.Host.OpenApi;
 using EwaysVNext.Host.RateLimiting;
 using EwaysVNext.Host.Seeding;
 using Microsoft.AspNetCore.Authorization;
@@ -105,6 +106,8 @@ builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer<KeycloakOAuthDocumentTransformer>();
     options.AddOperationTransformer<KeycloakSecurityRequirementOperationTransformer>();
+    options.AddDocumentTransformer<PartnerApiKeyOpenApiTransformer>();
+    options.AddOperationTransformer<PartnerApiKeyOpenApiTransformer>();
 });
 builder.Services.AddHealthChecks();
 
@@ -152,10 +155,14 @@ app.UseSerilogRequestLogging();
 var workerOnly = string.Equals(
     builder.Configuration["Jobs:Mode"], "WorkerOnly", StringComparison.OrdinalIgnoreCase);
 
-if (!workerOnly && app.Environment.IsDevelopment())
-{
+// The partner contract is public: somebody else's engineers generate clients from it, and a
+// document served only in Development is one they cannot reach. Scalar — the browsable UI —
+// stays Development-only, because that is a tool for this team rather than a contract.
+if (!workerOnly && builder.Configuration.GetValue("OpenApi:Expose", true))
     app.MapOpenApi();
 
+if (!workerOnly && app.Environment.IsDevelopment())
+{
     var keycloakOptions = app.Services.GetRequiredService<KeycloakOptions>();
 
     app.MapScalarApiReference(options =>
