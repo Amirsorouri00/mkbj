@@ -237,6 +237,24 @@ Both were found by mutation testing, and both would otherwise have read as cover
 - **The dashboard's composition statistics are Postgres-only.** `percentile_cont` has no LINQ
   translation; the integration suite is the only place that SQL runs.
 
+## What phase 6's suites cover
+
+- **Every route is authorized unless it is on an argued allowlist**, and the allowlist is checked
+  against the live routing table. The failure this catches is the quiet one: an admin endpoint
+  mapped without `RequireAuthorization` passes every test anyone writes for it, because those
+  tests send a token.
+- **Every `*AdminService` structurally holds `IAuditTrail`.** That it is called on the right path,
+  before the save, is each service's own test — `OrderAdminServiceTests` asserts that ordering.
+- **One GraphQL test is deliberately modest about what it proves.** It pins HotChocolate's
+  built-in cycle guard, and says so: the depth rule and cost ceiling this repository configures
+  can both be deleted with it still green. It was written the other way first, asserting only
+  that the word "depth" appeared in the message, and passed with the depth rule removed.
+- **Admin's mapping is tested against the real provider types.** A hand-written mapping that
+  drops a field compiles perfectly, so only a test naming the fields catches it.
+- **The audit verdict is not asserted intact.** Under the full suite every test writes audit
+  events into the one database, so "the chain is sealed" is a claim about every other test's
+  data. The test asserts the verdict is reachable and stamped with when it was reached.
+
 ## The shared database is a shared fixture, and nothing enforces cleanup
 
 `IntegrationTests` runs against one database. Most rows are per-test, but the
