@@ -255,6 +255,27 @@ Both were found by mutation testing, and both would otherwise have read as cover
   events into the one database, so "the chain is sealed" is a claim about every other test's
   data. The test asserts the verdict is reachable and stamped with when it was reached.
 
+## What phase 7's suites cover
+
+- **The fingerprint is tested for both failure directions.** Too narrow duplicates a catalogue
+  on every re-import; too wide collapses two products into one. Both are expensive and neither
+  is visible from reading the code, so the cases are spelled out as examples.
+- **The CSV reader is tested against what suppliers actually send**: quoted commas, doubled
+  quotes, a newline inside a cell, a byte-order mark on the first heading, a ragged last row.
+  Each silently loses data if got wrong.
+- **The SSRF guard is mutation-checked on `169.254.169.254` specifically** — the cloud metadata
+  endpoint. That is the address which turns "import this catalogue" into "hand over this
+  machine's credentials".
+- **What the crawler tests do *not* cover**: there is no integration test against a real HTTP
+  server. The decision logic is unit-tested; the assembly — that the safe handler is on the
+  client and redirects are off — is verified only by reading the registration.
+- **The Brave search mapping is pinned against a recorded payload, not the live service.** It
+  catches a rename on this side and nothing on theirs. This is stated in the phase report too,
+  because it is the kind of gap a green suite otherwise hides.
+- **The end-to-end file import is driven through the real services**: upload, map, start, step.
+  What it proves that the unit tests cannot is that the cursor advances, discovery hands over to
+  processing, a cancelled job stops taking steps, and a stale step does not drift the counters.
+
 ## The shared database is a shared fixture, and nothing enforces cleanup
 
 `IntegrationTests` runs against one database. Most rows are per-test, but the

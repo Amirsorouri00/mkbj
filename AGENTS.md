@@ -250,6 +250,7 @@ realm is open self-service registration.
 | `/api/v1/customers/{id}/orders` | `partner:customers.read` |
 | `/api/v1/invoices/{id}`, `/{id}/pdf`, `/invoices/search` | `partner:invoices.read` |
 | `/api/v1/admin/orders` | `admin:staff` + `orders.manage`; refunds take `admin:super` + `refunds.manage` |
+| `/api/v1/admin/imports` | `admin:staff` + `imports.manage`; rights policies take `admin:super` + `settings.manage` |
 | `/api/v1/shop/me` | `shop:customer` — creates the customer record on first call |
 | `/api/v1/shop/{cart,checkout,orders,documents}` | `shop:customer` — the caller's own cart and orders only |
 | `/api/v1/shop/*` (home, categories, products, facets, search, currencies) | **anonymous** |
