@@ -64,6 +64,9 @@ internal sealed class SourceListingRepository(EwaysVNextDbContext db) : ISourceL
 
 internal sealed class SourcePolicyRepository(EwaysVNextDbContext db) : ISourcePolicyRepository
 {
+    public Task<SourcePolicy?> GetAsync(long policyId, CancellationToken ct = default) =>
+        db.SourcePolicies.FirstOrDefaultAsync(policy => policy.Id == policyId, ct);
+
     public Task<SourcePolicy?> FindByDomainAsync(string domain, CancellationToken ct = default)
     {
         // Normalised on the way in as well as on the way out: a lookup by raw host text would

@@ -1,7 +1,9 @@
 using EwaysVNext.Database;
 using EwaysVNext.DependencyInjection;
+using EwaysVNext.Modules.Sourcing.Adapter.Inbound.Rest;
 using EwaysVNext.Modules.Sourcing.Adapter.Outbound;
 using EwaysVNext.Modules.Sourcing.Application;
+using EwaysVNext.Modules.Sourcing.QueryApplication;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EwaysVNext.Modules.Sourcing;
@@ -12,6 +14,8 @@ public static class ModuleInstaller
     {
         services.AddSourcingApplication();
         services.AddSourcingOutboundAdapters();
+        services.AddSourcingQueryApplication();
+        services.AddSourcingRestAdapter();
 
         services
             .AddPersistenceInterceptors()

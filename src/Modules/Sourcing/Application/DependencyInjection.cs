@@ -1,4 +1,6 @@
 using EwaysVNext.Modules.Sourcing.Application.Pipeline;
+using EwaysVNext.Modules.Sourcing.Application.Ports.Inbound;
+using EwaysVNext.Modules.Sourcing.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EwaysVNext.Modules.Sourcing.Application;
@@ -12,6 +14,12 @@ public static class DependencyInjection
     {
         services.AddScoped<RecordProcessor>();
         services.AddScoped<RecordPublisher>();
+
+        services.AddScoped<IImportPipeline, ImportPipeline>();
+        services.AddScoped<IImportJobService, ImportJobService>();
+        services.AddScoped<IImportFileService, ImportFileService>();
+        services.AddScoped<IStagedRecordReviewService, StagedRecordReviewService>();
+        services.AddScoped<ISourcePolicyService, SourcePolicyService>();
 
         return services;
     }

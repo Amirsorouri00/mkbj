@@ -225,6 +225,9 @@ public sealed class PublishPipelineTests
 
     private sealed class Policies(World world) : ISourcePolicyRepository
     {
+        public Task<SourcePolicy?> GetAsync(long policyId, CancellationToken ct = default) =>
+            Task.FromResult(world.Policy);
+
         public Task<SourcePolicy?> FindByDomainAsync(
             string domain, CancellationToken ct = default) =>
             Task.FromResult(world.Policy);

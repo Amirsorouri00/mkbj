@@ -41,6 +41,8 @@ public interface ISourceListingRepository
 
 public interface ISourcePolicyRepository
 {
+    Task<SourcePolicy?> GetAsync(long policyId, CancellationToken ct = default);
+
     Task<SourcePolicy?> FindByDomainAsync(string domain, CancellationToken ct = default);
 
     Task<IReadOnlyList<SourcePolicy>> ListAsync(CancellationToken ct = default);
