@@ -1,3 +1,5 @@
+using EwaysVNext.Modules.Sourcing.Adapter.Outbound.Files;
+using EwaysVNext.Modules.Sourcing.Adapter.Outbound.Gateways;
 using EwaysVNext.Modules.Sourcing.Adapter.Outbound.Persistence;
 using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +14,14 @@ public static class DependencyInjection
         services.AddScoped<IStagedRecordRepository, StagedRecordRepository>();
         services.AddScoped<ISourceListingRepository, SourceListingRepository>();
         services.AddScoped<ISourcePolicyRepository, SourcePolicyRepository>();
+
+        services.AddScoped<ICatalogMatcher, CatalogMatcherGateway>();
+        services.AddScoped<ICatalogPublisher, CatalogPublishingGateway>();
+        services.AddScoped<IPricePublisher, PricePublishingGateway>();
+
+        // One reader per format; the dispatcher picks by asking each in turn.
+        services.AddScoped<IImportFileReader, CsvImportReader>();
+        services.AddScoped<IImportFileReader, JsonImportReader>();
 
         return services;
     }
