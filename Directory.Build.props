@@ -15,6 +15,19 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!--
+      NU1900 is "could not download the vulnerability database", not "a package is vulnerable".
+      It is a statement about the network, and a build that fails because nuget.org was briefly
+      unreachable is a build that fails for something nobody can fix by changing the code.
+
+      The audit itself stays on. Its actual findings are NU1901-NU1904 (low through critical),
+      and those remain warnings-as-errors — so a vulnerable package still stops the build
+      whenever the feed can be read. Only the connectivity diagnostic is demoted.
+
+      Demoted rather than silenced with NoWarn: it still prints, so a machine that can never
+      reach the feed is visible rather than quietly unaudited.
+    -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1900</WarningsNotAsErrors>
   </PropertyGroup>
   <!--
     Test-project-only settings live in Directory.Build.TARGETS, not here. MSBuild imports

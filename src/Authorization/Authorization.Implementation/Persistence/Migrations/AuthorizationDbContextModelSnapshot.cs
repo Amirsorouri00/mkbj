@@ -151,6 +151,14 @@ namespace AuthorizationService.Implementation.Persistence.Migrations
                             CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
                             Name = "Manage admin accounts",
                             UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("0a5e9b4c-3d71-4f28-9c60-5e8b2a1d7f43"),
+                            Code = "audit.verify",
+                            CreatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Verify the audit log",
+                            UpdatedAtUtc = new DateTime(2026, 9, 23, 0, 0, 0, 0, DateTimeKind.Utc)
                         });
                 });
 
@@ -244,6 +252,12 @@ namespace AuthorizationService.Implementation.Persistence.Migrations
                         {
                             Id = new Guid("ec3c722e-b2b4-4d5a-b9c9-04fbb5985862"),
                             PermissionId = new Guid("630e0097-bb6c-4587-a8e1-fd0a561cdf32"),
+                            RoleId = new Guid("1a52e0a6-982a-4eac-843d-cf357b081742")
+                        },
+                        new
+                        {
+                            Id = new Guid("c1b47d82-6e95-4a30-8f17-2d9c6b5e8a14"),
+                            PermissionId = new Guid("0a5e9b4c-3d71-4f28-9c60-5e8b2a1d7f43"),
                             RoleId = new Guid("1a52e0a6-982a-4eac-843d-cf357b081742")
                         });
                 });

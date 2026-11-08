@@ -34,14 +34,21 @@ public static class DependencyInjection
             .AddTypeConverter<SnowflakeId, string>(id => id.ToString())
             .AddErrorFilter<GraphQLErrorFilter>()
             .AddHttpResponseFormatter<GraphQLHttpResponseFormatter>()
-            .ModifyCostOptions(options => options.MaxFieldCost = 20000);
+            .AddMaxExecutionDepthRule(
+                GraphQLLimits.MaxDepth, skipIntrospectionFields: true)
+            .ModifyCostOptions(options =>
+            {
+                options.MaxFieldCost = GraphQLLimits.MaxCost;
+                options.MaxTypeCost = GraphQLLimits.MaxCost;
+                options.EnforceCostLimits = true;
+            });
 
         return builder;
     }
 
     public static WebApplication MapGraphQLEndpoint(this WebApplication app, Action<GraphQLServerOptions>? configureTool = null)
     {
-        var endpoint = app.MapGraphQL();
+        var endpoint = app.MapGraphQL().RequireRateLimiting(Security.RateLimitPolicies.GraphQL);
 
         if (configureTool is not null)
             endpoint.WithOptions(configureTool);
