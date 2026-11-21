@@ -1,12 +1,12 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sales.Application.Domain.Carts;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Persistence;
+using Mkbj.Modules.Sales.Application.Domain.Carts;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sales;
+namespace Mkbj.IntegrationTests.Sales;
 
 /// <summary>
 /// The guarantees that live in the database rather than in the aggregate.
@@ -105,7 +105,7 @@ public sealed class SalesSchemaTests(PostgresFixture fixture)
 
         using var scope = factory.Services.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IOrderRepository>();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNext.Database.EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<Mkbj.Database.MkbjDbContext>();
 
         (await repository.TryInsertPartnerOrderAsync(
             SalesOrderMother.PartnerOrder(partnerId, external), Ct)).Should().BeFalse();

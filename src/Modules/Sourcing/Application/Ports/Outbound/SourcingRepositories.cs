@@ -1,9 +1,9 @@
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourceListings;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Domain.SourceListings;
+using Mkbj.Modules.Sourcing.Application.Domain.SourcePolicies;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
+namespace Mkbj.Modules.Sourcing.Application.Ports.Outbound;
 
 public interface IImportJobRepository
 {

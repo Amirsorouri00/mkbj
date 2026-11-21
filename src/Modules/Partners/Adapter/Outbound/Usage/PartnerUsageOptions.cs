@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Partners.Adapter.Outbound.Usage;
+namespace Mkbj.Modules.Partners.Adapter.Outbound.Usage;
 
 /// <summary>
 /// How usage logging trades memory, write amplification and loss against each other.

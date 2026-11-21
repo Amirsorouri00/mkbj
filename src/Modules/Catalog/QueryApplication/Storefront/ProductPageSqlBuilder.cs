@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text;
 using Npgsql;
 
-namespace EwaysVNext.Modules.Catalog.QueryApplication.Storefront;
+namespace Mkbj.Modules.Catalog.QueryApplication.Storefront;
 
 /// <summary>
 /// Builds one listing query: the filters that were asked for, and nothing else.

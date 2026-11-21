@@ -1,10 +1,10 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Outbound.Persistence;
+namespace Mkbj.Modules.Sales.Adapter.Outbound.Persistence;
 
 /// <summary>
 /// Draws the next order or document number from its sequence.
@@ -21,7 +21,7 @@ namespace EwaysVNext.Modules.Sales.Adapter.Outbound.Persistence;
 /// every order behind one lock, and a gap is explainable where a duplicate is not.
 /// </para>
 /// </remarks>
-internal sealed class DocumentNumberAllocator(EwaysVNextDbContext db) : IDocumentNumberAllocator
+internal sealed class DocumentNumberAllocator(MkbjDbContext db) : IDocumentNumberAllocator
 {
     private const string NpgsqlProvider = "Npgsql.EntityFrameworkCore.PostgreSQL";
 

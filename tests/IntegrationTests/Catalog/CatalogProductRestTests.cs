@@ -3,12 +3,12 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Storage;
+using Mkbj.Storage;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Catalog;
+namespace Mkbj.IntegrationTests.Catalog;
 
 /// <summary>
 /// The product admin surface end to end: create, add a variant, upload an image, go active.
@@ -56,9 +56,9 @@ public sealed class CatalogProductRestTests(PostgresFixture fixture)
     private static async Task<long> CreateCategoryAsync(WebApplicationFactory<Program> factory, string suffix)
     {
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNext.Database.EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<Mkbj.Database.MkbjDbContext>();
 
-        var category = EwaysVNext.Modules.Catalog.Application.Categories.Domain.Category.Create(
+        var category = Mkbj.Modules.Catalog.Application.Categories.Domain.Category.Create(
             Random.Shared.NextInt64(600_000_000, 699_999_999), $"Kettles {suffix}",
             $"kettles-{suffix}", null, null, 0, DateTimeOffset.UtcNow);
 

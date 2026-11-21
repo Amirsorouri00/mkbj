@@ -1,6 +1,6 @@
 using AuthorizationService.Application.UserRoleScopes.Requests;
 using AuthorizationService.Application.UserRoleScopes.Responses;
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
 namespace AuthorizationService.Application.UserRoleScopes;
 

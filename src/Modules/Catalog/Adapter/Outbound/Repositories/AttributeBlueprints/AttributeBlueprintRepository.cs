@@ -1,14 +1,14 @@
-﻿using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
-using EwaysVNext.Persistence;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Modules.Catalog.QueryApplication.AttributeBlueprints;
+using Mkbj.Persistence;
+using Mkbj.Queries.Application.Paginations;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound.Repositories.AttributeBlueprints;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound.Repositories.AttributeBlueprints;
 
-internal sealed class AttributeBlueprintRepository(EwaysVNextDbContext db) : EfCoreRepository<AttributeBlueprint, long>(db), IAttributeBlueprintRepository
+internal sealed class AttributeBlueprintRepository(MkbjDbContext db) : EfCoreRepository<AttributeBlueprint, long>(db), IAttributeBlueprintRepository
 {
     public new async Task<AttributeBlueprint?> GetByIdAsync(long id, CancellationToken ct = default)
         => await db.AttributeBlueprints

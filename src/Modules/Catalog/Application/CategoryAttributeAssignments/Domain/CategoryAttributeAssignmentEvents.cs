@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Events;
+using Mkbj.Domain.Events;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
 
 public sealed record CategoryAttributeAssignedDomainEvent(long AssignmentId, long CategoryId, long AttributeBlueprintId) : DomainEvent;
 

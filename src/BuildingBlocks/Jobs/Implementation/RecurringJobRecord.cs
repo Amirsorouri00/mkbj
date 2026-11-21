@@ -1,4 +1,4 @@
-namespace EwaysVNext.Jobs.Implementation;
+namespace Mkbj.Jobs.Implementation;
 
 /// <summary>
 /// A job that should be enqueued on a fixed interval. <see cref="NextRunAt"/> is advanced by the

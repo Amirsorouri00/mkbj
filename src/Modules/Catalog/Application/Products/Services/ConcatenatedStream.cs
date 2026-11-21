@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Catalog.Application.Products.Services;
+namespace Mkbj.Modules.Catalog.Application.Products.Services;
 
 /// <summary>
 /// The bytes already read from a stream, followed by whatever is left of it.

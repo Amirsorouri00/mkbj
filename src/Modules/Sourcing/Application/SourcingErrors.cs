@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sourcing.Application;
+namespace Mkbj.Modules.Sourcing.Application;
 
 /// <summary>
 /// Every refusal importing can express.
@@ -36,6 +36,9 @@ public static class SourcingErrors
         "IMPORT_FILE_FORMAT_UNSUPPORTED",
         "That file format cannot be read.",
         422);
+
+    public static readonly Error FileRequired = new(
+        "IMPORT_JOB_FILE_REQUIRED", "Upload a file before previewing or starting this job.", 400);
 
     public static Error FileMalformed(string detail) => new(
         "IMPORT_FILE_MALFORMED", detail, 422);

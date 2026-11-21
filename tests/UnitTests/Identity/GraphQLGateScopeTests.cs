@@ -4,7 +4,7 @@ using HotChocolate.Authorization;
 using HotChocolate.Types;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Identity;
+namespace Mkbj.UnitTests.Identity;
 
 /// <summary>
 /// A type-level <c>[Authorize]</c> on an <c>[ExtendObjectType]</c> class does not gate only that
@@ -26,9 +26,9 @@ public sealed class GraphQLGateScopeTests
         new[]
         {
             typeof(AuthorizationService.Endpoints.Permissions.PermissionQueries).Assembly,
-            typeof(EwaysVNext.Modules.Partners.Adapter.Inbound.GraphQL.PartnerAdminGraphQLQueries).Assembly,
-            typeof(EwaysVNext.Modules.Settings.Adapter.Inbound.GraphQL.SettingsAdminGraphQLQueries).Assembly,
-            typeof(EwaysVNext.Modules.Customer.Adapter.Inbound.GraphQL.Shop.ShopMeQueries).Assembly,
+            typeof(Mkbj.Modules.Partners.Adapter.Inbound.GraphQL.PartnerAdminGraphQLQueries).Assembly,
+            typeof(Mkbj.Modules.Settings.Adapter.Inbound.GraphQL.SettingsAdminGraphQLQueries).Assembly,
+            typeof(Mkbj.Modules.Customer.Adapter.Inbound.GraphQL.Shop.ShopMeQueries).Assembly,
         }
         .Distinct()
         .SelectMany(assembly => assembly.GetTypes())

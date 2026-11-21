@@ -78,6 +78,7 @@
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.9.0" />
     <PackageVersion Include="Gridify" Version="2.19.1" />
     <PackageVersion Include="Gridify.EntityFramework" Version="2.19.1" />
+    <PackageVersion Include="ClosedXML" Version="0.105.1" />
     <PackageVersion Include="Riok.Mapperly" Version="4.2.1" />
   </ItemGroup>
 </Project>

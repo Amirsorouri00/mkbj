@@ -108,12 +108,12 @@ ADR-0020's invariant is that staleness may affect what is *shown* but never what
 ```bash
 docker compose -f build/compose/docker-compose.dev.yml up -d
 
-dotnet build EwaysVNext.slnx -c Release
-dotnet test EwaysVNext.slnx
+dotnet build Mkbj.slnx -c Release
+dotnet test Mkbj.slnx
 
-dotnet run --project src/Host/EwaysVNext.Host -- --migrate
-dotnet run --project src/Host/EwaysVNext.Host -- --seed
-dotnet run --project src/Host/EwaysVNext.Host
+dotnet run --project src/Host/Mkbj.Host -- --migrate
+dotnet run --project src/Host/Mkbj.Host -- --seed
+dotnet run --project src/Host/Mkbj.Host
 ```
 
 Then, with no token:

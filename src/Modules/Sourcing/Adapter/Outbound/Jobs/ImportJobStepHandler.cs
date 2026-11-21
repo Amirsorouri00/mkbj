@@ -1,8 +1,8 @@
-using EwaysVNext.Jobs;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Inbound;
+using Mkbj.Jobs;
+using Mkbj.Modules.Sourcing.Application.Ports.Inbound;
 using Microsoft.Extensions.Logging;
 
-namespace EwaysVNext.Modules.Sourcing.Adapter.Outbound.Jobs;
+namespace Mkbj.Modules.Sourcing.Adapter.Outbound.Jobs;
 
 /// <summary>
 /// One step of one import, with the sequence it was issued for.

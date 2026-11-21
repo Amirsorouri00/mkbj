@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace EwaysVNext.Modules.Partners.Application.Partners.Keys;
+namespace Mkbj.Modules.Partners.Application.Partners.Keys;
 
 /// <summary>
 /// The server-side secret mixed into every key hash.

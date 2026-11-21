@@ -1,14 +1,14 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Outbound;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using NpgsqlTypes;
 
-namespace EwaysVNext.Modules.Pricing.Adapter.Outbound.Persistence;
+namespace Mkbj.Modules.Pricing.Adapter.Outbound.Persistence;
 
-internal sealed class ResolvedRateProjection(EwaysVNextDbContext db) : IResolvedRateProjection
+internal sealed class ResolvedRateProjection(MkbjDbContext db) : IResolvedRateProjection
 {
     private const int ColumnsPerRow = 8;
 

@@ -1,9 +1,9 @@
 using System.Globalization;
 using AwesomeAssertions;
-using EwaysVNext.Persistence;
+using Mkbj.Persistence;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 /// <summary>
 /// Money is stored in minor units (ADR-0017 D3). The conversion must be exact in both directions

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Partners.QueryApplication;
+namespace Mkbj.Modules.Partners.QueryApplication;
 
 public sealed record PartnerListItem(
     long Id,

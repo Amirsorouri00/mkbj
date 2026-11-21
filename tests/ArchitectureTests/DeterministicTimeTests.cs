@@ -1,7 +1,7 @@
 using AwesomeAssertions;
 using Xunit;
 
-namespace EwaysVNext.ArchitectureTests;
+namespace Mkbj.ArchitectureTests;
 
 public class DeterministicTimeTests
 {
@@ -67,7 +67,7 @@ public class DeterministicTimeTests
     private static string FindSourceRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "EwaysVNext.slnx")))
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Mkbj.slnx")))
             dir = dir.Parent;
 
         dir.Should().NotBeNull("the test must be able to locate the repository root");

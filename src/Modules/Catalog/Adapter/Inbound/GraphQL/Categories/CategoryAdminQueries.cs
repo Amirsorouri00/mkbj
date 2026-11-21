@@ -1,15 +1,15 @@
-﻿using AuthorizationService.Abstractions.Attributes;
+using AuthorizationService.Abstractions.Attributes;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
-using EwaysVNext.Modules.Catalog.QueryApplication.Categories;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Modules.Catalog.Contracts.Categories;
+using Mkbj.Modules.Catalog.QueryApplication.Categories;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
 using HotChocolate.Data;
 using HotChocolate.Types.Relay;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
 
 [ExtendObjectType(typeof(Query))]
 #pragma warning disable CA1822
@@ -70,13 +70,13 @@ public sealed class CategoryAdminQueries
         return ResultGraphQLExtensions.ValueOrThrow(result);
     }
 
-    //internal static T ValueOrThrow<T>(EwaysVNext.Outcomes.Result<T> result)
+    //internal static T ValueOrThrow<T>(Mkbj.Outcomes.Result<T> result)
     //{
     //    if (result.IsSuccess) return result.Value!;
     //    throw ToGraphQlException(result.Error);
     //}
 
-    //internal static GraphQLException ToGraphQlException(EwaysVNext.Outcomes.Error error) => new(ErrorBuilder.New()
+    //internal static GraphQLException ToGraphQlException(Mkbj.Outcomes.Error error) => new(ErrorBuilder.New()
     //    .SetMessage(error.Message).SetCode(error.Code).SetExtension("httpStatus", error.HttpStatus).Build());
 }
 #pragma warning restore CA1822

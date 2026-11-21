@@ -1,20 +1,20 @@
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Audit;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Partners.Application.Partners.Domain;
-using EwaysVNext.Modules.Partners.Application.Partners.Keys;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Inbound;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Outbound;
-using EwaysVNext.Modules.Partners.Application.Partners.Services;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using Mkbj.Audit;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Partners.Application.Partners.Domain;
+using Mkbj.Modules.Partners.Application.Partners.Keys;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Inbound;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Outbound;
+using Mkbj.Modules.Partners.Application.Partners.Services;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Partners;
+namespace Mkbj.UnitTests.Partners;
 
 /// <summary>
 /// Managing partners is super-admin work: issuing a key hands out the ability to place orders in

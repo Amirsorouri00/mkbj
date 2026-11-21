@@ -1,12 +1,12 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Services;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Validation;
-using EwaysVNext.Modules.Catalog.QueryApplication.Abstractions;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Services;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Validation;
+using Mkbj.Modules.Catalog.QueryApplication.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments;
 
 public static class DependencyInjection
 {

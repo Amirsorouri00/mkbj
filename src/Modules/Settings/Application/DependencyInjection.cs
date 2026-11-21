@@ -1,9 +1,9 @@
-using EwaysVNext.Modules.Settings.Application.Settings.Ports.Inbound;
-using EwaysVNext.Modules.Settings.Application.Settings.Services;
+using Mkbj.Modules.Settings.Application.Settings.Ports.Inbound;
+using Mkbj.Modules.Settings.Application.Settings.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Settings.Application;
+namespace Mkbj.Modules.Settings.Application;
 
 public static class DependencyInjection
 {

@@ -1,12 +1,12 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Pricing.Application;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Database;
+using Mkbj.Modules.Pricing.Application;
+using Mkbj.Outcomes;
+using Mkbj.Queries.Application.Paginations;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Pricing.QueryApplication;
+namespace Mkbj.Modules.Pricing.QueryApplication;
 
-public sealed class PricingAdminQueries(EwaysVNextDbContext db) : IPricingAdminQueries
+public sealed class PricingAdminQueries(MkbjDbContext db) : IPricingAdminQueries
 {
     private const int MaxPageSize = 100;
 

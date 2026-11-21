@@ -4,18 +4,18 @@ using System.Text.RegularExpressions;
 
 using AuthorizationService.Abstractions.Extensions;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Settings.Application.Settings.Ports.Inbound;
-using EwaysVNext.Modules.Settings.QueryApplication;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Settings.Application.Settings.Ports.Inbound;
+using Mkbj.Modules.Settings.QueryApplication;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace EwaysVNext.Modules.Settings.Adapter.Inbound.Rest.Admin;
+namespace Mkbj.Modules.Settings.Adapter.Inbound.Rest.Admin;
 
 public sealed record UpdateSellerRequest(
     string LegalName,

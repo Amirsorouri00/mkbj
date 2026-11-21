@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\Mkbj.Modules.Settings.Application.csproj" />
+    <ProjectReference Include="..\..\..\QueryApplication\Mkbj.Modules.Settings.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Presentation.Endpoint\Mkbj.Presentation.Endpoint.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Outcomes\Mkbj.Outcomes.csproj" />
+      <ProjectReference Include="..\..\..\..\..\Authorization\Authorization.Abstractions\Authorization.Abstractions.csproj" />
+      <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Core\Application\Mkbj.Core.Application.csproj" />
+      <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Persistence\Mkbj.Persistence.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+</Project>

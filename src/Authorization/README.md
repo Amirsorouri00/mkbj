@@ -18,7 +18,7 @@ are no REST routes. Writes (create/update/delete/assign/remove/bootstrap) are mu
 
 Every module in `src/Modules/` owns a business capability (Catalog, Customer, …) and
 follows the `Application/Adapter/QueryApplication/Installer` hexagonal layout on the
-shared `EwaysVNextDbContext`. Authorization doesn't fit that shape on purpose:
+shared `MkbjDbContext`. Authorization doesn't fit that shape on purpose:
 
 - It's a capability every module *consumes*, not a bounded context any module owns.
   Forcing it into the module system would mean inventing new cross-module ACL
@@ -81,7 +81,7 @@ composition method in `Authorization.Endpoints/DependencyInjection.cs` touches
 ## Persistence
 
 `AuthorizationDbContext` uses the exact same `ConnectionStrings:Default` as
-`EwaysVNextDbContext` — **one physical database**, not a separate one — but stays its own
+`MkbjDbContext` — **one physical database**, not a separate one — but stays its own
 `DbContext`:
 
 - Its own SQL schema: `authorization` (vs. the unified context's per-module schemas).
@@ -101,18 +101,18 @@ commands — these are separate from the ones in the root [README](../../README.
 # Authorization.Implementation/Persistence/Configurations
 dotnet ef migrations add {Name} \
   -p src/Authorization/Authorization.Implementation/Authorization.Implementation.csproj \
-  -s src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj \
+  -s src/Host/Mkbj.Host/Mkbj.Host.csproj \
   -c AuthorizationDbContext \
   -o Persistence/Migrations
 
-# Apply it directly (independent of the unified EwaysVNextDbContext migration)
+# Apply it directly (independent of the unified MkbjDbContext migration)
 dotnet ef database update \
   -p src/Authorization/Authorization.Implementation/Authorization.Implementation.csproj \
-  -s src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj \
+  -s src/Host/Mkbj.Host/Mkbj.Host.csproj \
   -c AuthorizationDbContext
 ```
 
-`dotnet run --project src/Host/EwaysVNext.Host -- --migrate` also migrates
+`dotnet run --project src/Host/Mkbj.Host -- --migrate` also migrates
 `AuthorizationDbContext` (and seeds `UserRoleScope` rows from `AuthorizationSeedData`, a
 hardcoded const-data class — not configuration) as part of the same explicit `--migrate` step
 used for the unified database — the Host still never auto-migrates on startup.
@@ -128,7 +128,7 @@ time by `DatabaseSeeder`), not by a hardcoded `Guid`, so it stays readable.
 ## Error handling — `Result`/`Result<T>`, same as every module
 
 Every `I*Service` method (`IPermissionService`, `IRoleService`, `IScopeService`,
-`IUserRoleScopeService`) returns `EwaysVNext.Outcomes.Result` or `Result<T>` — never throws for
+`IUserRoleScopeService`) returns `Mkbj.Outcomes.Result` or `Result<T>` — never throws for
 a refusal it can express, matching the rest of the codebase (AGENTS.md rule 9). There used to be
 Authorization-local `NotFoundException`/`ConflictException`/`ValidationException`/
 `InvalidPermissionRuleException` types plus a REST `ExceptionTranslationFilter` that caught them;
@@ -146,14 +146,14 @@ domain layer. `PermissionService` is the only place that catches it, immediately
 site, and converts it to `Result.Failure(new Error("VALIDATION", ex.Message))` — mirroring
 exactly how Catalog's `ProductService` wraps calls into `Product` with
 `try { ... } catch (DomainException dex) { return Result.Failure(new Error(dex.Code, dex.Message)); }`,
-just with Authorization's own exception type instead of `EwaysVNext.Domain.Common.DomainException`
-(Authorization deliberately doesn't reference `EwaysVNext.Domain` — see "Why it isn't a module").
+just with Authorization's own exception type instead of `Mkbj.Domain.Common.DomainException`
+(Authorization deliberately doesn't reference `Mkbj.Domain` — see "Why it isn't a module").
 
 No resolver carries its own validation code (Code/Name-required checks live in the service).
 Resolvers call `.ValueOrThrow()` (throws the right typed `*GraphQLException` via
 `Error.ToGraphQLException()` on failure) or `.ValueOrDefault()` for the "not found → null"
 queries (`permission(id)`, `permissionByCode(code)`), from
-`EwaysVNext.Presentation.Endpoint.GraphQL.Extensions` — same helpers `Customer`'s GraphQL
+`Mkbj.Presentation.Endpoint.GraphQL.Extensions` — same helpers `Customer`'s GraphQL
 mutations already use.
 
 ## How enforcement works — permission checks only, one mechanism per protocol

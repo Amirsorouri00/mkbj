@@ -1,16 +1,16 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using EwaysVNext.Core.Application.Security;
+using Mkbj.Core.Application.Security;
 using Microsoft.IdentityModel.Tokens;
 
-namespace EwaysVNext.IntegrationTests;
+namespace Mkbj.IntegrationTests;
 
 internal static class AdminJwtFactory
 {
     public const string Issuer = "https://integration-tests.local/realms/test";
     public const string Audience = "modular-monolith";
-    public const string SigningKey = "EwaysVNext-Integration-Tests-Signing-Key-Do-Not-Use-In-Prod-2026!!";
+    public const string SigningKey = "Mkbj-Integration-Tests-Signing-Key-Do-Not-Use-In-Prod-2026!!";
 
     public static string CreateToken(
         string tenant,
@@ -31,7 +31,7 @@ internal static class AdminJwtFactory
             // claim survives verbatim regardless of whichever inbound-claim-mapping default
             // the JWT handler is currently using.
             new(ClaimTypes.Role, role),
-            new(EwaysClaimTypes.Tenant, tenant),
+            new(MkbjClaimTypes.Tenant, tenant),
         };
 
         if (extra is not null)
@@ -61,8 +61,8 @@ internal static class AdminJwtFactory
     /// </summary>
     private static bool ClaimsMatch(string existing, string given) =>
         string.Equals(existing, given, StringComparison.Ordinal)
-        || (existing == ClaimTypes.Email && given == EwaysClaimTypes.Email)
-        || (existing == EwaysClaimTypes.Email && given == ClaimTypes.Email);
+        || (existing == ClaimTypes.Email && given == MkbjClaimTypes.Email)
+        || (existing == MkbjClaimTypes.Email && given == ClaimTypes.Email);
 
     public static string CreateSuperAdminToken(Guid? sub = null) =>
         CreateToken(AdminRoles.BackofficeRealm, AdminRoles.SuperAdmin, sub);
@@ -73,8 +73,8 @@ internal static class AdminJwtFactory
     public static string CreateShopToken(Guid sub, string email, bool emailVerified) =>
         CreateToken(AdminRoles.ShopRealm, "customer", sub,
         [
-            new Claim(EwaysClaimTypes.Email, email),
-            new Claim(EwaysClaimTypes.EmailVerified, emailVerified ? "true" : "false"),
+            new Claim(MkbjClaimTypes.Email, email),
+            new Claim(MkbjClaimTypes.EmailVerified, emailVerified ? "true" : "false"),
         ]);
 
     /// <summary>

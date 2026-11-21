@@ -1,11 +1,11 @@
-using EwaysVNext.Modules.Partners.Adapter.Outbound.Persistence;
-using EwaysVNext.Modules.Partners.Adapter.Outbound.Usage;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Inbound;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Outbound;
+using Mkbj.Modules.Partners.Adapter.Outbound.Persistence;
+using Mkbj.Modules.Partners.Adapter.Outbound.Usage;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Inbound;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Outbound;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Partners.Adapter.Outbound;
+namespace Mkbj.Modules.Partners.Adapter.Outbound;
 
 public static class DependencyInjection
 {

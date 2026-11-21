@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Sales.Application.Domain.Telemetry;
+using Mkbj.Modules.Sales.Application.Domain.Telemetry;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EwaysVNext.Database.Sales.Configurations;
+namespace Mkbj.Database.Sales.Configurations;
 
 /// <summary>
 /// One row per composition run. Append-only, and the only trace a failed composition leaves.

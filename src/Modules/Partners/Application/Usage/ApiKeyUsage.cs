@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Partners.Application.Usage;
+namespace Mkbj.Modules.Partners.Application.Usage;
 
 /// <summary>
 /// One recorded partner API call (<c>partners.api_key_usage</c>).

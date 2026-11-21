@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sales.Application.Ports.Inbound;
+namespace Mkbj.Modules.Sales.Application.Ports.Inbound;
 
 /// <summary>
 /// What happened when the customer pressed the button.

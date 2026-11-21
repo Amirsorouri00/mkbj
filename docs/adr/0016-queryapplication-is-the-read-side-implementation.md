@@ -3,7 +3,7 @@
 ## Status
 Accepted — 2026-10-28. (Proposed 2026-09-30; accepted as part of the MVP platform work, because
 every module built from here follows it: `QueryApplication` holds the projections and injects
-`EwaysVNextDbContext` directly.)
+`MkbjDbContext` directly.)
 
 Supersedes [ADR-0012](0012-queryapplication-is-the-public-contract.md) and
 [ADR-0013](0013-narrow-queryapplication-to-actual-contracts.md). Amends
@@ -23,8 +23,8 @@ The codebase no longer follows that decision uniformly. As of `main` @ `e7a24d5`
 
 | Read side | Where the query runs | Matches ADR-0012? |
 |---|---|---|
-| Catalog — products (`ProductQueryService`) | `Catalog.QueryApplication`, injects `EwaysVNextDbContext` | No — moved back here by SHOP-438 |
-| Catalog — categories (`CategoryQueries`, `CategoryAdminQueries`, `CategoryQueryShapes`) | `Catalog.QueryApplication`, injects `EwaysVNextDbContext` | No |
+| Catalog — products (`ProductQueryService`) | `Catalog.QueryApplication`, injects `MkbjDbContext` | No — moved back here by SHOP-438 |
+| Catalog — categories (`CategoryQueries`, `CategoryAdminQueries`, `CategoryQueryShapes`) | `Catalog.QueryApplication`, injects `MkbjDbContext` | No |
 | Catalog — attribute blueprints, measurement units, category attribute assignments | `Catalog.Application` query services → repository ports → `Adapter.Outbound` | Yes |
 | Customer — admin list, job types, team members | `Application` → `ICustomerRepository.QueryForAdminList` / `ITeamMemberRepository.QueryForList` (`IQueryable`) → `Adapter.Outbound` | Yes |
 | Location — provinces / cities / districts | `Application` → `IProvinceRepository` → `Adapter.Outbound` | Yes |
@@ -58,8 +58,8 @@ directly.**
 - Holds the interfaces and DTOs that anything outside the module's own `Application` may call:
   other modules, and the module's own inbound adapters (REST/GraphQL) for reads.
 - Contains **no implementation** and **no DI registration**.
-- May reference only framework-free building blocks: `EwaysVNext.Outcomes` and
-  `EwaysVNext.Queries.Application`. No EF Core, no ASP.NET Core, no other module.
+- May reference only framework-free building blocks: `Mkbj.Outcomes` and
+  `Mkbj.Queries.Application`. No EF Core, no ASP.NET Core, no other module.
 - Lives at `src/Modules/{Module}/Contracts/` (as `Location.Contracts` already does).
 - A module gets a `Contracts` project only when something actually calls it (ADR-0013's
   "narrow to actual contracts" principle carries over).
@@ -67,12 +67,12 @@ directly.**
   may live here too; they are still implemented in `Application`.
 
 ### 2. `{Module}.QueryApplication` — the read side
-- Implements the module's read contracts by querying `EwaysVNextDbContext` **directly** with
+- Implements the module's read contracts by querying `MkbjDbContext` **directly** with
   `AsNoTracking()` projections into DTOs. No repository indirection for reads.
 - Read-only: no `SaveChanges`, no `Add`/`Update`/`Remove`, no aggregate loading beyond what a
   projection needs, no domain rules.
-- May reference: its own `Contracts`, `EwaysVNext.Database`, `EwaysVNext.Outcomes`,
-  `EwaysVNext.Queries.Application`. Never another module's `Application` or `QueryApplication`.
+- May reference: its own `Contracts`, `Mkbj.Database`, `Mkbj.Outcomes`,
+  `Mkbj.Queries.Application`. Never another module's `Application` or `QueryApplication`.
 - Queries **only its own module's** `DbSet`s. `Database` exposes every module's entities, so this
   is a rule to enforce, not a property of the reference graph (see Enforcement).
 - May return `IQueryable<TDto>` to GraphQL for `[UsePaging]`/`[UseProjection]`; every such field
@@ -117,8 +117,8 @@ Replace the SHOP-438-specific assertions in `CategoryArchitectureTests` with gen
 `tests/ArchitectureTests`:
 
 1. No `*.Application` project references any `*.QueryApplication` project.
-2. `*.Contracts` projects reference nothing except `EwaysVNext.Outcomes` and
-   `EwaysVNext.Queries.Application`, and contain no concrete classes other than records/DTOs.
+2. `*.Contracts` projects reference nothing except `Mkbj.Outcomes` and
+   `Mkbj.Queries.Application`, and contain no concrete classes other than records/DTOs.
 3. No project outside a module references that module's `QueryApplication`.
 4. Source scan of `*/QueryApplication/**`: no `SaveChanges`, `.Add(`, `.Update(`, `.Remove(` on a
    `DbSet`, no `IsInMemory`/`IsSqlServer`/`ProviderName`.

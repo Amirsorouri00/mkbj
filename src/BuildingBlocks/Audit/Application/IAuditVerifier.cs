@@ -1,4 +1,4 @@
-﻿namespace EwaysVNext.Audit;
+namespace Mkbj.Audit;
 
 /// <summary>
 /// Checks the hash chain over the audit log. The chain makes tampering <b>detectable</b>; it does

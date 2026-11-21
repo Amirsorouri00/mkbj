@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sales.Application.Services;
+namespace Mkbj.Modules.Sales.Application.Services;
 
 /// <summary>
 /// Who the caller is, creating the record on first sight.

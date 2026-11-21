@@ -1,17 +1,17 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourceListings;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
-using EwaysVNext.Persistence;
+using Mkbj.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Domain.SourceListings;
+using Mkbj.Modules.Sourcing.Application.Domain.SourcePolicies;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Persistence;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sourcing;
+namespace Mkbj.IntegrationTests.Sourcing;
 
 /// <summary>
 /// The import side's guarantees that live in the database.

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace EwaysVNext.Presentation.Endpoint.Attributes;
+namespace Mkbj.Presentation.Endpoint.Attributes;
 
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class DisallowedEnumValuesAttribute<TEnum>(params TEnum[] disallowedValues) : Attribute, IEndpointFilter

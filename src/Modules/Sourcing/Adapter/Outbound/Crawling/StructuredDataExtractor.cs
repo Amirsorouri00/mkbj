@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Discovery;
 
-namespace EwaysVNext.Modules.Sourcing.Adapter.Outbound.Crawling;
+namespace Mkbj.Modules.Sourcing.Adapter.Outbound.Crawling;
 
 /// <summary>One product found on one page, with how it was found.</summary>
 public sealed record ExtractedProduct(JsonObject Document, ExtractionMethod Method, JsonObject? Original);

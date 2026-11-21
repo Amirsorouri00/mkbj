@@ -1,4 +1,4 @@
-namespace EwaysVNext.Audit.Implementation;
+namespace Mkbj.Audit.Implementation;
 
 /// <summary>
 /// The hash-chain link for one audit event: <c>sha256(previous_hash || this row)</c>.

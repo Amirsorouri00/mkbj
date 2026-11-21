@@ -1,17 +1,17 @@
-using EwaysVNext.Modules.Sourcing.Adapter.Outbound.Crawling;
-using EwaysVNext.Modules.Sourcing.Adapter.Outbound.Files;
-using EwaysVNext.Modules.Sourcing.Adapter.Outbound.Jobs;
-using EwaysVNext.Modules.Sourcing.Adapter.Outbound.Search;
-using EwaysVNext.Modules.Sourcing.Adapter.Outbound.Gateways;
-using EwaysVNext.Modules.Sourcing.Adapter.Outbound.Persistence;
-using EwaysVNext.Jobs;
-using EwaysVNext.Jobs.Implementation;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Modules.Sourcing.Adapter.Outbound.Crawling;
+using Mkbj.Modules.Sourcing.Adapter.Outbound.Files;
+using Mkbj.Modules.Sourcing.Adapter.Outbound.Jobs;
+using Mkbj.Modules.Sourcing.Adapter.Outbound.Search;
+using Mkbj.Modules.Sourcing.Adapter.Outbound.Gateways;
+using Mkbj.Modules.Sourcing.Adapter.Outbound.Persistence;
+using Mkbj.Jobs;
+using Mkbj.Jobs.Implementation;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace EwaysVNext.Modules.Sourcing.Adapter.Outbound;
+namespace Mkbj.Modules.Sourcing.Adapter.Outbound;
 
 public static class DependencyInjection
 {
@@ -24,6 +24,7 @@ public static class DependencyInjection
         services.AddOptions<BraveOptions>().Bind(configuration.GetSection(BraveOptions.SectionName));
 
         services.AddScoped<ISearchProvider, BraveSearchProvider>();
+        services.AddScoped<IImageStager, ImageStager>();
 
         services.AddHttpClient(BraveSearchProvider.ClientName, (provider, client) =>
         {
@@ -73,7 +74,9 @@ public static class DependencyInjection
 
         // One reader per format; the dispatcher picks by asking each in turn.
         services.AddScoped<IImportFileReader, CsvImportReader>();
+        services.AddScoped<IImportFileReader, XlsxImportReader>();
         services.AddScoped<IImportFileReader, JsonImportReader>();
+        services.AddScoped<IImportTemplateProvider, ImportTemplateProvider>();
 
         // One adapter per mode; the pipeline picks by asking each in turn.
         services.AddScoped<ISourceAdapter, FileImportAdapter>();

@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest.Categories;
+using Microsoft.Extensions.DependencyInjection;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Modules.Catalog.Adapter.Inbound.Rest.Categories;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.Rest;
 
 public static class DependencyInjection
 {

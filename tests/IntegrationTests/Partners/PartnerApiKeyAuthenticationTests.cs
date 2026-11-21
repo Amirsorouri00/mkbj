@@ -2,16 +2,16 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.IntegrationTests.Support;
-using EwaysVNext.Presentation.Endpoint;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.IntegrationTests.Support;
+using Mkbj.Presentation.Endpoint;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Partners;
+namespace Mkbj.IntegrationTests.Partners;
 
 /// <summary>
 /// The partner credential path end to end: a real key, over HTTP, against a real database.

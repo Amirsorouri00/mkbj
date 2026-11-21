@@ -1,4 +1,4 @@
-namespace EwaysVNext.Storage;
+namespace Mkbj.Storage;
 
 /// <summary>
 /// Files that do not belong in the database: product images, import downloads, invoice PDFs.

@@ -4,14 +4,14 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Customer.Application.Customers.Domain;
+using Mkbj.Database;
+using Mkbj.Modules.Customer.Application.Customers.Domain;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Customers;
+namespace Mkbj.IntegrationTests.Customers;
 
 /// <summary>
 /// The shop's own profile surface. The thread running through these is that the customer record
@@ -118,7 +118,7 @@ public sealed class ShopProfileTests(PostgresFixture fixture)
         var customerId = profile.GetProperty("id").GetInt64();
 
         using var scope = factory.Services.CreateScope();
-        var changes = await scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>()
+        var changes = await scope.ServiceProvider.GetRequiredService<MkbjDbContext>()
             .Customers.AsNoTracking()
             .Where(customer => customer.Id == customerId)
             .SelectMany(customer => customer.ContactChanges)

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Partners.Application.Usage;
+namespace Mkbj.Modules.Partners.Application.Usage;
 
 /// <summary>One call, as handed to the recorder. Ids are assigned when the batch is written.</summary>
 public sealed record ApiKeyUsageEntry(

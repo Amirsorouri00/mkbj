@@ -1,8 +1,8 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Contracts.Categories;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Catalog.QueryApplication.Categories;
+namespace Mkbj.Modules.Catalog.QueryApplication.Categories;
 
 /// <summary>
 /// The composable EF query shapes used by the public query service. Keeping these expressions
@@ -11,7 +11,7 @@ namespace EwaysVNext.Modules.Catalog.QueryApplication.Categories;
 /// </summary>
 internal static class CategoryQueryShapes
 {
-    internal static IQueryable<CategoryProjection> Categories(EwaysVNextDbContext db) =>
+    internal static IQueryable<CategoryProjection> Categories(MkbjDbContext db) =>
         db.Categories
             .AsNoTracking()
             .Select(category => new CategoryProjection(
@@ -19,7 +19,7 @@ internal static class CategoryQueryShapes
                 category.Description, category.DisplayOrder, category.Status));
 
     internal static IQueryable<CategoryProjection> CategoryById(
-        EwaysVNextDbContext db, long categoryId) =>
+        MkbjDbContext db, long categoryId) =>
         db.Categories
             .AsNoTracking()
             .Where(category => category.Id == categoryId)
@@ -28,21 +28,21 @@ internal static class CategoryQueryShapes
                 category.Description, category.DisplayOrder, category.Status));
 
     internal static IQueryable<long> ProductIdsForCategory(
-        EwaysVNextDbContext db, long categoryId) =>
+        MkbjDbContext db, long categoryId) =>
         db.CategoryProducts
             .AsNoTracking()
             .Where(assignment => assignment.CategoryId == categoryId)
             .Select(assignment => assignment.ProductId);
 
     internal static IQueryable<long> PagedProductIdsForCategory(
-        EwaysVNextDbContext db, long categoryId, int skip, int take) =>
+        MkbjDbContext db, long categoryId, int skip, int take) =>
         ProductIdsForCategory(db, categoryId)
             .OrderBy(productId => productId)
             .Skip(skip)
             .Take(take);
 
     internal static IQueryable<CategoryProjection> ProductCategoriesForProduct(
-        EwaysVNextDbContext db, long productId) =>
+        MkbjDbContext db, long productId) =>
         db.CategoryProducts
             .AsNoTracking()
             .Where(assignment => assignment.ProductId == productId)

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Presentation.Endpoint.GraphQL;
+namespace Mkbj.Presentation.Endpoint.GraphQL;
 
 internal static class GraphQLErrorFilterMessages
 {

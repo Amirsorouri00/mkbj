@@ -1,9 +1,9 @@
-﻿using EwaysVNext.Modules.Pricing.Application.Bands;
-using EwaysVNext.Modules.Pricing.Application.Fx.Domain;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Pricing.Application.Bands;
+using Mkbj.Modules.Pricing.Application.Fx.Domain;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Pricing.Application.Prices.Domain;
+namespace Mkbj.Modules.Pricing.Application.Prices.Domain;
 
 /// <summary>
 /// Turns one variant's stored price into a quote in the currency a customer is shopping in.

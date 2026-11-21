@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using AwesomeAssertions;
@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Catalog;
+namespace Mkbj.IntegrationTests.Catalog;
 
 /// <summary>
 /// The catalogue's admin GraphQL. Every resolver carries its own gate — a type-level attribute on
@@ -31,12 +31,12 @@ public sealed class CatalogAdminGraphQLTests(PostgresFixture fixture)
         WebApplicationFactory<Program> factory, string suffix)
     {
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNext.Database.EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<Mkbj.Database.MkbjDbContext>();
 
-        var brand = EwaysVNext.Modules.Catalog.Application.Brands.Domain.Brand.Create(
+        var brand = Mkbj.Modules.Catalog.Application.Brands.Domain.Brand.Create(
             Random.Shared.NextInt64(400_000_000, 499_999_999), $"Brand {suffix}", "seed",
             DateTimeOffset.UtcNow);
-        var category = EwaysVNext.Modules.Catalog.Application.Categories.Domain.Category.Create(
+        var category = Mkbj.Modules.Catalog.Application.Categories.Domain.Category.Create(
             Random.Shared.NextInt64(400_000_000, 499_999_999), $"Kettles {suffix}",
             $"kettles-{suffix}", null, null, 0, DateTimeOffset.UtcNow);
 

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using Npgsql;
 using NpgsqlTypes;
 
-namespace EwaysVNext.Jobs.Implementation;
+namespace Mkbj.Jobs.Implementation;
 
 /// <summary>
 /// The job store as raw SQL. Each operation is one statement, so concurrent workers need no

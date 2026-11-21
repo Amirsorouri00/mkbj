@@ -1,8 +1,8 @@
-using EwaysVNext.Jobs;
-using EwaysVNext.Modules.Catalog.Application.Storefront.Ports.Inbound;
+using Mkbj.Jobs;
+using Mkbj.Modules.Catalog.Application.Storefront.Ports.Inbound;
 using Npgsql;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound.Storefront;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound.Storefront;
 
 /// <summary>
 /// Rebuilds the storefront views, on the 5-second debounce after a catalogue change and on a

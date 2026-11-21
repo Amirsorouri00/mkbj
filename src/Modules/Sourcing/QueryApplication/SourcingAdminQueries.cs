@@ -1,12 +1,12 @@
 using System.Text.Json;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Database;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Outcomes;
+using Mkbj.Queries.Application.Paginations;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Sourcing.QueryApplication;
+namespace Mkbj.Modules.Sourcing.QueryApplication;
 
 public sealed record ImportJobListItemDto(
     long Id,
@@ -105,7 +105,7 @@ public interface ISourcingAdminQueries
 /// <summary>A keyset page, as everywhere else that lists rows which keep arriving.</summary>
 public sealed record CursorPageOf<T>(IReadOnlyList<T> Items, long? NextCursor);
 
-internal sealed class SourcingAdminQueries(EwaysVNextDbContext db) : ISourcingAdminQueries
+internal sealed class SourcingAdminQueries(MkbjDbContext db) : ISourcingAdminQueries
 {
     private const int MaxPageSize = 200;
 

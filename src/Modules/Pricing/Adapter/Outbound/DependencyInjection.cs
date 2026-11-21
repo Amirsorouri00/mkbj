@@ -1,18 +1,18 @@
-﻿using EwaysVNext.Modules.Pricing.Adapter.Outbound.Gateways;
-using EwaysVNext.Modules.Pricing.Adapter.Outbound.Persistence;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Outbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Outbound;
-using EwaysVNext.Modules.Pricing.Application.Currencies.Ports.Outbound;
-using EwaysVNext.Jobs;
-using EwaysVNext.Jobs.Implementation;
-using EwaysVNext.Modules.Pricing.Adapter.Outbound.Fx;
-using EwaysVNext.Modules.Pricing.Adapter.Outbound.Fx.Ecb;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Fx.Services;
+using Mkbj.Modules.Pricing.Adapter.Outbound.Gateways;
+using Mkbj.Modules.Pricing.Adapter.Outbound.Persistence;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Outbound;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Outbound;
+using Mkbj.Modules.Pricing.Application.Currencies.Ports.Outbound;
+using Mkbj.Jobs;
+using Mkbj.Jobs.Implementation;
+using Mkbj.Modules.Pricing.Adapter.Outbound.Fx;
+using Mkbj.Modules.Pricing.Adapter.Outbound.Fx.Ecb;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Fx.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Pricing.Adapter.Outbound;
+namespace Mkbj.Modules.Pricing.Adapter.Outbound;
 
 public static class DependencyInjection
 {

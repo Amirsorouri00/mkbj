@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 /// <summary>
 /// A category's canonical key is what an import matches against, and its aliases are how the

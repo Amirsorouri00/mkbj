@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace EwaysVNext.Jobs.Implementation;
+namespace Mkbj.Jobs.Implementation;
 
 public static class DependencyInjection
 {

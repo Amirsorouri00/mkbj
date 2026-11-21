@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Catalog.Application.Products;
+namespace Mkbj.Modules.Catalog.Application.Products;
 
 /// <summary>Bound from <c>Catalog:Media</c>.</summary>
 public sealed class CatalogMediaOptions

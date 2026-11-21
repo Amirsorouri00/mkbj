@@ -1,7 +1,7 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sourcing.Application.Domain.SourcePolicies;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
+namespace Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
 
 /// <summary>
 /// One import: where to look, how much to do, and how far it got.

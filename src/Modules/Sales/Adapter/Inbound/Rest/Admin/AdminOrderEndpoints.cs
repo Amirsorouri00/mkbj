@@ -1,20 +1,20 @@
 using System.Security.Claims;
 using AuthorizationService.Abstractions.Extensions;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Sales.Application;
-using EwaysVNext.Modules.Sales.Application.Money;
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Modules.Sales.QueryApplication.Admin;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Sales.Application;
+using Mkbj.Modules.Sales.Application.Money;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.QueryApplication.Admin;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Admin;
+namespace Mkbj.Modules.Sales.Adapter.Inbound.Rest.Admin;
 
 public sealed record ConfirmPaymentRequest(string? Method, string? Reference);
 
@@ -106,11 +106,30 @@ public sealed class AdminOrderEndpoints : IEndpoint
         app.MapGet("/api/v1/admin/documents/{id:long}/pdf", async (
             long id, IInvoiceService invoices, CancellationToken ct) =>
         {
-            var url = await invoices.GetPdfUrlAsync(new DocumentAccess.Admin(), id, ct);
+            var pdf = await invoices.GetPdfAsync(new DocumentAccess.Admin(), id, ct);
 
-            return url.IsFailure
-                ? EndpointResult.Fail(url.Error!)
-                : EndpointResult.RedirectTo(url.Value!);
+            return pdf.IsFailure
+                ? EndpointResult.Fail(pdf.Error!)
+                : EndpointResult.File(pdf.Value!.Content, "application/pdf", pdf.Value.FileName);
+        })
+            .WithTags("Order administration")
+            .RequireAuthorization(AuthPolicies.AdminStaff)
+            .RequirePermission(AdminPermissions.OrdersManage);
+
+        // The backoffice fetches through CORS. Carrying the bytes in its authenticated JSON
+        // response avoids a second redirect to object storage (which must stay private and does
+        // not trust the backoffice origin). The ordinary PDF route remains useful to HTTP clients.
+        app.MapGet("/api/v1/admin/documents/{id:long}/pdf-data", async (
+            long id, IInvoiceService invoices, CancellationToken ct) =>
+        {
+            var pdf = await invoices.GetPdfAsync(new DocumentAccess.Admin(), id, ct);
+            return pdf.IsFailure
+                ? EndpointResult.Fail(pdf.Error!)
+                : Result.Success(new
+                {
+                    pdf.Value!.FileName,
+                    ContentBase64 = Convert.ToBase64String(pdf.Value.Content),
+                }).ToHttpResult();
         })
             .WithTags("Order administration")
             .RequireAuthorization(AuthPolicies.AdminStaff)

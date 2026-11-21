@@ -1,7 +1,7 @@
 using System.Globalization;
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
+namespace Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
 
 /// <summary>Where a job's listings come from.</summary>
 public enum ImportMode

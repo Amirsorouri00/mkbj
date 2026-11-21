@@ -1,7 +1,7 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Partners.Application.Partners.Domain;
+namespace Mkbj.Modules.Partners.Application.Partners.Domain;
 
 /// <summary>
 /// A B2B partner and the keys it holds (spec §5.1).

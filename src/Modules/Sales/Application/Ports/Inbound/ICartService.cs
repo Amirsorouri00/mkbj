@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sales.Application.Ports.Inbound;
+namespace Mkbj.Modules.Sales.Application.Ports.Inbound;
 
 /// <summary>The shop customer behind a request, as the token presents them.</summary>
 public sealed record ShopCaller(Guid IdentityUserId, string Email, bool EmailVerified);

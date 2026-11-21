@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
+namespace Mkbj.Modules.Sourcing.Application.Ports.Outbound;
 
 /// <summary>Where one batch of discovery got to.</summary>
 /// <remarks>

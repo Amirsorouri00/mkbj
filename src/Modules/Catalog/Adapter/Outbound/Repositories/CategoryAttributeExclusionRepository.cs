@@ -1,15 +1,15 @@
 using Microsoft.EntityFrameworkCore;
-using EwaysVNext.Database;
-using EwaysVNext.Persistence;
+using Mkbj.Database;
+using Mkbj.Persistence;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound.Repositories;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound.Repositories;
 
 internal sealed class CategoryAttributeExclusionRepository
     : EfCoreRepository<Application.CategoryAttributeExclusions.Domain.CategoryAttributeExclusion, long>,
         Application.CategoryAttributeExclusions.Ports.Outbound.ICategoryAttributeExclusionRepository
 {
-    private readonly EwaysVNextDbContext _db;
-    public CategoryAttributeExclusionRepository(EwaysVNextDbContext db) : base(db) => _db = db;
+    private readonly MkbjDbContext _db;
+    public CategoryAttributeExclusionRepository(MkbjDbContext db) : base(db) => _db = db;
 
     public async Task<Application.CategoryAttributeExclusions.Domain.CategoryAttributeExclusion?> GetByCategoryAndSourceAsync(
         long categoryId, long sourceAssignmentId, CancellationToken ct = default)

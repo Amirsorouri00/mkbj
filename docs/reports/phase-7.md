@@ -7,8 +7,8 @@ included — and publishes what is valid. Everything uncertain waits for a perso
 
 Verified at `a7f62f5` on `feature/ecommerce-mvp`:
 
-- `dotnet build EwaysVNext.slnx -c Release` — 0 errors, 0 warnings.
-- `dotnet test EwaysVNext.slnx` — **2194 tests, 0 failures**, Docker up (1 skipped: an
+- `dotnet build Mkbj.slnx -c Release` — 0 errors, 0 warnings.
+- `dotnet test Mkbj.slnx` — **2194 tests, 0 failures**, Docker up (1 skipped: an
   Identity assertion parked since phase 1). 181 of them are Sourcing's.
 
 ## What works
@@ -105,9 +105,9 @@ Named rather than implied, because each is a promise this phase does not keep.
 
 ```bash
 docker compose -f build/compose/docker-compose.dev.yml up -d
-dotnet build EwaysVNext.slnx -c Release
-dotnet run --project src/Host/EwaysVNext.Host -- --migrate
-dotnet test EwaysVNext.slnx
-dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.FileImportEndToEndTests"
-dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.CrawlerSafetyTests"
+dotnet build Mkbj.slnx -c Release
+dotnet run --project src/Host/Mkbj.Host -- --migrate
+dotnet test Mkbj.slnx
+dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.FileImportEndToEndTests"
+dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.CrawlerSafetyTests"
 ```

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace EwaysVNext.Storage.Implementation;
+namespace Mkbj.Storage.Implementation;
 
 /// <summary>
 /// Without this, a missing setting first surfaced as a <see cref="UriFormatException"/> thrown by

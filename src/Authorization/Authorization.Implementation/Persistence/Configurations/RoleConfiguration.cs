@@ -1,6 +1,6 @@
 using AuthorizationService.Application.Entities;
 using AuthorizationService.Implementation.Seeding;
-using EwaysVNext.Core.Application.Security;
+using Mkbj.Core.Application.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

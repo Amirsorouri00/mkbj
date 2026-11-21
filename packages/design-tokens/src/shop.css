@@ -1,0 +1,24 @@
+:root {
+    --shop-background: #f5f5f3;
+    --shop-surface: #ffffff;
+    --shop-surface-subtle: #f0efec;
+    --shop-foreground: #181818;
+    --shop-muted: #606060;
+    --shop-border: #deddd9;
+    --shop-primary: #f28c00;
+    --shop-primary-hover: #d97700;
+    --shop-primary-soft: #fff2dc;
+    --shop-on-primary: #171717;
+    --shop-accent-red: #c9362b;
+    --shop-accent-yellow: #f5b700;
+    --shop-accent-green: #187a50;
+    --shop-danger: #a92d24;
+    --shop-focus: #a84f00;
+    --shop-charcoal: #1c1c1c;
+    --shop-charcoal-soft: #2a2a2a;
+    --shop-radius-sm: 0.375rem;
+    --shop-radius-md: 0.625rem;
+    --shop-radius-lg: 0.875rem;
+    --shop-shadow-sm: 0 1px 2px rgb(24 24 24 / 0.07);
+    --shop-shadow-md: 0 12px 28px rgb(24 24 24 / 0.11);
+}

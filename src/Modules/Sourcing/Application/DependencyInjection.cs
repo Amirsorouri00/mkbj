@@ -1,9 +1,9 @@
-using EwaysVNext.Modules.Sourcing.Application.Pipeline;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sourcing.Application.Services;
+using Mkbj.Modules.Sourcing.Application.Pipeline;
+using Mkbj.Modules.Sourcing.Application.Ports.Inbound;
+using Mkbj.Modules.Sourcing.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Sourcing.Application;
+namespace Mkbj.Modules.Sourcing.Application;
 
 /// <summary>Marks this assembly, so the installer can hand it to the event registrar.</summary>
 public static class SourcingApplicationMarker;

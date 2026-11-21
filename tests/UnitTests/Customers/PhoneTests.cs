@@ -1,8 +1,8 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Customer.Application.Customers.Domain;
+using Mkbj.Modules.Customer.Application.Customers.Domain;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Customers;
+namespace Mkbj.UnitTests.Customers;
 
 public sealed class PhoneTests
 {

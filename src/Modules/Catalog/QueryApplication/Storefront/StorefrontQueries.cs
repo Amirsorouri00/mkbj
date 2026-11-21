@@ -1,14 +1,14 @@
 using System.Globalization;
 using System.Text.Json;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
-using EwaysVNext.Modules.Catalog.QueryApplication.Categories;
-using EwaysVNext.Outcomes;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Contracts.Categories;
+using Mkbj.Modules.Catalog.QueryApplication.Categories;
+using Mkbj.Outcomes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Npgsql;
 
-namespace EwaysVNext.Modules.Catalog.QueryApplication.Storefront;
+namespace Mkbj.Modules.Catalog.QueryApplication.Storefront;
 
 /// <summary>
 /// Reads the storefront views and shapes them for a browsing visitor.
@@ -19,12 +19,10 @@ namespace EwaysVNext.Modules.Catalog.QueryApplication.Storefront;
 /// is a fact about the request, not about any product.
 /// </remarks>
 public sealed class StorefrontQueries(
-    EwaysVNextDbContext db,
+    MkbjDbContext db,
     ICategoryQueries categories,
     IOptions<StorefrontOptions> options) : IStorefrontQueries
 {
-    private const int MaxFeaturedCategories = 8;
-
     /// <summary>A page a visitor did not ask a size for.</summary>
     private const int DefaultLimit = 24;
 
@@ -54,16 +52,52 @@ public sealed class StorefrontQueries(
             .SqlQueryRaw<HomeCategoryRow>(StorefrontSql.HomeCategories, Text("currency", code))
             .ToListAsync(ct);
 
+        var settings = options.Value;
+        var featuredCategories = tiles
+            .Take(Clamp(settings.FeaturedCategoryLimit, 1, 12))
+            .Select(row => new CategoryTileDto(row.CategoryId, row.Name, row.Slug, row.ProductCount))
+            .ToList();
+
+        var categorySections = new List<HomeProductSectionDto>();
+        foreach (var category in featuredCategories.Take(Clamp(settings.CategorySectionLimit, 0, 6)))
+        {
+            var categoryPage = await PageAsync(
+                new ProductListQuery(code, category.CategoryId, null, null, null, null, null,
+                    StorefrontSort.Newest, null, Clamp(settings.ProductsPerCategorySection, 4, 16)),
+                code, StorefrontCursor.FtsMode, StorefrontSort.Newest, null,
+                Clamp(settings.ProductsPerCategorySection, 4, 16), ct);
+
+            if (categoryPage.Items.Count == 0) continue;
+            categorySections.Add(new HomeProductSectionDto(
+                category.Slug,
+                category.Name,
+                $"New and noteworthy products in {category.Name}",
+                category.CategoryId,
+                category.Slug,
+                categoryPage.Items));
+        }
+
         return Result.Success(new HomeDto(
             code,
-            [.. products.Where(row => row.Section == "new_arrivals").Select(row => Card(row, code))],
-            [.. products.Where(row => row.Section == "best_sellers").Select(row => Card(row, code))],
-            [.. tiles.Take(MaxFeaturedCategories)
-                .Select(row => new CategoryTileDto(row.CategoryId, row.Name, row.Slug, row.ProductCount))]));
+            [.. products.Where(row => row.Section == "new_arrivals")
+                .Take(Clamp(settings.NewArrivalsLimit, 4, 12)).Select(row => Card(row, code))],
+            [.. products.Where(row => row.Section == "best_sellers")
+                .Take(Clamp(settings.BestSellersLimit, 4, 12)).Select(row => Card(row, code))],
+            featuredCategories,
+            categorySections));
     }
 
-    public Task<IReadOnlyList<CategoryTreeNodeDto>> GetCategoryTreeAsync(CancellationToken ct = default) =>
-        categories.GetTreeAsync(ct);
+    public async Task<IReadOnlyList<CategoryTreeNodeDto>> GetCategoryTreeAsync(CancellationToken ct = default)
+    {
+        var tree = await categories.GetTreeAsync(ct);
+        var visibleIds = (await db.Database.SqlQueryRaw<long>("""
+            SELECT DISTINCT unnest(ancestor_category_ids) AS "Value"
+            FROM catalog.mv_storefront_variant
+            WHERE fx_valid_until IS NULL OR fx_valid_until >= now()
+            """).ToListAsync(ct)).ToHashSet();
+
+        return tree.Select(node => Visible(node, visibleIds)).OfType<CategoryTreeNodeDto>().ToList();
+    }
 
     public async Task<Result<ProductDetailDto>> GetProductBySlugAsync(
         string slug, string currency, CancellationToken ct = default)
@@ -321,6 +355,17 @@ public sealed class StorefrontQueries(
 
     private string? Url(string? objectKey) =>
         objectKey is null ? null : options.Value.MediaBaseUrl + objectKey;
+
+    private static int Clamp(int value, int minimum, int maximum) =>
+        Math.Clamp(value, minimum, maximum);
+
+    private static CategoryTreeNodeDto? Visible(CategoryTreeNodeDto node, IReadOnlySet<long> visibleIds)
+    {
+        if (!visibleIds.Contains(node.Id)) return null;
+        var children = node.Children.Select(child => Visible(child, visibleIds))
+            .OfType<CategoryTreeNodeDto>().ToList();
+        return node with { Children = children };
+    }
 
     private static Dictionary<string, string> Attributes(string json) =>
         JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? [];

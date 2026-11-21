@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Customer.Application.Customers.Domain;
+namespace Mkbj.Modules.Customer.Application.Customers.Domain;
 
 /// <summary>
 /// One recorded change to a customer's contact details.

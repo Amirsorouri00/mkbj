@@ -1,4 +1,4 @@
-﻿# ADR-0010: Kubernetes-Native Deployment Strategy
+# ADR-0010: Kubernetes-Native Deployment Strategy
 
 ## Status
 
@@ -107,7 +107,7 @@ image:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: ewaysvnext-migrate
+  name: mkbj-migrate
 spec:
   backoffLimit: 2
   template:
@@ -115,9 +115,9 @@ spec:
       restartPolicy: Never
       containers:
         - name: migrate
-          image: ewaysvnext/host:{{ .Values.image.tag }}
+          image: mkbj/host:{{ .Values.image.tag }}
           args: ["--migrate"]
-          envFrom: [{ secretRef: { name: ewaysvnext-connectionstrings } }]
+          envFrom: [{ secretRef: { name: mkbj-connectionstrings } }]
 ```
 
 **A Job, not an init container on the Deployment.** An init container runs once per pod, so
@@ -163,19 +163,19 @@ spec:
           restartPolicy: Never
           containers:
             - name: reaper
-              image: ewaysvnext/host:{{ .Values.image.tag }}   # SAME image as the API
+              image: mkbj/host:{{ .Values.image.tag }}   # SAME image as the API
               args: ["--reap-once"]
-              envFrom: [{ secretRef: { name: ewaysvnext-connectionstrings } }]
+              envFrom: [{ secretRef: { name: mkbj-connectionstrings } }]
 ```
 
 **Deliberate deviations from the original proposal, and why:**
 
-1. **Same image, different args — not a separate `ewaysvnext/reaper` image with an
+1. **Same image, different args — not a separate `mkbj/reaper` image with an
    `/app/reaper` binary.** A second image is a second thing to build, version, scan, sign and
    keep in lockstep with the first; a reaper running different code from the API is a class of
    bug that cannot happen if there is one artifact. `docker-compose.yml` already uses this
    pattern for migrations (`build: { context: ., dockerfile: Dockerfile }`, then
-   `command: ["dotnet", "EwaysVNext.Host.dll", "--migrate"]`).
+   `command: ["dotnet", "Mkbj.Host.dll", "--migrate"]`).
 2. **`startingDeadlineSeconds` is set.** Without it, a controller outage longer than the
    schedule interval can cause the CronJob controller to consider many missed starts and, past
    100, stop scheduling entirely. A one-minute schedule makes that reachable.

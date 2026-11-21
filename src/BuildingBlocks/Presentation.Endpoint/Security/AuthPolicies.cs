@@ -1,4 +1,4 @@
-namespace EwaysVNext.Presentation.Endpoint.Security;
+namespace Mkbj.Presentation.Endpoint.Security;
 
 /// <summary>
 /// Policy names. A policy answers "which realm, and broadly who" — it is the coarse gate. The

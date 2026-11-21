@@ -1,8 +1,8 @@
-﻿using EwaysVNext.Outcomes;
-using EwaysVNext.Modules.Catalog.Application.Categories.Commands;
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
+using Mkbj.Outcomes;
+using Mkbj.Modules.Catalog.Application.Categories.Commands;
+using Mkbj.Modules.Catalog.Contracts.Categories;
 
-namespace EwaysVNext.Modules.Catalog.Application.Categories.Ports.Inbound;
+namespace Mkbj.Modules.Catalog.Application.Categories.Ports.Inbound;
 
 public interface ICategoryService
 {

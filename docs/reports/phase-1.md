@@ -87,10 +87,10 @@ easy to repeat.
 ```bash
 docker compose -f build/compose/docker-compose.dev.yml up -d
 
-dotnet build EwaysVNext.slnx -c Release
-dotnet test EwaysVNext.slnx
+dotnet build Mkbj.slnx -c Release
+dotnet test Mkbj.slnx
 
-dotnet run --project src/Host/EwaysVNext.Host -- --migrate
+dotnet run --project src/Host/Mkbj.Host -- --migrate
 ```
 
 The dev Postgres binds `POSTGRES_PORT` (default 5432); set it if the host already runs one.

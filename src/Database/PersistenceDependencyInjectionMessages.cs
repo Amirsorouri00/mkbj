@@ -1,4 +1,4 @@
-namespace EwaysVNext.Database;
+namespace Mkbj.Database;
 
 internal static class PersistenceDependencyInjectionMessages
 {

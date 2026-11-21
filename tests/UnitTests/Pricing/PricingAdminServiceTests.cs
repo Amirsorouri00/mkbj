@@ -1,20 +1,20 @@
 using AwesomeAssertions;
-using EwaysVNext.Audit;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Jobs;
-using EwaysVNext.Modules.Pricing.Application.Currencies.Domain;
-using EwaysVNext.Modules.Pricing.Application.Currencies.Ports.Outbound;
-using EwaysVNext.Modules.Pricing.Application.Fx.Domain;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Outbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Domain;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Outbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Services;
-using EwaysVNext.Persistence;
+using Mkbj.Audit;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Jobs;
+using Mkbj.Modules.Pricing.Application.Currencies.Domain;
+using Mkbj.Modules.Pricing.Application.Currencies.Ports.Outbound;
+using Mkbj.Modules.Pricing.Application.Fx.Domain;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Outbound;
+using Mkbj.Modules.Pricing.Application.Prices.Domain;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Outbound;
+using Mkbj.Modules.Pricing.Application.Prices.Services;
+using Mkbj.Persistence;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Pricing;
+namespace Mkbj.UnitTests.Pricing;
 
 /// <summary>
 /// Who may change what. Staff set prices, which are reversible and visible on the product they

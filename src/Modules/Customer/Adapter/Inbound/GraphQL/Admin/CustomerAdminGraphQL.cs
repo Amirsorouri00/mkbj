@@ -2,17 +2,17 @@ using System.Security.Claims;
 
 using AuthorizationService.Abstractions.Attributes;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
-using EwaysVNext.Modules.Customer.QueryApplication.Customers;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
-using EwaysVNext.Presentation.Endpoint.Security;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
+using Mkbj.Modules.Customer.QueryApplication.Customers;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.Security;
+using Mkbj.Queries.Application.Paginations;
 using HotChocolate.Authorization;
 
-namespace EwaysVNext.Modules.Customer.Adapter.Inbound.GraphQL.Admin;
+namespace Mkbj.Modules.Customer.Adapter.Inbound.GraphQL.Admin;
 
 /// <summary>
 /// Named with the <c>Admin</c> prefix deliberately: an architecture test uses that to tell an

@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Discovery;
+namespace Mkbj.Modules.Sourcing.Application.Discovery;
 
 /// <summary>How a listing was read out of its source.</summary>
 public enum ExtractionMethod

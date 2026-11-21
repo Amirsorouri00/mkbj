@@ -1,4 +1,4 @@
-﻿namespace EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
+namespace Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
 
 /// <remarks>
 /// <c>Exists</c> means the variant is there at all, regardless of status. Pricing needs that

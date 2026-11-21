@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Partners.Application.Partners.Domain;
+using Mkbj.Modules.Partners.Application.Partners.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EwaysVNext.Database.Partners.Configurations;
+namespace Mkbj.Database.Partners.Configurations;
 
 /// <summary>
 /// Scopes are a Postgres <c>text[]</c> rather than a join table: a closed set validated in the

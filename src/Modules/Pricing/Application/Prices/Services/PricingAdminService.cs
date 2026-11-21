@@ -1,19 +1,19 @@
-﻿using System.Globalization;
-using EwaysVNext.Audit;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Jobs;
-using EwaysVNext.Modules.Pricing.Application.Currencies.Domain;
-using EwaysVNext.Modules.Pricing.Application.Currencies.Ports.Outbound;
-using EwaysVNext.Modules.Pricing.Application.Fx.Domain;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Outbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Domain;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Outbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using System.Globalization;
+using Mkbj.Audit;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Jobs;
+using Mkbj.Modules.Pricing.Application.Currencies.Domain;
+using Mkbj.Modules.Pricing.Application.Currencies.Ports.Outbound;
+using Mkbj.Modules.Pricing.Application.Fx.Domain;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Outbound;
+using Mkbj.Modules.Pricing.Application.Prices.Domain;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Outbound;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 
-namespace EwaysVNext.Modules.Pricing.Application.Prices.Services;
+namespace Mkbj.Modules.Pricing.Application.Prices.Services;
 
 public sealed class PricingAdminService(
     IVariantPriceRepository prices,

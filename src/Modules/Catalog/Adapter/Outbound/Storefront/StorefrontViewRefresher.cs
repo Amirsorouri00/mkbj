@@ -1,11 +1,11 @@
 using System.Diagnostics;
-using EwaysVNext.Database;
-using EwaysVNext.Database.Catalog.Views;
+using Mkbj.Database;
+using Mkbj.Database.Catalog.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound.Storefront;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound.Storefront;
 
 /// <summary>
 /// Rebuilds the storefront's materialized views.
@@ -35,7 +35,7 @@ public interface IStorefrontViewRefresher
 /// </para>
 /// </remarks>
 public sealed class StorefrontViewRefresher(
-    EwaysVNextDbContext db, ILogger<StorefrontViewRefresher> logger) : IStorefrontViewRefresher
+    MkbjDbContext db, ILogger<StorefrontViewRefresher> logger) : IStorefrontViewRefresher
 {
     /// <summary>
     /// A full rebuild of a large catalogue is minutes, not seconds, and the default 30 s would

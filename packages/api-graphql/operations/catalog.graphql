@@ -1,0 +1,655 @@
+query AdminProducts(
+    $q: String
+    $status: ProductStatus
+    $brandId: ID
+    $categoryId: ID
+    $page: Int!
+    $pageSize: Int!
+) {
+    adminProducts(
+        q: $q
+        status: $status
+        brandId: $brandId
+        categoryId: $categoryId
+        page: $page
+        pageSize: $pageSize
+    ) {
+        page
+        pageSize
+        pageCount
+        totalCount
+        items {
+            id
+            title
+            slug
+            status
+            deactivatedByAdmin
+            brandId
+            brandName
+            primaryCategoryId
+            primaryCategoryName
+            mpn
+            variantCount
+            activeVariantCount
+            hasUsableImage
+            mergedIntoProductId
+            createdAt
+            updatedAt
+        }
+    }
+}
+
+query AdminProduct($id: ID!) {
+    adminProduct(id: $id) {
+        ...ProductDetailFields
+    }
+}
+
+query AdminVariantLookup($query: String!, $take: Int!) {
+    adminVariantLookup(query: $query, take: $take) {
+        variantId
+        productId
+        productTitle
+        brandName
+        categoryName
+        sku
+        attributeValues {
+            key
+            value
+        }
+        isActive
+    }
+}
+
+query ProductEditorOptions($brandPage: Int!, $brandPageSize: Int!) {
+    adminBrands(page: $brandPage, pageSize: $brandPageSize) {
+        items {
+            id
+            displayName
+            isActive
+        }
+    }
+    categoryHierarchy {
+        id
+        name
+        status
+        children {
+            id
+            name
+            status
+            children {
+                id
+                name
+                status
+                children {
+                    id
+                    name
+                    status
+                    children {
+                        id
+                        name
+                        status
+                    }
+                }
+            }
+        }
+    }
+}
+
+query ProductCategoryAttributeRules(
+    $categoryId: ID!
+    $attributePage: Int!
+    $attributePageSize: Int!
+) {
+    effectiveCategoryAttributes(categoryId: $categoryId) {
+        attributeBlueprintId
+        attributeBlueprintName
+        isExcluded
+        isRequired
+        isVariantGenerating
+        isInherited
+    }
+    attributeBlueprints(page: $attributePage, pageSize: $attributePageSize, includeDeleted: false) {
+        items {
+            id
+            name
+            canonicalKey
+            dataType
+            status
+            options {
+                id
+                value
+            }
+        }
+    }
+}
+
+mutation CreateAdminProduct($input: CreateProductInput!) {
+    createProduct(input: $input) {
+        ...ProductDetailFields
+    }
+}
+
+mutation UpdateAdminProduct($input: UpdateProductInput!) {
+    updateProduct(input: $input) {
+        ...ProductDetailFields
+    }
+}
+
+mutation SetAdminProductActive($input: SetProductActiveInput!) {
+    setProductActive(input: $input) {
+        ...ProductDetailFields
+    }
+}
+
+mutation AddAdminVariant($input: AddVariantInput!) {
+    addVariant(input: $input) {
+        ...ProductDetailFields
+    }
+}
+
+mutation SetAdminVariantActive($input: SetVariantActiveInput!) {
+    setVariantActive(input: $input) {
+        ...ProductDetailFields
+    }
+}
+
+mutation AddAdminProductIdentifier($input: AddProductIdentifierInput!) {
+    addProductIdentifier(input: $input) {
+        ...ProductDetailFields
+    }
+}
+
+mutation RemoveAdminProductIdentifier($input: RemoveProductIdentifierInput!) {
+    removeProductIdentifier(input: $input) {
+        ...ProductDetailFields
+    }
+}
+
+mutation RemoveAdminProductMedia($input: RemoveProductMediaInput!) {
+    removeProductMedia(input: $input) {
+        ...ProductDetailFields
+    }
+}
+
+fragment ProductDetailFields on ProductAdminDetailDto {
+    id
+    title
+    slug
+    shortDescription
+    description
+    status
+    deactivatedByAdmin
+    brandId
+    brandName
+    primaryCategoryId
+    primaryCategoryName
+    secondaryCategoryIds
+    mpn
+    mergedIntoProductId
+    sourceRefs
+    activationProblems
+    createdAt
+    updatedAt
+    variants {
+        id
+        sku
+        attributeSignature
+        attributeValues {
+            key
+            value
+        }
+        isActive
+        deactivatedByAdmin
+    }
+    identifiers {
+        id
+        type
+        value
+        sourceDomain
+    }
+    media {
+        id
+        objectKey
+        url
+        sortOrder
+        alt
+        usageRights
+        isUsable
+    }
+}
+
+query AdminBrands($search: String, $page: Int!, $pageSize: Int!) {
+    adminBrands(search: $search, page: $page, pageSize: $pageSize) {
+        page
+        pageSize
+        pageCount
+        totalCount
+        items {
+            id
+            canonicalName
+            displayName
+            provenance
+            isActive
+            aliases
+            createdAt
+            updatedAt
+        }
+    }
+}
+
+mutation CreateAdminBrand($displayName: String!, $aliases: [String!]) {
+    createBrand(displayName: $displayName, aliases: $aliases)
+}
+
+mutation RenameAdminBrand($brandId: ID!, $displayName: String!) {
+    renameBrand(brandId: $brandId, displayName: $displayName)
+}
+
+mutation SetAdminBrandAliases($brandId: ID!, $aliases: [String!]!) {
+    setBrandAliases(brandId: $brandId, aliases: $aliases)
+}
+
+mutation SetAdminBrandActive($brandId: ID!, $active: Boolean!) {
+    setBrandActive(brandId: $brandId, active: $active)
+}
+
+query AdminCategories(
+    $filter: CategoryAdminFilterDtoInput
+    $first: Int
+    $after: String
+    $last: Int
+    $before: String
+) {
+    categories(filter: $filter, first: $first, after: $after, last: $last, before: $before) {
+        totalCount
+        pageInfo {
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+        }
+        nodes {
+            id
+            parentId
+            name
+            slug
+            description
+            displayOrder
+            status
+            parent {
+                id
+                name
+            }
+            childCount
+        }
+    }
+}
+
+mutation CreateAdminCategory($input: CreateCategoryInput!) {
+    createCategory(input: $input)
+}
+
+mutation UpdateAdminCategory($input: UpdateCategoryInput!) {
+    updateCategory(input: $input) {
+        id
+        parentId
+        name
+        slug
+        description
+        displayOrder
+        status
+        parent {
+            id
+            name
+        }
+        childCount
+    }
+}
+
+mutation SetAdminCategoryStatus($input: SetCategoryStatusInput!) {
+    setCategoryStatus(input: $input) {
+        id
+        status
+    }
+}
+
+mutation MoveAdminCategory($input: MoveCategoryInput!) {
+    moveCategory(input: $input)
+}
+
+mutation DeleteAdminCategory($input: CategoryIdInput!) {
+    deleteCategory(input: $input)
+}
+
+query AdminAttributeBlueprints(
+    $page: Int!
+    $pageSize: Int!
+    $includeDeleted: Boolean!
+    $filter: AttributeBlueprintFilterInput
+) {
+    attributeBlueprints(
+        page: $page
+        pageSize: $pageSize
+        includeDeleted: $includeDeleted
+        filter: $filter
+    ) {
+        page
+        pageSize
+        pageCount
+        totalCount
+        items {
+            id
+            scopeCategoryId
+            unitId
+            name
+            canonicalKey
+            dataType
+            status
+            scope
+            aliases
+            deletedAt
+            createdAt
+            updatedAt
+            options {
+                id
+                measurementUnitId
+                value
+            }
+        }
+    }
+    measurementUnits {
+        id
+        name
+        symbol
+    }
+}
+
+query AttributeBlueprintEditorOptions {
+    measurementUnits {
+        id
+        name
+        symbol
+    }
+    categoryHierarchy {
+        id
+        name
+        status
+        children {
+            id
+            name
+            status
+            children {
+                id
+                name
+                status
+                children {
+                    id
+                    name
+                    status
+                    children {
+                        id
+                        name
+                        status
+                    }
+                }
+            }
+        }
+    }
+}
+
+query AdminAttributeBlueprintUsage($id: ID!) {
+    attributeBlueprintUsage(id: $id) {
+        attributeBlueprintId
+        productValueCount
+        categoryMappingCount
+        canChangeDataType
+        canDelete
+    }
+}
+
+mutation CreateAdminAttributeBlueprint($input: CreateAttributeBlueprintInput!) {
+    createAttributeBlueprint(input: $input)
+}
+
+mutation UpdateAdminAttributeBlueprint($input: UpdateAttributeBlueprintInput!) {
+    updateAttributeBlueprint(input: $input)
+}
+
+mutation SetAdminAttributeBlueprintScope($input: SetAttributeBlueprintScopeInput!) {
+    setAttributeBlueprintScope(input: $input)
+}
+
+mutation SetAdminAttributeBlueprintAliases($input: SetAttributeBlueprintAliasesInput!) {
+    setAttributeBlueprintAliases(input: $input)
+}
+
+mutation SetAdminAttributeBlueprintUnit($input: SetAttributeBlueprintUnitInput!) {
+    setAttributeBlueprintUnit(input: $input)
+}
+
+mutation SetAdminAttributeBlueprintStatus($attributeBlueprintId: Long!, $isActive: Boolean!) {
+    setAttributeBlueprintStatus(attributeBlueprintId: $attributeBlueprintId, isActive: $isActive)
+}
+
+mutation SetAdminAttributeBlueprintArchiveStatus(
+    $attributeBlueprintId: Long!
+    $isArchived: Boolean!
+) {
+    setAttributeBlueprintArchiveStatus(
+        attributeBlueprintId: $attributeBlueprintId
+        isArchived: $isArchived
+    )
+}
+
+mutation DeleteAdminAttributeBlueprint($attributeBlueprintId: Long!) {
+    deleteAttributeBlueprint(attributeBlueprintId: $attributeBlueprintId)
+}
+
+query CategoryAttributeManagement(
+    $categoryId: ID!
+    $categoryGraphId: ID!
+    $attributePage: Int!
+    $attributePageSize: Int!
+    $attributeFilter: AttributeBlueprintFilterInput
+) {
+    category(id: $categoryGraphId) {
+        id
+        name
+        slug
+        status
+    }
+    effectiveCategoryAttributes(categoryId: $categoryId) {
+        assignmentId
+        sourceCategoryId
+        attributeBlueprintId
+        attributeBlueprintName
+        isInherited
+        isExcluded
+        isRequired
+        isFilterable
+        isSearchable
+        isInTitle
+        titleOrder
+        isPrimary
+        isVariantGenerating
+    }
+    attributeBlueprints(
+        page: $attributePage
+        pageSize: $attributePageSize
+        includeDeleted: false
+        filter: $attributeFilter
+    ) {
+        items {
+            id
+            name
+            dataType
+            status
+            scope
+            scopeCategoryId
+        }
+    }
+}
+
+mutation AssignAdminCategoryAttribute(
+    $categoryId: ID!
+    $attributeBlueprintId: ID!
+    $isRequired: Boolean!
+    $isFilterable: Boolean!
+    $isSearchable: Boolean!
+    $isInTitle: Boolean!
+    $titleOrder: Int
+    $isPrimary: Boolean!
+    $isVariantGenerating: Boolean!
+) {
+    assignCategoryAttribute(
+        categoryId: $categoryId
+        attributeBlueprintId: $attributeBlueprintId
+        isRequired: $isRequired
+        isFilterable: $isFilterable
+        isSearchable: $isSearchable
+        isInTitle: $isInTitle
+        titleOrder: $titleOrder
+        isPrimary: $isPrimary
+        isVariantGenerating: $isVariantGenerating
+    ) {
+        id
+    }
+}
+
+mutation UnassignAdminCategoryAttribute($assignmentId: ID!) {
+    unassignCategoryAttribute(assignmentId: $assignmentId) {
+        id
+        isRemoved
+    }
+}
+
+mutation SetAdminCategoryAttributeRequired($assignmentId: ID!, $value: Boolean!) {
+    setCategoryAttributeRequired(assignmentId: $assignmentId, isRequired: $value) {
+        id
+        isRequired
+    }
+}
+
+mutation SetAdminCategoryAttributeFilterable($assignmentId: ID!, $value: Boolean!) {
+    setCategoryAttributeFilterable(assignmentId: $assignmentId, isFilterable: $value) {
+        id
+        isFilterable
+    }
+}
+
+mutation SetAdminCategoryAttributeSearchable($assignmentId: ID!, $value: Boolean!) {
+    setCategoryAttributeSearchable(assignmentId: $assignmentId, isSearchable: $value) {
+        id
+        isSearchable
+    }
+}
+
+mutation SetAdminCategoryAttributeTitle(
+    $assignmentId: ID!
+    $isInTitle: Boolean!
+    $titleOrder: Int
+) {
+    setCategoryAttributeTitleConfiguration(
+        assignmentId: $assignmentId
+        isInTitle: $isInTitle
+        titleOrder: $titleOrder
+    ) {
+        id
+        isInTitle
+        titleOrder
+    }
+}
+
+mutation SetAdminCategoryAttributePrimary($assignmentId: ID!, $value: Boolean!) {
+    setCategoryAttributePrimary(assignmentId: $assignmentId, isPrimary: $value) {
+        id
+        isPrimary
+    }
+}
+
+mutation SetAdminCategoryAttributeVariant($assignmentId: ID!, $value: Boolean!) {
+    setCategoryAttributeVariantGenerating(
+        assignmentId: $assignmentId
+        isVariantGenerating: $value
+    ) {
+        id
+        isVariantGenerating
+    }
+}
+
+mutation ExcludeAdminInheritedCategoryAttribute($categoryId: ID!, $sourceAssignmentId: ID!) {
+    excludeInheritedCategoryAttribute(
+        categoryId: $categoryId
+        sourceAssignmentId: $sourceAssignmentId
+    ) {
+        categoryId
+        sourceAssignmentId
+        isExcluded
+    }
+}
+
+mutation IncludeAdminInheritedCategoryAttribute($categoryId: ID!, $sourceAssignmentId: ID!) {
+    includeInheritedCategoryAttribute(
+        categoryId: $categoryId
+        sourceAssignmentId: $sourceAssignmentId
+    ) {
+        categoryId
+        sourceAssignmentId
+        isExcluded
+    }
+}
+
+query AdminVariantPricing($variantId: ID!) {
+    adminVariantPrice(variantId: $variantId) {
+        variantId
+        baseAmountMinor
+        baseCurrency
+        overrides {
+            currency
+            amountMinor
+            priceList
+        }
+        provenanceObservationId
+        provenanceSourceUrl
+        provenanceCollectedAt
+        updatedAt
+    }
+}
+
+query AdminPricingCurrencies {
+    adminCurrencies {
+        id
+        code
+        minorUnits
+        isEnabled
+    }
+}
+
+mutation SetAdminVariantPrice($input: SetVariantPriceInput!) {
+    setVariantPrice(input: $input)
+}
+
+mutation SetAdminCurrencyOverride($input: SetCurrencyOverrideInput!) {
+    setCurrencyOverride(input: $input)
+}
+
+mutation RemoveAdminCurrencyOverride($input: RemoveCurrencyOverrideInput!) {
+    removeCurrencyOverride(input: $input)
+}
+
+mutation BulkEditAdminProducts($input: BulkEditProductsInput!) {
+    bulkEditProducts(input: $input) {
+        items {
+            productId
+            succeeded
+            errorCode
+        }
+    }
+}
+
+mutation MergeAdminDuplicateProduct($input: MergeDuplicateProductInput!) {
+    mergeDuplicateProduct(input: $input) {
+        ...ProductDetailFields
+    }
+}

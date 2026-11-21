@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Partners.Application.Partners.Keys;
+namespace Mkbj.Modules.Partners.Application.Partners.Keys;
 
 /// <summary>
 /// How long a rotated key keeps working.

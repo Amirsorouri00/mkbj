@@ -1,8 +1,8 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sales.Application.Composition;
+using Mkbj.Modules.Sales.Application.Composition;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Composition;
+namespace Mkbj.UnitTests.Sales.Composition;
 
 /// <summary>
 /// Landing a basket on the requested amount to the cent.

@@ -1,13 +1,13 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using AuthorizationService.Implementation.Persistence;
 using AwesomeAssertions;
-using EwaysVNext.Database;
-using EwaysVNext.Domain.Common;
+using Mkbj.Database;
+using Mkbj.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Xunit;
 
-namespace EwaysVNext.PersistenceContractTests;
+namespace Mkbj.PersistenceContractTests;
 
 /// <summary>
 /// The mapping contract both DbContexts must satisfy on Postgres (ADR-0017): snake_case
@@ -24,7 +24,7 @@ public sealed class ModelContractTests
     [Fact]
     public void Every_Entity_Uses_Xmin_As_RowVersion()
     {
-        using var context = Providers.Npgsql<EwaysVNextDbContext>();
+        using var context = Providers.Npgsql<MkbjDbContext>();
 
         var rowVersions = Providers.Model(context).GetEntityTypes()
             .Select(e => e.FindProperty("RowVersion")).OfType<IProperty>().ToList();
@@ -41,7 +41,7 @@ public sealed class ModelContractTests
     [Fact]
     public void Aggregate_Root_Keys_Are_Never_Generated()
     {
-        using var context = Providers.Npgsql<EwaysVNextDbContext>();
+        using var context = Providers.Npgsql<MkbjDbContext>();
 
         foreach (var entityType in Providers.Model(context).GetEntityTypes()
                      .Where(e => typeof(IAggregateRoot).IsAssignableFrom(e.ClrType)))
@@ -55,7 +55,7 @@ public sealed class ModelContractTests
     [Fact]
     public void Extensions_Are_Declared()
     {
-        using var context = Providers.Npgsql<EwaysVNextDbContext>();
+        using var context = Providers.Npgsql<MkbjDbContext>();
 
         Providers.Model(context).GetPostgresExtensions().Select(e => e.Name)
             .Should().Contain(["pg_trgm", "unaccent"]);
@@ -64,9 +64,9 @@ public sealed class ModelContractTests
     [Fact]
     public void Every_Table_Lives_In_A_Named_Schema()
     {
-        using var context = Providers.Npgsql<EwaysVNextDbContext>();
+        using var context = Providers.Npgsql<MkbjDbContext>();
 
-        // Asserts the rule rather than a list of known schemas: EwaysVNextDbContext.ResolveSchema
+        // Asserts the rule rather than a list of known schemas: MkbjDbContext.ResolveSchema
         // already throws for a namespace it cannot place, so enumerating the names here only
         // bought an edit every time a module was added — and a stale list fails a correct change.
         var schemas = Providers.Model(context).GetEntityTypes()
@@ -91,7 +91,7 @@ public sealed class ModelContractTests
     [Fact]
     public void InMemory_Model_Disables_RowVersion_Concurrency()
     {
-        using var context = Providers.InMemory<EwaysVNextDbContext>();
+        using var context = Providers.InMemory<MkbjDbContext>();
 
         foreach (var property in Providers.Model(context).GetEntityTypes()
                      .Select(e => e.FindProperty("RowVersion")).OfType<IProperty>())
@@ -114,7 +114,7 @@ public sealed class ModelContractTests
 
         foreach (var context in new DbContext[]
                  {
-                     Providers.Npgsql<EwaysVNextDbContext>(),
+                     Providers.Npgsql<MkbjDbContext>(),
                      Providers.Npgsql<AuthorizationDbContext>()
                  })
         {

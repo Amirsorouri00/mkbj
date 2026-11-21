@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Settings.Application.Settings.Domain;
+namespace Mkbj.Modules.Settings.Application.Settings.Domain;
 
 /// <summary>
 /// Which details a buyer must supply, expressed as alternatives.

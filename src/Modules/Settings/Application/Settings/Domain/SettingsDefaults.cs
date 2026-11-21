@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Settings.Application.Settings.Domain;
+namespace Mkbj.Modules.Settings.Application.Settings.Domain;
 
 /// <summary>
 /// What a fresh database starts with.

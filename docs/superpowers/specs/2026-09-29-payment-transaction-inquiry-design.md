@@ -381,10 +381,10 @@ Inquiry changes do not alter reversal endpoints, identifiers, retry policies, or
 
 ### Verification order
 
-1. `dotnet test --project src/Modules/Payment/Tests/EwaysVNext.Modules.Payment.GatewayTests.csproj`
-2. `dotnet test --project tests/PaymentTests/EwaysVNext.PaymentTests.csproj`
-3. `dotnet test tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj`
-4. `dotnet test EwaysVNext.slnx`
+1. `dotnet test --project src/Modules/Payment/Tests/Mkbj.Modules.Payment.GatewayTests.csproj`
+2. `dotnet test --project tests/PaymentTests/Mkbj.PaymentTests.csproj`
+3. `dotnet test tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj`
+4. `dotnet test Mkbj.slnx`
 5. `git diff --check`
 
 Every new guard is mutation-checked during implementation by temporarily reversing or removing it and observing the focused test fail before restoring the correct code.

@@ -1,13 +1,13 @@
 using System.Text.Json.Nodes;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
-using EwaysVNext.Modules.Sourcing.Application.Matching;
-using EwaysVNext.Modules.Sourcing.Application.Normalization;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Modules.Sourcing.Application.Matching;
+using Mkbj.Modules.Sourcing.Application.Normalization;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sourcing;
+namespace Mkbj.UnitTests.Sourcing;
 
 /// <summary>
 /// Whether a listing is something the catalogue already has.

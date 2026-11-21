@@ -1,15 +1,15 @@
-﻿using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
 using AuthorizationService.Abstractions.Attributes;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
-using ApplicationOptionInput = EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound.AttributeBlueprintOptionInput;
-using ApplicationUpdateOptionInput = EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound.UpdateAttributeBlueprintOptionInput;
+using ApplicationOptionInput = Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound.AttributeBlueprintOptionInput;
+using ApplicationUpdateOptionInput = Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound.UpdateAttributeBlueprintOptionInput;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
 
 [ExtendObjectType(typeof(Mutation))]
 public sealed class AttributeBlueprintMutations

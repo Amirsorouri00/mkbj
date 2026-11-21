@@ -5,11 +5,11 @@
 > checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Deliver the whole PRD (`docs/product-scope/ecommerce_mvp_prd.md`) end to end, on the
-existing EwaysVNext modular monolith, using Postgres, MinIO, Keycloak, REST and GraphQL, with
+existing MKBJ modular monolith, using Postgres, MinIO, Keycloak, REST and GraphQL, with
 production Docker builds under `build/`.
 
 **Architecture:**
-- Hexagonal modules on one `EwaysVNextDbContext` (now Npgsql). The modules are Partners, Customer,
+- Hexagonal modules on one `MkbjDbContext` (now Npgsql). The modules are Partners, Customer,
   Catalog, Pricing, Sourcing, Sales, Settings and Admin. The Iran-specific modules (Payment,
   Location, Notification) are deleted.
 - A partner order is atomic because it is **one `Order` aggregate** saved by one
@@ -41,8 +41,8 @@ and this file before starting any phase plan.
 | 7 | `docs/superpowers/plans/2026-10-28-ecommerce-mvp/phase-7-sourcing.md` | 0, 2–3 (may start in parallel with 4–5) |
 
 **Ending each phase:**
-- `dotnet build EwaysVNext.slnx` passes with zero warnings-as-errors.
-- `dotnet test EwaysVNext.slnx` passes (Docker must be running for integration tests).
+- `dotnet build Mkbj.slnx` passes with zero warnings-as-errors.
+- `dotnet test Mkbj.slnx` passes (Docker must be running for integration tests).
 - Write a short report at `docs/reports/phase-N.md` covering: what works, what is incomplete,
   risks, and reproduction commands.
 - Commit.
@@ -144,7 +144,7 @@ Records are `sealed record`.
 
 ### Building blocks (phase 0)
 ```csharp
-// src/BuildingBlocks/Storage  → EwaysVNext.Storage (abstractions + MinIO/S3 adapter)
+// src/BuildingBlocks/Storage  → Mkbj.Storage (abstractions + MinIO/S3 adapter)
 public interface IObjectStorage {
   Task PutAsync(string bucket, string key, Stream content, string contentType);
   Task<Stream?> GetAsync(string bucket, string key);
@@ -155,7 +155,7 @@ public interface IObjectStorage {
 }
 public static class StorageBuckets { CatalogMedia = "catalog-media"; ImportStaging = "import-staging"; Documents = "documents"; }
 
-// src/BuildingBlocks/Jobs  → EwaysVNext.Jobs
+// src/BuildingBlocks/Jobs  → Mkbj.Jobs
 public interface IJobQueue {
   Task EnqueueAsync<TPayload>(string type, TPayload payload, DateTimeOffset? runAt = null, string? dedupeKey = null);
 }
@@ -166,10 +166,10 @@ public abstract record JobOutcome { Completed; RetryLater(TimeSpan delay, string
 // Config: Jobs:Mode = InProcess | WorkerOnly | Disabled
 public static class JobTypes { ImportJobStep, FxRefresh, RefreshStorefrontViews, AuditSeal, UsagePrune, StagingImageCleanup } // string constants
 
-// src/BuildingBlocks/Audit  → EwaysVNext.Audit
+// src/BuildingBlocks/Audit  → Mkbj.Audit
 public sealed record AuditActor(Guid UserId, string Role);           // Role: "super_admin" | "staff" | "system"
 public interface IAuditTrail { void Record(AuditActor actor, string action, string targetType, string targetId, object? before, object? after); }
-// Record() adds an AuditEvent to the current EwaysVNextDbContext; it is persisted by the caller's own SaveChangesAsync.
+// Record() adds an AuditEvent to the current MkbjDbContext; it is persisted by the caller's own SaveChangesAsync.
 
 // src/BuildingBlocks/Core/Application (extend)
 public sealed record AdminActor(Guid UserId, bool IsSuperAdmin) { public AuditActor ToAudit(); }
@@ -206,7 +206,7 @@ public sealed record ApiKeyAuthResult(long PartnerId, long ApiKeyId, IReadOnlySe
 
 ### Phase 1 additions (authoritative; added after drafting)
 ```csharp
-public static class EwaysClaimTypes { PartnerId="partner_id"; ApiKeyId="api_key_id"; Scope="scope"; RateLimitPerMinute="rate_limit_per_minute"; BulkMaxItems="bulk_max_items"; }
+public static class MkbjClaimTypes { PartnerId="partner_id"; ApiKeyId="api_key_id"; Scope="scope"; RateLimitPerMinute="rate_limit_per_minute"; BulkMaxItems="bulk_max_items"; }
 public static class AuthSchemes { PartnerApiKey = "PartnerApiKey"; }
 public static class AuthPolicies { AdminStaff="admin:staff"; AdminSuper="admin:super"; ShopCustomer="shop:customer"; static string Partner(string scope) => $"partner:{scope}"; }
 public static class AdminPermissions { /* e.g. "partners.manage", "refunds.manage" — full list in phase-1 Task 1 */ }
@@ -228,7 +228,7 @@ public static class AdminPermissions { /* e.g. "partners.manage", "refunds.manag
 - Phase 4–5 Task 18 (popularity migration) must run after the Sales orders migration (Task 9). It drops and recreates `mv_home` and `mv_storefront_product` with 30-day sales popularity.
 
 ### Phase 4–5 additions (authoritative; exact signatures in that plan)
-- `ISalesAdminQueries` (`EwaysVNext.Modules.Sales.QueryApplication.Admin`):
+- `ISalesAdminQueries` (`Mkbj.Modules.Sales.QueryApplication.Admin`):
   - `ListOrdersAsync(AdminOrderFilter)` → `Result<CursorPage<AdminOrderListItemDto>>`
   - `GetOrderAsync(long)` → `Result<AdminOrderDetailDto>`
   - `GetDocumentAsync(long)` → `Result<DocumentDto>`

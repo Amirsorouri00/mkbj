@@ -1,11 +1,11 @@
 using System.Net.Sockets;
 using AwesomeAssertions;
-using EwaysVNext.Persistence;
+using Mkbj.Persistence;
 using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 /// <summary>
 /// A transient failure becomes a retryable 503, not an opaque 500: the caller is told that trying

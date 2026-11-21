@@ -1,13 +1,13 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Presentation.Endpoint;
+using Mkbj.Domain.Common;
+using Mkbj.Presentation.Endpoint;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public class SnowflakeIdJsonTests
 {

@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
 
-namespace EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
+namespace Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
 
 /// <summary>
 /// The read side of the sellable-variant question. Separate from the inbound port so the

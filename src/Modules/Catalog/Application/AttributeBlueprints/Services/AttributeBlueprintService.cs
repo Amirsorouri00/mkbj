@@ -1,13 +1,13 @@
-﻿using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Validation;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Validation;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 
-namespace EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Services;
+namespace Mkbj.Modules.Catalog.Application.AttributeBlueprints.Services;
 
 public sealed class AttributeBlueprintService(
     IAttributeBlueprintRepository repository,

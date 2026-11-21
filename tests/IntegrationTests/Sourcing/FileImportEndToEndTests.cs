@@ -1,18 +1,18 @@
 using System.Text;
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.IntegrationTests.Support;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
-using EwaysVNext.Modules.Sourcing.QueryApplication;
-using EwaysVNext.Persistence;
+using Mkbj.Core.Application;
+using Mkbj.IntegrationTests.Support;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Modules.Sourcing.Application.Ports.Inbound;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Modules.Sourcing.QueryApplication;
+using Mkbj.Persistence;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sourcing;
+namespace Mkbj.IntegrationTests.Sourcing;
 
 /// <summary>
 /// A spreadsheet becomes products, and a second upload of it does not.

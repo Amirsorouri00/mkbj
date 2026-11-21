@@ -1,7 +1,7 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Outcomes;
+using Mkbj.Core.Application;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
+namespace Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
 
 /// <summary>
 /// Suspending a customer is day-to-day shop work — a chargeback, a fraud flag, a request from the

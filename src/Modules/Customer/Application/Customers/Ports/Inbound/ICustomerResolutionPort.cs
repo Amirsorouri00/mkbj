@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
+namespace Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
 
 /// <summary>
 /// How Sales turns a partner's customer reference into a customer of ours.

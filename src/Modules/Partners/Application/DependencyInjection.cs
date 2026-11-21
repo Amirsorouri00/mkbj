@@ -1,10 +1,10 @@
-using EwaysVNext.Modules.Partners.Application.Partners.Keys;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Inbound;
-using EwaysVNext.Modules.Partners.Application.Partners.Services;
+using Mkbj.Modules.Partners.Application.Partners.Keys;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Inbound;
+using Mkbj.Modules.Partners.Application.Partners.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Partners.Application;
+namespace Mkbj.Modules.Partners.Application;
 
 public static class DependencyInjection
 {

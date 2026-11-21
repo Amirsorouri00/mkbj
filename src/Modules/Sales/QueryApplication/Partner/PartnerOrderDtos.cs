@@ -1,13 +1,14 @@
+using System.Text.Json.Serialization;
 using System.Text.Json;
 
-namespace EwaysVNext.Modules.Sales.QueryApplication.Partner;
+namespace Mkbj.Modules.Sales.QueryApplication.Partner;
 
 public sealed record MoneyMinor(long Minor, string Currency);
 
 public sealed record OrderLineDto(
     int LineNo,
-    long VariantId,
-    long ProductId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long VariantId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long ProductId,
     string Sku,
     string ProductTitle,
     string BrandName,
@@ -25,11 +26,11 @@ public sealed record OrderLineDto(
 /// needs exactly what was issued, not this system's current idea of how to render it.
 /// </remarks>
 public sealed record DocumentDto(
-    long Id,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long Id,
     string Type,
     string Number,
     DateTimeOffset IssuedAt,
-    long? RelatedDocumentId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long? RelatedDocumentId,
     JsonElement Content);
 
 /// <remarks>
@@ -47,10 +48,10 @@ public sealed record OrderStatusDto(
     string Documents);
 
 public sealed record PartnerOrderDto(
-    long Id,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long Id,
     string Number,
     string ExternalOrderId,
-    long CustomerId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long CustomerId,
     string ExternalCustomerId,
     string Currency,
     long TotalMinor,
@@ -64,15 +65,15 @@ public sealed record PartnerOrderDto(
     string CorrelationId);
 
 public sealed record PartnerOrderSummaryDto(
-    long Id,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long Id,
     string Number,
     string ExternalOrderId,
-    long CustomerId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long CustomerId,
     string ExternalCustomerId,
     string Currency,
     long TotalMinor,
     OrderStatusDto Status,
-    long? InvoiceId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long? InvoiceId,
     string? InvoiceNumber,
     DateTimeOffset CreatedAt);
 
@@ -84,28 +85,28 @@ public sealed record PartnerOrderSummaryDto(
 public sealed record PartnerOrderListQuery(
     string? ExternalOrderId,
     string? ExternalCustomerId,
-    long? CustomerId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long? CustomerId,
     string? Currency,
     DateTimeOffset? From,
     DateTimeOffset? To,
     long? Cursor,
     int Limit = 50);
 
-public sealed record CursorPage<T>(IReadOnlyList<T> Items, long? NextCursor);
+public sealed record CursorPage<T>(IReadOnlyList<T> Items, [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long? NextCursor);
 
 /// <summary>A customer named either by our id or by the partner's own reference.</summary>
 public abstract record CustomerKey
 {
-    public sealed record ById(long CustomerId) : CustomerKey;
+    public sealed record ById([property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long CustomerId) : CustomerKey;
 
     public sealed record ByExternalId(string ExternalCustomerId) : CustomerKey;
 }
 
 public sealed record PartnerInvoiceDto(
-    long Id,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long Id,
     string Type,
     string Number,
-    long OrderId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long OrderId,
     string ExternalOrderId,
     DateTimeOffset IssuedAt,
     JsonElement Content);

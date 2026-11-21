@@ -2,13 +2,13 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sales;
+namespace Mkbj.IntegrationTests.Sales;
 
 /// <summary>
 /// A partner's invoices over HTTP, and the one thing they must not be able to do: block a sale.
@@ -25,7 +25,7 @@ public sealed class PartnerInvoiceTests(PostgresFixture fixture)
         using var client = NoRedirects(factory, SalesApiFactory.PartnerAKey);
 
         var order = await PlaceAsync(client);
-        var invoiceId = order.GetProperty("invoice").GetProperty("id").GetInt64();
+        var invoiceId = order.GetProperty("invoice").GetProperty("id").ReadId();
 
         using var response = await client.GetAsync($"/api/v1/invoices/{invoiceId}/pdf", Ct);
 
@@ -42,12 +42,12 @@ public sealed class PartnerInvoiceTests(PostgresFixture fixture)
         using var client = NoRedirects(factory, SalesApiFactory.PartnerAKey);
 
         var order = await PlaceAsync(client);
-        var orderId = order.GetProperty("id").GetInt64();
+        var orderId = order.GetProperty("id").ReadId();
         var invoice = order.GetProperty("invoice");
         var number = invoice.GetProperty("number").GetString();
 
         using (var first = await client.GetAsync(
-            $"/api/v1/invoices/{invoice.GetProperty("id").GetInt64()}/pdf", Ct))
+            $"/api/v1/invoices/{invoice.GetProperty("id").ReadId()}/pdf", Ct))
         {
             first.StatusCode.Should().Be(HttpStatusCode.Redirect);
         }
@@ -67,7 +67,7 @@ public sealed class PartnerInvoiceTests(PostgresFixture fixture)
         using var partnerB = NoRedirects(factory, SalesApiFactory.PartnerBKey);
 
         var order = await PlaceAsync(partnerA);
-        var invoiceId = order.GetProperty("invoice").GetProperty("id").GetInt64();
+        var invoiceId = order.GetProperty("invoice").GetProperty("id").ReadId();
 
         using var document = await partnerB.GetAsync($"/api/v1/invoices/{invoiceId}", Ct);
         document.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -146,13 +146,14 @@ public sealed class PartnerInvoiceTests(PostgresFixture fixture)
 
         // The download is what breaks, and only the download.
         using var pdf = await client.GetAsync(
-            $"/api/v1/invoices/{order.GetProperty("invoice").GetProperty("id").GetInt64()}/pdf", Ct);
+            $"/api/v1/invoices/{order.GetProperty("invoice").GetProperty("id").ReadId()}/pdf", Ct);
 
         pdf.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
     }
 
     private sealed class BrokenDocumentStore : IDocumentStore
     {
+        public Task<byte[]?> ReadPdfAsync(string key, CancellationToken ct = default) => throw new IOException("Storage unavailable");
         public Task<bool> ExistsAsync(string key, CancellationToken ct = default) =>
             throw new InvalidOperationException("Object storage is unreachable.");
 

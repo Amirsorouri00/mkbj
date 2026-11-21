@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
-using EwaysVNext.Storage;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
+using Mkbj.Storage;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound.Media;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound.Media;
 
 internal sealed class ObjectStorageCatalogMediaStore(IObjectStorage storage) : ICatalogMediaStore
 {

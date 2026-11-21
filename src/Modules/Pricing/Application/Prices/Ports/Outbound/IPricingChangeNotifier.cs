@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Pricing.Application.Prices.Ports.Outbound;
+namespace Mkbj.Modules.Pricing.Application.Prices.Ports.Outbound;
 
 /// <summary>
 /// Tells the rest of the system that prices moved.

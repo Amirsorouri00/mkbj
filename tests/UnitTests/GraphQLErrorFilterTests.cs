@@ -1,11 +1,11 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Exceptions;
+using AwesomeAssertions;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Exceptions;
 using HotChocolate;
 using Xunit;
-using Error = EwaysVNext.Outcomes.Error;
+using Error = Mkbj.Outcomes.Error;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public class GraphQLErrorFilterTests
 {

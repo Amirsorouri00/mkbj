@@ -1,4 +1,4 @@
-namespace EwaysVNext.Outcomes;
+namespace Mkbj.Outcomes;
 
 public class Result
 {

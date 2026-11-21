@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Pricing.Application.Currencies.Domain;
+using Mkbj.Modules.Pricing.Application.Currencies.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EwaysVNext.Database.Pricing.Configurations;
+namespace Mkbj.Database.Pricing.Configurations;
 
 internal sealed class CurrencyConfiguration : IEntityTypeConfiguration<Currency>
 {

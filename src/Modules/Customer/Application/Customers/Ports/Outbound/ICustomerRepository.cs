@@ -1,6 +1,6 @@
-using CustomerAggregate = EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer;
+using CustomerAggregate = Mkbj.Modules.Customer.Application.Customers.Domain.Customer;
 
-namespace EwaysVNext.Modules.Customer.Application.Customers.Ports.Outbound;
+namespace Mkbj.Modules.Customer.Application.Customers.Ports.Outbound;
 
 public interface ICustomerRepository
 {

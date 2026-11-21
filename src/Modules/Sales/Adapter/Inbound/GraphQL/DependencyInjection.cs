@@ -1,9 +1,9 @@
-using EwaysVNext.Modules.Sales.Adapter.Inbound.GraphQL.Admin;
-using EwaysVNext.Modules.Sales.Adapter.Inbound.GraphQL.Shop;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
+using Mkbj.Modules.Sales.Adapter.Inbound.GraphQL.Admin;
+using Mkbj.Modules.Sales.Adapter.Inbound.GraphQL.Shop;
+using Mkbj.Presentation.Endpoint.GraphQL;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Inbound.GraphQL;
+namespace Mkbj.Modules.Sales.Adapter.Inbound.GraphQL;
 
 public static class DependencyInjection
 {
@@ -16,6 +16,12 @@ public static class DependencyInjection
             .AddType<ShopCartMutations>()
             .AddType<ShopOrderQueriesGraph>()
             .AddType<ShopCheckoutMutations>()
+            .AddType<ShopCartLineType>()
+            .AddType<ShopCartChangeType>()
+            .AddType<ShopOrderType>()
+            .AddType<ShopOrderLineType>()
+            .AddType<ShopDocumentType>()
+            .AddType<ShopOrderPageType>()
             .AddType<AdminOrderQueries>()
             .AddType<AdminOrderMutations>();
 

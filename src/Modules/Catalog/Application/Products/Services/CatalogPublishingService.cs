@@ -1,14 +1,14 @@
-﻿using System.Globalization;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using System.Globalization;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 
-namespace EwaysVNext.Modules.Catalog.Application.Products.Services;
+namespace Mkbj.Modules.Catalog.Application.Products.Services;
 
 public sealed class CatalogPublishingService(
     IProductRepository products,

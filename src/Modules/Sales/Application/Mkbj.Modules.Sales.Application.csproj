@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Mkbj.Modules.Sales.Application</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Domain\Mkbj.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Outcomes\Mkbj.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\Mkbj.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Core\Application\Mkbj.Core.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Events\Application\Mkbj.Events.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Audit\Application\Mkbj.Audit.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Jobs\Application\Mkbj.Jobs.Application.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+  </ItemGroup>
+</Project>

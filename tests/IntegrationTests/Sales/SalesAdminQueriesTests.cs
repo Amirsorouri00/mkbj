@@ -1,13 +1,13 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sales.Application.Domain.Telemetry;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Modules.Sales.QueryApplication.Admin;
+using Mkbj.Modules.Sales.Application.Domain.Telemetry;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.QueryApplication.Admin;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sales;
+namespace Mkbj.IntegrationTests.Sales;
 
 /// <summary>
 /// The backoffice read side, including the dashboard aggregates phase 6 will compose.

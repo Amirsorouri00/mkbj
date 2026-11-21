@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Mkbj.Modules.Customer</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\DependencyInjection\Mkbj.DependencyInjection.csproj" />
+    <ProjectReference Include="..\Application\Mkbj.Modules.Customer.Application.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\Mkbj.Modules.Customer.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\Rest\Mkbj.Modules.Customer.Adapter.Inbound.Rest.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\GraphQL\Mkbj.Modules.Customer.Adapter.Inbound.GraphQL.csproj" />
+  </ItemGroup>
+</Project>

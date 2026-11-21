@@ -1,11 +1,11 @@
 using System.Text.Json.Nodes;
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sourcing;
+namespace Mkbj.UnitTests.Sourcing;
 
 /// <summary>
 /// Staging a listing once, however many times it is found.

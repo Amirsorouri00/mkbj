@@ -3,7 +3,7 @@ using AuthorizationService.Abstractions.Authorization.Requests;
 using AuthorizationService.Abstractions.Authorization.Responses;
 using AuthorizationService.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
-using EwaysVNext.Outcomes.Extensions;
+using Mkbj.Outcomes.Extensions;
 
 namespace AuthorizationService.Implementation.Services;
 

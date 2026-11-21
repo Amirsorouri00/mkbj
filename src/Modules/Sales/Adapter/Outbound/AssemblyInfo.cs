@@ -4,4 +4,4 @@ using System.Runtime.CompilerServices;
 // them, since they are reached through their ports. They are tested directly because the cache's
 // reuse rules — version match and TTL — are where a withdrawn product would be sold, and that is
 // worth testing without a database and a host behind it.
-[assembly: InternalsVisibleTo("EwaysVNext.UnitTests")]
+[assembly: InternalsVisibleTo("Mkbj.UnitTests")]

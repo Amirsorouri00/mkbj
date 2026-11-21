@@ -1,11 +1,11 @@
-﻿using AuthorizationService.Application.Abstractions;
+using AuthorizationService.Application.Abstractions;
 using AuthorizationService.Application.Entities;
 using AuthorizationService.Application.UserRoleScopes;
 using AuthorizationService.Application.UserRoleScopes.Requests;
 using AuthorizationService.Application.UserRoleScopes.Responses;
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 using Microsoft.EntityFrameworkCore;
-using EwaysVNext.Outcomes.Extensions;
+using Mkbj.Outcomes.Extensions;
 
 namespace AuthorizationService.Implementation.Services;
 

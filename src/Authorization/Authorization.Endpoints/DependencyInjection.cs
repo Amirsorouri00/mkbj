@@ -3,7 +3,7 @@ using AuthorizationService.Endpoints.Roles;
 using AuthorizationService.Endpoints.Scopes;
 using AuthorizationService.Endpoints.UserRoleScopes;
 using AuthorizationService.Implementation;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

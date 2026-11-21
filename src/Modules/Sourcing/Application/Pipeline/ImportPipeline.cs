@@ -1,15 +1,15 @@
 using System.Text.Json;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Modules.Sourcing.Application.Ports.Inbound;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 using Microsoft.Extensions.Logging;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Pipeline;
+namespace Mkbj.Modules.Sourcing.Application.Pipeline;
 
 /// <summary>
 /// One batch of one job's work.
@@ -33,6 +33,7 @@ public sealed class ImportPipeline(
     IStagedRecordRepository records,
     IEnumerable<ISourceAdapter> adapters,
     StagingService staging,
+    IImageStager images,
     RecordProcessor processor,
     RecordPublisher publisher,
     IUnitOfWork unitOfWork,
@@ -189,8 +190,10 @@ public sealed class ImportPipeline(
             adminChoice: null,
             ct);
 
+        var imageKeys = await images.StageAsync(listing.ImageUrls, max: 10, ct);
+
         record.RecordProcessing(
-            processed.ToJson(), record.ImageKeys, processed.Match, processed.Issues, clock.UtcNow);
+            processed.ToJson(), imageKeys, processed.Match, processed.Issues, clock.UtcNow);
 
         counters = counters with { Extracted = counters.Extracted + 1 };
 

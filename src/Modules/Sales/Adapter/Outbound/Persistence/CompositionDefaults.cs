@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
-using EwaysVNext.Modules.Sales.Application.Composition;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.Application.Composition;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Outbound.Persistence;
+namespace Mkbj.Modules.Sales.Adapter.Outbound.Persistence;
 
 /// <summary>A real wall-clock budget, measured with monotonic timestamps.</summary>
 internal sealed class StopwatchBudgetFactory : ICompositionBudgetFactory

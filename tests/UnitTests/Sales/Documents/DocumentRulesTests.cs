@@ -1,10 +1,10 @@
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Services;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Services;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Documents;
+namespace Mkbj.UnitTests.Sales.Documents;
 
 /// <summary>
 /// The rules a document has to obey before it can be issued.

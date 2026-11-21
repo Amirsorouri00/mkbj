@@ -1,7 +1,7 @@
 using System.Buffers.Binary;
-using EwaysVNext.Core.Application.FileTypeDetection;
+using Mkbj.Core.Application.FileTypeDetection;
 
-namespace EwaysVNext.Core.Implementation.FileTypeDetection;
+namespace Mkbj.Core.Implementation.FileTypeDetection;
 
 public sealed class FileTypeDetector : IFileTypeDetector
 {

@@ -1,12 +1,12 @@
-﻿using System.Text.Json;
-using EwaysVNext.Domain.Common;
+using System.Text.Json;
+using Mkbj.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using NpgsqlTypes;
 
-namespace EwaysVNext.Jobs.Implementation;
+namespace Mkbj.Jobs.Implementation;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix",
     Justification = "Named for the interface it implements; see IJobQueue.")]

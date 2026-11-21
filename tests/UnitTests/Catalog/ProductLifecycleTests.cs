@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 /// <summary>
 /// Two things write to a product: an admin, and an unattended import that runs again and again

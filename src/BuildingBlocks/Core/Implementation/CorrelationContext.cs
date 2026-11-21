@@ -1,6 +1,6 @@
-using EwaysVNext.Core.Application;
+using Mkbj.Core.Application;
 
-namespace EwaysVNext.Core.Implementation;
+namespace Mkbj.Core.Implementation;
 
 /// <summary>Scoped: one per request, set by CorrelationIdMiddleware.</summary>
 public sealed class CorrelationContext : ICorrelationContext

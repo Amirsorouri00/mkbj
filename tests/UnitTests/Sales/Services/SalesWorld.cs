@@ -1,18 +1,18 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sales.Application.Composition;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
-using EwaysVNext.Modules.Sales.Application.Domain.Telemetry;
-using EwaysVNext.Modules.Sales.Application.Money;
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Modules.Sales.Application.Services;
-using EwaysVNext.Outcomes;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sales.Application.Composition;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Modules.Sales.Application.Domain.Telemetry;
+using Mkbj.Modules.Sales.Application.Money;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.Application.Services;
+using Mkbj.Outcomes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace EwaysVNext.UnitTests.Sales.Services;
+namespace Mkbj.UnitTests.Sales.Services;
 
 /// <summary>
 /// A whole Sales world of fakes, sharing one journal so the <b>order</b> of its writes is
@@ -62,7 +62,7 @@ internal sealed class SalesWorld
             new FixedClock(),
             Scopes,
             Microsoft.Extensions.Options.Options.Create(
-                new EwaysVNext.Modules.Sales.Application.SalesOptions()),
+                new Mkbj.Modules.Sales.Application.SalesOptions()),
             NullLogger<PartnerOrderService>.Instance);
 
         Scopes.Register<IPartnerOrderService>(Service);

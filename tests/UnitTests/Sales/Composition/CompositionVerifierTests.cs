@@ -1,8 +1,8 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sales.Application.Composition;
+using Mkbj.Modules.Sales.Application.Composition;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Composition;
+namespace Mkbj.UnitTests.Sales.Composition;
 
 /// <summary>
 /// The last check before a partner is billed.
@@ -142,6 +142,6 @@ public sealed class CompositionVerifierTests
             + "check exists to prevent");
     }
 
-    private static EwaysVNext.Outcomes.Result Verify(long target, ComposedLine[] lines) =>
+    private static Mkbj.Outcomes.Result Verify(long target, ComposedLine[] lines) =>
         CompositionVerifier.Verify(target, Pool, lines, MaxLines);
 }

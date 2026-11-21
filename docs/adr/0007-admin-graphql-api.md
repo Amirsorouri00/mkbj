@@ -50,7 +50,7 @@ several of which were pass-throughs to a single provider (a "God Module" smell):
    logic, so nothing was lost.
 
 5. **Machine check:** `Admin_Composition_Layers_Must_Be_Aggregate_Free` —
-   `Admin.Application` and the GraphQL assembly may not reference `EwaysVNext.DDD`;
+   `Admin.Application` and the GraphQL assembly may not reference `Mkbj.DDD`;
    any aggregate/entity work would require it, so domain logic physically cannot hide
    there. Combined with the existing write-confinement rule, the composition layer is
    verifiably thin.

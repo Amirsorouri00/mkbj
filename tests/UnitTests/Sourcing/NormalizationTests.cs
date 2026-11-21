@@ -1,13 +1,13 @@
 using System.Text.Json.Nodes;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
-using EwaysVNext.Modules.Sourcing.Application.Normalization;
-using EwaysVNext.Modules.Sourcing.Application.Validation;
+using Mkbj.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Domain.SourcePolicies;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Modules.Sourcing.Application.Normalization;
+using Mkbj.Modules.Sourcing.Application.Validation;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sourcing;
+namespace Mkbj.UnitTests.Sourcing;
 
 /// <summary>
 /// Turning what a source wrote into what this system means.

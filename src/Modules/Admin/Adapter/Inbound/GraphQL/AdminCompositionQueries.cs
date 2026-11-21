@@ -1,13 +1,13 @@
 using AuthorizationService.Abstractions.Attributes;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Modules.Admin.Application.Ports.Inbound;
-using EwaysVNext.Modules.Admin.Application.Views;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Modules.Admin.Application.Ports.Inbound;
+using Mkbj.Modules.Admin.Application.Views;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
 
-namespace EwaysVNext.Modules.Admin.Adapter.Inbound.GraphQL;
+namespace Mkbj.Modules.Admin.Adapter.Inbound.GraphQL;
 
 /// <summary>
 /// The composed admin views on the one shared schema.

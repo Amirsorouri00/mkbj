@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Outbound.Candidates;
+namespace Mkbj.Modules.Sales.Adapter.Outbound.Candidates;
 
 /// <summary>
 /// The most recent candidate pool per currency, held across requests.

@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sales.Application;
+namespace Mkbj.Modules.Sales.Application;
 
 /// <summary>
 /// Every refusal Sales can express, in one place.

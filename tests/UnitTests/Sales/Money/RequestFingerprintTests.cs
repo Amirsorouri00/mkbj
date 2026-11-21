@@ -1,10 +1,10 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sales.Application.Money;
-using EwaysVNext.Modules.Sales.Application;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Sales.Application.Money;
+using Mkbj.Modules.Sales.Application;
+using Mkbj.Outcomes;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Money;
+namespace Mkbj.UnitTests.Sales.Money;
 
 /// <summary>
 /// What makes two partner order requests "the same request".

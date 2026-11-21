@@ -1,10 +1,10 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Partners.Adapter.Outbound.Usage;
-using EwaysVNext.Modules.Partners.Application.Usage;
+using Mkbj.Modules.Partners.Adapter.Outbound.Usage;
+using Mkbj.Modules.Partners.Application.Usage;
 using Microsoft.Extensions.Options;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Partners;
+namespace Mkbj.UnitTests.Partners;
 
 /// <summary>
 /// The recorder's only hard requirement is that it never makes a partner wait. Everything else —

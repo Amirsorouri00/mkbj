@@ -1,12 +1,12 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Database;
-using EwaysVNext.Jobs;
-using EwaysVNext.Jobs.Implementation;
+using AwesomeAssertions;
+using Mkbj.Database;
+using Mkbj.Jobs;
+using Mkbj.Jobs.Implementation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Platform;
+namespace Mkbj.IntegrationTests.Platform;
 
 /// <summary>
 /// The queue's concurrency contract, against a real Postgres. These are the properties the worker
@@ -186,7 +186,7 @@ public sealed class JobStoreTests(PostgresFixture fixture)
     private AsyncServiceScope NewScope()
     {
         var scope = fixture.CreateFactory().Services.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
         db.Database.ExecuteSqlRaw("DELETE FROM jobs.job; DELETE FROM jobs.recurring;");
         return scope;
     }

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Catalog.Application.Products.Domain;
+namespace Mkbj.Modules.Catalog.Application.Products.Domain;
 
 /// <summary>
 /// Where a product sits between arriving and being sellable.

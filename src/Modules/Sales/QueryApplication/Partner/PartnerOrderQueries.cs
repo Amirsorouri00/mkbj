@@ -1,12 +1,12 @@
 using System.Text.Json;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
-using EwaysVNext.Outcomes;
+using Mkbj.Core.Application;
+using Mkbj.Database;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Outcomes;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Sales.QueryApplication.Partner;
+namespace Mkbj.Modules.Sales.QueryApplication.Partner;
 
 /// <summary>
 /// Partner-scoped reads, projected straight from the shared context.
@@ -16,7 +16,7 @@ namespace EwaysVNext.Modules.Sales.QueryApplication.Partner;
 /// not a check afterwards — a projection that loaded first and compared later would already have
 /// read another partner's invoice into this process before deciding not to return it.
 /// </remarks>
-internal sealed class PartnerOrderQueries(EwaysVNextDbContext db) : IPartnerOrderQueries
+internal sealed class PartnerOrderQueries(MkbjDbContext db) : IPartnerOrderQueries
 {
     private const int MaxLimit = 200;
     private const int MaxSearchIds = 100;

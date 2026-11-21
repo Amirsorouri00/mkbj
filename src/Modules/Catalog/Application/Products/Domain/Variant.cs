@@ -1,6 +1,6 @@
-﻿using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Catalog.Application.Products.Domain;
+namespace Mkbj.Modules.Catalog.Application.Products.Domain;
 
 /// <summary>
 /// One buyable form of a product — a size, a colour, or the only one there is.

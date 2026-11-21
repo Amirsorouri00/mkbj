@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Pricing.Application.Fx.Domain;
+using Mkbj.Modules.Pricing.Application.Fx.Domain;
 
-namespace EwaysVNext.Modules.Pricing.Application.Fx.Ports.Outbound;
+namespace Mkbj.Modules.Pricing.Application.Fx.Ports.Outbound;
 
 public interface IFxRateOverrideRepository
 {

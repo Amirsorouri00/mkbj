@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Catalog.Contracts.Categories;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Catalog.QueryApplication.Categories;
+namespace Mkbj.Modules.Catalog.QueryApplication.Categories;
 
 /// <summary>Back-office read port. Unlike public queries, it never applies effective-visibility filtering.</summary>
 public interface ICategoryAdminQueries

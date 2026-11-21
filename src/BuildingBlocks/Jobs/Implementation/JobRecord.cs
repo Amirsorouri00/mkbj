@@ -1,4 +1,4 @@
-namespace EwaysVNext.Jobs.Implementation;
+namespace Mkbj.Jobs.Implementation;
 
 /// <summary>
 /// A row in <c>jobs.job</c>. Claiming, completing and retrying all happen in raw SQL so they are

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Sourcing.Application.Normalization;
+namespace Mkbj.Modules.Sourcing.Application.Normalization;
 
 /// <summary>
 /// Whether a barcode is a real one.

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Routing;
 
-namespace EwaysVNext.Presentation.Endpoint;
+namespace Mkbj.Presentation.Endpoint;
 
 public interface IEndpoint
 {

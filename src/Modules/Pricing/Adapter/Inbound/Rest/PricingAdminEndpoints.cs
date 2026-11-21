@@ -1,20 +1,20 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Security.Claims;
 
 using AuthorizationService.Abstractions.Extensions;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.QueryApplication;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Presentation.Endpoint.Money;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Modules.Pricing.QueryApplication;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint.Money;
+using Mkbj.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace EwaysVNext.Modules.Pricing.Adapter.Inbound.Rest;
+namespace Mkbj.Modules.Pricing.Adapter.Inbound.Rest;
 
 /// <remarks>Amounts are two-decimal strings; see <see cref="MoneyText"/> for why.</remarks>
 public sealed record SetVariantPriceRequest(string Amount, string Currency);

@@ -1,13 +1,13 @@
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Host.Seeding;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Core.Application;
+using Mkbj.Host.Seeding;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Seeding;
+namespace Mkbj.IntegrationTests.Seeding;
 
 /// <summary>
 /// The demo seed against a real database and a real object store.

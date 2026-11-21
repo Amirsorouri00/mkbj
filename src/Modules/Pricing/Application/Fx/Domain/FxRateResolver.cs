@@ -1,8 +1,8 @@
-﻿using EwaysVNext.Modules.Pricing.Application.Currencies.Domain;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Pricing.Application.Currencies.Domain;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Pricing.Application.Fx.Domain;
+namespace Mkbj.Modules.Pricing.Application.Fx.Domain;
 
 /// <summary>
 /// Turns a book of rates into the one rate a quote should use.

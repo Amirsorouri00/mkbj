@@ -1,21 +1,21 @@
 using System.Reflection;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Core.Application.FileTypeDetection;
-using EwaysVNext.Core.Implementation;
-using EwaysVNext.Core.Implementation.FileTypeDetection;
-using EwaysVNext.Database;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Events.Application;
-using EwaysVNext.Events.Implementation;
-using EwaysVNext.Persistence;
-using EwaysVNext.Persistence.Audit;
-using EwaysVNext.Persistence.SoftDelete;
+using Mkbj.Core.Application;
+using Mkbj.Core.Application.FileTypeDetection;
+using Mkbj.Core.Implementation;
+using Mkbj.Core.Implementation.FileTypeDetection;
+using Mkbj.Database;
+using Mkbj.Domain.Common;
+using Mkbj.Events.Application;
+using Mkbj.Events.Implementation;
+using Mkbj.Persistence;
+using Mkbj.Persistence.Audit;
+using Mkbj.Persistence.SoftDelete;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace EwaysVNext.DependencyInjection;
+namespace Mkbj.DependencyInjection;
 
 public static class DependencyInjection
 {

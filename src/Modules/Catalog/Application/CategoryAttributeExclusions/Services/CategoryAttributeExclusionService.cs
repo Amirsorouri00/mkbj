@@ -1,15 +1,15 @@
-﻿using EwaysVNext.Domain.Common;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Validation;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
+using Mkbj.Domain.Common;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Validation;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Services;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Services;
 
 public sealed class CategoryAttributeExclusionService(
     ICategoryAttributeExclusionRepository exclusions,

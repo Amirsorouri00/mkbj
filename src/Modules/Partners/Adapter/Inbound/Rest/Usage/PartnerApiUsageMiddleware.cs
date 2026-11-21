@@ -1,13 +1,13 @@
 using System.Diagnostics;
 
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Inbound;
-using EwaysVNext.Modules.Partners.Application.Usage;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Inbound;
+using Mkbj.Modules.Partners.Application.Usage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace EwaysVNext.Modules.Partners.Adapter.Inbound.Rest.Usage;
+namespace Mkbj.Modules.Partners.Adapter.Inbound.Rest.Usage;
 
 /// <summary>
 /// Records one row per authenticated partner request.

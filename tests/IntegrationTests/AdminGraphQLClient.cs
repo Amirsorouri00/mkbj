@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 
-namespace EwaysVNext.IntegrationTests;
+namespace Mkbj.IntegrationTests;
 
 /// <summary>Thin helper for POSTing operations to <c>/graphql</c> in tests.</summary>
 internal static class AdminGraphQLClient

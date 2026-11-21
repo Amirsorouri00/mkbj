@@ -1,7 +1,7 @@
-using EwaysVNext.Events.Application;
+using Mkbj.Events.Application;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Events.Implementation;
+namespace Mkbj.Events.Implementation;
 
 public sealed class DomainEventBus(IServiceProvider serviceProvider) : IDomainEventBus
 {

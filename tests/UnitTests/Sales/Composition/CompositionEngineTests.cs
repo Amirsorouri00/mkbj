@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sales.Application.Composition;
-using EwaysVNext.Tools.CompositionSimulator;
+using Mkbj.Modules.Sales.Application.Composition;
+using Mkbj.Tools.CompositionSimulator;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Composition;
+namespace Mkbj.UnitTests.Sales.Composition;
 
 /// <summary>
 /// The engine that turns "I want to spend $12,845.99" into a basket of real SKUs.

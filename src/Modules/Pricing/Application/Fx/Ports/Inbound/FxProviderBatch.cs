@@ -1,4 +1,4 @@
-﻿namespace EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound;
+namespace Mkbj.Modules.Pricing.Application.Fx.Ports.Inbound;
 
 /// <remarks><c>Rate</c> is what one euro buys in <c>Quote</c>.</remarks>
 public sealed record FxQuote(string Quote, decimal Rate);

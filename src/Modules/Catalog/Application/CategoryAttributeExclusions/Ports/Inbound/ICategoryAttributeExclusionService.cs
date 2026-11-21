@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
 
 public interface ICategoryAttributeExclusionService
 {

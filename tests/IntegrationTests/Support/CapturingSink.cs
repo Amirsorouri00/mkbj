@@ -3,7 +3,7 @@ using System.Globalization;
 using Serilog.Core;
 using Serilog.Events;
 
-namespace EwaysVNext.IntegrationTests.Support;
+namespace Mkbj.IntegrationTests.Support;
 
 /// <summary>
 /// Keeps every log event the application emits so a test can search all of it — rendered message,

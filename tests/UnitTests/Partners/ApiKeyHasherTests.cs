@@ -1,10 +1,10 @@
 using System.Security.Cryptography;
 using System.Text;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Partners.Application.Partners.Keys;
+using Mkbj.Modules.Partners.Application.Partners.Keys;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Partners;
+namespace Mkbj.UnitTests.Partners;
 
 /// <summary>
 /// Keys are stored as HMAC-SHA256 under a server-side pepper, not as a slow password hash

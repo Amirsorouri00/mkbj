@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
-using EwaysVNext.Modules.Sourcing.Application.Normalization;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Modules.Sourcing.Application.Normalization;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Matching;
+namespace Mkbj.Modules.Sourcing.Application.Matching;
 
 /// <summary>
 /// Decides whether a listing is a product the catalogue already has.

@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("EwaysVNext.PersistenceContractTests")]
+[assembly: InternalsVisibleTo("Mkbj.PersistenceContractTests")]

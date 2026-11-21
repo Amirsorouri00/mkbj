@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
+namespace Mkbj.Presentation.Endpoint.GraphQL.Extensions;
 
 public static class ResultGraphQLExtensions
 {

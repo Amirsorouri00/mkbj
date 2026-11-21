@@ -1,8 +1,8 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sales.Application.Composition;
+using Mkbj.Modules.Sales.Application.Composition;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Composition;
+namespace Mkbj.UnitTests.Sales.Composition;
 
 /// <summary>
 /// The PRNG whose output is, in effect, persisted.

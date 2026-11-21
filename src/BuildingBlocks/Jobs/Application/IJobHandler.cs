@@ -1,4 +1,4 @@
-namespace EwaysVNext.Jobs;
+namespace Mkbj.Jobs;
 
 /// <summary>
 /// Handles one job type. Implementations must be <b>idempotent</b>: a lease can expire mid-run and

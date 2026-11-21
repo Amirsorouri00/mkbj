@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Mkbj.Database</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <ProjectReference Include="..\Modules\Partners\Application\Mkbj.Modules.Partners.Application.csproj" />
+    <ProjectReference Include="..\Modules\Settings\Application\Mkbj.Modules.Settings.Application.csproj" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="EFCore.NamingConventions" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BuildingBlocks\Persistence\Mkbj.Persistence.csproj" />
+    <ProjectReference Include="..\Modules\Catalog\Application\Mkbj.Modules.Catalog.Application.csproj" />
+    <ProjectReference Include="..\Modules\Customer\Application\Mkbj.Modules.Customer.Application.csproj" />
+    <ProjectReference Include="..\Modules\Pricing\Application\Mkbj.Modules.Pricing.Application.csproj" />
+    <ProjectReference Include="..\Modules\Sales\Application\Mkbj.Modules.Sales.Application.csproj" />
+    <ProjectReference Include="..\Modules\Sourcing\Application\Mkbj.Modules.Sourcing.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+    <ProjectReference Include="..\BuildingBlocks\Jobs\Implementation\Mkbj.Jobs.Implementation.csproj" />
+    <ProjectReference Include="..\BuildingBlocks\Audit\Implementation\Mkbj.Audit.Implementation.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\*.sql" />
+  </ItemGroup>
+</Project>

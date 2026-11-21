@@ -1,11 +1,11 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Pricing.Application.Bands;
-using EwaysVNext.Modules.Sales.Application.Composition;
-using EwaysVNext.Modules.Sales.Application.Money;
-using EwaysVNext.Tools.CompositionSimulator;
+using Mkbj.Modules.Pricing.Application.Bands;
+using Mkbj.Modules.Sales.Application.Composition;
+using Mkbj.Modules.Sales.Application.Money;
+using Mkbj.Tools.CompositionSimulator;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Composition;
+namespace Mkbj.UnitTests.Sales.Composition;
 
 /// <summary>
 /// The amounts the product is required to be able to compose, in every currency it sells in.

@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Events;
+using Mkbj.Domain.Events;
 
-namespace EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
+namespace Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
 
 public sealed record AttributeBlueprintCreatedDomainEvent(long AttributeBlueprintId, string Name, AttributeBlueprintDataType DataType) : DomainEvent;
 public sealed record AttributeBlueprintRenamedDomainEvent(long AttributeBlueprintId, string Name) : DomainEvent;

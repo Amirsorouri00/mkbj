@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Pricing.Application.Prices.Domain;
+namespace Mkbj.Modules.Pricing.Application.Prices.Domain;
 
 /// <summary>
 /// A price an admin set directly in one currency, instead of letting it be converted.

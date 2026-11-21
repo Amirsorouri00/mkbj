@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
 
 public sealed class CategoryAttributeAssignment : AggregateRoot<long>
 {

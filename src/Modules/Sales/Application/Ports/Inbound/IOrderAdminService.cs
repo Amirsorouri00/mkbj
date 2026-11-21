@@ -1,7 +1,7 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Outcomes;
+using Mkbj.Core.Application;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sales.Application.Ports.Inbound;
+namespace Mkbj.Modules.Sales.Application.Ports.Inbound;
 
 public sealed record RefundResult(
     long RefundId,

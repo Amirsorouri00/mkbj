@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
+namespace Mkbj.Modules.Sourcing.Application.Ports.Outbound;
 
 /// <summary>One candidate the catalogue offered for a listing.</summary>
 public sealed record CatalogCandidate(long ProductId, string Title, double Similarity);

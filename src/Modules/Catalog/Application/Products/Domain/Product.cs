@@ -1,7 +1,7 @@
-﻿using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Common;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Common;
 
-namespace EwaysVNext.Modules.Catalog.Application.Products.Domain;
+namespace Mkbj.Modules.Catalog.Application.Products.Domain;
 
 /// <summary>
 /// A product and everything that makes it sellable: its variants, its images and the codes it is

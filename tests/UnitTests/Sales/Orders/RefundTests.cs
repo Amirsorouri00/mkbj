@@ -1,10 +1,10 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Orders;
+namespace Mkbj.UnitTests.Sales.Orders;
 
 /// <summary>
 /// Money going back, as a document that points at the one it reverses.

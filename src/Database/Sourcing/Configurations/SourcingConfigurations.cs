@@ -1,12 +1,12 @@
 using System.Text.Json;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourceListings;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Domain.SourceListings;
+using Mkbj.Modules.Sourcing.Application.Domain.SourcePolicies;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EwaysVNext.Database.Sourcing.Configurations;
+namespace Mkbj.Database.Sourcing.Configurations;
 
 /// <summary>How the import side is stored.</summary>
 internal static class SourcingJson

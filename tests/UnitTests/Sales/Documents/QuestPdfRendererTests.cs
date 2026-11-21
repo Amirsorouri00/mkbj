@@ -1,11 +1,11 @@
 using System.Text.RegularExpressions;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sales.Adapter.Outbound.Documents;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Adapter.Outbound.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
 using UglyToad.PdfPig;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Documents;
+namespace Mkbj.UnitTests.Sales.Documents;
 
 /// <summary>
 /// The PDF a buyer actually receives.
@@ -132,6 +132,33 @@ public sealed class QuestPdfRendererTests
         using var document = PdfDocument.Open(Renderer.Render(content));
 
         return string.Join("\n", document.GetPages().Select(page => page.Text));
+    }
+
+    [Fact]
+    public void Long_Invoices_Repeat_Table_Headers_And_Keep_Labelled_Totals()
+    {
+        var content = Sample() with
+        {
+            Lines = Enumerable.Range(1, 75).Select(i => new DocumentLine(i, $"SKU-{i}", "Professional cordless drill with charger and protective case", 2, 100, 200)).ToArray(),
+            SubtotalMinor = 15000, TotalMinor = 15000,
+            IssuedAt = new DateTimeOffset(2026, 11, 7, 20, 0, 0, TimeSpan.Zero),
+        };
+        var bytes = Renderer.Render(content);
+        using var document = PdfDocument.Open(bytes);
+        document.NumberOfPages.Should().BeGreaterThan(1);
+        var pages = document.GetPages().ToArray();
+        pages.Where(page => page.Text.Contains("SKU-", StringComparison.Ordinal))
+            .Should().OnlyContain(page => page.Text.Contains("Product / SKU", StringComparison.Ordinal));
+        var text = string.Join(" ", pages.Select(page => page.Text));
+        text.Should().Contain("08 Nov 2026");
+        text.Should().Contain("Subtotal").And.Contain("Line total").And.Contain("USD 150.00").And.Contain("SKU-75");
+        var output = Environment.GetEnvironmentVariable("MKBJ_PDF_REVIEW_DIR");
+        if (!string.IsNullOrWhiteSpace(output))
+        {
+            Directory.CreateDirectory(output);
+            File.WriteAllBytes(Path.Combine(output, "invoice-multipage.pdf"), bytes);
+            File.WriteAllBytes(Path.Combine(output, "invoice-sample.pdf"), Renderer.Render(Sample()));
+        }
     }
 
     private static DocumentContent Sample() => new(

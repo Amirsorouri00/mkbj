@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Normalization;
+namespace Mkbj.Modules.Sourcing.Application.Normalization;
 
 /// <summary>
 /// Turns whatever a source wrote for a price into exact minor units.

@@ -1,10 +1,10 @@
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Partners.Application.Partners.Domain;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Partners.Application.Partners.Domain;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Partners;
+namespace Mkbj.UnitTests.Partners;
 
 /// <summary>
 /// The partner aggregate, which owns its keys. Time is a parameter throughout, so every one of

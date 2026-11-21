@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Mkbj.Modules.Admin.Adapter.Inbound.Rest</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\Mkbj.Modules.Admin.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Presentation.Endpoint\Mkbj.Presentation.Endpoint.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Outcomes\Mkbj.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Authorization\Authorization.Abstractions\Authorization.Abstractions.csproj" />
+  </ItemGroup>
+</Project>

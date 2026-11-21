@@ -1,13 +1,13 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sales.Adapter.Outbound.Candidates;
-using EwaysVNext.Modules.Sales.Application;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Sales.Adapter.Outbound.Candidates;
+using Mkbj.Modules.Sales.Application;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Outcomes;
 using Microsoft.Extensions.Options;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Gateways;
+namespace Mkbj.UnitTests.Sales.Gateways;
 
 /// <summary>
 /// The pool of variants a basket is composed from, and when it may be reused.

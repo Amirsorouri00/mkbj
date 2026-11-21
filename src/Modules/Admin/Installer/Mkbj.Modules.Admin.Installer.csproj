@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Mkbj.Modules.Admin.Installer</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Mkbj.Modules.Admin.Application.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\Mkbj.Modules.Admin.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\Rest\Mkbj.Modules.Admin.Adapter.Inbound.Rest.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\GraphQL\Mkbj.Modules.Admin.Adapter.Inbound.GraphQL.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\DependencyInjection\Mkbj.DependencyInjection.csproj" />
+  </ItemGroup>
+</Project>

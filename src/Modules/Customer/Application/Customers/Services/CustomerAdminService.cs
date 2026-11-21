@@ -1,14 +1,14 @@
 using System.Globalization;
 
-using EwaysVNext.Audit;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Customer.Application.Customers.Domain;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Outbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using Mkbj.Audit;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Customer.Application.Customers.Domain;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Outbound;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 
-namespace EwaysVNext.Modules.Customer.Application.Customers.Services;
+namespace Mkbj.Modules.Customer.Application.Customers.Services;
 
 public sealed class CustomerAdminService(
     ICustomerRepository repository,

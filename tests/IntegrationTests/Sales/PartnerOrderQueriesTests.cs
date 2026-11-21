@@ -1,13 +1,13 @@
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Modules.Sales.QueryApplication.Partner;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.QueryApplication.Partner;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sales;
+namespace Mkbj.IntegrationTests.Sales;
 
 /// <summary>
 /// What a partner may read, and — mostly — what it may not.
@@ -232,7 +232,7 @@ public sealed class PartnerOrderQueriesTests(PostgresFixture fixture)
         Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Program> factory) =>
         factory.Services.CreateScope().ServiceProvider.GetRequiredService<IPartnerOrderQueries>();
 
-    private static T Value<T>(EwaysVNext.Outcomes.Result<T> result)
+    private static T Value<T>(Mkbj.Outcomes.Result<T> result)
     {
         result.IsSuccess.Should().BeTrue(result.Error?.Message);
         return result.Value!;

@@ -1,15 +1,15 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.IntegrationTests.Support;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound.Storefront;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Outbound;
+using Mkbj.Domain.Common;
+using Mkbj.IntegrationTests.Support;
+using Mkbj.Modules.Catalog.Adapter.Outbound.Storefront;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Outbound;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Storefront;
+namespace Mkbj.IntegrationTests.Storefront;
 
 /// <summary>
 /// The storefront view and <see cref="IPriceQuotePort"/> must agree, to the minor unit.
@@ -198,9 +198,9 @@ public sealed class StorefrontPriceParityTests(PostgresFixture fixture)
         [.. (await ViewRowsAsync([variantId]))
             .Where(row => row.Currency == currency).Select(row => row.PriceMinor)];
 
-    private static void Succeeded(EwaysVNext.Outcomes.Result result) =>
+    private static void Succeeded(Mkbj.Outcomes.Result result) =>
         result.IsSuccess.Should().BeTrue(result.Error?.Message);
 
-    private static void Succeeded<T>(EwaysVNext.Outcomes.Result<T> result) =>
+    private static void Succeeded<T>(Mkbj.Outcomes.Result<T> result) =>
         result.IsSuccess.Should().BeTrue(result.Error?.Message);
 }

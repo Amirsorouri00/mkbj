@@ -1,7 +1,7 @@
-using EwaysVNext.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Pricing.Adapter.Inbound.Rest;
+namespace Mkbj.Modules.Pricing.Adapter.Inbound.Rest;
 
 public static class DependencyInjection
 {

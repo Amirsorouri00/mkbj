@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Partners.Application.Usage;
+using Mkbj.Modules.Partners.Application.Usage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EwaysVNext.Database.Partners.Configurations;
+namespace Mkbj.Database.Partners.Configurations;
 
 /// <summary>
 /// Append-only request history. No foreign key to <c>partners</c> on purpose: these rows outlive

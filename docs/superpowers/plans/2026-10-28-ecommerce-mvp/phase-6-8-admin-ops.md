@@ -44,7 +44,7 @@ and 8, §16 (release gates in the runbook). PRD §10, §12 acceptance 13 and 16.
 - **Phase 1:**
   - `AuthPolicies`, `AdminPermissions`, `AdminActor.TryFrom`, `.RequirePermission(...)` / `[RequirePermission]`
   - `AdminJwtFactory.{CreateSuperAdminToken, CreateStaffToken, CreateShopToken}`
-  - `RateLimitingSetup.AddEwaysRateLimiting` (UseAuthentication runs before UseRateLimiter)
+  - `RateLimitingSetup.AddMkbjRateLimiting` (UseAuthentication runs before UseRateLimiter)
   - `IPartnerAdminService`, `ICustomerAdminQueries` (`CustomerAdminDetail`, `ContactChangeView`)
   - `Acceptance13StaffPermissionTests`, the partner/settings/customer admin routes
 - **Phases 2–3:**
@@ -53,7 +53,7 @@ and 8, §16 (release gates in the runbook). PRD §10, §12 acceptance 13 and 16.
   - storefront `shop*` GraphQL fields and anonymous `/api/v1/shop/*` routes, the `--seed` catalog
   - `PostgresFixture.CreateFactory()` with `[Collection(PostgresSuite.Name)]`
 - **Phases 4–5:**
-  - `ISalesAdminQueries` and its DTOs (`EwaysVNext.Modules.Sales.QueryApplication.Admin`)
+  - `ISalesAdminQueries` and its DTOs (`Mkbj.Modules.Sales.QueryApplication.Admin`)
   - `IOrderAdminService`, `IInvoiceService`, `DocumentAccess.Admin`
   - `SalesApiFactory` (stub partner keys `pk_partnerA_…`), `SalesTestData.EnsureSeededAsync`
   - `PartnerOpenApiExamples`, `tools/CompositionSimulator`, `tests/load/partner-orders.js`
@@ -63,9 +63,9 @@ and 8, §16 (release gates in the runbook). PRD §10, §12 acceptance 13 and 16.
   - the staged-record seeding helper used by `SourcingAdminQueriesTests`
 
 **Conventions:**
-- Unit: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.<Class>"`.
-- Integration: `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.<Class>"`.
-- Architecture: `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter-class "*.<Class>"`.
+- Unit: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.<Class>"`.
+- Integration: `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.<Class>"`.
+- Architecture: `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter-class "*.<Class>"`.
 - Every commit is `git commit -m "<subject>" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"`.
   Each step below names only the subject.
 - Admin wire format follows Sales' admin DTOs. Money is `*Minor` `long` plus `currency`. Every id
@@ -93,7 +93,7 @@ and 8, §16 (release gates in the runbook). PRD §10, §12 acceptance 13 and 16.
    fields are skipped. Cost uses `MaxFieldCost` = `MaxTypeCost` = 20 000, enforced. One executor
    cannot hold per-field depth limits, and the storefront queries are shallower than 10.
 6. **New permission `AdminPermissions.AuditVerify = "audit.verify"`,** super_admin only.
-7. **Admin writes that live outside `EwaysVNextDbContext` are audited by a separate save.** These
+7. **Admin writes that live outside `MkbjDbContext` are audited by a separate save.** These
    are the RBAC GraphQL mutations, which use `AuthorizationDbContext`. They write the audit row
    after the RBAC save, through `IStandaloneAuditWriter`, as a documented non-atomic edge.
 8. **`/openapi/v1.json` is served in every environment** (`OpenApi:Expose`, default true), because
@@ -110,7 +110,7 @@ and 8, §16 (release gates in the runbook). PRD §10, §12 acceptance 13 and 16.
 ## File Structure
 
 ```
-src/Modules/Admin/                                              (new; ./New-EwaysModule.ps1 -ModuleName Admin, then delete its QueryApplication project)
+src/Modules/Admin/                                              (new; ./New-MkbjModule.ps1 -ModuleName Admin, then delete its QueryApplication project)
 ├── Application/
 │   ├── Views/{DashboardViews,CustomerViews,OrderViews,AuditViews}.cs   local read models (no provider types)
 │   ├── Ports/Outbound/{ISalesReadPort,ISourcingReadPort,ICustomerReadPort}.cs
@@ -130,7 +130,7 @@ src/BuildingBlocks/Audit/Application/IStandaloneAuditWriter.cs      (new) + Impl
 src/BuildingBlocks/Core/Application/Security/IAdminActorAccessor.cs (new) + Presentation.Endpoint/Security/HttpAdminActorAccessor.cs
 src/Authorization/Authorization.Abstractions/Policies/AdminPermissions.cs, .../Seeding/AdminPermissionMatrix.cs (modify: AuditVerify)
 src/Authorization/Authorization.Endpoints/**/*Mutations.cs          (modify: audit via IStandaloneAuditWriter)
-src/Host/EwaysVNext.Host/{Program.cs, RateLimiting/RateLimitingSetup.cs, OpenApi/PartnerApiKeyOpenApiTransformer.cs}
+src/Host/Mkbj.Host/{Program.cs, RateLimiting/RateLimitingSetup.cs, OpenApi/PartnerApiKeyOpenApiTransformer.cs}
 src/Modules/Catalog/QueryApplication/Products/{ICatalogAdminQueries,CatalogAdminQueries}.cs  (modify: duplicate candidates)
 src/Modules/Catalog/Adapter/Inbound/{Rest/Admin/CatalogAdminEndpoints.cs, GraphQL/Products/ProductAdminQueries.cs} (modify)
 src/Modules/Sourcing/Adapter/Inbound/{Rest/StagedRecordImageEndpoints.cs (new), GraphQL/*Queries.cs (modify)}
@@ -159,19 +159,19 @@ tests/IntegrationTests/Contracts/Snapshots/{openapi-v1.json,schema.graphql}
 
 **Files:**
 - Create:
-  - the Admin projects (run `./New-EwaysModule.ps1 -ModuleName Admin`, then delete
+  - the Admin projects (run `./New-MkbjModule.ps1 -ModuleName Admin`, then delete
     `src/Modules/Admin/QueryApplication` and its `.slnx` entry)
-  - `src/Modules/Admin/Adapter/Inbound/GraphQL/EwaysVNext.Modules.Admin.Adapter.Inbound.GraphQL.csproj`,
+  - `src/Modules/Admin/Adapter/Inbound/GraphQL/Mkbj.Modules.Admin.Adapter.Inbound.GraphQL.csproj`,
     copying Catalog's GraphQL csproj references
   - `tests/ArchitectureTests/AdminArchitectureTests.cs`
 - Modify:
   - `tests/ArchitectureTests/HexagonalBoundaryTests.cs`
-  - `EwaysVNext.slnx`
+  - `Mkbj.slnx`
   - `src/Modules/Admin/Adapter/Outbound/*.csproj`: reference
-    `EwaysVNext.Modules.{Sales,Sourcing,Customer}.QueryApplication`
-  - `src/Modules/Admin/Application/*.csproj`: reference `EwaysVNext.Domain`, `EwaysVNext.Outcomes`,
-    `EwaysVNext.Core.Application` and `EwaysVNext.Audit.Application` only
-  - `src/Host/EwaysVNext.Host/Program.cs` (`AddAdminModule()`)
+    `Mkbj.Modules.{Sales,Sourcing,Customer}.QueryApplication`
+  - `src/Modules/Admin/Application/*.csproj`: reference `Mkbj.Domain`, `Mkbj.Outcomes`,
+    `Mkbj.Core.Application` and `Mkbj.Audit.Application` only
+  - `src/Host/Mkbj.Host/Program.cs` (`AddAdminModule()`)
 
 **Interfaces:**
 - Consumes: `HexagonalBoundaryTests.ModuleNames`, `ForbiddenCrossModuleReferences` (phase 0).
@@ -184,8 +184,8 @@ public static IServiceCollection AddAdminModule(this IServiceCollection services
 - [ ] **Step 1: Write the failing tests.**
   1. In `HexagonalBoundaryTests`, add `"Admin"` to `ModuleNames`.
   2. Replace phase 0's rule (b) in `ForbiddenCrossModuleReferences` with: `module == "Admin"`, the
-     assembly is `EwaysVNext.Modules.Admin.Adapter.Outbound`, and the target is
-     `EwaysVNext.Modules.{p}.QueryApplication` with `p` in `AdminReadReferences`.
+     assembly is `Mkbj.Modules.Admin.Adapter.Outbound`, and the target is
+     `Mkbj.Modules.{p}.QueryApplication` with `p` in `AdminReadReferences`.
   3. `QueryApplication_Never_Writes` must tolerate a missing directory, so `SourceFiles` returns
      empty for one.
   4. Add these tests:
@@ -199,11 +199,11 @@ public void Admin_Read_Row_Is_Well_Formed(string provider)
 
 // AdminArchitectureTests
 [Fact] public void Admin_Composition_Layers_Must_Be_Aggregate_Free() =>
-    Types.InAssemblies([Load("EwaysVNext.Modules.Admin.Application"), Load("EwaysVNext.Modules.Admin.Adapter.Inbound.Rest"),
-                        Load("EwaysVNext.Modules.Admin.Adapter.Inbound.GraphQL")])
-        .ShouldNot().HaveDependencyOnAny("EwaysVNext.Domain.Common.AggregateRoot", "EwaysVNext.Domain.Common.Entity",
-            "EwaysVNext.Domain.Common.IAggregateRoot", "EwaysVNext.Domain.Common.ValueObject", "Microsoft.EntityFrameworkCore",
-            "EwaysVNext.Persistence", "EwaysVNext.Database")
+    Types.InAssemblies([Load("Mkbj.Modules.Admin.Application"), Load("Mkbj.Modules.Admin.Adapter.Inbound.Rest"),
+                        Load("Mkbj.Modules.Admin.Adapter.Inbound.GraphQL")])
+        .ShouldNot().HaveDependencyOnAny("Mkbj.Domain.Common.AggregateRoot", "Mkbj.Domain.Common.Entity",
+            "Mkbj.Domain.Common.IAggregateRoot", "Mkbj.Domain.Common.ValueObject", "Microsoft.EntityFrameworkCore",
+            "Mkbj.Persistence", "Mkbj.Database")
         .GetResult().IsSuccessful.Should().BeTrue();
 [Fact] public void Admin_Owns_No_DbContext_And_No_QueryApplication()
 {
@@ -212,20 +212,20 @@ public void Admin_Read_Row_Is_Well_Formed(string provider)
     AllModuleTypes("Admin").Should().NotContain(t => typeof(DbContext).IsAssignableFrom(t));
 }
 [Fact] public void Admin_References_No_Other_Modules_Application() =>
-    Load("EwaysVNext.Modules.Admin.Adapter.Outbound").GetReferencedAssemblies().Select(a => a.Name!)
-        .Where(n => n.StartsWith("EwaysVNext.Modules.") && !n.StartsWith("EwaysVNext.Modules.Admin.") && !n.EndsWith(".QueryApplication"))
+    Load("Mkbj.Modules.Admin.Adapter.Outbound").GetReferencedAssemblies().Select(a => a.Name!)
+        .Where(n => n.StartsWith("Mkbj.Modules.") && !n.StartsWith("Mkbj.Modules.Admin.") && !n.EndsWith(".QueryApplication"))
         .Should().BeEmpty();
 ```
 - [ ] **Step 2: Run, expect FAIL.**
-  `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter-class "*.AdminArchitectureTests"`.
+  `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter-class "*.AdminArchitectureTests"`.
   The Admin assemblies do not exist yet.
 - [ ] **Step 3: Implement.**
   - Keep the scaffolded projects empty except `DependencyInjection.cs` / `ModuleInstaller.cs`.
   - Add the csproj references listed under Files and the Program.cs registration.
 - [ ] **Step 4: Run, expect PASS.** Run the full architecture suite:
-  `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj`.
+  `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj`.
   Mutation check:
-  1. Add a reference from `Admin.Adapter.Outbound` to `EwaysVNext.Modules.Catalog.Application`
+  1. Add a reference from `Admin.Adapter.Outbound` to `Mkbj.Modules.Catalog.Application`
      and use one type from it.
   2. Expect `Module_References_No_Other_Module_Unless_Sanctioned(Admin)` and
      `Admin_References_No_Other_Modules_Application` to fail.
@@ -249,7 +249,7 @@ public void Admin_Read_Row_Is_Well_Formed(string provider)
   - `ISalesAdminQueries.{GetDashboardAsync, ListCustomerOrdersAsync, GetOrderAsync}` and its DTOs
   - `ISourcingAdminQueries.GetDashboardCountsAsync`
   - `ICustomerAdminQueries.GetAsync` → `Result<CustomerAdminDetail>`
-- Produces (namespace `EwaysVNext.Modules.Admin.Application.Views`; ids are `[Snowflake]`):
+- Produces (namespace `Mkbj.Modules.Admin.Application.Views`; ids are `[Snowflake]`):
 ```csharp
 public sealed record OrderTotalsRow(string Window, string Channel, string Currency, int OrderCount, long TotalMinor);
 public sealed record CurrencyAmount(string Currency, long AmountMinor);
@@ -281,7 +281,7 @@ public sealed record Customer360(CustomerProfile Customer, IReadOnlyList<OrderRo
 public sealed record Order360(OrderSheet Order, CustomerProfile? Customer);
 public sealed record AuditVerificationView(bool Intact, long SealedCount, long? FirstMismatchEventId, long UnsealedBelowWatermark, DateTimeOffset VerifiedAt);
 
-// EwaysVNext.Modules.Admin.Application.Ports.Outbound
+// Mkbj.Modules.Admin.Application.Ports.Outbound
 public interface ISalesReadPort {
   Task<SalesSnapshot> GetDashboardAsync(DateTimeOffset now, CancellationToken ct = default);
   Task<IReadOnlyList<OrderRow>> ListCustomerOrdersAsync(long customerId, int limit, CancellationToken ct = default);
@@ -321,7 +321,7 @@ public interface ICustomerReadPort { Task<Result<CustomerProfile>> GetAsync(long
 [Fact] public async Task Customer_Detail_Maps_History_Newest_First_And_Address()
 ```
 - [ ] **Step 2: Run, expect FAIL.**
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.AdminGatewayMappingTests"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.AdminGatewayMappingTests"`.
 - [ ] **Step 3: Implement** the views, ports and gateways. Register them in `AddAdminOutboundAdapters()`.
 - [ ] **Step 4: Run, expect PASS.** Run the same command, then the full architecture suite.
 - [ ] **Step 5: Commit.** `feat(admin): local admin views and read gateways over Sales, Sourcing and Customer read sides`
@@ -350,7 +350,7 @@ public static class AdminErrors {
   - Read `IClock` once, as `now`.
   - Call `sales.GetDashboardAsync(now)`, **then** `sourcing.GetDashboardCountsAsync(now - 7 days)`.
     The calls are sequential, never `Task.WhenAll`, because both gateways share the scoped
-    `EwaysVNextDbContext`.
+    `MkbjDbContext`.
   - `RecentFailureCodes` groups `Sales.RecentFailures` by `ErrorCode`, ordered by count
     descending, then code ascending.
 
@@ -377,7 +377,7 @@ public static class AdminErrors {
 }
 ```
 - [ ] **Step 2: Run, expect FAIL.**
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.AdminDashboardServiceTests"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.AdminDashboardServiceTests"`.
 - [ ] **Step 3: Implement** `sealed class AdminDashboardService(ISalesReadPort, ISourcingReadPort, IClock)`.
   `AddAdminApplication()` registers it as scoped.
 - [ ] **Step 4: Run, expect PASS.**
@@ -417,7 +417,7 @@ public interface IOrder360Service { Task<Result<Order360>> GetAsync(long orderId
   - `Order360_Missing_Customer_Still_Returns_Order`: `Customer` is null and `IsSuccess` is true.
   - `Order360_Unknown_Order_Is_404_Without_Customer_Read`.
 - [ ] **Step 2: Run, expect FAIL.**
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.Admin360ServiceTests"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.Admin360ServiceTests"`.
 - [ ] **Step 3: Implement** both sealed services and register them.
 - [ ] **Step 4: Run, expect PASS.**
 - [ ] **Step 5: Commit.** `feat(admin): customer 360 and order 360 composition`
@@ -452,10 +452,10 @@ public interface IAuditVerificationService { Task<Result<AuditVerificationView>>
     `[InlineData("staff", AdminPermissions.AuditVerify, false)]` and
     `[InlineData("super_admin", AdminPermissions.AuditVerify, true)]`.
 - [ ] **Step 2: Run, expect FAIL.**
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.AuditVerificationServiceTests"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.AuditVerificationServiceTests"`.
   Repeat with `--filter-class "*.AdminPermissionMatrixTests"`.
 - [ ] **Step 3: Implement** the service and the matrix row. Then create the migration:
-  `dotnet ef migrations add AdminAuditVerifyPermission -p src/Authorization/Authorization.Implementation/Authorization.Implementation.csproj -s src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj -c AuthorizationDbContext -o Persistence/Migrations`.
+  `dotnet ef migrations add AdminAuditVerifyPermission -p src/Authorization/Authorization.Implementation/Authorization.Implementation.csproj -s src/Host/Mkbj.Host/Mkbj.Host.csproj -c AuthorizationDbContext -o Persistence/Migrations`.
 - [ ] **Step 4: Run, expect PASS** (both classes, including `Matrix_Covers_Every_AdminPermissions_Constant`).
 - [ ] **Step 5: Commit.** `feat(admin): super-admin audit verification and the audit.verify permission`
 
@@ -524,7 +524,7 @@ public async Task Unknown_Id_Is_404(string path) => (await Staff.GetAsync(path))
 [Fact] public async Task Shop_And_Anonymous_Are_Refused() { /* shop token → 403, no token → 401 on /api/v1/admin/dashboard */ }
 ```
 - [ ] **Step 2: Run, expect FAIL** (routes return 404).
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.AdminCompositionApiTests"`.
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.AdminCompositionApiTests"`.
 - [ ] **Step 3: Implement** the conventions and endpoints (`IEndpoint` classes, `ToHttpResult()`).
   Register `AddEndpoints(typeof(AdminCompositionEndpoints).Assembly)` in `AddAdminModule`.
 - [ ] **Step 4: Run, expect PASS.**
@@ -536,7 +536,7 @@ public async Task Unknown_Id_Is_404(string path) => (await Staff.GetAsync(path))
 
 **Files:**
 - Create: `src/Modules/Admin/Adapter/Inbound/GraphQL/{AdminCompositionQueries,AdminGraphQLTypes,DependencyInjection}.cs`
-- Modify: `src/Host/EwaysVNext.Host/Program.cs`, by adding `.AddAdminGraphQL()` to the GraphQL builder
+- Modify: `src/Host/Mkbj.Host/Program.cs`, by adding `.AddAdminGraphQL()` to the GraphQL builder
 - Test: `tests/IntegrationTests/Admin/AdminGraphQLTests.cs`
 
 **Interfaces:** These are fields on the root `Query`. Each one carries `[Authorize(Policy = …)]` and
@@ -557,7 +557,7 @@ convention. Errors go through `ResultGraphQLExtensions.ValueOrThrow`.
   - `Staff_AdminAuditVerification_Is_AUTH_NOT_AUTHORIZED`.
   - `Unknown_Order_Has_Error_Code_From_Sales`: `errors[0].extensions.code` equals the REST 404 body's `code`.
 - [ ] **Step 2: Run, expect FAIL.**
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.AdminGraphQLTests"`.
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.AdminGraphQLTests"`.
 - [ ] **Step 3: Implement.**
 - [ ] **Step 4: Run, expect PASS.**
 - [ ] **Step 5: Commit.** `feat(admin): GraphQL adminDashboard, adminCustomer360, adminOrder360, adminAuditVerification`
@@ -570,7 +570,7 @@ convention. Errors go through `ResultGraphQLExtensions.ValueOrThrow`.
 - Create: `src/BuildingBlocks/Presentation.Endpoint/GraphQL/GraphQLLimits.cs`
 - Modify:
   - `src/BuildingBlocks/Presentation.Endpoint/GraphQL/DependencyInjection.cs`
-  - `src/Host/EwaysVNext.Host/RateLimiting/RateLimitingSetup.cs`
+  - `src/Host/Mkbj.Host/RateLimiting/RateLimitingSetup.cs`
   - the admin endpoint groups of every module. Replace each group's `RequireAuthorization(...)` /
     `RequirePermission(...)` pair with `RequireAdmin(...)`. The groups are in:
     - `Partners/.../PartnerAdminEndpoints.cs`
@@ -683,7 +683,7 @@ public async Task Allowlisted_Shop_Routes_Answer_Anonymously(string path) => (aw
   - `RequiresAuthorization(e)` means: `e.Metadata.GetOrderedMetadata<IAuthorizeData>().Any()` and
     `e.Metadata.GetMetadata<IAllowAnonymous>() is null`.
 - [ ] **Step 2: Run.**
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.EndpointAuthorizationTests"`.
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.EndpointAuthorizationTests"`.
   - Every failure is a real gap. Fix it in the owning adapter by adding the missing
     `RequireAdmin` / `RequireAuthorization` / `[Authorize]`. Never fix it by adding an allowlist row.
   - The expected first-run offenders are:
@@ -709,7 +709,7 @@ public async Task Allowlisted_Shop_Routes_Answer_Anonymously(string path) => (aw
 
 **Interfaces:**
 ```csharp
-public interface IStandaloneAuditWriter {   // own DI scope + own SaveChangesAsync; for writers outside EwaysVNextDbContext only
+public interface IStandaloneAuditWriter {   // own DI scope + own SaveChangesAsync; for writers outside MkbjDbContext only
   Task RecordAsync(AuditActor actor, string action, string targetType, string targetId, object? before, object? after, CancellationToken ct = default);
 }
 public interface IAdminActorAccessor { AdminActor? Current { get; } }   // from HttpContext.User via AdminActor.TryFrom; null outside a request
@@ -782,7 +782,7 @@ public async Task Admin_Write_Records_An_Audit_Event_In_The_Same_Request(string 
 public async Task GraphQL_Admin_Mutation_Records_An_Audit_Event(string template) { /* placeholders resolved from _world; same assertions as REST */ }
 ```
 - [ ] **Step 2: Run, expect FAIL.**
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.AdminAuditCoverageTests"`.
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.AdminAuditCoverageTests"`.
   The run lists every unaudited row, and the `createRole` row fails by design.
 - [ ] **Step 3: Close each gap in the owning module, never in the test.**
   - **Service with an `AdminActor` parameter:** add `auditTrail.Record(actor.ToAudit(), "<module>.<target>.<verb>", target, id, before, after)`
@@ -899,7 +899,7 @@ Task<Result<IReadOnlyList<DuplicateCandidateDto>>> ListDuplicateCandidatesAsync(
       the MinIO endpoint, the path contains `/import-staging/images/`, and index 99 gives 404.
     - `AdminDocumentPdfUrl_Matches_The_Rest_Redirect_Target_Bucket`: the URL path contains `/documents/`.
 - [ ] **Step 2: Run, expect FAIL** on exactly the three gap rows and the behaviours.
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.AdminPrd10CoverageTests"`.
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.AdminPrd10CoverageTests"`.
   - Any other failing row means a name differs from the owning plan. Change the **row** only
     after `grep -rn` confirms the shipped name (for example, a single `{id}/{action}` route for
     job transitions). Record the final name in `docs/reports/phase-6.md`.
@@ -954,7 +954,7 @@ Task<Result<IReadOnlyList<DuplicateCandidateDto>>> ListDuplicateCandidatesAsync(
   Extend `Super_Admin_Is_Allowed_On_The_Same_Routes` with the new rows. Each one gets a fresh
   world value, so a refund or a rotation does not consume shared state.
 - [ ] **Step 2: Run, expect PASS** (the gates exist since phases 1, 2–3, 5 and Task 6).
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.Acceptance13StaffPermissionTests"`.
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.Acceptance13StaffPermissionTests"`.
   Mutation check:
   1. In `PricingAdminEndpoints`, change the `fx/overrides` POST to `RequireAdmin(FxManage)`
      without `superOnly`, **and** remove the service's `IsSuperAdmin` guard.
@@ -974,11 +974,11 @@ Task<Result<IReadOnlyList<DuplicateCandidateDto>>> ListDuplicateCandidatesAsync(
   - `docs/TESTING-GUARANTEES.md`: new sections for the authorization allowlist, audit coverage,
     the PRD §10 matrix and the GraphQL limits
 
-- [ ] **Step 1:** `dotnet build EwaysVNext.slnx -c Release`. Expected: 0 errors and 0 warnings.
-- [ ] **Step 2:** `dotnet test EwaysVNext.slnx` with Docker running. Expected: all suites pass.
+- [ ] **Step 1:** `dotnet build Mkbj.slnx -c Release`. Expected: 0 errors and 0 warnings.
+- [ ] **Step 2:** `dotnet test Mkbj.slnx` with Docker running. Expected: all suites pass.
   Record the count per suite.
-- [ ] **Step 3:** `dotnet ef migrations has-pending-model-changes -p src/Authorization/Authorization.Implementation/Authorization.Implementation.csproj -s src/Host/EwaysVNext.Host -c AuthorizationDbContext`.
-  Do the same for `EwaysVNextDbContext` (`-p src/Database`). Expected: no pending changes.
+- [ ] **Step 3:** `dotnet ef migrations has-pending-model-changes -p src/Authorization/Authorization.Implementation/Authorization.Implementation.csproj -s src/Host/Mkbj.Host -c AuthorizationDbContext`.
+  Do the same for `MkbjDbContext` (`-p src/Database`). Expected: no pending changes.
 - [ ] **Step 4:** Write `docs/reports/phase-6.md`:
   - **What works:** per task, naming the tests.
   - **Incomplete:** OpenAPI and SDL snapshots are phase 8; there is no admin UI (spec non-goal).
@@ -999,11 +999,11 @@ Task<Result<IReadOnlyList<DuplicateCandidateDto>>> ListDuplicateCandidatesAsync(
 
 **Files:**
 - Create:
-  - `src/Host/EwaysVNext.Host/OpenApi/PartnerApiKeyOpenApiTransformer.cs`
+  - `src/Host/Mkbj.Host/OpenApi/PartnerApiKeyOpenApiTransformer.cs`
   - `tests/IntegrationTests/Contracts/PartnerOpenApiExampleTests.cs`
 - Modify:
   - `src/Modules/Sales/Adapter/Inbound/Rest/Partner/PartnerOpenApiExamples.cs` (phase 4–5)
-  - `src/Host/EwaysVNext.Host/Program.cs`: `MapOpenApi()` when `OpenApi:Expose` (default `true`);
+  - `src/Host/Mkbj.Host/Program.cs`: `MapOpenApi()` when `OpenApi:Expose` (default `true`);
     Scalar stays `IsDevelopment()`
 
 **Interfaces:**
@@ -1064,7 +1064,7 @@ public async Task Partner_Operation_Is_Secured_And_Has_Examples(string method, s
 }
 ```
 - [ ] **Step 2: Run, expect FAIL.**
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.PartnerOpenApiExampleTests"`.
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.PartnerOpenApiExampleTests"`.
 - [ ] **Step 3: Implement** the transformer and the examples. Register them with
   `options.AddDocumentTransformer<PartnerApiKeyOpenApiTransformer>()` and
   `options.AddOperationTransformer<PartnerApiKeyOpenApiTransformer>()`.
@@ -1079,7 +1079,7 @@ public async Task Partner_Operation_Is_Secured_And_Has_Examples(string method, s
 - Create:
   - `tests/IntegrationTests/Contracts/{OpenApiSnapshotTests,GraphQLSchemaSnapshotTests,SnapshotFile}.cs`
   - `tests/IntegrationTests/Contracts/Snapshots/{openapi-v1.json,schema.graphql}`, written on first run
-- Modify: `tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj` (`<None Update="Contracts/Snapshots/**" CopyToOutputDirectory="Never" />`)
+- Modify: `tests/IntegrationTests/Mkbj.IntegrationTests.csproj` (`<None Update="Contracts/Snapshots/**" CopyToOutputDirectory="Never" />`)
 
 **Interfaces:**
 ```csharp
@@ -1101,7 +1101,7 @@ internal static class SnapshotFile {
 [Fact] public void Snapshot_Mismatch_Writes_Received_File_And_Fails() { /* AssertMatches("probe.txt","a") then "b" in a temp copy → throws, .received exists */ }
 ```
 - [ ] **Step 2: Run, expect FAIL** (no snapshot exists).
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.OpenApiSnapshotTests"`,
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.OpenApiSnapshotTests"`,
   then the same for `*.GraphQLSchemaSnapshotTests`.
 - [ ] **Step 3: Create the snapshots.** Run once with `UPDATE_SNAPSHOTS=1`, then read both files
   in full before committing. Check that:
@@ -1163,13 +1163,13 @@ internal static class SnapshotFile {
 [Fact] public void Collection_Has_Partner_Shop_And_Admin_Folders()
 ```
 - [ ] **Step 2: Run, expect FAIL.**
-  `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter-class "*.BrunoCollectionTests"`.
+  `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter-class "*.BrunoCollectionTests"`.
 - [ ] **Step 3: Write the collection.** Take the bodies from the Task 14 request examples and use
   snake_case field names for the partner folder (`external_order_id`, `external_customer_id`,
   `customer.full_name`, …, matching PRD §9) and camelCase for the shop and admin folders. Then run `npm --prefix docs/api/bruno install --save-exact @usebruno/cli`.
 - [ ] **Step 4: Run, expect PASS.** Then run
   `npx --prefix docs/api/bruno bru run docs/api/bruno/shop --env local -r 01-currencies.bru`
-  against a dev host (`dotnet run --project src/Host/EwaysVNext.Host` after `--migrate` and
+  against a dev host (`dotnet run --project src/Host/Mkbj.Host` after `--migrate` and
   `--seed`). Expected output: `1 passed`. The full run happens in Task 17.
 - [ ] **Step 5: Commit.** `docs(api): Bruno collection for partner, shop and admin with secret-free environments`
 
@@ -1193,7 +1193,7 @@ internal static class SnapshotFile {
   - `postgres`: `ports: ["127.0.0.1:55432:5432"]`.
 - `tools/smoke/smoke.sh` uses `set -euo pipefail` and needs `docker`, `curl`, `jq` and `openssl`.
   `KEEP_STACK=1` skips the teardown. It exits 0 and prints `SMOKE_OK` as its last line.
-  **Safety guard:** the script always starts its own throwaway stack (project name `eways-smoke`,
+  **Safety guard:** the script always starts its own throwaway stack (project name `mkbj-smoke`,
   fresh volumes, generated secrets). Before any Keycloak admin call it refuses to run (exit 2,
   `REFUSING: smoke only runs against its own local stack`) unless the Keycloak URL is
   `http://127.0.0.1:8081`. So the temporary user and the direct-grants flag can never touch a real
@@ -1208,7 +1208,7 @@ internal static class SnapshotFile {
      - With `KEEP_STACK=1`, the stack and the file are kept, and the script prints `ENV=<path>`.
        Task 18 needs both.
   2. **Bring the stack up:**
-     `C="docker compose -p eways-smoke -f build/compose/docker-compose.yml -f build/compose/docker-compose.smoke.yml --env-file $ENV"`, then
+     `C="docker compose -p mkbj-smoke -f build/compose/docker-compose.yml -f build/compose/docker-compose.smoke.yml --env-file $ENV"`, then
      `$C up -d --build --wait` (`migrations` and `minio-init` must exit 0).
   3. **Seed:** `$C run --rm api --seed`, expecting exit 0. `Staging` permits it, and Production
      would return 2.
@@ -1252,13 +1252,13 @@ internal static class SnapshotFile {
   - `ASPNETCORE_ENVIRONMENT` is never `Production`
   - no key named like `*PASSWORD*` / `*SECRET*` / `*KEY*` has a literal value
 - [ ] **Step 2: Run, expect FAIL.**
-  `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter-class "*.BuildDirectoryTests"`.
+  `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter-class "*.BuildDirectoryTests"`.
 - [ ] **Step 3: Write** the override and the script, then `chmod +x tools/smoke/smoke.sh`.
 - [ ] **Step 4: Verify.**
   - Re-run Step 2 and expect PASS.
   - Run `bash -n tools/smoke/smoke.sh` and expect no output.
   - Run `bash tools/smoke/smoke.sh`. Expected: the step lines, then `SMOKE_OK`, exit 0. Afterwards
-    `docker compose -p eways-smoke ps -q` prints nothing.
+    `docker compose -p mkbj-smoke ps -q` prints nothing.
   - A failure is fixed in code or config, never by loosening a check.
 - [ ] **Step 5: Commit.** `test(smoke): compose smoke stack and end-to-end script (partner + key via admin API, $500 order, invoice PDF)`
 
@@ -1285,18 +1285,18 @@ internal static class SnapshotFile {
 KEEP_STACK=1 bash tools/smoke/smoke.sh                                   # → SMOKE_OK; env file path printed as "ENV=<path>"
 export $(grep -E '^(APP_DB_PASSWORD)=' "$ENV" | xargs)
 dotnet run --project tools/CompositionSimulator -c Release -- --source db \
-  --connection "Host=127.0.0.1;Port=55432;Database=eways;Username=eways_app;Password=$APP_DB_PASSWORD" \
+  --connection "Host=127.0.0.1;Port=55432;Database=mkbj;Username=mkbj_app;Password=$APP_DB_PASSWORD" \
   --samples 2000 --seed 20261028 --deadline-ms 8000 --out docs/reports/composition-coverage-compose
-NET=$(docker network ls --filter label=com.docker.compose.project=eways-smoke -q | head -1)
+NET=$(docker network ls --filter label=com.docker.compose.project=mkbj-smoke -q | head -1)
 docker run --rm --network "$NET" -v "$PWD:/work" -w /work -e BASE_URL=http://api:8080 -e API_KEY="$LOAD_KEY" \
   -e VUS=10 -e DURATION=5m -e CURRENCIES=USD,EUR,SGD,AED,GBP grafana/k6:0.54.0 run tests/load/partner-orders.js
-docker compose -p eways-smoke exec -T postgres psql -U postgres -d eways -At -F '|' -c \
+docker compose -p mkbj-smoke exec -T postgres psql -U postgres -d mkbj -At -F '|' -c \
   "SELECT currency, count(*), count(*) FILTER (WHERE succeeded), round(percentile_cont(0.5) WITHIN GROUP (ORDER BY duration_ms)),
           round(percentile_cont(0.95) WITHIN GROUP (ORDER BY duration_ms)), round(percentile_cont(0.99) WITHIN GROUP (ORDER BY duration_ms))
    FROM sales.composition_attempts WHERE partner_id = $LOAD_PID GROUP BY currency ORDER BY currency"
-docker compose -p eways-smoke exec -T postgres psql -U postgres -d eways -At -F '|' -c \
+docker compose -p mkbj-smoke exec -T postgres psql -U postgres -d mkbj -At -F '|' -c \
   "SELECT error_code, count(*) FROM sales.composition_attempts WHERE partner_id = $LOAD_PID AND NOT succeeded GROUP BY error_code ORDER BY 2 DESC"
-docker compose -p eways-smoke down -v
+docker compose -p mkbj-smoke down -v
 ```
 
 **`docs/reports/coverage-and-load.md`** has these sections, in this order:
@@ -1322,7 +1322,7 @@ docker compose -p eways-smoke down -v
   - `p95`/`p99` cells that are numbers, not `TBD` or blank
   - section 7 contains `met` or `not met` for both targets
 - [ ] **Step 2: Run, expect FAIL.**
-  `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter-class "*.OpsPackageTests"`.
+  `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter-class "*.OpsPackageTests"`.
 - [ ] **Step 3: Run the commands** and write the report from their outputs. Copy numbers only;
   do not round success rates up.
 - [ ] **Step 4: Run, expect PASS.** Confirm that `docs/reports/k6-partner-orders.json` exists and
@@ -1372,8 +1372,8 @@ repository root:
    - verify with `GET /api/v1/admin/pricing/fx/overrides`
    - `POST /fx/refresh`
 7. **Backup and restore:**
-   - `docker compose exec -T postgres pg_dump -U postgres -Fc eways > eways-$(date +%F).dump`
-   - restore: `pg_restore --clean --if-exists -d eways`, with api and worker stopped
+   - `docker compose exec -T postgres pg_dump -U postgres -Fc mkbj > mkbj-$(date +%F).dump`
+   - restore: `pg_restore --clean --if-exists -d mkbj`, with api and worker stopped
    - Keycloak DB: the same steps against `keycloak-db`
    - MinIO: `mc mirror --overwrite local/documents backup/documents` and the same for
      `catalog-media`. `import-staging` is optional.
@@ -1410,7 +1410,7 @@ repository root:
   - no line contains a literal secret, using the same regex as `No_Bruno_File_Contains_A_Literal_Key_Or_Jwt`
     plus `password=\S{6,}`
 - [ ] **Step 2: Run, expect FAIL.**
-  `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter-class "*.OpsPackageTests"`.
+  `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter-class "*.OpsPackageTests"`.
 - [ ] **Step 3: Write `docs/RUNBOOK.md`.** Execute the backup-and-restore commands once against
   the smoke stack (`KEEP_STACK=1`), and record "drill performed <date>, audit verify intact" in
   section 7.
@@ -1456,7 +1456,7 @@ it. Sections:
    - TLS at Caddy
    - private `documents` and `import-staging` buckets
    - 5-minute presigned URLs
-   - least-privilege DB roles (`eways_app` / `eways_migrator`)
+   - least-privilege DB roles (`mkbj_app` / `mkbj_migrator`)
    - MinIO app user is not root
 8. **PII and retention:**
    - audit `before`/`after` hold changed fields only
@@ -1476,8 +1476,8 @@ it. Sections:
   - every backticked identifier matching `^[A-Z][A-Za-z0-9]+_[A-Za-z0-9_]+$` is the name of a test
     method that exists in `tests/**/*.cs` (grep the sources)
 - [ ] **Step 2: Run, expect FAIL.**
-  `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter-class "*.OpsPackageTests"`.
-- [ ] **Step 3: Write the checklist.** Run `dotnet list EwaysVNext.slnx package --vulnerable --include-transitive`
+  `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter-class "*.OpsPackageTests"`.
+- [ ] **Step 3: Write the checklist.** Run `dotnet list Mkbj.slnx package --vulnerable --include-transitive`
   and paste the summary line with its date.
 - [ ] **Step 4: Run, expect PASS.** Mutation check:
   1. Rename one cited test name in the checklist to a non-existent one and expect FAIL.
@@ -1514,9 +1514,9 @@ Modify `tests/ArchitectureTests/DocumentationTests.cs`.
   that the integer before " tests" in AGENTS.md equals the sum of the per-suite counts in the
   TESTING-GUARANTEES table, and that each suite name appears in both files.
 - [ ] **Step 2: Run, expect FAIL** (the counts are stale).
-  `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter-class "*.DocumentationTests"`.
+  `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter-class "*.DocumentationTests"`.
 - [ ] **Step 3: Edit the docs.** Take the counts from
-  `dotnet test EwaysVNext.slnx 2>&1 | grep -E "^(Passed|Failed)!|total:"`.
+  `dotnet test Mkbj.slnx 2>&1 | grep -E "^(Passed|Failed)!|total:"`.
 - [ ] **Step 4: Run, expect PASS**, together with `Agents_Md_Bolds_Exactly_The_Existing_Modules`.
 - [ ] **Step 5: Commit.** `docs: AGENTS, testing guarantees and onboarding reflect the final suites and ops package`
 
@@ -1526,8 +1526,8 @@ Modify `tests/ArchitectureTests/DocumentationTests.cs`.
 
 **Files:** Create `docs/reports/phase-8.md`.
 
-- [ ] **Step 1:** `dotnet build EwaysVNext.slnx -c Release`. Expected: 0 errors and 0 warnings.
-- [ ] **Step 2:** `dotnet test EwaysVNext.slnx` with Docker running. Expected: every suite
+- [ ] **Step 1:** `dotnet build Mkbj.slnx -c Release`. Expected: 0 errors and 0 warnings.
+- [ ] **Step 2:** `dotnet test Mkbj.slnx` with Docker running. Expected: every suite
   passes, and the counts equal those written in Task 21. If they differ, redo Task 21 Step 3.
 - [ ] **Step 3:** Run the snapshots with no `UPDATE_SNAPSHOTS`, and check that
   `git status --porcelain tests/IntegrationTests/Contracts/Snapshots` is empty and that no
@@ -1550,14 +1550,14 @@ Modify `tests/ArchitectureTests/DocumentationTests.cs`.
 ## Contract additions produced here
 
 ```csharp
-// EwaysVNext.Presentation.Endpoint.Security
+// Mkbj.Presentation.Endpoint.Security
 public static class RateLimitPolicies { Admin = "admin"; GraphQL = "graphql"; }
 public static TBuilder RequireAdmin<TBuilder>(this TBuilder b, string permission, bool superOnly = false); // policy + permission + admin rate limit
-// EwaysVNext.Presentation.Endpoint.GraphQL
+// Mkbj.Presentation.Endpoint.GraphQL
 public static class GraphQLLimits { MaxDepth = 10; MaxFieldCost = 20_000; MaxTypeCost = 20_000; }
-// EwaysVNext.Audit.Application
+// Mkbj.Audit.Application
 public interface IStandaloneAuditWriter { Task RecordAsync(AuditActor, string action, string targetType, string targetId, object? before, object? after, CancellationToken ct = default); }
-// EwaysVNext.Core.Application.Security
+// Mkbj.Core.Application.Security
 public interface IAdminActorAccessor { AdminActor? Current { get; } }
 // AdminPermissions
 AuditVerify = "audit.verify"   // super_admin

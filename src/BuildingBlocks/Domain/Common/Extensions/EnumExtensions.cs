@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Reflection;
 
-namespace EwaysVNext.Domain.Common.Extensions;
+namespace Mkbj.Domain.Common.Extensions;
 
 public static class EnumExtensions
 {

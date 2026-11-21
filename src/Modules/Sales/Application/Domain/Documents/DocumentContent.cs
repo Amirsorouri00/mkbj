@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace EwaysVNext.Modules.Sales.Application.Domain.Documents;
+namespace Mkbj.Modules.Sales.Application.Domain.Documents;
 
 public sealed record SellerBlock(
     string LegalName, string Uen, string Address, string Email, string Footer);

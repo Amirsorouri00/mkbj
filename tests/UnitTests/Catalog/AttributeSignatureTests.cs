@@ -1,11 +1,11 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 /// <summary>
 /// A variant's attribute signature is what decides whether two rows describe the same variant.

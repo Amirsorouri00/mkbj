@@ -1,14 +1,14 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Outcomes;
 using NSubstitute;
-using ApplicationOptionInput = EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound.AttributeBlueprintOptionInput;
-using ApplicationUpdateOptionInput = EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound.UpdateAttributeBlueprintOptionInput;
-using IAttributeBlueprintService = EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound.IAttributeBlueprintService;
+using ApplicationOptionInput = Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound.AttributeBlueprintOptionInput;
+using ApplicationUpdateOptionInput = Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound.UpdateAttributeBlueprintOptionInput;
+using IAttributeBlueprintService = Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound.IAttributeBlueprintService;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public sealed class AttributeBlueprintGraphQlTests
 {

@@ -1,17 +1,17 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Modules.Pricing.Application.Currencies.Domain;
-using EwaysVNext.Modules.Pricing.Application.Currencies.Ports.Outbound;
-using EwaysVNext.Modules.Pricing.Application.Fx.Domain;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Outbound;
-using EwaysVNext.Modules.Pricing.Application.Fx.Services;
-using EwaysVNext.Modules.Pricing.Application.Prices.Domain;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Outbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Services;
+using AwesomeAssertions;
+using Mkbj.Modules.Pricing.Application.Currencies.Domain;
+using Mkbj.Modules.Pricing.Application.Currencies.Ports.Outbound;
+using Mkbj.Modules.Pricing.Application.Fx.Domain;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Outbound;
+using Mkbj.Modules.Pricing.Application.Fx.Services;
+using Mkbj.Modules.Pricing.Application.Prices.Domain;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Outbound;
+using Mkbj.Modules.Pricing.Application.Prices.Services;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Pricing;
+namespace Mkbj.UnitTests.Pricing;
 
 /// <summary>
 /// The quoting surface the rest of the system calls. What is asserted here is mostly which

@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
+namespace Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
 
 /// <summary>
 /// Turns an authenticated identity into a customer record, creating one on first sight.

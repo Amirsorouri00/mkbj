@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Pricing.Application.Currencies.Domain;
+using Mkbj.Modules.Pricing.Application.Currencies.Domain;
 
-namespace EwaysVNext.Modules.Pricing.Application.Currencies.Ports.Outbound;
+namespace Mkbj.Modules.Pricing.Application.Currencies.Ports.Outbound;
 
 public interface ICurrencyRepository
 {

@@ -8,6 +8,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Authorization.Abstractions\Authorization.Abstractions.csproj" />
-    <ProjectReference Include="..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\Outcomes\Mkbj.Outcomes.csproj" />
   </ItemGroup>
 </Project>

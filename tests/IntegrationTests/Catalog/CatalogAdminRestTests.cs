@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -6,7 +6,7 @@ using AwesomeAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Catalog;
+namespace Mkbj.IntegrationTests.Catalog;
 
 /// <summary>
 /// The catalogue's admin REST surface over HTTP. Brands are everyday catalogue work, so these

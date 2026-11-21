@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Admin.Application.Ports.Outbound;
-using EwaysVNext.Modules.Admin.Application.Views;
-using EwaysVNext.Modules.Sourcing.QueryApplication;
+using Mkbj.Modules.Admin.Application.Ports.Outbound;
+using Mkbj.Modules.Admin.Application.Views;
+using Mkbj.Modules.Sourcing.QueryApplication;
 
-namespace EwaysVNext.Modules.Admin.Adapter.Outbound.Gateways;
+namespace Mkbj.Modules.Admin.Adapter.Outbound.Gateways;
 
 /// <summary>
 /// Sourcing's counts, in Admin's own words.

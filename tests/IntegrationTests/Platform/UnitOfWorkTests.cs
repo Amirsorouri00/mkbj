@@ -1,12 +1,12 @@
 using AwesomeAssertions;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
-using EwaysVNext.Persistence;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Platform;
+namespace Mkbj.IntegrationTests.Platform;
 
 /// <summary>
 /// What a save reports when it loses. Both outcomes exist because the write paths need to tell
@@ -27,12 +27,12 @@ public sealed class UnitOfWorkTests(PostgresFixture fixture)
 
         // Scope A loads the row, scope B updates it first; A's xmin check must then fail.
         await using var scopeA = factory.Services.CreateAsyncScope();
-        var contextA = scopeA.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var contextA = scopeA.ServiceProvider.GetRequiredService<MkbjDbContext>();
         var loadedByA = await contextA.Categories.SingleAsync(c => c.Id == id);
 
         await using (var scopeB = factory.Services.CreateAsyncScope())
         {
-            var contextB = scopeB.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            var contextB = scopeB.ServiceProvider.GetRequiredService<MkbjDbContext>();
             var loadedByB = await contextB.Categories.SingleAsync(c => c.Id == id);
             loadedByB.Move(null, 7, Now);
             await contextB.SaveChangesAsync();
@@ -52,7 +52,7 @@ public sealed class UnitOfWorkTests(PostgresFixture fixture)
         await InsertAsync(factory, Category.Create(NextId(), "First", slug, null, null, 0, Now));
 
         await using var scope = factory.Services.CreateAsyncScope();
-        var context = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
         context.Categories.Add(Category.Create(NextId(), "Second", slug, null, null, 0, Now));
 
         var outcome = await scope.ServiceProvider.GetRequiredService<IUnitOfWork>().TrySaveChangesAsync();
@@ -64,7 +64,7 @@ public sealed class UnitOfWorkTests(PostgresFixture fixture)
         Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Program> factory, Category category)
     {
         await using var scope = factory.Services.CreateAsyncScope();
-        var context = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
         context.Categories.Add(category);
         await context.SaveChangesAsync();
     }

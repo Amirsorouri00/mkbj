@@ -1,13 +1,13 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
-using EwaysVNext.Persistence;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
+using Mkbj.Persistence;
 using Microsoft.EntityFrameworkCore;
-using ProductEntity = EwaysVNext.Modules.Catalog.Application.Products.Domain.Product;
+using ProductEntity = Mkbj.Modules.Catalog.Application.Products.Domain.Product;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound.Persistence.Products;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound.Persistence.Products;
 
-internal sealed class ProductRepository(EwaysVNextDbContext db)
+internal sealed class ProductRepository(MkbjDbContext db)
     : EfCoreRepository<ProductEntity, long>(db), IProductRepository
 {
     /// <summary>

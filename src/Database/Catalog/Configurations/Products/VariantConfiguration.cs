@@ -1,10 +1,10 @@
 using System.Text.Json;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EwaysVNext.Database.Catalog.Configurations.Products;
+namespace Mkbj.Database.Catalog.Configurations.Products;
 
 internal sealed class VariantConfiguration : IEntityTypeConfiguration<Variant>
 {

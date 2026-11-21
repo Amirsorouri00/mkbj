@@ -1,10 +1,10 @@
-using EwaysVNext.Modules.Customer.Application.Customers.Domain;
+using Mkbj.Modules.Customer.Application.Customers.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using CustomerAggregate = EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer;
+using CustomerAggregate = Mkbj.Modules.Customer.Application.Customers.Domain.Customer;
 
-namespace EwaysVNext.Database.Customer.Configurations;
+namespace Mkbj.Database.Customer.Configurations;
 
 internal sealed class CustomerConfiguration : IEntityTypeConfiguration<CustomerAggregate>
 {

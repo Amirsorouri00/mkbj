@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Partners.Application.Partners.Ports.Outbound;
+namespace Mkbj.Modules.Partners.Application.Partners.Ports.Outbound;
 
 /// <summary>
 /// Everything authentication needs about one key, flattened. The partner's status and limits are

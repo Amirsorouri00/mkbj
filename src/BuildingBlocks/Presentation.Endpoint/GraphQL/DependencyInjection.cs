@@ -1,5 +1,5 @@
-﻿using System.Globalization;
-using EwaysVNext.Domain.Common;
+using System.Globalization;
+using Mkbj.Domain.Common;
 using HotChocolate.AspNetCore;
 using HotChocolate.Execution.Configuration;
 using HotChocolate.Types;
@@ -8,10 +8,22 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace EwaysVNext.Presentation.Endpoint.GraphQL;
+namespace Mkbj.Presentation.Endpoint.GraphQL;
 
 public static class DependencyInjection
 {
+    /// <summary>
+    /// Applies validation rules after every module has registered its GraphQL surface.
+    /// </summary>
+    public static IServiceCollection ConfigureGraphQLValidationLimits(this IServiceCollection services)
+    {
+        services.AddGraphQLServer()
+            .RemoveMaxAllowedFieldCycleDepthRule()
+            .AddMaxAllowedFieldCycleDepthRule(GraphQLLimits.MaxCoordinateCycleDepth);
+
+        return services;
+    }
+
     public static IRequestExecutorBuilder AddGraphQLBootstrap(this IServiceCollection services)
     {
         var builder = services.AddGraphQLServer();

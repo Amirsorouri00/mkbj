@@ -53,7 +53,7 @@ The only durable element we actually need — TTL-based reservation reclaim — 
 delivered by a plain `BackgroundService` inside Option A.
 
 ## Decision
-1. Adopt **Option A**: `EwaysVNext.Framework.Sagas.CrossModuleSaga` +
+1. Adopt **Option A**: `Mkbj.Framework.Sagas.CrossModuleSaga` +
    `SagasMetrics`, used by all current and future cross-module write operations.
 2. Add a Catalog-hosted `ReservationExpirationService` (Option C's durable element)
    that releases expired reservations every minute — closing the stock-leak hole.

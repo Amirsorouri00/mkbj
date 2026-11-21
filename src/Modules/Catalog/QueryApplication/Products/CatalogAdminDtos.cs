@@ -1,6 +1,6 @@
-﻿using EwaysVNext.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
 
-namespace EwaysVNext.Modules.Catalog.QueryApplication.Products;
+namespace Mkbj.Modules.Catalog.QueryApplication.Products;
 
 /// <remarks><c>Q</c> is matched against the title, the slug and the MPN.</remarks>
 public sealed record ProductAdminFilter(
@@ -35,6 +35,17 @@ public sealed record ProductAdminVariantDto(
     IReadOnlyDictionary<string, string> AttributeValues,
     bool IsActive,
     bool DeactivatedByAdmin);
+
+/// <summary>A compact variant search result for pricing and other admin pickers.</summary>
+public sealed record ProductAdminVariantLookupDto(
+    long VariantId,
+    long ProductId,
+    string ProductTitle,
+    string BrandName,
+    string CategoryName,
+    string Sku,
+    IReadOnlyDictionary<string, string> AttributeValues,
+    bool IsActive);
 
 public sealed record ProductAdminIdentifierDto(
     long Id,

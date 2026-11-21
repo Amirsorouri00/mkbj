@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Sales.Application;
+namespace Mkbj.Modules.Sales.Application;
 
 /// <summary>
 /// Deployment-level limits: how much work a batch may do at once, and how long a candidate pool

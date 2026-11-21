@@ -1,12 +1,12 @@
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Outbound;
+using Mkbj.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Services;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Services;
 
 public sealed class CategoryAttributeExclusionQueryService(
     ICategoryRepository categories,

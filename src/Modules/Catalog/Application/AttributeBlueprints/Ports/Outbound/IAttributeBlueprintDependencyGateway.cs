@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+namespace Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
 
 public interface IAttributeBlueprintDependencyGateway
 {

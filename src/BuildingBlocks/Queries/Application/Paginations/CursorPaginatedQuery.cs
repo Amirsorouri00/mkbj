@@ -1,4 +1,4 @@
-namespace EwaysVNext.Queries.Application.Paginations;
+namespace Mkbj.Queries.Application.Paginations;
 
 public sealed class CursorPaginatedQuery<TData>(
     long? previousCursor, long? nextCursor, bool hasNextCursor, int pageSize, int pageCount, int totalCount, IReadOnlyList<TData> items)

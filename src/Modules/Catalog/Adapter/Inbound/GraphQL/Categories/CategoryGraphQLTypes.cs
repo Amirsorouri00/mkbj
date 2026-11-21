@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
+using Mkbj.Modules.Catalog.Contracts.Categories;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
 
 public sealed class CategoryAdminType : ObjectType<CategoryAdminDto>
 {

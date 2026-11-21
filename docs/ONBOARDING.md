@@ -1,4 +1,4 @@
-﻿# Onboarding — EwaysVNext
+# Onboarding — MKBJ
 
 What this is, how to run it, and where things live.
 
@@ -19,7 +19,7 @@ The PRD is [`product-scope/ecommerce_mvp_prd.md`](product-scope/ecommerce_mvp_pr
 design is [`superpowers/specs/2026-10-28-ecommerce-mvp-design.md`](superpowers/specs/2026-10-28-ecommerce-mvp-design.md).
 
 **The most important thing to understand before reading any code:** cross-module calls are **not
-transactional**. Every module shares one `EwaysVNextDbContext`, but each operation still does its
+transactional**. Every module shares one `MkbjDbContext`, but each operation still does its
 own `SaveChangesAsync` (AGENTS.md rule 7), so a later step's failure does not roll back an earlier
 module's committed write. Where the product genuinely requires atomicity — the partner order — it
 is achieved by putting the parts in **one aggregate**, not by a transaction or a saga
@@ -57,13 +57,13 @@ Sourcing (7). `HexagonalBoundaryTests.ModuleNames` is the authoritative list.
 docker compose -f build/compose/docker-compose.dev.yml up -d
 
 # 2. Create the schema. The host NEVER migrates on startup.
-dotnet run --project src/Host/EwaysVNext.Host -- --migrate
+dotnet run --project src/Host/Mkbj.Host -- --migrate
 
 # 3. Demo data (refuses to run when ASPNETCORE_ENVIRONMENT=Production)
-dotnet run --project src/Host/EwaysVNext.Host -- --seed
+dotnet run --project src/Host/Mkbj.Host -- --seed
 
 # 4. Serve
-dotnet run --project src/Host/EwaysVNext.Host
+dotnet run --project src/Host/Mkbj.Host
 ```
 
 With no connection string configured in Development the host falls back to EF InMemory, so it
@@ -86,7 +86,7 @@ Every secret in that stack is `${VAR:?}` — a missing one fails the stack rathe
 |---|---|
 | `src/BuildingBlocks/` | Domain primitives, Result/Error, persistence, storage, jobs, audit, endpoint plumbing |
 | `src/Authorization/` | RBAC: permissions, roles, scopes (its own DbContext) |
-| `src/Database/` | The one `EwaysVNextDbContext`, every module's EF configuration, migrations, repeatable scripts |
+| `src/Database/` | The one `MkbjDbContext`, every module's EF configuration, migrations, repeatable scripts |
 | `src/Modules/{Module}/` | Application · Adapter/Inbound · Adapter/Outbound · QueryApplication · Installer |
 | `src/Host/` | Entry point, host commands, the request pipeline |
 | `build/` | `docker/` image, `compose/` stacks, `keycloak/` realms, `postgres/` roles |
@@ -96,7 +96,7 @@ Every secret in that stack is `${VAR:?}` — a missing one fails the stack rathe
 ## Tests
 
 ```bash
-dotnet test EwaysVNext.slnx
+dotnet test Mkbj.slnx
 ```
 
 Four suites; **IntegrationTests needs Docker**, the rest need nothing. Read
@@ -116,7 +116,7 @@ bash tools/smoke/smoke.sh
 ```bash
 # Composition coverage: how often the engine can hit an exact amount, across the whole range.
 # Pure — no database, no host, no container, and the same seed gives the same report anywhere.
-dotnet run --project tools/CompositionSimulator/EwaysVNext.Tools.CompositionSimulator.csproj -c Release
+dotnet run --project tools/CompositionSimulator/Mkbj.Tools.CompositionSimulator.csproj -c Release
 ```
 
 Then read [`RUNBOOK.md`](RUNBOOK.md) and [`SECURITY-CHECKLIST.md`](SECURITY-CHECKLIST.md).

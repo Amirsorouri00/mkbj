@@ -1,4 +1,4 @@
-﻿# Testing Guarantees — what a green run does and does not prove
+# Testing Guarantees — what a green run does and does not prove
 
 **IntegrationTests requires Docker.** The other three suites need nothing.
 
@@ -17,15 +17,15 @@ before trusting a green run.
 | `IntegrationTests` | 439 | **Docker** | the real host on real Postgres + S3 | HTTP behaviour, grants, concurrency, containers |
 | **Total** | **2,220** | | | 1 skipped — an Identity assertion parked since phase 1 |
 
-Counts are from `dotnet test EwaysVNext.slnx -c Release` on 2026-11-08 and go stale the moment
+Counts are from `dotnet test Mkbj.slnx -c Release` on 2026-11-08 and go stale the moment
 somebody adds a test. They are here to give a sense of scale, not as a number to assert against:
 a test whose job is to agree with a number in a document fails on every honest change and gets
 deleted. The run is the source of truth.
 
 ```bash
-dotnet test EwaysVNext.slnx
-dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj
-dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.MinorUnitsTests"
+dotnet test Mkbj.slnx
+dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj
+dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.MinorUnitsTests"
 ```
 
 Filters are `--filter-class` / `--filter-method` — this is Microsoft.Testing.Platform, not VSTest,
@@ -65,8 +65,8 @@ key and check constraint; `xmin` as the concurrency token; never-generated aggre
 ## What IntegrationTests actually exercises
 
 The fixture starts a Postgres container built by **the same `build/postgres/init/01-roles.sql`
-production uses**, applies the real migrations as `eways_migrator`, and hands tests a connection as
-`eways_app`. That matters: the application role owns nothing and cannot change the schema, so
+production uses**, applies the real migrations as `mkbj_migrator`, and hands tests a connection as
+`mkbj_app`. That matters: the application role owns nothing and cannot change the schema, so
 anything the production grants forbid fails in the suite too, instead of passing as a superuser and
 failing on deploy.
 

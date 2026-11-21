@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Security.Claims;
 using AuthorizationService.Abstractions.Authorization;
 using AuthorizationService.Abstractions.Authorization.Requests;
-using EwaysVNext.Core.Application.Security;
+using Mkbj.Core.Application.Security;
 using HotChocolate.Resolvers;
 using HotChocolate.Types.Descriptors;
 using Microsoft.AspNetCore.Http;

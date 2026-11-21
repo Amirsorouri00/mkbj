@@ -4,12 +4,12 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Customers;
+namespace Mkbj.IntegrationTests.Customers;
 
 /// <summary>
 /// The backoffice view of customers, as staff — these operations change no money and hand out no

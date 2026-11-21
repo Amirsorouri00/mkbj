@@ -2,7 +2,7 @@ using AwesomeAssertions;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Platform;
+namespace Mkbj.IntegrationTests.Platform;
 
 /// <summary>
 /// The database the application actually gets: migrated, with the read side's extensions present,
@@ -26,7 +26,7 @@ public sealed class DatabaseTests(PostgresFixture fixture)
     [Fact]
     public async Task App_Role_Can_Write_Catalog_Tables_But_Owns_Nothing() =>
         (await Scalar<long>(fixture.AppConnectionString,
-                "select count(*) from pg_tables where tableowner = 'eways_app'"))
+                "select count(*) from pg_tables where tableowner = 'mkbj_app'"))
             .Should().Be(0);
 
     private static async Task<T> Scalar<T>(string connectionString, string sql)

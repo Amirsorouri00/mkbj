@@ -1,10 +1,10 @@
-using EwaysVNext.Modules.Admin.Adapter.Inbound.GraphQL;
-using EwaysVNext.Modules.Admin.Adapter.Inbound.Rest;
-using EwaysVNext.Modules.Admin.Adapter.Outbound;
-using EwaysVNext.Modules.Admin.Application;
+using Mkbj.Modules.Admin.Adapter.Inbound.GraphQL;
+using Mkbj.Modules.Admin.Adapter.Inbound.Rest;
+using Mkbj.Modules.Admin.Adapter.Outbound;
+using Mkbj.Modules.Admin.Application;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Admin;
+namespace Mkbj.Modules.Admin;
 
 public static class ModuleInstaller
 {

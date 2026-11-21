@@ -1,6 +1,6 @@
-using EwaysVNext.Core.Application.FileTypeDetection;
+using Mkbj.Core.Application.FileTypeDetection;
 
-namespace EwaysVNext.Core.Implementation.FileTypeDetection;
+namespace Mkbj.Core.Implementation.FileTypeDetection;
 
 internal sealed class FileSignature
 {

@@ -1,12 +1,12 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Domain.ValueObjects;
-using EwaysVNext.Modules.Customer.Application.Customers.Domain;
+using Mkbj.Domain.Common;
+using Mkbj.Domain.ValueObjects;
+using Mkbj.Modules.Customer.Application.Customers.Domain;
 using Xunit;
 
-using CustomerAggregate = EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer;
+using CustomerAggregate = Mkbj.Modules.Customer.Application.Customers.Domain.Customer;
 
-namespace EwaysVNext.UnitTests.Customers;
+namespace Mkbj.UnitTests.Customers;
 
 public sealed class CustomerDomainTests
 {
@@ -152,7 +152,7 @@ public sealed class CustomerDomainTests
 
     [Fact]
     public void Suspension_Error_Maps_To_403() =>
-        EwaysVNext.Outcomes.Error.SuggestHttpStatus("CUSTOMER_SUSPENDED").Should().Be(403);
+        Mkbj.Outcomes.Error.SuggestHttpStatus("CUSTOMER_SUSPENDED").Should().Be(403);
 
     [Fact]
     public void Website_Only_Methods_Refuse_PartnerLinked()

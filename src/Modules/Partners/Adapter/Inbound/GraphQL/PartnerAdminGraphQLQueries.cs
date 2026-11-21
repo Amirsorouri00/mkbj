@@ -1,14 +1,14 @@
 using AuthorizationService.Abstractions.Attributes;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Partners.QueryApplication;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
-using EwaysVNext.Presentation.Endpoint.Security;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Partners.QueryApplication;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.Security;
+using Mkbj.Queries.Application.Paginations;
 using HotChocolate.Authorization;
 
-namespace EwaysVNext.Modules.Partners.Adapter.Inbound.GraphQL;
+namespace Mkbj.Modules.Partners.Adapter.Inbound.GraphQL;
 
 /// <summary>
 /// Partner reads over GraphQL. Gated the same way as the REST surface, since the same data

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Partners.Application.Partners.Domain;
+namespace Mkbj.Modules.Partners.Application.Partners.Domain;
 
 /// <summary>
 /// Suspension is reversible and keeps the keys; it is how a partner is stopped during a billing

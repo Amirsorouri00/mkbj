@@ -1,19 +1,19 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
+using Mkbj.Database;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
 using Microsoft.EntityFrameworkCore;
 
 // GreenDonut, which HotChocolate pulls in for data loaders, also ships a Result<T>. Aliasing the
 // namespace keeps this file unambiguous wherever it is referenced from.
-using Outcomes = EwaysVNext.Outcomes;
+using Outcomes = Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Customer.QueryApplication.Customers;
+namespace Mkbj.Modules.Customer.QueryApplication.Customers;
 
 public interface ICustomerShopQueries
 {
     Task<Outcomes.Result<CustomerProfileView>> GetProfileAsync(long customerId, CancellationToken ct = default);
 }
 
-public sealed class CustomerShopQueries(EwaysVNextDbContext db) : ICustomerShopQueries
+public sealed class CustomerShopQueries(MkbjDbContext db) : ICustomerShopQueries
 {
     public async Task<Outcomes.Result<CustomerProfileView>> GetProfileAsync(
         long customerId, CancellationToken ct = default)

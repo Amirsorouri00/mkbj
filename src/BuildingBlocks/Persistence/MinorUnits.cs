@@ -1,4 +1,4 @@
-namespace EwaysVNext.Persistence;
+namespace Mkbj.Persistence;
 
 /// <summary>
 /// Converts between a decimal amount and the integer minor units money is stored in (ADR-0017 D3).

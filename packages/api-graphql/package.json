@@ -1,0 +1,28 @@
+{
+  "name": "@mkbj/api-graphql",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@graphql-typed-document-node/core": "3.2.0",
+    "graphql": "16.15.0"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "8.0.0",
+    "@graphql-codegen/client-preset": "7.0.0",
+    "@mkbj/config": "workspace:*",
+    "typescript": "5.9.3",
+    "vitest": "5.1.0"
+  },
+  "scripts": {
+    "generate": "graphql-codegen --config codegen.ts",
+    "check:generated": "graphql-codegen --config codegen.ts --check",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint src codegen.ts --max-warnings=0",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  }
+}

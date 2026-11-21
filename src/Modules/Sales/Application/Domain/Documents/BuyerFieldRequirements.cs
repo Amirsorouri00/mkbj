@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Sales.Application.Domain.Documents;
+namespace Mkbj.Modules.Sales.Application.Domain.Documents;
 
 /// <summary>
 /// Which buyer details a document must carry before it can be issued.

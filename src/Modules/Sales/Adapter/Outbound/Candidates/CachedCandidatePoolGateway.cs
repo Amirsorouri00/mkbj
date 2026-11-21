@@ -1,10 +1,10 @@
-using EwaysVNext.Modules.Sales.Application;
-using EwaysVNext.Modules.Sales.Application.Composition;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Sales.Application;
+using Mkbj.Modules.Sales.Application.Composition;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Outcomes;
 using Microsoft.Extensions.Options;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Outbound.Candidates;
+namespace Mkbj.Modules.Sales.Adapter.Outbound.Candidates;
 
 /// <summary>
 /// Builds the pool of variants a basket may be composed from, reusing it while it is still true.

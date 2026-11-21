@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sales.Application.Composition;
+using Mkbj.Modules.Sales.Application.Composition;
 using NetArchTest.Rules;
 using Xunit;
 
-namespace EwaysVNext.ArchitectureTests;
+namespace Mkbj.ArchitectureTests;
 
 /// <summary>
 /// Rules that are specific to Sales, on top of the module-wide ones in
@@ -11,8 +11,8 @@ namespace EwaysVNext.ArchitectureTests;
 /// </summary>
 public sealed class SalesArchitectureTests
 {
-    private const string CompositionNamespace = "EwaysVNext.Modules.Sales.Application.Composition";
-    private const string DomainNamespace = "EwaysVNext.Modules.Sales.Application.Domain";
+    private const string CompositionNamespace = "Mkbj.Modules.Sales.Application.Composition";
+    private const string DomainNamespace = "Mkbj.Modules.Sales.Application.Domain";
 
     /// <summary>
     /// The composition engine is pure, and the build enforces it.
@@ -29,7 +29,7 @@ public sealed class SalesArchitectureTests
             .That().ResideInNamespace(CompositionNamespace)
             .ShouldNot().HaveDependencyOnAny(
                 "Microsoft.EntityFrameworkCore", "System.Net", "System.IO", "System.Data",
-                "EwaysVNext.Modules.Sales.Application.Ports", "EwaysVNext.Persistence",
+                "Mkbj.Modules.Sales.Application.Ports", "Mkbj.Persistence",
                 "Microsoft.Extensions.DependencyInjection", "Microsoft.Extensions.Logging")
             .GetResult().IsSuccessful.Should().BeTrue();
 
@@ -41,8 +41,8 @@ public sealed class SalesArchitectureTests
         Types.InAssembly(typeof(CompositionEngine).Assembly)
             .That().ResideInNamespace(DomainNamespace)
             .ShouldNot().HaveDependencyOnAny(
-                "EwaysVNext.Modules.Sales.Application.Ports",
-                "EwaysVNext.Modules.Sales.Application.Services")
+                "Mkbj.Modules.Sales.Application.Ports",
+                "Mkbj.Modules.Sales.Application.Services")
             .GetResult().IsSuccessful.Should().BeTrue();
 
     /// <summary>
@@ -72,9 +72,9 @@ public sealed class SalesArchitectureTests
     /// </remarks>
     [Fact]
     public void Partner_Request_Dtos_Never_Accept_A_Partner_Id() =>
-        typeof(EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Partner.CreatePartnerOrderRequest)
+        typeof(Mkbj.Modules.Sales.Adapter.Inbound.Rest.Partner.CreatePartnerOrderRequest)
             .Assembly.GetTypes()
-            .Where(type => type.Namespace == "EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Partner"
+            .Where(type => type.Namespace == "Mkbj.Modules.Sales.Adapter.Inbound.Rest.Partner"
                 && type.Name.EndsWith("Request", StringComparison.Ordinal))
             .SelectMany(type => type.GetProperties()
                 .Where(property => property.Name.Contains("PartnerId", StringComparison.OrdinalIgnoreCase))
@@ -127,13 +127,13 @@ public sealed class SalesArchitectureTests
     }
 
     private static IEnumerable<Type> ShopRequestShapes() =>
-        typeof(EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Shop.AddCartLineRequest).Assembly
+        typeof(Mkbj.Modules.Sales.Adapter.Inbound.Rest.Shop.AddCartLineRequest).Assembly
             .GetTypes()
-            .Where(type => type.Namespace == "EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Shop"
+            .Where(type => type.Namespace == "Mkbj.Modules.Sales.Adapter.Inbound.Rest.Shop"
                 && type.Name.EndsWith("Request", StringComparison.Ordinal))
-        .Concat(typeof(EwaysVNext.Modules.Sales.Adapter.Inbound.GraphQL.Shop.AddToCartInput).Assembly
+        .Concat(typeof(Mkbj.Modules.Sales.Adapter.Inbound.GraphQL.Shop.AddToCartInput).Assembly
             .GetTypes()
-            .Where(type => type.Namespace == "EwaysVNext.Modules.Sales.Adapter.Inbound.GraphQL.Shop"
+            .Where(type => type.Namespace == "Mkbj.Modules.Sales.Adapter.Inbound.GraphQL.Shop"
                 && (type.Name.EndsWith("Input", StringComparison.Ordinal)
                     || type.Name == "MoneyGraph")));
 

@@ -1,9 +1,9 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace EwaysVNext.Persistence.SoftDelete;
+namespace Mkbj.Persistence.SoftDelete;
 
 public sealed class SoftDeleteInterceptor : SaveChangesInterceptor
 {

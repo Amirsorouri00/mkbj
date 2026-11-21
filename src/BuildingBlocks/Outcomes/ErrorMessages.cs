@@ -1,4 +1,4 @@
-namespace EwaysVNext.Outcomes;
+namespace Mkbj.Outcomes;
 
 internal static class ErrorMessages
 {

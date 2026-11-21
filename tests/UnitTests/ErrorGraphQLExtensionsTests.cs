@@ -1,10 +1,10 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Exceptions;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
+using AwesomeAssertions;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint.GraphQL.Exceptions;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public class ErrorGraphQLExtensionsTests
 {

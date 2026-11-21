@@ -1,13 +1,13 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Pricing.Application;
-using EwaysVNext.Modules.Pricing.Application.Fx.Domain;
-using EwaysVNext.Modules.Pricing.Application.Prices.Domain;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Pricing.Application;
+using Mkbj.Modules.Pricing.Application.Fx.Domain;
+using Mkbj.Modules.Pricing.Application.Prices.Domain;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Outcomes;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Pricing;
+namespace Mkbj.UnitTests.Pricing;
 
 /// <summary>
 /// Turning a stored price into the number a customer sees. The rounding cases are the point:

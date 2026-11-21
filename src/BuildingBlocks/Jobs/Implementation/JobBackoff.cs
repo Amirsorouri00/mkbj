@@ -1,4 +1,4 @@
-namespace EwaysVNext.Jobs.Implementation;
+namespace Mkbj.Jobs.Implementation;
 
 /// <summary>
 /// Exponential backoff between retries: a failing dependency should be given progressively more

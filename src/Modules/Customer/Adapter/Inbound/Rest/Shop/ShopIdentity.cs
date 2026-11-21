@@ -1,8 +1,8 @@
 using System.Security.Claims;
 
-using EwaysVNext.Core.Application.Security;
+using Mkbj.Core.Application.Security;
 
-namespace EwaysVNext.Modules.Customer.Adapter.Inbound.Rest.Shop;
+namespace Mkbj.Modules.Customer.Adapter.Inbound.Rest.Shop;
 
 /// <summary>
 /// Reads the three things a shop request needs from the token, or refuses.
@@ -20,16 +20,16 @@ public static class ShopIdentity
         email = string.Empty;
         emailVerified = false;
 
-        if (user is null || !user.HasClaim(EwaysClaimTypes.Tenant, AdminRoles.ShopRealm))
+        if (user is null || !user.HasClaim(MkbjClaimTypes.Tenant, AdminRoles.ShopRealm))
             return false;
 
-        var subjectClaim = user.FindFirst(EwaysClaimTypes.Subject)?.Value
+        var subjectClaim = user.FindFirst(MkbjClaimTypes.Subject)?.Value
             ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (!Guid.TryParse(subjectClaim, out subject))
             return false;
 
-        email = user.FindFirst(EwaysClaimTypes.Email)?.Value
+        email = user.FindFirst(MkbjClaimTypes.Email)?.Value
             ?? user.FindFirst(ClaimTypes.Email)?.Value
             ?? string.Empty;
 
@@ -37,7 +37,7 @@ public static class ShopIdentity
             return false;
 
         emailVerified = string.Equals(
-            user.FindFirst(EwaysClaimTypes.EmailVerified)?.Value, "true", StringComparison.OrdinalIgnoreCase);
+            user.FindFirst(MkbjClaimTypes.EmailVerified)?.Value, "true", StringComparison.OrdinalIgnoreCase);
 
         return true;
     }

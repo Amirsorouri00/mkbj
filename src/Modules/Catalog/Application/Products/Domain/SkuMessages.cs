@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Catalog.Application.Products.Domain;
+namespace Mkbj.Modules.Catalog.Application.Products.Domain;
 
 internal static class SkuMessages
 {

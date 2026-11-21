@@ -4,7 +4,7 @@ using System.Text.Json;
 using AwesomeAssertions;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sales;
+namespace Mkbj.IntegrationTests.Sales;
 
 /// <summary>
 /// The partner wire format, which is a published contract.

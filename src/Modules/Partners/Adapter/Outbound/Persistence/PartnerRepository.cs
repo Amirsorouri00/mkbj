@@ -1,15 +1,15 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Partners.Application.Partners.Domain;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Partners.Application.Partners.Domain;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Outbound;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Partners.Adapter.Outbound.Persistence;
+namespace Mkbj.Modules.Partners.Adapter.Outbound.Persistence;
 
 /// <summary>
 /// Loads the aggregate with its keys. Tracked, because every caller is about to change something —
 /// the read-only authentication path uses <see cref="ApiKeyLookup"/> instead.
 /// </summary>
-public sealed class PartnerRepository(EwaysVNextDbContext db) : IPartnerRepository
+public sealed class PartnerRepository(MkbjDbContext db) : IPartnerRepository
 {
     public Task<Partner?> GetAsync(long partnerId, CancellationToken ct = default) =>
         db.Partners

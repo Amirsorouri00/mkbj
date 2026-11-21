@@ -1,7 +1,7 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Outcomes;
+using Mkbj.Core.Application;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Catalog.Application.Brands.Ports.Inbound;
+namespace Mkbj.Modules.Catalog.Application.Brands.Ports.Inbound;
 
 public interface IBrandAdminService
 {

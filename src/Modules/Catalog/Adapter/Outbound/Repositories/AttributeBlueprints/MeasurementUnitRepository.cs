@@ -1,11 +1,11 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Modules.Catalog.QueryApplication.AttributeBlueprints;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound.Repositories.AttributeBlueprints;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound.Repositories.AttributeBlueprints;
 
-internal sealed class MeasurementUnitRepository(EwaysVNextDbContext db) : IMeasurementUnitRepository
+internal sealed class MeasurementUnitRepository(MkbjDbContext db) : IMeasurementUnitRepository
 {
     public Task<bool> ExistsAsync(long id, CancellationToken ct = default)
         => db.MeasurementUnits.AnyAsync(unit => unit.Id == id, ct);

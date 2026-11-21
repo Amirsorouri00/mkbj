@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Catalog.Application.Brands.Domain;
+namespace Mkbj.Modules.Catalog.Application.Brands.Domain;
 
 /// <summary>
 /// Another name the same brand trades under. The value is already canonical — the aggregate

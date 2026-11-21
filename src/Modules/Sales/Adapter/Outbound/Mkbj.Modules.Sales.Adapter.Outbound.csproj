@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Mkbj.Modules.Sales.Adapter.Outbound</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="QuestPDF" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\Mkbj.Modules.Sales.Application.csproj" />
+    <ProjectReference Include="..\..\QueryApplication\Mkbj.Modules.Sales.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Persistence\Mkbj.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\..\Database\Mkbj.Database.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Storage\Application\Mkbj.Storage.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Jobs\Implementation\Mkbj.Jobs.Implementation.csproj" />
+    <ProjectReference Include="..\..\..\Catalog\Application\Mkbj.Modules.Catalog.Application.csproj" />
+    <ProjectReference Include="..\..\..\Pricing\Application\Mkbj.Modules.Pricing.Application.csproj" />
+    <ProjectReference Include="..\..\..\Customer\Application\Mkbj.Modules.Customer.Application.csproj" />
+    <ProjectReference Include="..\..\..\Settings\Application\Mkbj.Modules.Settings.Application.csproj" />
+  </ItemGroup>
+</Project>

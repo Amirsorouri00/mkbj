@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
+namespace Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
 
 /// <summary>
 /// One buyable variant, as everything outside the catalogue sees it.

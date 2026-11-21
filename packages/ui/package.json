@@ -1,0 +1,28 @@
+{
+  "name": "@mkbj/ui",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "1.5.0",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "react": "19.3.1",
+    "tailwind-merge": "3.7.0"
+  },
+  "devDependencies": {
+    "@mkbj/config": "workspace:*",
+    "@types/react": "latest",
+    "typescript": "5.9.3",
+    "vitest": "5.1.0"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint src --max-warnings=0",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  }
+}

@@ -1,7 +1,7 @@
-using EwaysVNext.Host.Seeding;
+using Mkbj.Host.Seeding;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.IntegrationTests.Sales;
+namespace Mkbj.IntegrationTests.Sales;
 
 /// <summary>
 /// The demo catalogue, seeded once for the whole run.

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Pricing.Application.Prices.Ports.Outbound;
+namespace Mkbj.Modules.Pricing.Application.Prices.Ports.Outbound;
 
 /// <summary>
 /// The pricing policy the seller set, which lives in Settings. A gateway rather than a direct

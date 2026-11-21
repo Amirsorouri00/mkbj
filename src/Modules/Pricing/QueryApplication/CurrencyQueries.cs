@@ -1,9 +1,9 @@
-using EwaysVNext.Database;
+using Mkbj.Database;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Pricing.QueryApplication;
+namespace Mkbj.Modules.Pricing.QueryApplication;
 
-public sealed class CurrencyQueries(EwaysVNextDbContext db) : ICurrencyQueries
+public sealed class CurrencyQueries(MkbjDbContext db) : ICurrencyQueries
 {
     public async Task<IReadOnlyList<CurrencyDto>> GetEnabledAsync(CancellationToken ct = default) =>
         await db.Currencies.AsNoTracking()

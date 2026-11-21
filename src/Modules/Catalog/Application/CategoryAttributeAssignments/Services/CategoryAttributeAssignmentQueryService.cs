@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.QueryApplication.Abstractions;
-using EwaysVNext.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Outbound;
+using Mkbj.Modules.Catalog.QueryApplication.Abstractions;
+using Mkbj.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Services;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Services;
 
 public sealed class CategoryAttributeAssignmentQueryService(ICategoryAttributeAssignmentRepository assignments)
     : ICategoryAttributeAssignmentQueryService

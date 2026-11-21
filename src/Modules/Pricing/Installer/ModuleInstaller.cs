@@ -1,18 +1,18 @@
-﻿using EwaysVNext.Database;
-using EwaysVNext.DependencyInjection;
-using EwaysVNext.Modules.Pricing.Adapter.Inbound.GraphQL;
-using EwaysVNext.Modules.Pricing.Adapter.Inbound.Rest;
-using EwaysVNext.Modules.Pricing.Adapter.Outbound;
-using EwaysVNext.Modules.Pricing.QueryApplication;
-using EwaysVNext.Modules.Pricing.Application;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Fx.Services;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Services;
+using Mkbj.Database;
+using Mkbj.DependencyInjection;
+using Mkbj.Modules.Pricing.Adapter.Inbound.GraphQL;
+using Mkbj.Modules.Pricing.Adapter.Inbound.Rest;
+using Mkbj.Modules.Pricing.Adapter.Outbound;
+using Mkbj.Modules.Pricing.QueryApplication;
+using Mkbj.Modules.Pricing.Application;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Fx.Services;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Prices.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Pricing;
+namespace Mkbj.Modules.Pricing;
 
 public static class ModuleInstaller
 {
@@ -39,7 +39,7 @@ public static class ModuleInstaller
 
         services
             .AddPersistenceInterceptors()
-            .AddUnitOfWork<EwaysVNextDbContext>()
+            .AddUnitOfWork<MkbjDbContext>()
             .AddEvents(typeof(PricingErrors).Assembly);
 
         return services;

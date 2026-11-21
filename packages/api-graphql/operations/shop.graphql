@@ -1,0 +1,199 @@
+fragment ShopMoneyFields on MoneyDto {
+  amount
+  currency
+}
+
+fragment ShopProductCardFields on ProductCardDto {
+  productId
+  slug
+  title
+  brandId
+  brandName
+  categoryId
+  minPrice { ...ShopMoneyFields }
+  maxPrice { ...ShopMoneyFields }
+  variantCount
+  imageUrl
+}
+
+fragment ShopCartFields on CartGraph {
+  currency
+  total { amount currency }
+  changes { variantId kind oldUnitPrice newUnitPrice }
+  lines {
+    variantId
+    sku
+    productTitle
+    quantity
+    unitPrice { amount currency }
+    lineTotal { amount currency }
+  }
+}
+
+fragment ShopOrderFields on ShopOrderDto {
+  id
+  number
+  currency
+  totalMinor
+  createdAt
+  status {
+    order
+    payment
+    paymentSource
+    fulfillment
+    fulfillmentSource
+    fulfillmentStatement
+    documents
+  }
+  lines {
+    lineNo
+    variantId
+    productId
+    sku
+    productTitle
+    brandName
+    categoryPath
+    attributes { key value }
+    quantity
+    unitPriceMinor
+    lineTotalMinor
+  }
+  documents { id type number issuedAt relatedDocumentId }
+}
+
+query ShopHome($currency: String!) {
+  shopHome(currency: $currency) {
+    currency
+    newArrivals { ...ShopProductCardFields }
+    bestSellers { ...ShopProductCardFields }
+    featuredCategories { categoryId name slug productCount }
+    categorySections {
+      key
+      title
+      subtitle
+      categoryId
+      categorySlug
+      products { ...ShopProductCardFields }
+    }
+  }
+}
+
+query ShopShell {
+  currencies { code minorUnits }
+  shopCategories {
+    id
+    parentId
+    name
+    slug
+    description
+    displayOrder
+    children {
+      id parentId name slug description displayOrder
+      children { id parentId name slug description displayOrder }
+    }
+  }
+}
+
+query ShopProducts(
+  $currency: String!
+  $filter: ShopProductFilterInput
+  $sort: StorefrontSort
+  $after: String
+  $first: Int
+) {
+  shopProducts(currency: $currency, filter: $filter, sort: $sort, after: $after, first: $first) {
+    items { ...ShopProductCardFields }
+    nextCursor
+    usedTypoFallback
+  }
+}
+
+query ShopFacets($currency: String!, $categoryId: ID) {
+  shopFacets(currency: $currency, categoryId: $categoryId) {
+    brands { value label count }
+    attributes { key values { value label count } }
+    priceBuckets {
+      from { ...ShopMoneyFields }
+      to { ...ShopMoneyFields }
+      count
+    }
+  }
+}
+
+query ShopProduct($slug: String!, $currency: String!) {
+  shopProduct(slug: $slug, currency: $currency) {
+    productId
+    slug
+    title
+    shortDescription
+    description
+    brandId
+    brandName
+    breadcrumb { categoryId name slug }
+    imageUrls
+    variants {
+      variantId
+      sku
+      attributes { key value }
+      price { ...ShopMoneyFields }
+    }
+    attributeOptions { key value }
+  }
+}
+
+query ShopCart {
+  cart { ...ShopCartFields }
+}
+
+mutation ShopAddToCart($input: AddToCartInput!) {
+  addToCart(input: $input) { ...ShopCartFields }
+}
+
+mutation ShopUpdateCartLine($input: UpdateCartLineInput!) {
+  updateCartLine(input: $input) { ...ShopCartFields }
+}
+
+mutation ShopRemoveCartLine($input: RemoveCartLineInput!) {
+  removeCartLine(input: $input) { ...ShopCartFields }
+}
+
+mutation ShopSetCartCurrency($input: SetCartCurrencyInput!) {
+  setCartCurrency(input: $input) { ...ShopCartFields }
+}
+
+mutation ShopCheckout($input: CheckoutInput!) {
+  checkout(input: $input) {
+    code
+    priceChanged { ...ShopCartFields }
+    order { ...ShopOrderFields }
+  }
+}
+
+query ShopMe {
+  me {
+    id email emailVerified phone fullName companyName registrationNumber status
+    billingAddress { line1 line2 city postalCode countryIso2 }
+  }
+}
+
+mutation ShopUpdateProfile($input: UpdateProfileInput!) {
+  updateProfile(input: $input) {
+    id email emailVerified phone fullName companyName registrationNumber status
+    billingAddress { line1 line2 city postalCode countryIso2 }
+  }
+}
+
+query ShopOrders($cursor: ID, $limit: Int!) {
+  myOrders(cursor: $cursor, limit: $limit) {
+    nextCursor
+    items { ...ShopOrderFields }
+  }
+}
+
+query ShopOrder($id: ID!) {
+  order(id: $id) { ...ShopOrderFields }
+}
+
+query ShopDocumentPdfUrl($documentId: ID!) {
+  documentPdfUrl(documentId: $documentId)
+}

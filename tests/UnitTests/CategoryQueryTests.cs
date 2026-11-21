@@ -1,23 +1,23 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
-using EwaysVNext.Modules.Catalog.QueryApplication.Categories;
+using Mkbj.Modules.Catalog.Contracts.Categories;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Modules.Catalog.QueryApplication.Categories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Data.Common;
 using Xunit;
-using EwaysVNext.Database;
+using Mkbj.Database;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public sealed class CategoryQueryTests
 {
     [Fact]
     public async Task Admin_Search_With_Name_And_Status_Must_Be_SQL_Server_Translatable()
     {
-        await using var db = new EwaysVNextDbContext(CreateTranslationProbeOptions());
+        await using var db = new MkbjDbContext(CreateTranslationProbeOptions());
         var queries = new CategoryAdminQueries(db);
 
         var query = queries.Search(
@@ -31,7 +31,7 @@ public sealed class CategoryQueryTests
     [Fact]
     public async Task Admin_Get_By_Id_Must_Be_SQL_Server_Translatable()
     {
-        await using var db = new EwaysVNextDbContext(CreateTranslationProbeOptions());
+        await using var db = new MkbjDbContext(CreateTranslationProbeOptions());
         var queries = new CategoryAdminQueries(db);
 
         var act = () => queries.GetByIdAsync(123);
@@ -43,7 +43,7 @@ public sealed class CategoryQueryTests
     [Fact]
     public async Task Admin_Get_Children_Must_Be_SQL_Server_Translatable()
     {
-        await using var db = new EwaysVNextDbContext(CreateTranslationProbeOptions());
+        await using var db = new MkbjDbContext(CreateTranslationProbeOptions());
         var queries = new CategoryAdminQueries(db);
 
         var act = () => queries.GetChildrenAsync(123);
@@ -526,7 +526,7 @@ public sealed class CategoryQueryTests
     {
         private long _nextCategoryId = 100;
 
-        private QueryFixture(EwaysVNextDbContext db, ICategoryQueries queries,
+        private QueryFixture(MkbjDbContext db, ICategoryQueries queries,
             ICategoryAdminQueries adminQueries, QueryExecutionCounter queryCounter)
         {
             Db = db;
@@ -535,7 +535,7 @@ public sealed class CategoryQueryTests
             QueryCounter = queryCounter;
         }
 
-        public EwaysVNextDbContext Db { get; }
+        public MkbjDbContext Db { get; }
         public ICategoryQueries Queries { get; }
         public ICategoryAdminQueries AdminQueries { get; }
         public QueryExecutionCounter QueryCounter { get; }
@@ -543,13 +543,13 @@ public sealed class CategoryQueryTests
         public static async Task<QueryFixture> CreateAsync()
         {
             var queryCounter = new QueryExecutionCounter();
-            var options = new DbContextOptionsBuilder<EwaysVNextDbContext>()
+            var options = new DbContextOptionsBuilder<MkbjDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .EnableServiceProviderCaching(false)
                 .LogTo(queryCounter.Record,
                     [CoreEventId.QueryExecutionPlanned], LogLevel.Debug)
                 .Options;
-            var db = new EwaysVNextDbContext(options);
+            var db = new MkbjDbContext(options);
             await db.Database.EnsureCreatedAsync();
             return new QueryFixture(db, new CategoryQueries(db),
                 new CategoryAdminQueries(db), queryCounter);
@@ -591,8 +591,8 @@ public sealed class CategoryQueryTests
         public void Reset() => Count = 0;
     }
 
-    private static DbContextOptions<EwaysVNextDbContext> CreateTranslationProbeOptions() =>
-        new DbContextOptionsBuilder<EwaysVNextDbContext>()
+    private static DbContextOptions<MkbjDbContext> CreateTranslationProbeOptions() =>
+        new DbContextOptionsBuilder<MkbjDbContext>()
             .UseNpgsql("Host=127.0.0.1;Port=1;Database=category_query_translation;Username=probe;Password=probe;Timeout=1").UseSnakeCaseNamingConvention()
             .AddInterceptors(
                 new SuppressConnectionOpeningInterceptor(),

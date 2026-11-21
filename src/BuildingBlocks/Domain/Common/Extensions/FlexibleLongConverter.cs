@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace EwaysVNext.Domain.Common.Extensions;
+namespace Mkbj.Domain.Common.Extensions;
 
 public sealed class FlexibleLongConverter : JsonConverter<long>
 {

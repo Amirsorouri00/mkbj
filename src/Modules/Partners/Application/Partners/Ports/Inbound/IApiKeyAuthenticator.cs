@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Partners.Application.Partners.Ports.Inbound;
+namespace Mkbj.Modules.Partners.Application.Partners.Ports.Inbound;
 
 /// <summary>
 /// What a verified key grants. The limits ride along so the rate limiter does not need a second

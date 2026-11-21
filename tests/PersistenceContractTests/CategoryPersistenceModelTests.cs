@@ -1,12 +1,12 @@
 using AwesomeAssertions;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Modules.Catalog.Contracts.Categories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Xunit;
 
-namespace EwaysVNext.PersistenceContractTests;
+namespace Mkbj.PersistenceContractTests;
 
 /// <summary>
 /// The Category mapping contract. Names are asserted in the snake_case the Postgres convention
@@ -20,7 +20,7 @@ public sealed class CategoryPersistenceModelTests
     [Fact]
     public void Model_Uses_Catalog_Schema_And_Snake_Case_Category_Table_Names()
     {
-        using var db = Providers.Npgsql<EwaysVNextDbContext>();
+        using var db = Providers.Npgsql<MkbjDbContext>();
 
         var category = db.Model.FindEntityType(typeof(Category))!;
         var assignment = db.Model.FindEntityType(typeof(CategoryProduct))!;
@@ -34,7 +34,7 @@ public sealed class CategoryPersistenceModelTests
     [Fact]
     public void Model_Must_Map_Long_Product_Ids_As_Bigint()
     {
-        using var db = Providers.Npgsql<EwaysVNextDbContext>();
+        using var db = Providers.Npgsql<MkbjDbContext>();
 
         db.Model.FindEntityType(typeof(CategoryProduct))!
             .FindProperty(nameof(CategoryProduct.ProductId))!
@@ -44,7 +44,7 @@ public sealed class CategoryPersistenceModelTests
     [Fact]
     public void Model_Must_Convert_Category_Slug_To_String()
     {
-        using var db = Providers.Npgsql<EwaysVNextDbContext>();
+        using var db = Providers.Npgsql<MkbjDbContext>();
 
         var converter = db.Model.FindEntityType(typeof(Category))!
             .FindProperty(nameof(Category.Slug))!.GetValueConverter();
@@ -57,7 +57,7 @@ public sealed class CategoryPersistenceModelTests
     [Fact]
     public void Model_Must_Use_Client_Generated_Ids_And_Explicit_Self_Navigations()
     {
-        using var db = Providers.Npgsql<EwaysVNextDbContext>();
+        using var db = Providers.Npgsql<MkbjDbContext>();
         var entity = db.Model.FindEntityType(typeof(Category))!;
 
         entity.FindProperty(nameof(Category.Id))!.ValueGenerated.Should().Be(ValueGenerated.Never);
@@ -107,7 +107,7 @@ public sealed class CategoryPersistenceModelTests
     [Fact]
     public async Task Parent_And_Children_Navigations_Must_Persist_And_Reload()
     {
-        await using var db = Providers.InMemory<EwaysVNextDbContext>();
+        await using var db = Providers.InMemory<MkbjDbContext>();
         var parent = CreateWithId(912345678901L, null, "Parent", "parent");
         var child = CreateWithId(912345678902L, parent.Id, "Child", "child");
         await db.Set<Category>().AddRangeAsync(parent, child);

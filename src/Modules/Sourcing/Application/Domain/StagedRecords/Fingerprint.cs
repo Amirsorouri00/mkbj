@@ -1,9 +1,9 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Nodes;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Discovery;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
+namespace Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
 
 /// <summary>
 /// What makes two listings the same product.

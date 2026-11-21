@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Settings.Application.Settings.Domain;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Settings.Application.Settings.Domain;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Settings;
+namespace Mkbj.UnitTests.Settings;
 
 public sealed class SettingsDomainTests
 {

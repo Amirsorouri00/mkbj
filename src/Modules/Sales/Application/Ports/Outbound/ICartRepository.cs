@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Sales.Application.Domain.Carts;
+using Mkbj.Modules.Sales.Application.Domain.Carts;
 
-namespace EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+namespace Mkbj.Modules.Sales.Application.Ports.Outbound;
 
 /// <summary>One cart per customer, loaded with its lines.</summary>
 public interface ICartRepository

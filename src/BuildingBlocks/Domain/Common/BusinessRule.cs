@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common.Exceptions;
+using Mkbj.Domain.Common.Exceptions;
 
-namespace EwaysVNext.Domain.Common;
+namespace Mkbj.Domain.Common;
 
 public interface IBusinessRule
 {

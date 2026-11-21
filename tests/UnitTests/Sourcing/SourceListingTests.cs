@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourceListings;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sourcing.Application.Domain.SourceListings;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sourcing;
+namespace Mkbj.UnitTests.Sourcing;
 
 /// <summary>
 /// What a source has been charging, kept as history rather than as a current value.

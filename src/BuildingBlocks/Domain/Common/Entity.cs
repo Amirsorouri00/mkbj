@@ -1,6 +1,6 @@
-using EwaysVNext.Events.Application;
+using Mkbj.Events.Application;
 
-namespace EwaysVNext.Domain.Common;
+namespace Mkbj.Domain.Common;
 
 public interface IHasDomainEvents
 {

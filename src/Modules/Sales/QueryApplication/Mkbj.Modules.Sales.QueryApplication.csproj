@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Mkbj.Modules.Sales.QueryApplication</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Outcomes\Mkbj.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Queries\Application\Mkbj.Queries.Application.csproj" />
+    <ProjectReference Include="..\..\..\Database\Mkbj.Database.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Core\Application\Mkbj.Core.Application.csproj" />
+  </ItemGroup>
+</Project>

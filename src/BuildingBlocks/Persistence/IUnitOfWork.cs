@@ -1,4 +1,4 @@
-namespace EwaysVNext.Persistence;
+namespace Mkbj.Persistence;
 
 /// <summary>
 /// What a save reports when it loses a race. Callers need the two apart: a stale write is worth

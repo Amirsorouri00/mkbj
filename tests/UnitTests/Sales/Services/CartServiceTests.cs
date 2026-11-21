@@ -1,14 +1,14 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sales.Application.Domain.Carts;
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Modules.Sales.Application.Services;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sales.Application.Domain.Carts;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.Application.Services;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Services;
+namespace Mkbj.UnitTests.Sales.Services;
 
 /// <summary>
 /// The cart service: who may use it, and what it does when the shop moves underneath one.

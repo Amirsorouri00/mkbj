@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Pricing\Adapter\Outbound\Mkbj.Modules.Pricing.Adapter.Outbound</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\Mkbj.Modules.Pricing.Application.csproj" />
+    <ProjectReference Include="..\..\QueryApplication\Mkbj.Modules.Pricing.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Persistence\Mkbj.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\..\Database\Mkbj.Database.csproj" />
+    <ProjectReference Include="..\..\..\Catalog\Application\Mkbj.Modules.Catalog.Application.csproj" />
+    <ProjectReference Include="..\..\..\Settings\Application\Mkbj.Modules.Settings.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Jobs\Implementation\Mkbj.Jobs.Implementation.csproj" />
+  </ItemGroup>
+</Project>

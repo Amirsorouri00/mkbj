@@ -1,7 +1,7 @@
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL;
 
 // Thin, name-compatible wrapper around the shared ResultGraphQLExtensions so every
 // resolver call site here keeps working unchanged, while still throwing the same

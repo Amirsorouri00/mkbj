@@ -3,13 +3,13 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Settings.Application.Settings.Domain;
-using EwaysVNext.Modules.Settings.Application.Settings.Ports.Inbound;
+using Mkbj.Modules.Settings.Application.Settings.Domain;
+using Mkbj.Modules.Settings.Application.Settings.Ports.Inbound;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Settings;
+namespace Mkbj.IntegrationTests.Settings;
 
 /// <summary>
 /// The settings admin surface over HTTP. These run against the seeded singletons, so each test

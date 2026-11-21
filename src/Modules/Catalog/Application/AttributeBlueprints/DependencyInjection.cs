@@ -1,12 +1,12 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Services;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Validation;
-using EwaysVNext.Modules.Catalog.QueryApplication.Abstractions.AttributeBlueprints;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Services;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Validation;
+using Mkbj.Modules.Catalog.QueryApplication.Abstractions.AttributeBlueprints;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace EwaysVNext.Modules.Catalog.Application.AttributeBlueprints;
+namespace Mkbj.Modules.Catalog.Application.AttributeBlueprints;
 
 public static class DependencyInjection
 {

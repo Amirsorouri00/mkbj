@@ -1,10 +1,10 @@
 using System.Text.Json;
-using EwaysVNext.Modules.Sourcing.Application;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Sourcing.Application;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sourcing.Adapter.Outbound.Files;
+namespace Mkbj.Modules.Sourcing.Adapter.Outbound.Files;
 
 /// <summary>
 /// Reads an array of flat objects.

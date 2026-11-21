@@ -1,7 +1,7 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Pricing.Application.Currencies.Domain;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Pricing.Application.Currencies.Domain;
 
-namespace EwaysVNext.Modules.Pricing.Application.Prices.Domain;
+namespace Mkbj.Modules.Pricing.Application.Prices.Domain;
 
 /// <summary>
 /// What one variant costs: a single base price, plus the currencies an admin has priced by hand.

@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace EwaysVNext.Core.Application.Security;
+namespace Mkbj.Core.Application.Security;
 
 /// <summary>Who is shopping, as the token says.</summary>
 public readonly record struct ShopIdentity(Guid IdentityUserId, string Email, bool EmailVerified);
@@ -17,21 +17,21 @@ public static class ShopIdentityClaims
 {
     public static ShopIdentity? Read(ClaimsPrincipal? user)
     {
-        if (user is null || !user.HasClaim(EwaysClaimTypes.Tenant, AdminRoles.ShopRealm))
+        if (user is null || !user.HasClaim(MkbjClaimTypes.Tenant, AdminRoles.ShopRealm))
             return null;
 
-        var subject = user.FindFirst(EwaysClaimTypes.Subject)?.Value
+        var subject = user.FindFirst(MkbjClaimTypes.Subject)?.Value
             ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (!Guid.TryParse(subject, out var identityUserId)) return null;
 
-        var email = user.FindFirst(EwaysClaimTypes.Email)?.Value
+        var email = user.FindFirst(MkbjClaimTypes.Email)?.Value
             ?? user.FindFirst(ClaimTypes.Email)?.Value;
 
         if (string.IsNullOrWhiteSpace(email)) return null;
 
         var verified = string.Equals(
-            user.FindFirst(EwaysClaimTypes.EmailVerified)?.Value,
+            user.FindFirst(MkbjClaimTypes.EmailVerified)?.Value,
             "true",
             StringComparison.OrdinalIgnoreCase);
 

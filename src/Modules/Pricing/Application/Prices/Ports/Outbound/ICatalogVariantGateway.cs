@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Pricing.Application.Prices.Ports.Outbound;
+namespace Mkbj.Modules.Pricing.Application.Prices.Ports.Outbound;
 
 /// <summary>
 /// Whether a variant exists at all — regardless of whether it is sellable.

@@ -1,11 +1,13 @@
 using System.Text;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sourcing.Adapter.Outbound.Files;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
+using ClosedXML.Excel;
+using Mkbj.Modules.Sourcing.Adapter.Outbound.Files;
+using Mkbj.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sourcing;
+namespace Mkbj.UnitTests.Sourcing;
 
 /// <summary>
 /// Reading the files suppliers actually send.
@@ -143,6 +145,44 @@ public sealed class ImportFileReaderTests
     }
 
     [Fact]
+    public async Task Download_templates_match_the_supported_readers_and_schema()
+    {
+        var templates = new ImportTemplateProvider();
+
+        var csv = await Read(
+            new CsvImportReader(), (await templates.GetAsync("csv", Ct)).Content, ImportFileFormat.Csv);
+        csv.Columns.Should().Equal(ImportColumns.All.Append("attr:color"));
+
+        var schema = Encoding.UTF8.GetString((await templates.GetAsync("json-schema", Ct)).Content);
+        schema.Should().Contain("\"image_urls\"").And.Contain("^attr:[a-z0-9_]+$");
+    }
+
+    [Fact]
+    public async Task Xlsx_template_protects_headers_and_guides_typed_input()
+    {
+        var templates = new ImportTemplateProvider();
+        var file = await templates.GetAsync("xlsx", Ct);
+
+        using var workbook = new XLWorkbook(new MemoryStream(file.Content));
+        var products = workbook.Worksheet("Products");
+        var instructions = workbook.Worksheet("Instructions");
+        var currencyColumn = ImportColumns.All.ToList().IndexOf(ImportColumns.Currency) + 1;
+        var upcColumn = ImportColumns.All.ToList().IndexOf(ImportColumns.Upc) + 1;
+
+        products.SheetView.SplitRow.Should().Be(1);
+        products.Protection.IsProtected.Should().BeTrue();
+        products.Cell(1, 1).Style.Protection.Locked.Should().BeTrue();
+        products.Cell(2, 1).Style.Protection.Locked.Should().BeFalse();
+        products.Cell(1, 1).Style.Fill.BackgroundColor.Color.ToArgb().Should().Be(
+            XLColor.FromHtml("F28C00").Color.ToArgb());
+        products.Cell(2, upcColumn).GetString().Should().Be("012345678905");
+        products.Cell(2, upcColumn).Style.NumberFormat.Format.Should().Be("@");
+        products.Cell(2, currencyColumn).GetDataValidation().InCellDropdown.Should().BeTrue();
+        instructions.Cell("B6").GetString().Should().Be("Optional");
+        instructions.CellsUsed().Select(cell => cell.GetString()).Should().Contain("Required");
+    }
+
+    [Fact]
     public async Task Malformed_Json_Is_Refused_With_Something_To_Act_On()
     {
         var result = await new JsonImportReader().ReadAsync(
@@ -159,6 +199,8 @@ public sealed class ImportFileReaderTests
         new CsvImportReader().Handles(ImportFileFormat.Json).Should().BeFalse();
         new JsonImportReader().Handles(ImportFileFormat.Json).Should().BeTrue();
         new JsonImportReader().Handles(ImportFileFormat.Xlsx).Should().BeFalse();
+        new XlsxImportReader().Handles(ImportFileFormat.Xlsx).Should().BeTrue();
+        new XlsxImportReader().Handles(ImportFileFormat.Csv).Should().BeFalse();
     }
 
     private static Task<ImportFileContents> ReadCsv(string csv) =>

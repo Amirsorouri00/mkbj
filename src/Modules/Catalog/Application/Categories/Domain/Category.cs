@@ -1,9 +1,9 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Contracts.Categories;
 using System.Globalization;
 using System.Text;
 
-namespace EwaysVNext.Modules.Catalog.Application.Categories.Domain;
+namespace Mkbj.Modules.Catalog.Application.Categories.Domain;
 
 public sealed class Category : AggregateRoot<long>
 {

@@ -1,6 +1,6 @@
 using System.Diagnostics.Metrics;
 
-namespace EwaysVNext.Modules.Sales.Application;
+namespace Mkbj.Modules.Sales.Application;
 
 /// <summary>
 /// What Sales reports about itself.
@@ -13,7 +13,7 @@ namespace EwaysVNext.Modules.Sales.Application;
 /// </remarks>
 public static class SalesMetrics
 {
-    public const string MeterName = "EwaysVNext.Sales";
+    public const string MeterName = "Mkbj.Sales";
 
     private static readonly Meter Meter = new(MeterName);
 

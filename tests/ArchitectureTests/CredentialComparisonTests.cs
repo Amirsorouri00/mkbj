@@ -1,7 +1,7 @@
 using AwesomeAssertions;
 using Xunit;
 
-namespace EwaysVNext.ArchitectureTests;
+namespace Mkbj.ArchitectureTests;
 
 /// <summary>
 /// Comparing a secret with <c>==</c>, <c>SequenceEqual</c> or <c>Equals</c> returns as soon as two
@@ -71,11 +71,11 @@ public sealed class CredentialComparisonTests
         {
             var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-            while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "EwaysVNext.slnx")))
+            while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "Mkbj.slnx")))
                 directory = directory.Parent;
 
             return directory?.FullName
-                ?? throw new DirectoryNotFoundException("Could not locate the EwaysVNext solution directory.");
+                ?? throw new DirectoryNotFoundException("Could not locate the Mkbj solution directory.");
         }
     }
 }

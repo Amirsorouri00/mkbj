@@ -1,9 +1,9 @@
 using System.Data.Common;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Events.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Events.Application;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Persistence;
+namespace Mkbj.Persistence;
 
 public sealed class EfCoreUnitOfWork<TDbContext>(TDbContext db, IDomainEventBus eventBus) : IUnitOfWork
     where TDbContext : DbContext

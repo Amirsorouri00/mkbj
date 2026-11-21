@@ -1,8 +1,8 @@
-﻿using EwaysVNext.Outcomes;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Outcomes;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
 
 
-namespace EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
+namespace Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
 
 public interface IAttributeBlueprintService
 {

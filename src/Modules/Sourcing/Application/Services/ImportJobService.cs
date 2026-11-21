@@ -1,14 +1,14 @@
 using System.Globalization;
-using EwaysVNext.Audit;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using Mkbj.Audit;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Ports.Inbound;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Services;
+namespace Mkbj.Modules.Sourcing.Application.Services;
 
 /// <summary>
 /// Creating and steering import jobs.

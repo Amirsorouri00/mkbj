@@ -1,16 +1,16 @@
 using AwesomeAssertions;
-using EwaysVNext.Audit;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Brands.Domain;
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Brands.Services;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
-using EwaysVNext.Persistence;
+using Mkbj.Audit;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Brands.Domain;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Brands.Services;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
+using Mkbj.Persistence;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 /// <summary>
 /// The brand admin service's job is mostly refusal: the alias index is global, so most of what an

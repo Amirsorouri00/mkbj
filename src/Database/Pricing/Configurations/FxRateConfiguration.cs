@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Pricing.Application.Fx.Domain;
+using Mkbj.Modules.Pricing.Application.Fx.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EwaysVNext.Database.Pricing.Configurations;
+namespace Mkbj.Database.Pricing.Configurations;
 
 internal sealed class FxRateConfiguration : IEntityTypeConfiguration<FxRate>
 {

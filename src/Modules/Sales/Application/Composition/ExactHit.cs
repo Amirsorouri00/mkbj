@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace EwaysVNext.Modules.Sales.Application.Composition;
+namespace Mkbj.Modules.Sales.Application.Composition;
 
 /// <summary>
 /// One line of a draft basket: which candidate, how many, and the band its unit price must stay in.

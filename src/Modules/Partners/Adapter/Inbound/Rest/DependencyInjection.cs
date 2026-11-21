@@ -1,11 +1,11 @@
-using EwaysVNext.Modules.Partners.Adapter.Inbound.Rest.Authentication;
-using EwaysVNext.Modules.Partners.Adapter.Inbound.Rest.Admin;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Modules.Partners.Adapter.Inbound.Rest.Authentication;
+using Mkbj.Modules.Partners.Adapter.Inbound.Rest.Admin;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Partners.Adapter.Inbound.Rest;
+namespace Mkbj.Modules.Partners.Adapter.Inbound.Rest;
 
 public static class DependencyInjection
 {

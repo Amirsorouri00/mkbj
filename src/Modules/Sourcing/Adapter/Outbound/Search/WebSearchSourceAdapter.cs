@@ -1,11 +1,11 @@
 using System.Text.Json;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Domain.SourcePolicies;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
 using Microsoft.Extensions.Logging;
 
-namespace EwaysVNext.Modules.Sourcing.Adapter.Outbound.Search;
+namespace Mkbj.Modules.Sourcing.Adapter.Outbound.Search;
 
 /// <summary>Which query a search import has reached, and how far into its results.</summary>
 internal sealed record SearchCursor(int QueryIndex, int Offset);

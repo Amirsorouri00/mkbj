@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace EwaysVNext.Modules.Sales.Application.Money;
+namespace Mkbj.Modules.Sales.Application.Money;
 
 /// <summary>
 /// What makes two partner order requests the same request.

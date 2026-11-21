@@ -1,17 +1,17 @@
-﻿using System.Globalization;
+using System.Globalization;
 using AwesomeAssertions;
-using EwaysVNext.Audit;
-using EwaysVNext.Audit.Implementation;
-using EwaysVNext.Database;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Jobs;
-using EwaysVNext.Jobs.Implementation;
+using Mkbj.Audit;
+using Mkbj.Audit.Implementation;
+using Mkbj.Database;
+using Mkbj.Domain.Common;
+using Mkbj.Jobs;
+using Mkbj.Jobs.Implementation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Platform;
+namespace Mkbj.IntegrationTests.Platform;
 
 /// <summary>
 /// The hash chain is what makes tampering detectable once someone has direct database access —
@@ -147,7 +147,7 @@ public sealed class AuditSealTests(PostgresFixture fixture)
         Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Program> factory, int count)
     {
         await using var scope = factory.Services.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
         var trail = scope.ServiceProvider.GetRequiredService<IAuditTrail>();
 
         for (var i = 0; i < count; i++)
@@ -176,7 +176,7 @@ public sealed class AuditSealTests(PostgresFixture fixture)
         Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Program> factory, IReadOnlyList<long> ids)
     {
         await using var scope = factory.Services.CreateAsyncScope();
-        return await scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>()
+        return await scope.ServiceProvider.GetRequiredService<MkbjDbContext>()
             .AuditSeals.AsNoTracking().Where(s => ids.Contains(s.EventId)).ToListAsync();
     }
 
@@ -184,7 +184,7 @@ public sealed class AuditSealTests(PostgresFixture fixture)
         Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Program> factory, IReadOnlyList<long> ids)
     {
         await using var scope = factory.Services.CreateAsyncScope();
-        return await scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>()
+        return await scope.ServiceProvider.GetRequiredService<MkbjDbContext>()
             .AuditEvents.AsNoTracking().Where(e => ids.Contains(e.Id)).OrderBy(e => e.Id)
             .Select(e => new AuditEventRow(
                 e.Id, e.OccurredAt, e.ActorUserId, e.ActorRole, e.Action,

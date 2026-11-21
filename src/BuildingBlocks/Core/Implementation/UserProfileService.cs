@@ -1,8 +1,8 @@
 using System.Security.Claims;
-using EwaysVNext.Core.Application;
+using Mkbj.Core.Application;
 using Microsoft.AspNetCore.Http;
 
-namespace EwaysVNext.Core.Implementation;
+namespace Mkbj.Core.Implementation;
 
 public sealed class UserProfileService(IHttpContextAccessor httpContextAccessor) : IUserProfileService
 {

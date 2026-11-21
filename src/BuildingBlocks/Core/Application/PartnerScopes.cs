@@ -1,4 +1,4 @@
-namespace EwaysVNext.Core.Application;
+namespace Mkbj.Core.Application;
 
 /// <summary>
 /// The scopes a partner API key can carry (PRD §9). This list is closed: a scope string that is

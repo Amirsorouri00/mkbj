@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.IntegrationTests.Support;
+namespace Mkbj.IntegrationTests.Support;
 
 /// <summary>
 /// Lets a test move time instead of waiting for it. Key expiry and rotation overlap are measured

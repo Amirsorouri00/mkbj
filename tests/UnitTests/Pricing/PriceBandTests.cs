@@ -1,8 +1,8 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Pricing.Application.Bands;
+using Mkbj.Modules.Pricing.Application.Bands;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Pricing;
+namespace Mkbj.UnitTests.Pricing;
 
 /// <summary>
 /// The band a composed line's unit price has to fall inside. Every case here is a cent-level

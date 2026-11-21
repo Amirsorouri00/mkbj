@@ -1,14 +1,14 @@
-﻿using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Brands;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Products;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Shop;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.CategoryAttributeAssignment;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.CategoryAttributeExclusion;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
+using Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
+using Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.Brands;
+using Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.Products;
+using Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.Shop;
+using Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
+using Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.CategoryAttributeAssignment;
+using Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.CategoryAttributeExclusion;
+using Mkbj.Presentation.Endpoint.GraphQL;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL;
 
 public static class DependencyInjection
 {
@@ -24,6 +24,7 @@ public static class DependencyInjection
             .AddType<ProductAdminRowType>()
             .AddType<ProductAdminDetailType>()
             .AddType<ProductAdminVariantType>()
+            .AddType<ProductAdminVariantLookupType>()
             .AddType<ProductAdminIdentifierType>()
             .AddType<ProductAdminMediaType>()
             .AddType<CategoryAdminType>()
@@ -40,8 +41,18 @@ public static class DependencyInjection
             .AddType<MeasurementUnitType>()
             .AddType<CategoryAttributeAssignmentQueryResolvers>()
             .AddType<CategoryAttributeAssignmentMutationResolvers>()
+            .AddType<CategoryAttributeAssignmentSnapshotType>()
+            .AddType<CategoryAttributeAssignmentAdminRowType>()
+            .AddType<EffectiveCategoryAttributeSnapshotType>()
+            .AddType<CategoryAttributeExclusionSnapshotType>()
             .AddType<CategoryAttributeExclusionMutationResolvers>()
             .AddType<CategoryAttributeExclusionQueryResolvers>()
+            .AddType<ShopProductCardType>()
+            .AddType<ShopCategoryTileType>()
+            .AddType<ShopCategoryCrumbType>()
+            .AddType<ShopVariantOfferType>()
+            .AddType<ShopProductDetailType>()
+            .AddType<ShopCategoryTreeNodeType>()
             .AddType<ShopQueries>();
 
         return services;

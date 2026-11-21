@@ -1,6 +1,6 @@
-using EwaysVNext.Events.Application;
+using Mkbj.Events.Application;
 
-namespace EwaysVNext.Domain.Events;
+namespace Mkbj.Domain.Events;
 
 public abstract record DomainEvent : IDomainEvent
 {

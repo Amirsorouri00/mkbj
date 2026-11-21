@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
 
-namespace EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+namespace Mkbj.Modules.Sales.Application.Ports.Outbound;
 
 /// <summary>
 /// The seller's tax position, as a port rather than a constant.

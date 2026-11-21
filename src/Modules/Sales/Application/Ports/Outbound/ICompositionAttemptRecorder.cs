@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Sales.Application.Composition;
-using EwaysVNext.Modules.Sales.Application.Domain.Telemetry;
+using Mkbj.Modules.Sales.Application.Composition;
+using Mkbj.Modules.Sales.Application.Domain.Telemetry;
 
-namespace EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+namespace Mkbj.Modules.Sales.Application.Ports.Outbound;
 
 /// <summary>
 /// Records what one composition run did.

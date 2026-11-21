@@ -1,16 +1,16 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Persistence;
+using Mkbj.Database;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Outbound.Persistence;
+namespace Mkbj.Modules.Sales.Adapter.Outbound.Persistence;
 
 /// <summary>
 /// Orders, read and written through the one shared context.
 /// </summary>
-internal sealed class OrderRepository(EwaysVNextDbContext db, IUnitOfWork unitOfWork) : IOrderRepository
+internal sealed class OrderRepository(MkbjDbContext db, IUnitOfWork unitOfWork) : IOrderRepository
 {
     private const string PartnerExternalIndex = "ux_orders_partner_external";
     private const string UniqueViolation = "23505";

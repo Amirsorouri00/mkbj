@@ -1,7 +1,7 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Outcomes;
+using Mkbj.Core.Application;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
+namespace Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
 
 /// <summary>
 /// Everything an admin does to prices and rates.

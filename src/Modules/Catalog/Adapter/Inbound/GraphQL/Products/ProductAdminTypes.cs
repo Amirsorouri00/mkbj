@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Catalog.QueryApplication.Products;
+using Mkbj.Modules.Catalog.QueryApplication.Products;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Products;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.Products;
 
 // Snowflake ids are 64-bit and exceed what a JSON number can carry exactly, so every one of them
 // is an ID (a string on the wire) rather than an Int.
@@ -31,6 +31,15 @@ public sealed class ProductAdminVariantType : ObjectType<ProductAdminVariantDto>
 {
     protected override void Configure(IObjectTypeDescriptor<ProductAdminVariantDto> descriptor)
         => descriptor.Field(variant => variant.Id).Type<NonNullType<IdType>>();
+}
+
+public sealed class ProductAdminVariantLookupType : ObjectType<ProductAdminVariantLookupDto>
+{
+    protected override void Configure(IObjectTypeDescriptor<ProductAdminVariantLookupDto> descriptor)
+    {
+        descriptor.Field(variant => variant.VariantId).Type<NonNullType<IdType>>();
+        descriptor.Field(variant => variant.ProductId).Type<NonNullType<IdType>>();
+    }
 }
 
 public sealed class ProductAdminIdentifierType : ObjectType<ProductAdminIdentifierDto>

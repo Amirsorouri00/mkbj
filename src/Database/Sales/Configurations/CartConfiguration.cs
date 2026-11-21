@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Sales.Application.Domain.Carts;
+using Mkbj.Modules.Sales.Application.Domain.Carts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EwaysVNext.Database.Sales.Configurations;
+namespace Mkbj.Database.Sales.Configurations;
 
 /// <summary>
 /// One cart per customer, with its lines.

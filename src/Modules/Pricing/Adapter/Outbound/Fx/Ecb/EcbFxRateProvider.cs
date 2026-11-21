@@ -1,11 +1,11 @@
 using System.Globalization;
 using System.Xml.Linq;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Outbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Outbound;
+using Mkbj.Outcomes;
 using Microsoft.Extensions.Logging;
 
-namespace EwaysVNext.Modules.Pricing.Adapter.Outbound.Fx.Ecb;
+namespace Mkbj.Modules.Pricing.Adapter.Outbound.Fx.Ecb;
 
 /// <summary>
 /// The European Central Bank's daily reference rates.

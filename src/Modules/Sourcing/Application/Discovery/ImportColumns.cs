@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Text.Json.Nodes;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Discovery;
+namespace Mkbj.Modules.Sourcing.Application.Discovery;
 
 /// <summary>
 /// The fields an uploaded file may map onto.
@@ -14,19 +14,28 @@ namespace EwaysVNext.Modules.Sourcing.Application.Discovery;
 /// </remarks>
 public static class ImportColumns
 {
+    public const string GroupKey = "group_key";
+    public const string Title = "title";
     public const string Name = "name";
     public const string Brand = "brand";
+    public const string CategoryPath = "category_path";
+    public const string ShortDescription = "short_description";
     public const string Description = "description";
     public const string Sku = "sku";
     public const string Gtin = "gtin";
+    public const string Upc = "upc";
+    public const string Ean = "ean";
     public const string Mpn = "mpn";
     public const string Price = "price";
     public const string Currency = "currency";
     public const string Category = "category";
     public const string ImageUrl = "image_url";
+    public const string ImageUrls = "image_urls";
     public const string SourceUrl = "source_url";
     public const string SourceDomain = "source_domain";
     public const string SourceId = "source_id";
+    public const string TaxIncluded = "tax_included";
+    public const string Availability = "availability";
 
     /// <summary>A column the uploader has said to ignore.</summary>
     public const string Ignore = "ignore";
@@ -36,13 +45,18 @@ public static class ImportColumns
 
     public static IReadOnlyList<string> All { get; } =
     [
-        Name, Brand, Description, Sku, Gtin, Mpn, Price, Currency, Category,
-        ImageUrl, SourceUrl, SourceDomain, SourceId,
+        GroupKey, Title, Brand, CategoryPath, ShortDescription, Description,
+        Gtin, Upc, Ean, Mpn, Sku, SourceUrl, SourceDomain, SourceId,
+        Price, Currency, TaxIncluded, Availability, ImageUrls,
     ];
+
+    public static IReadOnlyList<string> RequiredForPreview { get; } =
+        [Title, Brand, Price, Currency, ImageUrls];
 
     public static bool IsKnown(string field) =>
         field == Ignore
         || All.Contains(field, StringComparer.Ordinal)
+        || field is Name or Category or ImageUrl
         || field.StartsWith(AttributePrefix, StringComparison.Ordinal);
 }
 
@@ -83,6 +97,8 @@ public static class ImportRowMapper
         string? sourceId = null;
         string? price = null;
         string? currency = null;
+        string? taxIncluded = null;
+        string? availability = null;
 
         foreach (var (column, raw) in row)
         {
@@ -102,13 +118,27 @@ public static class ImportRowMapper
             {
                 case ImportColumns.Price: price = value; break;
                 case ImportColumns.Currency: currency = value.ToUpperInvariant(); break;
+                case ImportColumns.TaxIncluded: taxIncluded = value; break;
+                case ImportColumns.Availability: availability = value; break;
                 case ImportColumns.SourceUrl: sourceUrl = value; break;
                 case ImportColumns.SourceDomain: sourceDomain = value; break;
                 case ImportColumns.SourceId: sourceId = value; break;
 
                 // Several image columns are normal in a supplier's file; they accumulate in the
                 // order the columns appeared.
-                case ImportColumns.ImageUrl: images.Add(value); break;
+                case ImportColumns.ImageUrl:
+                case ImportColumns.ImageUrls:
+                    images.AddRange(value.Split('|', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries));
+                    break;
+
+                case ImportColumns.Title:
+                case ImportColumns.Name: document["name"] = value; break;
+                case ImportColumns.CategoryPath:
+                case ImportColumns.Category: document["category"] = value; break;
+                case ImportColumns.ShortDescription: document["disambiguatingDescription"] = value; break;
+                case ImportColumns.Upc: document["gtin12"] = value; break;
+                case ImportColumns.Ean: document["gtin13"] = value; break;
+                case ImportColumns.GroupKey: document["productGroupID"] = value; break;
 
                 default: document[field] = value; break;
             }
@@ -122,6 +152,8 @@ public static class ImportRowMapper
             {
                 ["price"] = price,
                 ["priceCurrency"] = currency,
+                ["valueAddedTaxIncluded"] = taxIncluded,
+                ["availability"] = availability,
             };
         }
 
@@ -142,7 +174,7 @@ public static class ImportRowMapper
 
     /// <summary>Where a reviewer looks to find this line in the uploaded file.</summary>
     public static string Urn(long jobId, int rowNumber) =>
-        $"urn:eways:import:{jobId.ToString(CultureInfo.InvariantCulture)}:row:"
+        $"urn:mkbj:import:{jobId.ToString(CultureInfo.InvariantCulture)}:row:"
         + rowNumber.ToString(CultureInfo.InvariantCulture);
 
     /// <remarks>

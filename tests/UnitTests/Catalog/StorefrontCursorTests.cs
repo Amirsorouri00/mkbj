@@ -1,8 +1,8 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Catalog.QueryApplication.Storefront;
+using Mkbj.Modules.Catalog.QueryApplication.Storefront;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 /// <summary>
 /// The paging cursor, which arrives from the internet and must never throw on the way in.

@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sourcing;
+namespace Mkbj.UnitTests.Sourcing;
 
 /// <summary>
 /// The import job's state machine, which is the part that has to survive a crash.

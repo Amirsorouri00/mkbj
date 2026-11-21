@@ -2,7 +2,7 @@ using System.Collections.Specialized;
 using System.Text;
 using System.Web;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Discovery;
+namespace Mkbj.Modules.Sourcing.Application.Discovery;
 
 /// <summary>
 /// The one spelling of a URL that two links to the same page agree on.

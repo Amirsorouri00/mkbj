@@ -1,4 +1,4 @@
-﻿namespace EwaysVNext.Modules.Pricing.Application.Bands;
+namespace Mkbj.Modules.Pricing.Application.Bands;
 
 /// <summary>
 /// The ±5% window a composed line's unit price must fall inside (PRD §4.2).

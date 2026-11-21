@@ -2,27 +2,27 @@ using System.Xml.Linq;
 using AwesomeAssertions;
 using Xunit;
 
-namespace EwaysVNext.ArchitectureTests;
+namespace Mkbj.ArchitectureTests;
 
 public sealed class CategoryArchitectureTests
 {
     private const string CatalogContractProject =
-        "EwaysVNext.Modules.Catalog.Contracts/EwaysVNext.Modules.Catalog.Contracts.csproj";
+        "Mkbj.Modules.Catalog.Contracts/Mkbj.Modules.Catalog.Contracts.csproj";
 
     [Fact]
     public void Catalog_contract_uses_the_canonical_plural_project_and_namespace()
     {
         var root = FindSolutionDirectory();
         var canonicalProject = Path.Combine(root,
-            "EwaysVNext.Modules.Catalog.Contracts",
-            "EwaysVNext.Modules.Catalog.Contracts.csproj");
+            "Mkbj.Modules.Catalog.Contracts",
+            "Mkbj.Modules.Catalog.Contracts.csproj");
 
         File.Exists(canonicalProject).Should().BeTrue();
-        File.Exists(Path.Combine(root, "EwaysVNext.Modules.Catalog.Contract",
-            "EwaysVNext.Modules.Catalog.Contracts.csproj"))
+        File.Exists(Path.Combine(root, "Mkbj.Modules.Catalog.Contract",
+            "Mkbj.Modules.Catalog.Contracts.csproj"))
             .Should().BeFalse();
         XDocument.Load(canonicalProject).Descendants("RootNamespace")
-            .Single().Value.Should().Be("EwaysVNext.Modules.Catalog.Contracts");
+            .Single().Value.Should().Be("Mkbj.Modules.Catalog.Contracts");
     }
 
     [Fact]
@@ -33,7 +33,7 @@ public sealed class CategoryArchitectureTests
         File.Exists(Path.Combine(root, "src", "Modules", "Catalog", "Application",
             "Categories", "Domain", "Category.cs")).Should().BeTrue();
         File.Exists(Path.Combine(root, "src", "Modules", "Category", "Application",
-            "EwaysVNext.Modules.Category.Application.csproj"))
+            "Mkbj.Modules.Category.Application.csproj"))
             .Should().BeFalse();
     }
 
@@ -45,7 +45,7 @@ public sealed class CategoryArchitectureTests
         File.Exists(Path.Combine(root, "src", "Modules", "Catalog", "Adapter", "Outbound",
             "Persistence", "Categories", "CategoryRepository.cs")).Should().BeTrue();
         File.Exists(Path.Combine(root, "src", "Modules", "Category", "Adapter", "Outbound",
-            "EwaysVNext.Modules.Category.Adapter.Outbound.csproj"))
+            "Mkbj.Modules.Category.Adapter.Outbound.csproj"))
             .Should().BeFalse();
     }
 
@@ -54,14 +54,14 @@ public sealed class CategoryArchitectureTests
     {
         var root = FindSolutionDirectory();
         var catalogApplication = ReadProject(
-            "src/Modules/Catalog/Application/EwaysVNext.Modules.Catalog.Application.csproj");
+            "src/Modules/Catalog/Application/Mkbj.Modules.Catalog.Application.csproj");
         var catalogQueries = ReadProject(
-            "src/Modules/Catalog/QueryApplication/EwaysVNext.Modules.Catalog.QueryApplication.csproj");
+            "src/Modules/Catalog/QueryApplication/Mkbj.Modules.Catalog.QueryApplication.csproj");
 
         File.Exists(Path.Combine(root, "src", "Modules", "Catalog", "QueryApplication",
             "Categories", "CategoryQueries.cs")).Should().BeTrue();
         File.Exists(Path.Combine(root, "src", "Modules", "Category", "QueryApplication",
-            "EwaysVNext.Modules.Category.QueryApplication.csproj")).Should().BeFalse();
+            "Mkbj.Modules.Category.QueryApplication.csproj")).Should().BeFalse();
         catalogApplication.Descendants("ProjectReference")
             .Should().NotContain(reference =>
                 reference.Attribute("Include")!.Value.Contains("QueryApplication"));
@@ -78,7 +78,7 @@ public sealed class CategoryArchitectureTests
         File.Exists(Path.Combine(root, "src", "Modules", "Catalog", "Adapter", "Inbound",
             "Rest", "Categories", "CategoryPublicEndpoints.cs")).Should().BeTrue();
         File.Exists(Path.Combine(root, "src", "Modules", "Category", "Adapter", "Inbound",
-            "Rest", "EwaysVNext.Modules.Category.Adapter.Inbound.Rest.csproj"))
+            "Rest", "Mkbj.Modules.Category.Adapter.Inbound.Rest.csproj"))
             .Should().BeFalse();
     }
 
@@ -87,7 +87,7 @@ public sealed class CategoryArchitectureTests
     {
         var root = FindSolutionDirectory();
         var catalogInstaller = ReadProject(
-            "src/Modules/Catalog/Installer/EwaysVNext.Modules.Catalog.Installer.csproj");
+            "src/Modules/Catalog/Installer/Mkbj.Modules.Catalog.Installer.csproj");
         var references = catalogInstaller.Descendants("ProjectReference")
             .Select(reference => reference.Attribute("Include")!.Value.Replace('\\', '/'));
 
@@ -134,11 +134,11 @@ public sealed class CategoryArchitectureTests
         sources.Should().NotContain(source => source.Text.Contains(
             "/api/v1/admin/category/graphql", StringComparison.Ordinal));
 
-        var hostSource = File.ReadAllText(Path.Combine(root, "src", "Host", "EwaysVNext.Host", "Program.cs"));
+        var hostSource = File.ReadAllText(Path.Combine(root, "src", "Host", "Mkbj.Host", "Program.cs"));
         hostSource.Should().NotContain("CategoryAdminQueries");
         hostSource.Should().NotContain("CategoryAdminMutations");
 
-        var hostProject = ReadProject("src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj");
+        var hostProject = ReadProject("src/Host/Mkbj.Host/Mkbj.Host.csproj");
         hostProject.Descendants("ProjectReference").Should().NotContain(reference =>
             reference.Attribute("Include")!.Value.Replace('\\', '/').EndsWith(
                 "Catalog.Adapter.Inbound.GraphQL.csproj", StringComparison.Ordinal));
@@ -155,7 +155,7 @@ public sealed class CategoryArchitectureTests
         var project = ReadProject(CatalogContractProject);
 
         project.Descendants("ProjectReference").Should().OnlyContain(
-            reference => reference.Attribute("Include")!.Value.EndsWith("EwaysVNext.Domain.csproj", StringComparison.Ordinal),
+            reference => reference.Attribute("Include")!.Value.EndsWith("Mkbj.Domain.csproj", StringComparison.Ordinal),
             "the Catalog contract may depend on the dependency-free Domain building block (for SnowflakeId), nothing else");
         project.Descendants("PackageReference").Should().BeEmpty();
         project.Descendants("FrameworkReference").Should().BeEmpty();
@@ -168,13 +168,13 @@ public sealed class CategoryArchitectureTests
         var contract = ReadProject(CatalogContractProject);
 
         contract.Descendants("ProjectReference").Should().OnlyContain(
-            reference => reference.Attribute("Include")!.Value.EndsWith("EwaysVNext.Domain.csproj", StringComparison.Ordinal),
+            reference => reference.Attribute("Include")!.Value.EndsWith("Mkbj.Domain.csproj", StringComparison.Ordinal),
             "the Catalog contract may depend on the dependency-free Domain building block (for SnowflakeId), nothing else");
         contract.Descendants("PackageReference").Should().BeEmpty();
-        File.Exists(Path.Combine(root, "EwaysVNext.Modules.Catalog.Contracts",
+        File.Exists(Path.Combine(root, "Mkbj.Modules.Catalog.Contracts",
             "Categories", "CategoryDtos.cs")).Should().BeTrue();
-        File.Exists(Path.Combine(root, "EwaysVNext.Modules.Category.Contracts",
-            "EwaysVNext.Modules.Category.Contracts.csproj"))
+        File.Exists(Path.Combine(root, "Mkbj.Modules.Category.Contracts",
+            "Mkbj.Modules.Category.Contracts.csproj"))
             .Should().BeFalse();
     }
 
@@ -191,12 +191,12 @@ public sealed class CategoryArchitectureTests
     {
         var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "EwaysVNext.slnx")))
+        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "Mkbj.slnx")))
         {
             directory = directory.Parent;
         }
 
         return directory?.FullName
-            ?? throw new DirectoryNotFoundException("Could not locate the EwaysVNext solution directory.");
+            ?? throw new DirectoryNotFoundException("Could not locate the Mkbj solution directory.");
     }
 }

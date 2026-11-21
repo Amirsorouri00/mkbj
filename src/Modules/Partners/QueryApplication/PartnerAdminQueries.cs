@@ -1,11 +1,11 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Partners.Application.Partners.Domain;
-using EwaysVNext.Modules.Partners.Application.Usage;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Database;
+using Mkbj.Modules.Partners.Application.Partners.Domain;
+using Mkbj.Modules.Partners.Application.Usage;
+using Mkbj.Outcomes;
+using Mkbj.Queries.Application.Paginations;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Partners.QueryApplication;
+namespace Mkbj.Modules.Partners.QueryApplication;
 
 public interface IPartnerAdminQueries
 {
@@ -22,7 +22,7 @@ public interface IPartnerAdminQueries
         long partnerId, DateTimeOffset? from, DateTimeOffset? to, int page, int pageSize, CancellationToken ct = default);
 }
 
-public sealed class PartnerAdminQueries(EwaysVNextDbContext db) : IPartnerAdminQueries
+public sealed class PartnerAdminQueries(MkbjDbContext db) : IPartnerAdminQueries
 {
     public const int MaxPageSize = 100;
 

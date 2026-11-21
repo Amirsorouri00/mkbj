@@ -1,6 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
-namespace EwaysVNext.Jobs;
+namespace Mkbj.Jobs;
 
 [SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix",
     Justification = "It is a queue. CA1711 guards against 'Queue' implying System.Collections.Queue; " +

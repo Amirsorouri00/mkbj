@@ -2,13 +2,13 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Database;
+using Mkbj.Database;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sales;
+namespace Mkbj.IntegrationTests.Sales;
 
 /// <summary>
 /// Acceptance 14: a hundred orders in one call, each standing or falling on its own.
@@ -183,7 +183,7 @@ public sealed class PartnerBulkAcceptanceTests(PostgresFixture fixture)
     {
         using var scope = factory.Services.CreateScope();
 
-        return await scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>()
+        return await scope.ServiceProvider.GetRequiredService<MkbjDbContext>()
             .Orders.CountAsync(o => o.ExternalOrderId!.StartsWith(batch), Ct);
     }
 

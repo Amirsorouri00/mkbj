@@ -84,7 +84,7 @@ KC_BOOTSTRAP_ADMIN_USERNAME=admin
 KC_DB_PASSWORD=$(generate)
 KC_SHOP_WEB_ORIGIN=http://127.0.0.1:18080
 KC_SMTP_FROM=smoke@example.invalid
-KC_SMTP_FROM_DISPLAY_NAME=Eways Smoke
+KC_SMTP_FROM_DISPLAY_NAME=MKBJ Smoke
 KC_SMTP_HOST=mailpit
 KC_SMTP_PASSWORD=
 KC_SMTP_PORT=1025
@@ -124,7 +124,7 @@ if [[ ${ready} -ne 1 ]]; then
 fi
 
 printf '\nSeeding the demo catalogue...\n'
-compose run --rm --entrypoint dotnet api EwaysVNext.Host.dll --seed
+compose run --rm --entrypoint dotnet api Mkbj.Host.dll --seed
 
 # --- What a release has to get right ---------------------------------------------------------
 
@@ -192,7 +192,7 @@ app_role_cannot_create_tables() {
   # correctly locked-down database: the most misleading way for a security check to be wrong,
   # because the obvious reading is that the grants are missing.
   refusal="$(compose exec -T -e "PGPASSWORD=${password}" postgres \
-    psql -U eways_app -d eways -c 'CREATE TABLE smoke_should_fail (id int);' 2>&1 || true)"
+    psql -U mkbj_app -d mkbj -c 'CREATE TABLE smoke_should_fail (id int);' 2>&1 || true)"
 
   grep -qi 'permission denied' <<<"${refusal}"
 }

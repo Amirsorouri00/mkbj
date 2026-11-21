@@ -11,19 +11,19 @@ using AuthorizationService.Application.UserRoleScopes;
 using AuthorizationService.Application.UserRoleScopes.Responses;
 using AuthorizationService.Endpoints;
 using AwesomeAssertions;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Core.Application.Security;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Outcomes;
+using Mkbj.Core.Application.Security;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate;
 using HotChocolate.Execution;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using Xunit;
-using Error = EwaysVNext.Outcomes.Error;
+using Error = Mkbj.Outcomes.Error;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public class AuthorizationGraphQLMutationTests
 {
@@ -60,7 +60,7 @@ public class AuthorizationGraphQLMutationTests
         services.AddSingleton<IHttpContextAccessor>(new HttpContextAccessor { HttpContext = new DefaultHttpContext { User = caller } });
         // The resolvers carry [Authorize(Policy = ...)], so the policies have to exist here or
         // every mutation fails as "policy not found" rather than as refused.
-        services.AddAuthorization(options => options.AddEwaysAuthorizationPolicies());
+        services.AddAuthorization(options => options.AddMkbjAuthorizationPolicies());
         services.AddAuthorizationGraphQL();
 
         var executor = await services.BuildServiceProvider().GetRequestExecutorAsync();
@@ -78,8 +78,8 @@ public class AuthorizationGraphQLMutationTests
     private static ClaimsPrincipal SignedIn() =>
         new(new ClaimsIdentity(
             [
-                new Claim(EwaysClaimTypes.Subject, UserId.ToString()),
-                new Claim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm),
+                new Claim(MkbjClaimTypes.Subject, UserId.ToString()),
+                new Claim(MkbjClaimTypes.Tenant, AdminRoles.BackofficeRealm),
                 new Claim(ClaimTypes.Role, AdminRoles.SuperAdmin),
             ],
             authenticationType: "Test"));
@@ -88,8 +88,8 @@ public class AuthorizationGraphQLMutationTests
     private static ClaimsPrincipal SignedInCustomer() =>
         new(new ClaimsIdentity(
             [
-                new Claim(EwaysClaimTypes.Subject, UserId.ToString()),
-                new Claim(EwaysClaimTypes.Tenant, AdminRoles.ShopRealm),
+                new Claim(MkbjClaimTypes.Subject, UserId.ToString()),
+                new Claim(MkbjClaimTypes.Tenant, AdminRoles.ShopRealm),
             ],
             authenticationType: "Test"));
 
@@ -169,7 +169,7 @@ public class AuthorizationGraphQLMutationTests
         // has a sub; the guard is defence in depth for the day one does not.
         var withoutUserId = new ClaimsPrincipal(new ClaimsIdentity(
             [
-                new Claim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm),
+                new Claim(MkbjClaimTypes.Tenant, AdminRoles.BackofficeRealm),
                 new Claim(ClaimTypes.Role, AdminRoles.SuperAdmin),
             ],
             authenticationType: "Test"));

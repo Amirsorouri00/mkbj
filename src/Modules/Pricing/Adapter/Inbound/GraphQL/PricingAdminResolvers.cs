@@ -3,18 +3,18 @@ using System.Security.Claims;
 
 using AuthorizationService.Abstractions.Attributes;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.QueryApplication;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
-using EwaysVNext.Presentation.Endpoint.Money;
-using EwaysVNext.Presentation.Endpoint.Security;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Modules.Pricing.QueryApplication;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.Money;
+using Mkbj.Presentation.Endpoint.Security;
+using Mkbj.Queries.Application.Paginations;
 using HotChocolate.Authorization;
 
-namespace EwaysVNext.Modules.Pricing.Adapter.Inbound.GraphQL;
+namespace Mkbj.Modules.Pricing.Adapter.Inbound.GraphQL;
 
 /// <remarks>
 /// Amounts and rates are strings here too. GraphQL has no decimal scalar, so a Float would make
@@ -161,7 +161,7 @@ public sealed class PricingAdminGraphQLMutations
     {
         if (!MoneyText.TryParseMinor(amount, out var minor))
         {
-            throw new EwaysVNext.Outcomes.Error("VALIDATION_FAILED",
+            throw new Mkbj.Outcomes.Error("VALIDATION_FAILED",
                     $"'{amount}' is not an amount. Use exactly two decimal places, for example \"100.00\".")
                 .ToGraphQLException();
         }
@@ -177,7 +177,7 @@ public sealed class PricingAdminGraphQLMutations
             || parsed <= 0
             || decimal.Round(parsed, MaxRateDecimals) != parsed)
         {
-            throw new EwaysVNext.Outcomes.Error("VALIDATION_FAILED",
+            throw new Mkbj.Outcomes.Error("VALIDATION_FAILED",
                     $"'{text}' is not a rate. Use a positive decimal with at most 10 places.")
                 .ToGraphQLException();
         }

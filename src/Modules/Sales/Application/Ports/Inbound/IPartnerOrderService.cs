@@ -1,8 +1,8 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sales.Application.Ports.Inbound;
+namespace Mkbj.Modules.Sales.Application.Ports.Inbound;
 
 /// <summary>
 /// One partner order request: an amount, not a basket.
@@ -18,7 +18,11 @@ public sealed record CreatePartnerOrderCommand(
     string ExternalCustomerId,
     long AmountMinor,
     string Currency,
-    PartnerContact? Contact);
+    PartnerContact? Contact)
+{
+    // Set by the authenticated transport, never bound from a partner's JSON.
+    public DateTimeOffset? ReceivedAt { get; init; }
+}
 
 /// <remarks>
 /// <c>Replayed</c> distinguishes "we made this now" from "you already had this", which a partner

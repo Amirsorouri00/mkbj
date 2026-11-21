@@ -1,12 +1,12 @@
 using System.Text.Json;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
-using EwaysVNext.Modules.Sales.QueryApplication.Partner;
-using EwaysVNext.Outcomes;
+using Mkbj.Database;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Modules.Sales.QueryApplication.Partner;
+using Mkbj.Outcomes;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Sales.QueryApplication.Admin;
+namespace Mkbj.Modules.Sales.QueryApplication.Admin;
 
 /// <summary>
 /// Everything the backoffice reads about orders. <b>These names are fixed</b> — phase 6 composes
@@ -36,7 +36,7 @@ public interface ISalesAdminQueries
 /// surface. The gate is at the endpoint — twice, by realm policy and permission — rather than in
 /// the query, because there is no narrower set that would still answer the question.
 /// </remarks>
-internal sealed class SalesAdminQueries(EwaysVNextDbContext db) : ISalesAdminQueries
+internal sealed class SalesAdminQueries(MkbjDbContext db) : ISalesAdminQueries
 {
     private const int MaxPageSize = 200;
     private const int MaxRecentFailures = 20;

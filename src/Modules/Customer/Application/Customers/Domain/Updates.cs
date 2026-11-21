@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.ValueObjects;
+using Mkbj.Domain.ValueObjects;
 
-namespace EwaysVNext.Modules.Customer.Application.Customers.Domain;
+namespace Mkbj.Modules.Customer.Application.Customers.Domain;
 
 /// <summary>
 /// Contact details a partner is sending. <b>Null means omitted, not cleared.</b> A partner that

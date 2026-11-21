@@ -2,7 +2,7 @@ using System.Net;
 using HotChocolate.AspNetCore.Formatters;
 using HotChocolate.Execution;
 
-namespace EwaysVNext.Presentation.Endpoint.GraphQL;
+namespace Mkbj.Presentation.Endpoint.GraphQL;
 
 public sealed class GraphQLHttpResponseFormatter : DefaultHttpResponseFormatter
 {

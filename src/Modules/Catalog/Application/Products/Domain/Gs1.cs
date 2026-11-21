@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Catalog.Application.Products.Domain;
+namespace Mkbj.Modules.Catalog.Application.Products.Domain;
 
 /// <summary>
 /// GS1 check-digit arithmetic, shared by every numeric identifier type.

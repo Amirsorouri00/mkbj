@@ -56,11 +56,11 @@ named in brackets.
    abstractions, `*.Implementation` = EF/S3 code), mirroring `BuildingBlocks/{Core,Events,Queries}`.
    The master plan names one project each; one project would drag EF Core into every Application
    layer through `Core.Application → AuditActor`. Public type names and namespaces
-   (`EwaysVNext.Storage`, `EwaysVNext.Jobs`, `EwaysVNext.Audit`) are exactly the contract's.
+   (`Mkbj.Storage`, `Mkbj.Jobs`, `Mkbj.Audit`) are exactly the contract's.
 7. **Jobs and Audit reach the DbContext as `DbContext`.** `AddUnifiedDatabase` registers
-   `services.AddScoped<DbContext>(sp => sp.GetRequiredService<EwaysVNextDbContext>())`, so
+   `services.AddScoped<DbContext>(sp => sp.GetRequiredService<MkbjDbContext>())`, so
    `AddJobs(IConfiguration)` keeps the contract's exact signature with no reference to
-   `EwaysVNext.Database` (which would be a cycle).
+   `Mkbj.Database` (which would be a cycle).
 8. **Docker ignore file is `build/docker/api.Dockerfile.dockerignore`**, not `build/docker/.dockerignore`.
    The build context is the repository root, and BuildKit only honours an ignore file next to the
    Dockerfile when it is named `<Dockerfile>.dockerignore`.
@@ -77,7 +77,7 @@ named in brackets.
 ### Additions to the cross-phase contracts (phase 0 produces these exactly)
 
 ```csharp
-// EwaysVNext.Persistence
+// Mkbj.Persistence
 public interface IUnitOfWork {                       // extended
   Task<int> SaveChangesAsync(CancellationToken ct = default);
   int SaveChanges();
@@ -87,26 +87,26 @@ public enum SaveOutcome { Saved, UniqueViolation, ConcurrencyConflict }
 public sealed class MinorUnitsConverter : ValueConverter<decimal, long> { }   // uses MinorUnits
 public static class TransientFailure { public static bool Is(Exception exception); }
 
-// EwaysVNext.Database
+// Mkbj.Database
 public static class DatabaseMigrator { public static Task MigrateAsync(IServiceProvider services, CancellationToken ct = default); }
 
-// EwaysVNext.Core.Application
+// Mkbj.Core.Application
 public interface ICorrelationContext { string CorrelationId { get; } }
 public interface IDataSeeder { int Order { get; } Task SeedAsync(CancellationToken ct = default); }
 public static class PartnerScopes { /* the five constants */ public static IReadOnlySet<string> All { get; } }
 
-// EwaysVNext.Outcomes
+// Mkbj.Outcomes
 public sealed record Error(string Code, string Message, int HttpStatus, bool Retryable = false) {
   public static readonly Error RateLimited;        // RATE_LIMITED, 429, retryable
   public static readonly Error ServiceUnavailable; // SERVICE_UNAVAILABLE, 503, retryable (transient DB errors)
 }
 
-// EwaysVNext.Presentation.Endpoint
+// Mkbj.Presentation.Endpoint
 public sealed record ErrorResponse(string Code, string Message, bool Retryable, string CorrelationId, object? Details = null, object? Items = null);
 public static class CorrelationHeaders { public const string Name = "X-Correlation-Id"; }
 public static IResult EndpointResult.Fail(Error error, object? details = null, object? items = null); // now public
 
-// EwaysVNext.Jobs
+// Mkbj.Jobs
 public sealed record EmptyPayload;               // payload of every recurring job
 public abstract record JobOutcome {
   public static JobOutcome Completed { get; }
@@ -118,7 +118,7 @@ public abstract record JobOutcome {
 }
 public sealed class JobLeaseLostException : Exception;   // thrown by JobContext.HeartbeatAsync when the lease was lost
 
-// EwaysVNext.Audit
+// Mkbj.Audit
 public interface IAuditVerifier { Task<AuditVerificationResult> VerifyAsync(CancellationToken ct = default); }
 public sealed record AuditVerificationResult(bool Intact, long SealedCount, long? FirstMismatchEventId, long UnsealedBelowWatermark);
 
@@ -136,12 +136,12 @@ public sealed record AuditVerificationResult(bool Intact, long SealedCount, long
 | `src/Modules/Customer/**` (all `.cs` except Installer/ModuleInstaller.cs) | Delete | Customer becomes a shell for phase 1 |
 | `src/Database/{Customer,Location}/**`, `src/Database/Catalog/Configurations/ProductReservationConfiguration.cs` | Delete | Configurations of removed entities |
 | `src/Database/Migrations/**`, `src/Authorization/Authorization.Implementation/Persistence/Migrations/**` | Delete, then regenerate `init` | Fresh Postgres history |
-| `src/Host/EwaysVNext.Host/ModuleAppSetting/{Customer,Notification,Payment}` | Delete | Settings of removed modules |
+| `src/Host/Mkbj.Host/ModuleAppSetting/{Customer,Notification,Payment}` | Delete | Settings of removed modules |
 | `src/Modules/Catalog/Application/Products/**`, `.../Adapter/Outbound/Persistence/Products/ReservationExpirationService.cs` | Modify / Delete | No stock, no reservations, no reaper |
 | `src/BuildingBlocks/Persistence/{ITransactionExecutor,EfCoreTransactionExecutor}.cs` | Delete | Rule 8 |
 | `src/BuildingBlocks/Persistence/{IUnitOfWork,EfCoreUnitOfWork,MinorUnits,MinorUnitsConverter,TransientFailure}.cs` | Modify / Create | Save result mapping, money edge, transient detection |
 | `src/BuildingBlocks/Domain/Common/Entity.cs` | Modify | `uint RowVersion` |
-| `src/Database/{EwaysVNextDbContext,PersistenceDependencyInjection,EwaysVNextDbContextDesignTimeFactory,DatabaseMigrator}.cs` | Modify / Create | Npgsql, naming, xmin, schemas, extensions, migrate + scripts |
+| `src/Database/{MkbjDbContext,PersistenceDependencyInjection,MkbjDbContextDesignTimeFactory,DatabaseMigrator}.cs` | Modify / Create | Npgsql, naming, xmin, schemas, extensions, migrate + scripts |
 | `src/Database/{Jobs,Audit}/Configurations/*.cs`, `src/Database/Scripts/010-audit-append-only.sql` | Create | Table mappings, grants |
 | `src/Authorization/Authorization.Implementation/{DependencyInjection.cs,Persistence/AuthorizationDbContextDesignTimeFactory.cs}` | Modify | Npgsql |
 | `src/BuildingBlocks/Storage/{Application,Implementation}/` | Create | `IObjectStorage`, S3/MinIO adapter |
@@ -151,7 +151,7 @@ public sealed record AuditVerificationResult(bool Intact, long SealedCount, long
 | `src/BuildingBlocks/Core/Implementation/CorrelationContext.cs` | Create | Scoped mutable correlation id |
 | `src/BuildingBlocks/Outcomes/Result.cs` | Modify | `Retryable`, new presets, `VALIDATION_FAILED` |
 | `src/BuildingBlocks/Presentation.Endpoint/{EndpointResult,ErrorResponse,CorrelationIdMiddleware,CorrelationHeaders}.cs`, `GraphQL/GraphQLErrorFilter.cs` | Modify / Create | Error body and correlation |
-| `src/Host/EwaysVNext.Host/{Program,HostCommands,Probe}.cs`, `Middleware/GlobalExceptionHandlerMiddleware.cs`, `appsettings*.json` | Modify / Create | Registrations, command flags, error body |
+| `src/Host/Mkbj.Host/{Program,HostCommands,Probe}.cs`, `Middleware/GlobalExceptionHandlerMiddleware.cs`, `appsettings*.json` | Modify / Create | Registrations, command flags, error body |
 | `tests/ArchitectureTests/{HexagonalBoundaryTests,BuildDirectoryTests,DocumentationTests}.cs` | Create | Executable architecture rules |
 | `tests/PersistenceContractTests/**` | Create | Model contract on Npgsql + InMemory |
 | `tests/IntegrationTests/PostgresFixture.cs` (replaces `LocalDbFixture.cs`), `Platform/**`, `Host/**` | Create | Testcontainers Postgres + MinIO and platform tests |
@@ -159,7 +159,7 @@ public sealed record AuditVerificationResult(bool Intact, long SealedCount, long
 | `build/compose/{docker-compose.yml,docker-compose.dev.yml,.env.example,ci.env,caddy/Caddyfile}` | Create | Stack definitions |
 | `build/keycloak/{shop-realm.json,backoffice-realm.json}`, `build/postgres/init/01-roles.sql` | Create | Realm stubs, DB roles |
 | `Dockerfile`, `Dockerfile.ci`, `docker-compose.yml`, `.dockerignore`, `.dockerignore.ci`, `.env.example` (root) | Delete | Moved into `build/` |
-| `.github/workflows/ci.yml`, `EwaysVNext.slnx` | Modify | New projects, Docker build step |
+| `.github/workflows/ci.yml`, `Mkbj.slnx` | Modify | New projects, Docker build step |
 | `docs/adr/0016…0022`, `0015`, `0010`, `AGENTS.md`, `docs/{ONBOARDING,TESTING-GUARANTEES,DDD-GUIDELINES}.md`, `README.md`, `docs/ADDING-CUSTOMER-PAYMENT-MODULES.md` | Create / Modify / Delete | Docs match code |
 | `docs/reports/phase-0.md` | Create | Phase report |
 
@@ -179,12 +179,12 @@ public sealed record AuditVerificationResult(bool Intact, long SealedCount, long
   git status --short | grep -E '(^|/)(bin|obj)/|\.env$|\.user$' || echo CLEAN
   ```
   Expected: `CLEAN`.
-- [ ] **Step 3: Baseline build and test record.** Run `dotnet build EwaysVNext.slnx` and
-  `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj`. Note the pass
+- [ ] **Step 3: Baseline build and test record.** Run `dotnet build Mkbj.slnx` and
+  `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj`. Note the pass
   counts in the commit body (the integration suite needs LocalDB and may be skipped here).
 - [ ] **Step 4: Commit.**
   ```bash
-  git commit -m "chore: baseline of the EwaysVNext template before the MVP platform phase" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+  git commit -m "chore: baseline of the MKBJ template before the MVP platform phase" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
   ```
 
 ---
@@ -194,21 +194,21 @@ public sealed record AuditVerificationResult(bool Intact, long SealedCount, long
 **Files:**
 - Delete: `src/Modules/Payment/` (includes `Tests/`), `src/Modules/Location/`, `src/Modules/Notification/`,
   `tests/PaymentTests/`, `src/Database/Customer/`, `src/Database/Location/`,
-  `src/Host/EwaysVNext.Host/ModuleAppSetting/{Customer,Notification,Payment}/`,
+  `src/Host/Mkbj.Host/ModuleAppSetting/{Customer,Notification,Payment}/`,
   `tests/IntegrationTests/CustomerAddresses/`, `docs/ADDING-CUSTOMER-PAYMENT-MODULES.md`,
   every `.cs` under `src/Modules/Customer/` except `Installer/ModuleInstaller.cs`.
 - Delete (unit tests of removed code): `tests/UnitTests/{CompanyVerificationServiceTests,CustomerAddressTests,CustomerAdminListGraphQLSchemaTests,CustomerAdminListQueryTests,CustomerAdminUpdateTests,CustomerDomainTests,CustomerMutationsGraphQLSchemaTests,CustomerRegistrationReviewGraphQLSchemaTests,CustomerRegistrationReviewQueryTests,CustomerServiceTests,CustomerSnowflakeIdSchemaTests,CustomerVerificationDomainTests,LegalInformationDomainTests,LegalInformationMutationsGraphQLSchemaTests,LegalInformationServiceTests,LocationGraphQLSchemaTests,LocationQueriesTests,NotificationServiceTests,TeamMemberDomainTests}.cs`.
-- Modify: `EwaysVNext.slnx`, `src/Database/EwaysVNext.Database.csproj`, `src/Database/EwaysVNextDbContext.cs`,
-  `src/Host/EwaysVNext.Host/{EwaysVNext.Host.csproj,Program.cs}`,
-  `src/Modules/Customer/Application/EwaysVNext.Modules.Customer.Application.csproj`,
-  `src/Modules/Customer/Installer/ModuleInstaller.cs`, `tests/UnitTests/EwaysVNext.UnitTests.csproj`.
+- Modify: `Mkbj.slnx`, `src/Database/Mkbj.Database.csproj`, `src/Database/MkbjDbContext.cs`,
+  `src/Host/Mkbj.Host/{Mkbj.Host.csproj,Program.cs}`,
+  `src/Modules/Customer/Application/Mkbj.Modules.Customer.Application.csproj`,
+  `src/Modules/Customer/Installer/ModuleInstaller.cs`, `tests/UnitTests/Mkbj.UnitTests.csproj`.
 - Create: `tests/ArchitectureTests/HexagonalBoundaryTests.cs`, `docs/adr/0022-remove-iran-specific-modules.md`.
 
 **Interfaces:**
 - Produces: `public static IServiceCollection AddCustomerModule(this IServiceCollection services, IConfiguration configuration)` (no-op, XML doc "rebuilt in phase 1"); `HexagonalBoundaryTests.ModuleNames`.
 
 - [ ] **Step 1: Write the failing test** in `tests/ArchitectureTests/HexagonalBoundaryTests.cs`
-  (namespace `EwaysVNext.ArchitectureTests`, reuse the `FindSolutionDirectory` walk-up from
+  (namespace `Mkbj.ArchitectureTests`, reuse the `FindSolutionDirectory` walk-up from
   `CategoryArchitectureTests`):
   ```csharp
   public sealed class HexagonalBoundaryTests
@@ -224,19 +224,19 @@ public sealed record AuditVerificationResult(bool Intact, long SealedCount, long
   }
   ```
 - [ ] **Step 2: Run, expect FAIL** (Location, Notification, Payment present):
-  `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter-class "*.HexagonalBoundaryTests"`
+  `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter-class "*.HexagonalBoundaryTests"`
 - [ ] **Step 3: Delete** every path listed under *Delete*; remove their `<Project>`/`<Folder>`
-  entries from `EwaysVNext.slnx` (Payment, Notification, Location, PaymentTests, Payment GatewayTests).
+  entries from `Mkbj.slnx` (Payment, Notification, Location, PaymentTests, Payment GatewayTests).
 - [ ] **Step 4: Rewire.**
-  - `EwaysVNext.Database.csproj`: drop the Location and Notification project references.
-  - `EwaysVNextDbContext.cs`: drop the `Customers`, `TeamMembers`, `Provinces`, `Addresses` DbSets.
+  - `Mkbj.Database.csproj`: drop the Location and Notification project references.
+  - `MkbjDbContext.cs`: drop the `Customers`, `TeamMembers`, `Provinces`, `Addresses` DbSets.
   - `Customer.Application.csproj`: drop the `Location.Contracts` reference.
   - `ModuleInstaller.cs` (Customer): body `=> services;`.
   - Host csproj: drop the Payment, Notification, Location installer references. `Program.cs`:
     `AddModuleConfiguration(["catalog"], …)`; module chain becomes
     `.AddCatalogModule().AddCustomerModule(builder.Configuration)`; drop the removed `using`s.
   - `UnitTests.csproj`: drop the Location and Notification references.
-- [ ] **Step 5: Build until clean.** `dotnet build EwaysVNext.slnx`. For each remaining compile
+- [ ] **Step 5: Build until clean.** `dotnet build Mkbj.slnx`. For each remaining compile
   error in `tests/` that names a deleted namespace, delete only the test cases that exercise deleted
   code (e.g. Customer/Location registrations in `GraphQLBootstrapTests`,
   `CategoryProductionCompositionTests`). Do not touch Catalog behaviour.
@@ -244,7 +244,7 @@ public sealed record AuditVerificationResult(bool Intact, long SealedCount, long
   2026-10-28, Context, Decision = spec §3.2 table verbatim in substance, Consequences: Customer
   shell until phase 1, ADR-0015 superseded by ADR-0018, no data migration).
 - [ ] **Step 7: Run, expect PASS:** the Step 2 command, then
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj`.
 - [ ] **Step 8: Commit.**
   ```bash
   git add -A
@@ -285,7 +285,7 @@ public sealed record AuditVerificationResult(bool Intact, long SealedCount, long
       services.Should().NotContain(d => d.ServiceType == typeof(IHostedService));
   }
   ```
-- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.ProductShapeTests"`
+- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.ProductShapeTests"`
 - [ ] **Step 3: Implement.** Delete the files; remove `Stock`, `ReservedStock`, `AvailableStock`,
   `_reservations`, `AdjustStock`, `ReserveStock`, `ReleaseReservation`, `CommitReservation`,
   `RevertCommitment`, `ReleaseExpiredReservations`, `PruneCommittedReservations` and their events and
@@ -301,16 +301,16 @@ public sealed record AuditVerificationResult(bool Intact, long SealedCount, long
 
 **Files:** Modify: `tests/ArchitectureTests/HexagonalBoundaryTests.cs`.
 **Interfaces:** Produces `HexagonalBoundaryTests.SanctionedReferences` (`TheoryData<string,string>`, rows
-`(consumerModule, providerModule)` meaning `EwaysVNext.Modules.{consumer}.Adapter.Outbound` may reference
-`EwaysVNext.Modules.{provider}.Application`). Phase 0 has **no rows**; each later phase adds its row in
+`(consumerModule, providerModule)` meaning `Mkbj.Modules.{consumer}.Adapter.Outbound` may reference
+`Mkbj.Modules.{provider}.Application`). Phase 0 has **no rows**; each later phase adds its row in
 the task that introduces the reference. The final rows are (spec §3.6): `(Sales,Catalog)`,
 `(Sales,Pricing)`, `(Sales,Customer)`, `(Sales,Settings)`, `(Pricing,Catalog)`, `(Pricing,Settings)`,
 `(Sourcing,Catalog)`, `(Sourcing,Pricing)`. Later phases add rows as `{ "Consumer", "Provider" }`
-entries in `SanctionedReferences`, never as `[InlineData]`. Admin is handled by a built-in rule: `EwaysVNext.Modules.Admin.Adapter.Outbound`
+entries in `SanctionedReferences`, never as `[InlineData]`. Admin is handled by a built-in rule: `Mkbj.Modules.Admin.Adapter.Outbound`
 may reference any other module's `QueryApplication` or `Application`.
 
 - [ ] **Step 1: Write the failing tests** (module assemblies are found as
-  `EwaysVNext.Modules.{module}.*.dll` in `AppContext.BaseDirectory`; references are read with
+  `Mkbj.Modules.{module}.*.dll` in `AppContext.BaseDirectory`; references are read with
   `Assembly.GetReferencedAssemblies()`):
   ```csharp
   public static TheoryData<string> Modules => new(ModuleNames);
@@ -331,13 +331,13 @@ may reference any other module's `QueryApplication` or `Application`.
 
   [Theory, MemberData(nameof(Modules))]
   public void Application_Depends_On_No_Adapter_And_No_EfCore(string module) =>
-      Types.InAssembly(Load($"EwaysVNext.Modules.{module}.Application")).ShouldNot()
-          .HaveDependencyOnAny($"EwaysVNext.Modules.{module}.Adapter", "Microsoft.EntityFrameworkCore")
+      Types.InAssembly(Load($"Mkbj.Modules.{module}.Application")).ShouldNot()
+          .HaveDependencyOnAny($"Mkbj.Modules.{module}.Adapter", "Microsoft.EntityFrameworkCore")
           .GetResult().IsSuccessful.Should().BeTrue();
 
   [Theory, MemberData(nameof(Modules))]
   public void Application_Services_Are_Sealed(string module) =>
-      Types.InAssembly(Load($"EwaysVNext.Modules.{module}.Application")).That().AreClasses()
+      Types.InAssembly(Load($"Mkbj.Modules.{module}.Application")).That().AreClasses()
           .And().AreNotAbstract().And().HaveNameEndingWith("Service")
           .Should().BeSealed().GetResult().IsSuccessful.Should().BeTrue();
 
@@ -354,13 +354,13 @@ may reference any other module's `QueryApplication` or `Application`.
           .Where(f => File.ReadAllText(f).Contains("Wolverine")).Should().BeEmpty();
   ```
   `ForbiddenCrossModuleReferences(module)` returns `"{assembly} -> {reference}"` for every reference
-  to `EwaysVNext.Modules.{other}.*` (`other != module`) that is not (a) `{module}.Adapter.Outbound →
+  to `Mkbj.Modules.{other}.*` (`other != module`) that is not (a) `{module}.Adapter.Outbound →
   {other}.Application` with `(module, other)` in `SanctionedReferences`, or (b) `module == "Admin"`,
   assembly `Admin.Adapter.Outbound`, target `.QueryApplication` or `.Application`.
 - [ ] **Step 2: Mutation check, expect FAIL.** Temporarily add
-  `<ProjectReference Include="..\..\..\Customer\Application\EwaysVNext.Modules.Customer.Application.csproj" />`
+  `<ProjectReference Include="..\..\..\Customer\Application\Mkbj.Modules.Customer.Application.csproj" />`
   to the Catalog Adapter.Outbound csproj and use one Customer type there; run
-  `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter-class "*.HexagonalBoundaryTests"`.
+  `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter-class "*.HexagonalBoundaryTests"`.
   Expected: `Module_References_No_Other_Module_Unless_Sanctioned(Catalog)` fails. Revert.
 - [ ] **Step 3: Make it pass.** If `Application_Depends_On_No_Adapter_And_No_EfCore(Catalog)` or
   `Application_Services_Are_Sealed(Catalog)` fails on existing code, fix the code (seal the class;
@@ -378,38 +378,38 @@ may reference any other module's `QueryApplication` or `Application`.
   `Microsoft.Data.SqlClient`; add `Npgsql.EntityFrameworkCore.PostgreSQL`, `EFCore.NamingConventions`,
   `Testcontainers.PostgreSql`, `Testcontainers.Minio`, `AWSSDK.S3` — each at the latest stable version
   the configured feed returns for `dotnet package search <id> --exact-match`, `10.0.x` for the two EF
-  packages), `src/BuildingBlocks/Persistence/EwaysVNext.Persistence.csproj`,
-  `src/Database/EwaysVNext.Database.csproj`, `src/Modules/{Catalog,Customer}/Adapter/Outbound/*.csproj`,
+  packages), `src/BuildingBlocks/Persistence/Mkbj.Persistence.csproj`,
+  `src/Database/Mkbj.Database.csproj`, `src/Modules/{Catalog,Customer}/Adapter/Outbound/*.csproj`,
   `src/Authorization/Authorization.Implementation/Authorization.Implementation.csproj`,
   `src/BuildingBlocks/Domain/Common/Entity.cs`, `src/BuildingBlocks/Persistence/EfCoreTransactionExecutor.cs`
   (only `SqlException {Number: 2601 or 2627}` → `DbException { SqlState: "23505" }`; deleted in Task 5),
   `src/BuildingBlocks/Persistence/ModuleDbContextBase.cs` (delete if `grep -rn ModuleDbContextBase src tests`
   shows only itself and `tests/UnitTests/EventDispatchingTests.cs`; otherwise switch it to `uint`),
-  `src/Database/{EwaysVNextDbContext,PersistenceDependencyInjection,EwaysVNextDbContextDesignTimeFactory}.cs`,
+  `src/Database/{MkbjDbContext,PersistenceDependencyInjection,MkbjDbContextDesignTimeFactory}.cs`,
   every file under `src/Database/Catalog/Configurations/`,
   `src/Authorization/Authorization.Implementation/{DependencyInjection.cs,Persistence/AuthorizationDbContextDesignTimeFactory.cs}`,
   `src/Modules/Catalog/Adapter/Outbound/Persistence/Categories/{CategoryRepository,CategoryProductRepository}.cs`
   (delete the commented-out SQL Server blocks), `tests/ArchitectureTests/CategoryArchitectureTests.cs`
   (delete `Hierarchy_loading_has_cycle_safe_single_roundtrip_provider_paths`: it asserts on comments),
-  `src/Host/EwaysVNext.Host/{Program.cs,appsettings.json,appsettings.Development.json}`,
+  `src/Host/Mkbj.Host/{Program.cs,appsettings.json,appsettings.Development.json}`,
   `tests/UnitTests/{AttributeBlueprintFilteringTests,CategoryQueryTests,CategoryProjectionGraphQLTests,CategoryDomainTests}.cs`,
   `tests/IntegrationTests/**` (`[Collection(LocalDbSuite.Name)]` → `[Collection(PostgresSuite.Name)]`),
-  `tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj`, `EwaysVNext.slnx`.
+  `tests/IntegrationTests/Mkbj.IntegrationTests.csproj`, `Mkbj.slnx`.
 - Delete: `src/Database/Migrations/*`, `src/Authorization/Authorization.Implementation/Persistence/Migrations/*`,
   `tests/IntegrationTests/LocalDbFixture.cs`, `tests/UnitTests/CategoryPersistenceModelTests.cs` (moved).
 - Create: `src/Database/DatabaseMigrator.cs`, `build/postgres/init/01-roles.sql`,
   `tests/IntegrationTests/PostgresFixture.cs`, `tests/IntegrationTests/Platform/DatabaseTests.cs`,
-  `tests/PersistenceContractTests/{EwaysVNext.PersistenceContractTests.csproj,ModelContractTests.cs,CategoryPersistenceModelTests.cs,Providers.cs}`,
+  `tests/PersistenceContractTests/{Mkbj.PersistenceContractTests.csproj,ModelContractTests.cs,CategoryPersistenceModelTests.cs,Providers.cs}`,
   `docs/adr/0017-postgres-and-minio.md`, then regenerated `init` migrations for both contexts.
 
 **Interfaces:**
 - Produces: `public uint RowVersion { get; protected set; }` on `Entity<TId>`;
   `DatabaseMigrator.MigrateAsync(IServiceProvider services, CancellationToken ct = default)` (applies
-  `EwaysVNextDbContext` migrations, then every embedded `EwaysVNext.Database.Scripts.*.sql` in ordinal
+  `MkbjDbContext` migrations, then every embedded `Mkbj.Database.Scripts.*.sql` in ordinal
   name order, each through `CreateExecutionStrategy().ExecuteAsync`; the scripts folder is empty until Task 12);
   `PostgresFixture` with `string AppConnectionString`, `string MigratorConnectionString`,
   `string SuperuserConnectionString`, `string MinioEndpoint`, `WebApplicationFactory<Program> CreateFactory(IReadOnlyDictionary<string,string?>? overrides = null)`;
-  `PostgresSuite.Name = "Platform"`; DB roles `eways_app`, `eways_migrator`.
+  `PostgresSuite.Name = "Platform"`; DB roles `mkbj_app`, `mkbj_migrator`.
 
 - [ ] **Step 1: Write the failing model-contract tests** in `tests/PersistenceContractTests`
   (new xUnit v3 Exe project, references `src/Database` and `Authorization.Implementation`, packages
@@ -423,14 +423,14 @@ may reference any other module's `QueryApplication` or `Application`.
       => NonSnakeCaseNames().Should().BeEmpty();        // regex ^[a-z][a-z0-9_]*$
   [Fact] public void Every_Entity_Uses_Xmin_As_RowVersion()
   {
-      foreach (var p in Model(EwaysNpgsql).GetEntityTypes().Select(e => e.FindProperty("RowVersion")).OfType<IProperty>())
+      foreach (var p in Model(MkbjNpgsql).GetEntityTypes().Select(e => e.FindProperty("RowVersion")).OfType<IProperty>())
       { p.GetColumnName().Should().Be("xmin"); p.GetColumnType().Should().Be("xid"); p.IsConcurrencyToken.Should().BeTrue(); }
   }
   [Fact] public void Aggregate_Root_Keys_Are_Never_Generated()   // every IAggregateRoot CLR type: Id ValueGenerated.Never
   [Fact] public void Extensions_Are_Declared() =>
-      Model(EwaysNpgsql).GetPostgresExtensions().Select(e => e.Name).Should().Contain(["pg_trgm", "unaccent"]);
+      Model(MkbjNpgsql).GetPostgresExtensions().Select(e => e.Name).Should().Contain(["pg_trgm", "unaccent"]);
   [Fact] public void Every_Table_Lives_In_A_Named_Schema() =>
-      Model(EwaysNpgsql).GetEntityTypes().Select(e => e.GetSchema()).Should().OnlyContain(s => s == "catalog");
+      Model(MkbjNpgsql).GetEntityTypes().Select(e => e.GetSchema()).Should().OnlyContain(s => s == "catalog");
   [Fact] public void InMemory_Model_Disables_RowVersion_Concurrency() // InMemory context: RowVersion not a concurrency token
   ```
   Move `tests/UnitTests/CategoryPersistenceModelTests.cs` here unchanged in intent, with
@@ -438,16 +438,16 @@ may reference any other module's `QueryApplication` or `Application`.
   (`Every_Table_Lives_In_A_Named_Schema` widens to `catalog, jobs, audit` in Tasks 10 and 12, and
   to each new module's schema in later phases.)
 - [ ] **Step 2: Run, expect FAIL** (SQL Server provider, `dbo`, PascalCase):
-  `dotnet test --project tests/PersistenceContractTests/EwaysVNext.PersistenceContractTests.csproj`
+  `dotnet test --project tests/PersistenceContractTests/Mkbj.PersistenceContractTests.csproj`
 - [ ] **Step 3: Switch the provider.**
   - `AddUnifiedDatabase`: `options.UseNpgsql(cs, npgsql => { npgsql.MigrationsAssembly(...);
     npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "public"); npgsql.EnableRetryOnFailure(3, TimeSpan.FromSeconds(2), null); }).UseSnakeCaseNamingConvention();`
-    InMemory branch unchanged; add `services.AddScoped<DbContext>(sp => sp.GetRequiredService<EwaysVNextDbContext>());`.
+    InMemory branch unchanged; add `services.AddScoped<DbContext>(sp => sp.GetRequiredService<MkbjDbContext>());`.
   - Design-time factory: Npgsql with the same options; when no connection string is configured use
-    `Host=localhost;Database=eways_design;Username=design;Password=design` (`migrations add` never connects).
-  - `EwaysVNextDbContext.OnModelCreating`: `HasPostgresExtension("pg_trgm")`,
+    `Host=localhost;Database=mkbj_design;Username=design;Password=design` (`migrations add` never connects).
+  - `MkbjDbContext.OnModelCreating`: `HasPostgresExtension("pg_trgm")`,
     `HasPostgresExtension("unaccent")`; schema = lower-cased module name for `*.Modules.{X}.*`,
-    `"jobs"` for `EwaysVNext.Jobs*`, `"audit"` for `EwaysVNext.Audit*`, otherwise throw
+    `"jobs"` for `Mkbj.Jobs*`, `"audit"` for `Mkbj.Audit*`, otherwise throw
     `InvalidOperationException` naming the CLR type (no silent `dbo`/`public`); remove
     `HasDefaultSchema("dbo")`. For every entity type with a `RowVersion` property: Npgsql →
     `HasColumnName("xmin").HasColumnType("xid").ValueGeneratedOnAddOrUpdate().IsConcurrencyToken()`;
@@ -460,7 +460,7 @@ may reference any other module's `QueryApplication` or `Application`.
   - Authorization: same Npgsql options with `MigrationsHistoryTable("__AuthorizationMigrationsHistory", "authorization")`
     and `UseSnakeCaseNamingConvention()`, in both DI and its design-time factory.
   - `appsettings.json`: `"ConnectionStrings": { "Default": "" }` (the committed password goes).
-    `appsettings.Development.json`: `"Default": "Host=localhost;Port=5432;Database=eways;Username=eways_app;Password=dev-app-password"`
+    `appsettings.Development.json`: `"Default": "Host=localhost;Port=5432;Database=mkbj;Username=mkbj_app;Password=dev-app-password"`
     (dev-only value that matches `docker-compose.dev.yml` defaults).
   - `Program.cs` `--migrate`: `await DatabaseMigrator.MigrateAsync(scope.ServiceProvider)`, then the
     existing Authorization migrate block.
@@ -468,41 +468,41 @@ may reference any other module's `QueryApplication` or `Application`.
     options above; update SQL-text assertions to Postgres syntax, keeping what each test pins.
 - [ ] **Step 4: Regenerate migrations.**
   ```bash
-  dotnet ef migrations add init -p src/Database -s src/Host/EwaysVNext.Host -c EwaysVNextDbContext -o Migrations
-  dotnet ef migrations add init -p src/Authorization/Authorization.Implementation -s src/Host/EwaysVNext.Host -c AuthorizationDbContext -o Persistence/Migrations
+  dotnet ef migrations add init -p src/Database -s src/Host/Mkbj.Host -c MkbjDbContext -o Migrations
+  dotnet ef migrations add init -p src/Authorization/Authorization.Implementation -s src/Host/Mkbj.Host -c AuthorizationDbContext -o Persistence/Migrations
   ```
   Delete `IdentityColumnMigrationExtensions.cs` with the old migrations (Step "Delete" above).
-- [ ] **Step 5: Run, expect PASS:** Step 2 command and `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj`.
+- [ ] **Step 5: Run, expect PASS:** Step 2 command and `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj`.
 - [ ] **Step 6: Roles script** `build/postgres/init/01-roles.sql` (psql ≥15 `\getenv`, so no
   password is ever in the file):
   ```sql
   \getenv app_password APP_DB_PASSWORD
   \getenv migrator_password MIGRATOR_DB_PASSWORD
   \getenv db_name POSTGRES_DB
-  CREATE ROLE eways_migrator LOGIN PASSWORD :'migrator_password';
-  CREATE ROLE eways_app LOGIN PASSWORD :'app_password';
-  ALTER DATABASE :"db_name" OWNER TO eways_migrator;
-  GRANT CONNECT ON DATABASE :"db_name" TO eways_app;
-  ALTER DEFAULT PRIVILEGES FOR ROLE eways_migrator GRANT USAGE ON SCHEMAS TO eways_app;
-  ALTER DEFAULT PRIVILEGES FOR ROLE eways_migrator GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO eways_app;
-  ALTER DEFAULT PRIVILEGES FOR ROLE eways_migrator GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO eways_app;
+  CREATE ROLE mkbj_migrator LOGIN PASSWORD :'migrator_password';
+  CREATE ROLE mkbj_app LOGIN PASSWORD :'app_password';
+  ALTER DATABASE :"db_name" OWNER TO mkbj_migrator;
+  GRANT CONNECT ON DATABASE :"db_name" TO mkbj_app;
+  ALTER DEFAULT PRIVILEGES FOR ROLE mkbj_migrator GRANT USAGE ON SCHEMAS TO mkbj_app;
+  ALTER DEFAULT PRIVILEGES FOR ROLE mkbj_migrator GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO mkbj_app;
+  ALTER DEFAULT PRIVILEGES FOR ROLE mkbj_migrator GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO mkbj_app;
   ```
 - [ ] **Step 7: Write the failing integration test** `tests/IntegrationTests/Platform/DatabaseTests.cs`
   (`[Collection(PostgresSuite.Name)]`):
   ```csharp
   [Fact] public async Task Migrations_Applied_With_Extensions()
-  {   // as eways_app
+  {   // as mkbj_app
       (await Scalar<long>(f.AppConnectionString, "select count(*) from pg_extension where extname in ('pg_trgm','unaccent')")).Should().Be(2);
       (await Scalar<long>(f.AppConnectionString, "select count(*) from public.\"__EFMigrationsHistory\"")).Should().BeGreaterThan(0);
   }
   [Fact] public async Task App_Role_Can_Write_Catalog_Tables_But_Owns_Nothing() =>
-      (await Scalar<long>(f.AppConnectionString, "select count(*) from pg_tables where tableowner = 'eways_app'")).Should().Be(0);
+      (await Scalar<long>(f.AppConnectionString, "select count(*) from pg_tables where tableowner = 'mkbj_app'")).Should().Be(0);
   ```
 - [ ] **Step 8: Run, expect FAIL** (no fixture yet):
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.DatabaseTests"`
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.DatabaseTests"`
 - [ ] **Step 9: Implement `PostgresFixture`** (replaces `LocalDbFixture`; keep its test JWT scheme
   wiring verbatim). Containers start in parallel:
-  `new PostgreSqlBuilder().WithImage("postgres:17-alpine").WithDatabase("eways").WithUsername("postgres").WithPassword("postgres").WithEnvironment("APP_DB_PASSWORD","app").WithEnvironment("MIGRATOR_DB_PASSWORD","migrator").WithResourceMapping(new FileInfo(<repo>/build/postgres/init/01-roles.sql), "/docker-entrypoint-initdb.d/")`
+  `new PostgreSqlBuilder().WithImage("postgres:17-alpine").WithDatabase("mkbj").WithUsername("postgres").WithPassword("postgres").WithEnvironment("APP_DB_PASSWORD","app").WithEnvironment("MIGRATOR_DB_PASSWORD","migrator").WithResourceMapping(new FileInfo(<repo>/build/postgres/init/01-roles.sql), "/docker-entrypoint-initdb.d/")`
   and `new MinioBuilder().WithImage("minio/minio:RELEASE.2025-04-22T22-12-26Z")`. `InitializeAsync`:
   create buckets `catalog-media`, `import-staging`, `documents` with an `AmazonS3Client`
   (`ForcePathStyle = true`); build a factory with `ConnectionStrings:Default = MigratorConnectionString`,
@@ -566,8 +566,8 @@ may reference any other module's `QueryApplication` or `Application`.
   [Fact] public async Task Unique_Violation_Returns_UniqueViolation()   // two categories, same slug, inserted from two scopes → second TrySave = SaveOutcome.UniqueViolation
   ```
 - [ ] **Step 2: Run, expect FAIL** (scan finds `BeginTransactionAsync`; the touch tests fail; `TrySaveChangesAsync` missing — compile error counts as FAIL):
-  `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter-method "*No_User_Initiated_Transactions_In_Src"`
-  and `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.CategoryServiceTests"`.
+  `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter-method "*No_User_Initiated_Transactions_In_Src"`
+  and `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.CategoryServiceTests"`.
 - [ ] **Step 3: Implement.** Delete both executor files. In `CategoryService`, unwrap every
   `ExecuteSerializableAsync(async token => …)` body into the method itself and replace its
   `SaveChangesAsync` with `var saved = await _unitOfWork.TrySaveChangesAsync(ct);` mapping `ConcurrencyConflict` → `Error.ConcurrencyConflict` and `UniqueViolation` → `Error.Conflict`.
@@ -577,7 +577,7 @@ may reference any other module's `QueryApplication` or `Application`.
   `SaveOutcome.UniqueViolation` from the save means the assignment already exists → `Result.Success()`.
   Remove `InMemoryTransactionExecutor` and its registration from `CategoryServiceTests`.
 - [ ] **Step 4: Run, expect PASS:** Step 2 commands, then
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.UnitOfWorkTests"`.
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.UnitOfWorkTests"`.
 - [ ] **Step 5: Mutation check.** Remove the `RecordChildChanged` call from `MoveAsync`; expect
   `Move_Touches_The_New_Parent` to FAIL; restore.
 - [ ] **Step 6: Commit** `git add -A && git commit -m "refactor(persistence): remove serializable transaction executor; optimistic single-save Category writes" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"`
@@ -589,7 +589,7 @@ may reference any other module's `QueryApplication` or `Application`.
 **Files:** Create: `src/BuildingBlocks/Persistence/{MinorUnits,MinorUnitsConverter}.cs`,
 `tests/UnitTests/MinorUnitsTests.cs`. Modify: `src/Database/Catalog/Configurations/Products/ProductConfiguration.cs`,
 `tests/PersistenceContractTests/ModelContractTests.cs`; regenerate `init` (delete
-`src/Database/Migrations/*`, rerun the Task 4 Step 4 `EwaysVNextDbContext` command).
+`src/Database/Migrations/*`, rerun the Task 4 Step 4 `MkbjDbContext` command).
 
 **Interfaces:** Produces `public static class MinorUnits { public static long ToMinor(decimal amount); public static decimal FromMinor(long minor); }`
 (throws `ArgumentException` when `amount` has more than 2 decimal places, `OverflowException` when
@@ -615,8 +615,8 @@ may reference any other module's `QueryApplication` or `Application`.
   }
   ```
 - [ ] **Step 2: Run, expect FAIL:**
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.MinorUnitsTests"` and
-  `dotnet test --project tests/PersistenceContractTests/EwaysVNext.PersistenceContractTests.csproj --filter-method "*Product_Price_Is_Stored_In_Minor_Units"`
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.MinorUnitsTests"` and
+  `dotnet test --project tests/PersistenceContractTests/Mkbj.PersistenceContractTests.csproj --filter-method "*Product_Price_Is_Stored_In_Minor_Units"`
 - [ ] **Step 3: Implement.** `ToMinor` uses `checked` arithmetic and the check
   `amount != decimal.Round(amount, 2)`. In `ProductConfiguration`: `Amount` →
   `.HasColumnName("price_amount_minor").HasConversion(new MinorUnitsConverter())`, `Currency` →
@@ -631,7 +631,7 @@ may reference any other module's `QueryApplication` or `Application`.
 **Files:**
 - Modify: `src/BuildingBlocks/Outcomes/Result.cs`, `src/BuildingBlocks/Presentation.Endpoint/EndpointResult.cs`,
   `src/BuildingBlocks/Presentation.Endpoint/GraphQL/{GraphQLErrorFilter.cs,Extensions/ErrorGraphQLExtensions.cs}`,
-  `src/Host/EwaysVNext.Host/{Program.cs,Middleware/GlobalExceptionHandlerMiddleware.cs}`, every file
+  `src/Host/Mkbj.Host/{Program.cs,Middleware/GlobalExceptionHandlerMiddleware.cs}`, every file
   with the literal `"VALIDATION"` (listed by `grep -rln '"VALIDATION"' src tests`).
 - Create: `src/BuildingBlocks/Presentation.Endpoint/{ErrorResponse,CorrelationHeaders,CorrelationIdMiddleware}.cs`,
   `src/BuildingBlocks/Core/Application/ICorrelationContext.cs`, `src/BuildingBlocks/Core/Implementation/CorrelationContext.cs`,
@@ -689,8 +689,8 @@ may reference any other module's `QueryApplication` or `Application`.
   ```
   Also flip `ResultHttpSemanticsTests`' `[InlineData("VALIDATION")]` to `"VALIDATION_FAILED"`.
 - [ ] **Step 2: Run, expect FAIL:**
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.ErrorBodyTests"` (and the other four classes),
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.ErrorBodyEndToEndTests"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.ErrorBodyTests"` (and the other four classes),
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.ErrorBodyEndToEndTests"`.
 - [ ] **Step 3: Implement.**
   - `Error`: add `bool Retryable = false` as the 4th positional parameter; add the two presets; set
     `Validation`'s code to `VALIDATION_FAILED`; replace every `"VALIDATION"` literal.
@@ -715,10 +715,10 @@ may reference any other module's `QueryApplication` or `Application`.
 
 ### Task 8: Admin and partner principals in Core
 
-**Files:** Create: `src/BuildingBlocks/Audit/Application/{EwaysVNext.Audit.Application.csproj,AuditActor.cs}`,
+**Files:** Create: `src/BuildingBlocks/Audit/Application/{Mkbj.Audit.Application.csproj,AuditActor.cs}`,
 `src/BuildingBlocks/Core/Application/{AdminActor,PartnerPrincipal,PartnerScopes,IDataSeeder}.cs`,
-`tests/UnitTests/PrincipalTests.cs`. Modify: `src/BuildingBlocks/Core/Application/EwaysVNext.Core.Application.csproj`
-(reference `Audit.Application`), `EwaysVNext.slnx`.
+`tests/UnitTests/PrincipalTests.cs`. Modify: `src/BuildingBlocks/Core/Application/Mkbj.Core.Application.csproj`
+(reference `Audit.Application`), `Mkbj.slnx`.
 
 **Interfaces:** Produces exactly the contract's `AuditActor`, `AdminActor` (`ToAudit()` →
 `new AuditActor(UserId, IsSuperAdmin ? "super_admin" : "staff")`), `PartnerPrincipal`,
@@ -743,7 +743,7 @@ may reference any other module's `QueryApplication` or `Application`.
   public void AdminActor_Maps_To_Audit_Role(bool super, string role) =>
       new AdminActor(Guid.Parse("11111111-1111-1111-1111-111111111111"), super).ToAudit().Role.Should().Be(role);
   ```
-- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.PrincipalTests"`
+- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.PrincipalTests"`
 - [ ] **Step 3: Implement** the types with the signatures above (Audit.Application has no
   references; Core.Application references only Audit.Application).
 - [ ] **Step 4: Run, expect PASS.**
@@ -753,10 +753,10 @@ may reference any other module's `QueryApplication` or `Application`.
 
 ### Task 9: Storage building block (MinIO via S3)
 
-**Files:** Create: `src/BuildingBlocks/Storage/Application/{EwaysVNext.Storage.Application.csproj,IObjectStorage.cs,StorageBuckets.cs}`,
-`src/BuildingBlocks/Storage/Implementation/{EwaysVNext.Storage.Implementation.csproj,MinioOptions.cs,S3ObjectStorage.cs,ObjectStorageHealthCheck.cs,DependencyInjection.cs}`,
-`tests/IntegrationTests/Platform/ObjectStorageTests.cs`. Modify: `EwaysVNext.slnx`, `src/Host/EwaysVNext.Host/{EwaysVNext.Host.csproj,Program.cs}`,
-`tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj`.
+**Files:** Create: `src/BuildingBlocks/Storage/Application/{Mkbj.Storage.Application.csproj,IObjectStorage.cs,StorageBuckets.cs}`,
+`src/BuildingBlocks/Storage/Implementation/{Mkbj.Storage.Implementation.csproj,MinioOptions.cs,S3ObjectStorage.cs,ObjectStorageHealthCheck.cs,DependencyInjection.cs}`,
+`tests/IntegrationTests/Platform/ObjectStorageTests.cs`. Modify: `Mkbj.slnx`, `src/Host/Mkbj.Host/{Mkbj.Host.csproj,Program.cs}`,
+`tests/IntegrationTests/Mkbj.IntegrationTests.csproj`.
 
 **Interfaces:** Produces `IObjectStorage`/`StorageBuckets` exactly as the contract;
 `public static IServiceCollection AddObjectStorage(this IServiceCollection services, IConfiguration configuration)`
@@ -780,7 +780,7 @@ checks bucket `documents` exists. Host calls it after `AddUnifiedDatabase`.
   [Theory] [InlineData(0)] [InlineData(-1)] [InlineData(604801)]
   public async Task Presign_Rejects_Ttl_Outside_One_Second_To_Seven_Days(int seconds)  // ArgumentOutOfRangeException
   ```
-- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.ObjectStorageTests"`
+- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.ObjectStorageTests"`
 - [ ] **Step 3: Implement** `S3ObjectStorage` on `AmazonS3Client` (`ForcePathStyle = true`,
   `ServiceURL = Endpoint`); presigning uses a second client configured with `PublicEndpoint` (signing is
   local, so the public host need not be reachable from the container). `GetAsync` returns `null` on
@@ -792,11 +792,11 @@ checks bucket `documents` exists. Host calls it after `AddUnifiedDatabase`.
 
 ### Task 10: Jobs — tables, enqueue with dedupe, `SKIP LOCKED` claim
 
-**Files:** Create: `src/BuildingBlocks/Jobs/Application/{EwaysVNext.Jobs.Application.csproj,IJobQueue.cs,IJobHandler.cs,JobContext.cs,JobOutcome.cs,JobTypes.cs,EmptyPayload.cs,JobLeaseLostException.cs}`,
-`src/BuildingBlocks/Jobs/Implementation/{EwaysVNext.Jobs.Implementation.csproj,JobRecord.cs,RecurringJobRecord.cs,JobStatus.cs,IJobStore.cs,PostgresJobStore.cs,PostgresJobQueue.cs,JobsOptions.cs,DependencyInjection.cs}`,
+**Files:** Create: `src/BuildingBlocks/Jobs/Application/{Mkbj.Jobs.Application.csproj,IJobQueue.cs,IJobHandler.cs,JobContext.cs,JobOutcome.cs,JobTypes.cs,EmptyPayload.cs,JobLeaseLostException.cs}`,
+`src/BuildingBlocks/Jobs/Implementation/{Mkbj.Jobs.Implementation.csproj,JobRecord.cs,RecurringJobRecord.cs,JobStatus.cs,IJobStore.cs,PostgresJobStore.cs,PostgresJobQueue.cs,JobsOptions.cs,DependencyInjection.cs}`,
 `src/Database/Jobs/Configurations/{JobRecordConfiguration,RecurringJobRecordConfiguration}.cs`,
-`tests/IntegrationTests/Platform/JobStoreTests.cs`. Modify: `src/Database/{EwaysVNext.Database.csproj,EwaysVNextDbContext.cs}`,
-`EwaysVNext.slnx`, `tests/PersistenceContractTests/ModelContractTests.cs` (schemas now `catalog, jobs`); regenerate `init`.
+`tests/IntegrationTests/Platform/JobStoreTests.cs`. Modify: `src/Database/{Mkbj.Database.csproj,MkbjDbContext.cs}`,
+`Mkbj.slnx`, `tests/PersistenceContractTests/ModelContractTests.cs` (schemas now `catalog, jobs`); regenerate `init`.
 
 **Interfaces:**
 - Produces the contract's `IJobQueue`, `IJobHandler<TPayload>`, `JobContext`, `JobOutcome`, `JobTypes`
@@ -841,7 +841,7 @@ checks bucket `documents` exists. Host calls it after `AddUnifiedDatabase`.
   [Fact] public async Task Heartbeat_After_Lease_Lost_Returns_False()   // worker A claims, lease expires, B reclaims; A.Heartbeat → false
   [Fact] public async Task Complete_By_A_Worker_That_Lost_The_Lease_Is_Ignored()
   ```
-- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.JobStoreTests"`
+- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.JobStoreTests"`
 - [ ] **Step 3: Implement.** `PostgresJobStore(DbContext db, IOptions<JobsOptions>)` runs every
   statement through `db.Database.CreateExecutionStrategy().ExecuteAsync(...)`. The claim is one statement:
   ```sql
@@ -857,7 +857,7 @@ checks bucket `documents` exists. Host calls it after `AddUnifiedDatabase`.
   callers enqueue **after** their business save. Under a non-Npgsql provider it logs a warning and
   returns. Recurring tick: `UPDATE jobs.recurring SET next_run_at = @now + interval WHERE next_run_at <= @now RETURNING type`.
   Register `RecurringJobRecord`/`JobRecord` configurations under `src/Database/Jobs/Configurations`
-  (`EwaysVNext.Database` references `EwaysVNext.Jobs.Implementation`); regenerate `init`.
+  (`Mkbj.Database` references `Mkbj.Jobs.Implementation`); regenerate `init`.
 - [ ] **Step 4: Run, expect PASS** (Step 2 command, then PersistenceContractTests).
 - [ ] **Step 5: Commit** `git add -A && git commit -m "feat(jobs): Postgres job queue with dedupe and SKIP LOCKED claim" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"`
 
@@ -868,7 +868,7 @@ checks bucket `documents` exists. Host calls it after `AddUnifiedDatabase`.
 **Files:** Create: `src/BuildingBlocks/Jobs/Implementation/{JobWorker,JobBackoff,JobHandlerRegistry,RecurringJobRegistration}.cs`,
 `tests/UnitTests/JobBackoffTests.cs`, `tests/IntegrationTests/Platform/JobWorkerTests.cs`,
 `docs/adr/0019-postgres-backed-job-queue.md`. Modify: `src/BuildingBlocks/Jobs/Implementation/DependencyInjection.cs`,
-`src/Host/EwaysVNext.Host/Program.cs` (`builder.Services.AddJobs(builder.Configuration)`), `docs/adr/0010-kubernetes-deployment-strategy.md`.
+`src/Host/Mkbj.Host/Program.cs` (`builder.Services.AddJobs(builder.Configuration)`), `docs/adr/0010-kubernetes-deployment-strategy.md`.
 
 **Interfaces:**
 - Produces `AddJobHandler<THandler, TPayload>()` (scoped handler; registry maps `Type` → payload type),
@@ -902,8 +902,8 @@ checks bucket `documents` exists. Host calls it after `AddUnifiedDatabase`.
   }
   [Fact] public void Disabled_Mode_Registers_No_Worker()   // services with Jobs:Mode=Disabled contain no JobWorker hosted service
   ```
-- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.JobBackoffTests"`;
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.JobWorkerTests"`
+- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.JobBackoffTests"`;
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.JobWorkerTests"`
 - [ ] **Step 3: Implement.** Outcome handling: `Completed` → `CompleteAsync`; `RetryLater(d, r)`
   → `RetryAsync(now + d, r)`; `Failed(r)` → `FailAsync`; exception → if `Attempts >= MaxAttempts`
   `FailAsync(ex.Message)` else `RetryAsync(now + JobBackoff.For(Attempts, …), ex.Message)`;
@@ -923,12 +923,12 @@ checks bucket `documents` exists. Host calls it after `AddUnifiedDatabase`.
 ### Task 12: Audit trail — append-only events recorded in the caller's save
 
 **Files:** Create: `src/BuildingBlocks/Audit/Application/{IAuditTrail,IAuditVerifier,AuditVerificationResult}.cs`,
-`src/BuildingBlocks/Audit/Implementation/{EwaysVNext.Audit.Implementation.csproj,AuditEvent.cs,AuditSeal.cs,AuditDiff.cs,EfAuditTrail.cs,DependencyInjection.cs}`,
+`src/BuildingBlocks/Audit/Implementation/{Mkbj.Audit.Implementation.csproj,AuditEvent.cs,AuditSeal.cs,AuditDiff.cs,EfAuditTrail.cs,DependencyInjection.cs}`,
 `src/Database/Audit/Configurations/{AuditEventConfiguration,AuditSealConfiguration}.cs`,
 `src/Database/Scripts/010-audit-append-only.sql` (`<EmbeddedResource>` in the Database csproj),
 `tests/UnitTests/AuditDiffTests.cs`, `tests/IntegrationTests/Platform/AuditTrailTests.cs`.
-Modify: `src/Database/{EwaysVNext.Database.csproj,EwaysVNextDbContext.cs}`, `src/Host/EwaysVNext.Host/Program.cs`
-(`builder.Services.AddAudit()`), `EwaysVNext.slnx`, `tests/PersistenceContractTests/ModelContractTests.cs`
+Modify: `src/Database/{Mkbj.Database.csproj,MkbjDbContext.cs}`, `src/Host/Mkbj.Host/Program.cs`
+(`builder.Services.AddAudit()`), `Mkbj.slnx`, `tests/PersistenceContractTests/ModelContractTests.cs`
 (schemas `catalog, jobs, audit`); regenerate `init`.
 
 **Interfaces:**
@@ -967,13 +967,13 @@ Modify: `src/Database/{EwaysVNext.Database.csproj,EwaysVNextDbContext.cs}`, `src
   }
   [Fact] public async Task App_Role_Can_Insert_Audit_Events()
   ```
-- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.AuditDiffTests"`;
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.AuditTrailTests"`
+- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.AuditDiffTests"`;
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.AuditTrailTests"`
 - [ ] **Step 3: Implement** the types and configurations; regenerate `init`; the script:
   ```sql
   DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'eways_app') THEN
-      REVOKE UPDATE, DELETE, TRUNCATE ON audit.audit_events, audit.audit_seals FROM eways_app;
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'mkbj_app') THEN
+      REVOKE UPDATE, DELETE, TRUNCATE ON audit.audit_events, audit.audit_seals FROM mkbj_app;
     END IF;
   END $$;
   ```
@@ -1016,7 +1016,7 @@ Modify: `src/Database/{EwaysVNext.Database.csproj,EwaysVNextDbContext.cs}`, `src
   [Fact] public async Task Verify_Counts_A_Deleted_Event_As_Unsealed_Gap() // superuser deletes a sealed event's seal → UnsealedBelowWatermark 1
   [Fact] public void AuditSeal_Is_Recurring_Every_Minute()       // RecurringJobRegistration for "AuditSeal" has interval 00:01:00
   ```
-- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.AuditSealTests"`
+- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.AuditSealTests"`
 - [ ] **Step 3: Implement** the handler, hashing and verifier per the interfaces.
 - [ ] **Step 4: Run, expect PASS.**
 - [ ] **Step 5: Commit** `git add -A && git commit -m "feat(audit): minute-by-minute hash-chain seals and verifier" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"`
@@ -1025,8 +1025,8 @@ Modify: `src/Database/{EwaysVNext.Database.csproj,EwaysVNextDbContext.cs}`, `src
 
 ### Task 14: Host commands — `--migrate`, `--worker`, `--seed`, `--probe`
 
-**Files:** Create: `src/Host/EwaysVNext.Host/{HostCommands,Probe}.cs`, `tests/IntegrationTests/Host/HostCommandsTests.cs`.
-Modify: `src/Host/EwaysVNext.Host/{Program.cs,ProgramMessages.cs}`.
+**Files:** Create: `src/Host/Mkbj.Host/{HostCommands,Probe}.cs`, `tests/IntegrationTests/Host/HostCommandsTests.cs`.
+Modify: `src/Host/Mkbj.Host/{Program.cs,ProgramMessages.cs}`.
 
 **Interfaces:**
 - `public static class HostCommands`:
@@ -1056,7 +1056,7 @@ Modify: `src/Host/EwaysVNext.Host/{Program.cs,ProgramMessages.cs}`.
   [Fact] public async Task WorkerOnly_Host_Serves_Only_Health()  // Platform factory, overrides Jobs:Mode=WorkerOnly: /health/live 200, POST /graphql 404
   [Fact] public async Task Migrate_Is_Idempotent()               // RunAsync(app built with migrator connection, ["--migrate"]) twice → 0, 0
   ```
-- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.HostCommandsTests"`
+- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.HostCommandsTests"`
 - [ ] **Step 3: Implement**; `Program.cs` becomes: probe check → builder → `HostCommands.ApplyFlags`
   → registrations → `Build()` → `if (await HostCommands.RunAsync(app, args) is { } code) return code;` → pipeline.
 - [ ] **Step 4: Run, expect PASS.**
@@ -1067,10 +1067,10 @@ Modify: `src/Host/EwaysVNext.Host/{Program.cs,ProgramMessages.cs}`.
 ### Task 15: Production image (`build/docker`)
 
 **Files:** Create: `build/docker/api.Dockerfile`, `build/docker/api.Dockerfile.dockerignore`.
-Delete: `Dockerfile`, `Dockerfile.ci`, `.dockerignore`, `.dockerignore.ci`. Modify: `EwaysVNext.slnx`
+Delete: `Dockerfile`, `Dockerfile.ci`, `.dockerignore`, `.dockerignore.ci`. Modify: `Mkbj.slnx`
 (Solution Items point at the new files), `.github/workflows/ci.yml`.
 
-**Interfaces:** Image entrypoint `dotnet EwaysVNext.Host.dll`; arguments select the role: none (api),
+**Interfaces:** Image entrypoint `dotnet Mkbj.Host.dll`; arguments select the role: none (api),
 `--worker`, `--migrate`, `--seed`, `--probe <url>`.
 
 - [ ] **Step 1: Write the Dockerfile.**
@@ -1079,11 +1079,11 @@ Delete: `Dockerfile`, `Dockerfile.ci`, `.dockerignore`, `.dockerignore.ci`. Modi
   ARG DOTNET_REGISTRY=mcr.microsoft.com
   FROM ${DOTNET_REGISTRY}/dotnet/sdk:10.0 AS build
   WORKDIR /src
-  COPY global.json nuget.config Directory.Build.props Directory.Build.targets Directory.Packages.props EwaysVNext.slnx ./
-  COPY EwaysVNext.Modules.Catalog.Contracts/ EwaysVNext.Modules.Catalog.Contracts/
+  COPY global.json nuget.config Directory.Build.props Directory.Build.targets Directory.Packages.props Mkbj.slnx ./
+  COPY Mkbj.Modules.Catalog.Contracts/ Mkbj.Modules.Catalog.Contracts/
   COPY src/ src/
-  RUN dotnet restore src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj
-  RUN dotnet publish src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj -c Release --no-restore -o /app /p:UseAppHost=false
+  RUN dotnet restore src/Host/Mkbj.Host/Mkbj.Host.csproj
+  RUN dotnet publish src/Host/Mkbj.Host/Mkbj.Host.csproj -c Release --no-restore -o /app /p:UseAppHost=false
 
   FROM ${DOTNET_REGISTRY}/dotnet/aspnet:10.0-noble-chiseled-extra AS runtime
   WORKDIR /app
@@ -1091,19 +1091,19 @@ Delete: `Dockerfile`, `Dockerfile.ci`, `.dockerignore`, `.dockerignore.ci`. Modi
   USER $APP_UID
   ENV ASPNETCORE_HTTP_PORTS=8080 ASPNETCORE_ENVIRONMENT=Production
   EXPOSE 8080
-  ENTRYPOINT ["dotnet", "EwaysVNext.Host.dll"]
+  ENTRYPOINT ["dotnet", "Mkbj.Host.dll"]
   ```
   (`-extra` keeps ICU and tzdata; chiseled has no shell, so health checks use `--probe`.)
   `api.Dockerfile.dockerignore`: `**/bin/`, `**/obj/`, `tests/`, `docs/`, `build/`, `.git/`, `.github/`,
   `.vs/`, `.idea/`, `**/*.user`, `**/.env`, `**/.env.*`, `**/TestResults/`.
 - [ ] **Step 2: Verify the image.**
   ```bash
-  docker build -f build/docker/api.Dockerfile -t eways-api:local .
-  docker image inspect eways-api:local --format '{{.Config.User}}'      # expected: 1654
-  docker run --rm eways-api:local --probe http://127.0.0.1:1/health; echo $?   # expected: 1
-  docker run --rm -e ASPNETCORE_ENVIRONMENT=Production eways-api:local --seed; echo $?  # expected: 2 and the refusal message
+  docker build -f build/docker/api.Dockerfile -t mkbj-api:local .
+  docker image inspect mkbj-api:local --format '{{.Config.User}}'      # expected: 1654
+  docker run --rm mkbj-api:local --probe http://127.0.0.1:1/health; echo $?   # expected: 1
+  docker run --rm -e ASPNETCORE_ENVIRONMENT=Production mkbj-api:local --seed; echo $?  # expected: 2 and the refusal message
   ```
-- [ ] **Step 3: CI.** In `ci.yml` add, after the Release build, `docker build -f build/docker/api.Dockerfile -t eways-api:ci .`
+- [ ] **Step 3: CI.** In `ci.yml` add, after the Release build, `docker build -f build/docker/api.Dockerfile -t mkbj-api:ci .`
   and note in a comment that integration tests need Docker (available on `ubuntu-latest`).
 - [ ] **Step 4: Commit** `git add -A && git commit -m "build: chiseled non-root api image in build/docker; remove root Docker files" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"`
 
@@ -1114,7 +1114,7 @@ Delete: `Dockerfile`, `Dockerfile.ci`, `.dockerignore`, `.dockerignore.ci`. Modi
 **Files:** Create: `build/compose/{docker-compose.yml,docker-compose.dev.yml,.env.example,ci.env}`,
 `build/compose/caddy/Caddyfile`, `build/keycloak/{shop-realm.json,backoffice-realm.json}`,
 `tests/ArchitectureTests/BuildDirectoryTests.cs`. Delete: root `docker-compose.yml`, root `.env.example`.
-Modify: `EwaysVNext.slnx`, `.github/workflows/ci.yml`.
+Modify: `Mkbj.slnx`, `.github/workflows/ci.yml`.
 
 **Interfaces:**
 - `.env.example` keys (all values empty): `PUBLIC_HOST, AUTH_HOST, STORAGE_HOST, ACME_EMAIL,
@@ -1124,9 +1124,9 @@ Modify: `EwaysVNext.slnx`, `.github/workflows/ci.yml`.
   SHOP_REDIRECT_URI, BACKOFFICE_REDIRECT_URI, API_KEYS_PEPPER, BRAVE_API_KEY, ANTHROPIC_API_KEY`.
   `ci.env` has the same keys with the value `ci-placeholder` (ports `587`), used only for `config` validation.
 - Production `docker-compose.yml` services (every one has a healthcheck; every secret uses `${VAR:?…}`):
-  - `postgres`: `postgres:17-alpine`, `POSTGRES_DB=eways`, `POSTGRES_USER=postgres`, `POSTGRES_PASSWORD`,
+  - `postgres`: `postgres:17-alpine`, `POSTGRES_DB=mkbj`, `POSTGRES_USER=postgres`, `POSTGRES_PASSWORD`,
     `APP_DB_PASSWORD`, `MIGRATOR_DB_PASSWORD`, `../postgres/init:/docker-entrypoint-initdb.d:ro`,
-    volume `pg_data`, health `pg_isready -U postgres -d eways`.
+    volume `pg_data`, health `pg_isready -U postgres -d mkbj`.
   - `minio`: `minio/minio:RELEASE.2025-04-22T22-12-26Z`, `server /data --console-address :9001`, volume
     `minio_data`, health `["CMD", "mc", "ready", "local"]`.
   - `minio-init`: `minio/mc:RELEASE.2025-04-16T18-13-26Z`, depends on minio healthy, `restart: "no"`;
@@ -1135,13 +1135,13 @@ Modify: `EwaysVNext.slnx`, `.github/workflows/ci.yml`.
     `mc anonymous set download local/catalog-media`, `mc admin user add local "$MINIO_APP_ACCESS_KEY" "$MINIO_APP_SECRET_KEY"`,
     `mc admin policy attach local readwrite --user "$MINIO_APP_ACCESS_KEY" || true`.
   - `migrations`: image built from `../docker/api.Dockerfile` (context `../..`), `command: ["--migrate"]`,
-    `ConnectionStrings__Default` with user `eways_migrator`, depends on postgres healthy, `restart: "no"`.
-  - `api`: same image, no command, `Jobs__Mode=Disabled`, `ConnectionStrings__Default` with user `eways_app`,
+    `ConnectionStrings__Default` with user `mkbj_migrator`, depends on postgres healthy, `restart: "no"`.
+  - `api`: same image, no command, `Jobs__Mode=Disabled`, `ConnectionStrings__Default` with user `mkbj_app`,
     `Minio__Endpoint=http://minio:9000`, `Minio__PublicEndpoint=https://${STORAGE_HOST}`,
     `Minio__AccessKey/SecretKey` = app user, `ApiKeys__Pepper`, `Brave__ApiKey`, `Anthropic__ApiKey`,
     `Keycloak__InternalUrl=http://keycloak:8080`, `Keycloak__ExternalUrl=https://${AUTH_HOST}`,
     depends on `migrations: service_completed_successfully`, `minio-init: service_completed_successfully`,
-    `keycloak: service_healthy`; health `["CMD", "dotnet", "EwaysVNext.Host.dll", "--probe", "http://localhost:8080/health/ready"]`.
+    `keycloak: service_healthy`; health `["CMD", "dotnet", "Mkbj.Host.dll", "--probe", "http://localhost:8080/health/ready"]`.
   - `worker`: same image and env as `api` except `command: ["--worker"]`, no `Jobs__Mode`, health probe `/health/live`.
   - `keycloak-db`: `postgres:17-alpine`, `POSTGRES_DB=keycloak`, `POSTGRES_USER=keycloak`, `POSTGRES_PASSWORD=${KC_DB_PASSWORD:?…}`.
   - `keycloak`: `quay.io/keycloak/keycloak:26.4`, `command: ["start", "--import-realm"]`, `KC_DB=postgres`,
@@ -1195,7 +1195,7 @@ Modify: `EwaysVNext.slnx`, `.github/workflows/ci.yml`.
   [Fact] public void Roles_Script_Contains_No_Literal_Password() =>
       File.ReadAllText(Path.Combine(Root, "build/postgres/init/01-roles.sql")).Should().NotMatchRegex(@"PASSWORD\s+'");
   ```
-- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter-class "*.BuildDirectoryTests"`
+- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter-class "*.BuildDirectoryTests"`
 - [ ] **Step 3: Write the files** per the interfaces; delete the root files.
 - [ ] **Step 4: Run, expect PASS**, then verify the stacks:
   ```bash
@@ -1203,8 +1203,8 @@ Modify: `EwaysVNext.slnx`, `.github/workflows/ci.yml`.
   # expected: non-zero exit, "required variable ... is missing a value" (fail fast)
   docker compose -f build/compose/docker-compose.yml --env-file build/compose/ci.env config --quiet   # expected: exit 0
   docker compose -f build/compose/docker-compose.dev.yml up -d --wait                                 # expected: postgres, minio, keycloak healthy; minio-init exited 0
-  ConnectionStrings__Default="Host=localhost;Port=5432;Database=eways;Username=eways_migrator;Password=dev-migrator-password" \
-    dotnet run --project src/Host/EwaysVNext.Host -- --migrate                                        # expected: exit 0, ProgramMessages.MigrateDone printed
+  ConnectionStrings__Default="Host=localhost;Port=5432;Database=mkbj;Username=mkbj_migrator;Password=dev-migrator-password" \
+    dotnet run --project src/Host/Mkbj.Host -- --migrate                                        # expected: exit 0, ProgramMessages.MigrateDone printed
   curl -fsS http://localhost:8081/realms/Shop/.well-known/openid-configuration > /dev/null && echo REALM_OK   # expected: REALM_OK
   docker compose -f build/compose/docker-compose.dev.yml down -v
   ```
@@ -1252,7 +1252,7 @@ Modify: `EwaysVNext.slnx`, `.github/workflows/ci.yml`.
   }
   [Fact] public void Adr_0016_Is_Accepted_And_0017_To_0022_Exist()
   ```
-- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter-class "*.DocumentationTests"`
+- [ ] **Step 2: Run, expect FAIL:** `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter-class "*.DocumentationTests"`
 - [ ] **Step 3: Write the documents** per the content requirements.
 - [ ] **Step 4: Run, expect PASS**, then
   `grep -nE "LocalDB|SQL Server|MSSQL|Shahkar|IRR" AGENTS.md docs/ONBOARDING.md docs/TESTING-GUARANTEES.md README.md`
@@ -1265,11 +1265,11 @@ Modify: `EwaysVNext.slnx`, `.github/workflows/ci.yml`.
 
 **Files:** Create: `docs/reports/phase-0.md`.
 
-- [ ] **Step 1: Full build (Release, warnings as errors).** `dotnet build EwaysVNext.slnx -c Release` → 0 errors, 0 warnings.
-- [ ] **Step 2: Full test run with Docker up.** `dotnet test EwaysVNext.slnx` → all four suites
+- [ ] **Step 1: Full build (Release, warnings as errors).** `dotnet build Mkbj.slnx -c Release` → 0 errors, 0 warnings.
+- [ ] **Step 2: Full test run with Docker up.** `dotnet test Mkbj.slnx` → all four suites
   (Architecture, Unit, PersistenceContract, Integration) pass. Record each suite's count.
 - [ ] **Step 3: Migration drift check.**
-  `dotnet ef migrations has-pending-model-changes -p src/Database -s src/Host/EwaysVNext.Host -c EwaysVNextDbContext`
+  `dotnet ef migrations has-pending-model-changes -p src/Database -s src/Host/Mkbj.Host -c MkbjDbContext`
   and the same for `AuthorizationDbContext` → both report no pending changes.
 - [ ] **Step 4: Image and stack.** Re-run the Task 15 Step 2 and Task 16 Step 4 verifications.
 - [ ] **Step 5: Write `docs/reports/phase-0.md`** with sections *What works* (per task), *Incomplete*

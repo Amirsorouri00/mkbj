@@ -1,0 +1,6028 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Mkbj.Host | v1",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5099/"
+    }
+  ],
+  "paths": {
+    "/api/v1/customers/{id}/orders": {
+      "get": {
+        "tags": [
+          "Partner Orders"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No key was sent, or it is not a live key.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key does not grant the scope this operation needs.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The key's rate limit was exceeded. Retry after the stated delay.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "PartnerApiKey": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/documents/{id}/pdf": {
+      "get": {
+        "tags": [
+          "Order administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/audit/verify": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/shop/home": {
+      "get": {
+        "tags": [
+          "Shop"
+        ],
+        "parameters": [
+          {
+            "name": "currency",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/shop/categories": {
+      "get": {
+        "tags": [
+          "Shop"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/shop/products": {
+      "get": {
+        "tags": [
+          "Shop"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/shop/products/{slug}": {
+      "get": {
+        "tags": [
+          "Shop"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/shop/facets": {
+      "get": {
+        "tags": [
+          "Shop"
+        ],
+        "parameters": [
+          {
+            "name": "currency",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/shop/search": {
+      "get": {
+        "tags": [
+          "Shop"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/attributes": {
+      "get": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "includeDeleted",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAttributeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/attributes/{id}": {
+      "get": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAttributeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/attributes/{id}/scope": {
+      "put": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAttributeScopeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/attributes/{id}/aliases": {
+      "put": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAttributeAliasesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/attributes/{id}/unit": {
+      "put": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAttributeUnitRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/brands": {
+      "get": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBrandRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/brands/{id}": {
+      "put": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenameBrandRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/brands/{id}/aliases": {
+      "put": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetBrandAliasesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/brands/{id}/status": {
+      "put": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetBrandStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/products": {
+      "get": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "brandId",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProductRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/products/{id}": {
+      "get": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProductRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/products/{id}/secondary-categories": {
+      "put": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetSecondaryCategoriesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/products/{id}/variants": {
+      "post": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddVariantRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/products/{id}/variants/{variantId}/status": {
+      "put": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "variantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetActiveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/products/{id}/identifiers": {
+      "post": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddIdentifierRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/products/{id}/identifiers/{identifierId}": {
+      "delete": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "identifierId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/products/{id}/status": {
+      "put": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetActiveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/products/{id}/media": {
+      "post": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/products/{id}/media/{mediaId}": {
+      "delete": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "mediaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/products/bulk": {
+      "post": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkProductRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/products/{id}/merge-into/{survivorId}": {
+      "post": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "survivorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/categories/tree": {
+      "get": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/categories/{id}": {
+      "get": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/categories": {
+      "post": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/categories/{id}/status": {
+      "put": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCategoryStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/categories/{id}/move": {
+      "put": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoveCategoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/categories/{id}/aliases": {
+      "put": {
+        "tags": [
+          "Catalog administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCategoryAliasesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/pricing/variants/{variantId}": {
+      "get": {
+        "tags": [
+          "Pricing administration"
+        ],
+        "parameters": [
+          {
+            "name": "variantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/pricing/variants/{variantId}/price": {
+      "put": {
+        "tags": [
+          "Pricing administration"
+        ],
+        "parameters": [
+          {
+            "name": "variantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetVariantPriceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/pricing/variants/{variantId}/overrides/{currency}": {
+      "put": {
+        "tags": [
+          "Pricing administration"
+        ],
+        "parameters": [
+          {
+            "name": "variantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "currency",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCurrencyOverrideRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Pricing administration"
+        ],
+        "parameters": [
+          {
+            "name": "variantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "currency",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/pricing/fx/rates": {
+      "get": {
+        "tags": [
+          "Pricing administration"
+        ],
+        "parameters": [
+          {
+            "name": "quote",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/pricing/fx/overrides": {
+      "get": {
+        "tags": [
+          "Pricing administration"
+        ],
+        "parameters": [
+          {
+            "name": "activeOnly",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Pricing administration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetFxOverrideRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/pricing/currencies": {
+      "get": {
+        "tags": [
+          "Pricing administration"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/pricing/fx/overrides/{base}/{quote}": {
+      "delete": {
+        "tags": [
+          "Pricing administration"
+        ],
+        "parameters": [
+          {
+            "name": "base",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "quote",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/pricing/currencies/{code}": {
+      "put": {
+        "tags": [
+          "Pricing administration"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCurrencyEnabledRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/pricing/fx/refresh": {
+      "post": {
+        "tags": [
+          "Pricing administration"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/shop/currencies": {
+      "get": {
+        "tags": [
+          "Shop"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/shop/me": {
+      "get": {
+        "tags": [
+          "Shop"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Shop"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/customers": {
+      "get": {
+        "tags": [
+          "Customer administration"
+        ],
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "partnerId",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/customers/{id}": {
+      "get": {
+        "tags": [
+          "Customer administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/customers/{id}/suspend": {
+      "post": {
+        "tags": [
+          "Customer administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/customers/{id}/reactivate": {
+      "post": {
+        "tags": [
+          "Customer administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/partners": {
+      "post": {
+        "tags": [
+          "Partner administration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePartnerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Partner administration"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/partners/{id}": {
+      "get": {
+        "tags": [
+          "Partner administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/partners/{id}/suspend": {
+      "post": {
+        "tags": [
+          "Partner administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/partners/{id}/reactivate": {
+      "post": {
+        "tags": [
+          "Partner administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/partners/{id}/scopes": {
+      "put": {
+        "tags": [
+          "Partner administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetScopesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/partners/{id}/limits": {
+      "put": {
+        "tags": [
+          "Partner administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetLimitsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/partners/{id}/keys": {
+      "post": {
+        "tags": [
+          "Partner administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueKeyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/partners/{id}/keys/{keyId}/rotate": {
+      "post": {
+        "tags": [
+          "Partner administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "keyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RotateKeyRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/partners/{id}/keys/{keyId}/revoke": {
+      "post": {
+        "tags": [
+          "Partner administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "keyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/partners/{id}/usage": {
+      "get": {
+        "tags": [
+          "Partner administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/settings/seller": {
+      "get": {
+        "tags": [
+          "Settings administration"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Settings administration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSellerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/settings/payment-instructions": {
+      "get": {
+        "tags": [
+          "Settings administration"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Settings administration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishPaymentInstructionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/settings/payment-instructions/{version}/activate": {
+      "post": {
+        "tags": [
+          "Settings administration"
+        ],
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/settings/commerce-limits": {
+      "get": {
+        "tags": [
+          "Settings administration"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Settings administration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCommerceLimitsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/shop/cart": {
+      "get": {
+        "tags": [
+          "Shop Cart"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/shop/cart/lines": {
+      "post": {
+        "tags": [
+          "Shop Cart"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddCartLineRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/shop/cart/lines/{variantId}": {
+      "put": {
+        "tags": [
+          "Shop Cart"
+        ],
+        "parameters": [
+          {
+            "name": "variantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCartLineRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Shop Cart"
+        ],
+        "parameters": [
+          {
+            "name": "variantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/shop/cart/currency": {
+      "put": {
+        "tags": [
+          "Shop Cart"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCartCurrencyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/shop/checkout": {
+      "post": {
+        "tags": [
+          "Shop Orders"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/shop/orders": {
+      "get": {
+        "tags": [
+          "Shop Orders"
+        ],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/shop/orders/{id}": {
+      "get": {
+        "tags": [
+          "Shop Orders"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/shop/documents/{id}/pdf-url": {
+      "get": {
+        "tags": [
+          "Shop Orders"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/invoices/{id}": {
+      "get": {
+        "tags": [
+          "Partner Invoices"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No key was sent, or it is not a live key.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key does not grant the scope this operation needs.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The key's rate limit was exceeded. Retry after the stated delay.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "PartnerApiKey": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/invoices/{id}/pdf": {
+      "get": {
+        "tags": [
+          "Partner Invoices"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No key was sent, or it is not a live key.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key does not grant the scope this operation needs.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The key's rate limit was exceeded. Retry after the stated delay.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "PartnerApiKey": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/invoices/search": {
+      "post": {
+        "tags": [
+          "Partner Invoices"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No key was sent, or it is not a live key.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key does not grant the scope this operation needs.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The key's rate limit was exceeded. Retry after the stated delay.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "PartnerApiKey": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/orders": {
+      "post": {
+        "tags": [
+          "Partner Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No key was sent, or it is not a live key.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key does not grant the scope this operation needs.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The key's rate limit was exceeded. Retry after the stated delay.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "PartnerApiKey": [ ]
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Partner Orders"
+        ],
+        "parameters": [
+          {
+            "name": "externalOrderId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "externalCustomerId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "customerId",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No key was sent, or it is not a live key.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key does not grant the scope this operation needs.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The key's rate limit was exceeded. Retry after the stated delay.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "PartnerApiKey": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/orders/bulk": {
+      "post": {
+        "tags": [
+          "Partner Orders"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No key was sent, or it is not a live key.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key does not grant the scope this operation needs.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The key's rate limit was exceeded. Retry after the stated delay.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "PartnerApiKey": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/orders/{id}": {
+      "get": {
+        "tags": [
+          "Partner Orders"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No key was sent, or it is not a live key.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key does not grant the scope this operation needs.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The key's rate limit was exceeded. Retry after the stated delay.",
+            "headers": {
+              "X-Correlation-Id": {
+                "description": "Echoes the request's correlation id, or the one this system assigned. Quote it in a support request.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "PartnerApiKey": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/orders": {
+      "get": {
+        "tags": [
+          "Order administration"
+        ],
+        "parameters": [
+          {
+            "name": "channel",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderStatus",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paymentStatus",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "customerId",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "partnerId",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "externalOrderId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "number",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/orders/{id}": {
+      "get": {
+        "tags": [
+          "Order administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/orders/{id}/confirm-payment": {
+      "post": {
+        "tags": [
+          "Order administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmPaymentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/orders/{id}/cancel": {
+      "post": {
+        "tags": [
+          "Order administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/orders/{id}/refunds": {
+      "post": {
+        "tags": [
+          "Order administration"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordRefundRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/dashboard": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/customers/{id}/360": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "recentOrders",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/orders/{id}/360": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/imports/jobs": {
+      "get": {
+        "tags": [
+          "Imports"
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Imports"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateImportJobRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/imports/jobs/{id}": {
+      "get": {
+        "tags": [
+          "Imports"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/imports/jobs/{id}/start": {
+      "post": {
+        "tags": [
+          "Imports"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/imports/jobs/{id}/pause": {
+      "post": {
+        "tags": [
+          "Imports"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/imports/jobs/{id}/resume": {
+      "post": {
+        "tags": [
+          "Imports"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/imports/jobs/{id}/cancel": {
+      "post": {
+        "tags": [
+          "Imports"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/imports/jobs/{id}/mapping": {
+      "put": {
+        "tags": [
+          "Imports"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetMappingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/imports/records": {
+      "get": {
+        "tags": [
+          "Imports"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sourceDomain",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/imports/records/{id}": {
+      "get": {
+        "tags": [
+          "Imports"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/imports/records/{id}/approve": {
+      "post": {
+        "tags": [
+          "Imports"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveRecordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/imports/records/{id}/merge": {
+      "post": {
+        "tags": [
+          "Imports"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergeRecordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/imports/records/{id}/create-new": {
+      "post": {
+        "tags": [
+          "Imports"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/imports/records/{id}/reject": {
+      "post": {
+        "tags": [
+          "Imports"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectRecordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/imports/policies": {
+      "post": {
+        "tags": [
+          "Imports"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourcePolicyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/imports/policies/{id}": {
+      "put": {
+        "tags": [
+          "Imports"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourcePolicyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Backoffice": [ ]
+          },
+          {
+            "Shop": [ ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AddCartLineRequest": {
+        "required": [
+          "variantId",
+          "quantity"
+        ],
+        "type": "object",
+        "properties": {
+          "variantId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "quantity": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "AddIdentifierRequest": {
+        "required": [
+          "type",
+          "value",
+          "sourceDomain"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/ProductIdentifierType"
+          },
+          "value": {
+            "type": "string"
+          },
+          "sourceDomain": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "AddressRequest": {
+        "required": [
+          "line1",
+          "line2",
+          "city",
+          "postalCode",
+          "countryIso2"
+        ],
+        "type": "object",
+        "properties": {
+          "line1": {
+            "type": "string"
+          },
+          "line2": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "city": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "countryIso2": {
+            "type": "string"
+          }
+        }
+      },
+      "AddVariantRequest": {
+        "required": [
+          "sku",
+          "attributes"
+        ],
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "attributes": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ApproveRecordRequest": {
+        "required": [
+          "categoryOverrideId"
+        ],
+        "type": "object",
+        "properties": {
+          "categoryOverrideId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "AttributeBlueprintDataType": {
+        "type": "integer"
+      },
+      "AttributeOptionRequest": {
+        "required": [
+          "optionId",
+          "value",
+          "measurementUnitId"
+        ],
+        "type": "object",
+        "properties": {
+          "optionId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "value": {
+            "type": "string"
+          },
+          "measurementUnitId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "AttributeScope": {
+        "type": "integer",
+        "description": "Whether an attribute applies to the whole catalogue or only within one category — what stops\r\n\"Size\" meaning shoe size in one branch and screen size in another."
+      },
+      "BulkProductRequest": {
+        "required": [
+          "productIds",
+          "status",
+          "primaryCategoryId",
+          "brandId"
+        ],
+        "type": "object",
+        "properties": {
+          "productIds": {
+            "type": "array",
+            "items": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          },
+          "status": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "primaryCategoryId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "brandId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "CheckoutRequest": {
+        "required": [
+          "expectedTotal"
+        ],
+        "type": "object",
+        "properties": {
+          "expectedTotal": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/MoneyRequest"
+              }
+            ]
+          }
+        }
+      },
+      "ConfirmPaymentRequest": {
+        "required": [
+          "method",
+          "reference"
+        ],
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reference": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CreateAttributeRequest": {
+        "required": [
+          "name",
+          "dataType",
+          "options"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "dataType": {
+            "$ref": "#/components/schemas/AttributeBlueprintDataType"
+          },
+          "options": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/AttributeOptionRequest"
+            }
+          }
+        }
+      },
+      "CreateBrandRequest": {
+        "required": [
+          "displayName",
+          "aliases"
+        ],
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "aliases": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateCategoryRequest": {
+        "required": [
+          "name",
+          "slug",
+          "description",
+          "parentId",
+          "displayOrder"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "parentId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "displayOrder": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "CreateImportJobRequest": {
+        "required": [
+          "mode",
+          "sources",
+          "queries",
+          "targetCategoryId",
+          "includeDomains",
+          "excludeDomains",
+          "maxPages",
+          "maxDepth",
+          "maxRecords",
+          "publishPolicy",
+          "fileRightsAttested"
+        ],
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sources": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "queries": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "targetCategoryId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "includeDomains": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "excludeDomains": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxPages": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "maxDepth": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "maxRecords": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "publishPolicy": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fileRightsAttested": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreatePartnerRequest": {
+        "required": [
+          "name",
+          "scopes",
+          "rateLimitPerMinute",
+          "bulkMaxItems"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rateLimitPerMinute": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "bulkMaxItems": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        },
+        "description": "Null limits take the spec defaults; they do not mean \"no limit\"."
+      },
+      "CreateProductRequest": {
+        "required": [
+          "brandId",
+          "primaryCategoryId",
+          "title",
+          "slug",
+          "shortDescription",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "brandId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "primaryCategoryId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "title": {
+            "type": "string"
+          },
+          "slug": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "shortDescription": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "IssueKeyRequest": {
+        "required": [
+          "scopes",
+          "expiresAt"
+        ],
+        "type": "object",
+        "properties": {
+          "scopes": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "expiresAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        },
+        "description": "Null scopes mean every scope the partner holds, which is the usual case."
+      },
+      "MergeRecordRequest": {
+        "required": [
+          "productId"
+        ],
+        "type": "object",
+        "properties": {
+          "productId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "MoneyRequest": {
+        "required": [
+          "amount",
+          "currency"
+        ],
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "currency": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "MoveCategoryRequest": {
+        "required": [
+          "parentId",
+          "displayOrder"
+        ],
+        "type": "object",
+        "properties": {
+          "parentId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "displayOrder": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "ProductIdentifierType": {
+        "type": "integer",
+        "description": "The kinds of identifier a product can be matched on, in descending order of how much they\r\nprove. A GTIN identifies the article worldwide; a source id identifies it only within the one\r\nsystem it came from, which is why that one carries a domain."
+      },
+      "PublishPaymentInstructionRequest": {
+        "required": [
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        }
+      },
+      "RecordRefundRequest": {
+        "required": [
+          "amount",
+          "reason",
+          "externalReference"
+        ],
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "externalReference": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "RejectRecordRequest": {
+        "required": [
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "RenameBrandRequest": {
+        "required": [
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string"
+          }
+        }
+      },
+      "RotateKeyRequest": {
+        "required": [
+          "overlapHours"
+        ],
+        "type": "object",
+        "properties": {
+          "overlapHours": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        },
+        "description": "Hours rather than a TimeSpan: an overlap is an operational decision expressed in hours, and a\r\nJSON TimeSpan is a format callers get wrong. Null takes the configured default."
+      },
+      "SetActiveRequest": {
+        "required": [
+          "isActive"
+        ],
+        "type": "object",
+        "properties": {
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SetAttributeAliasesRequest": {
+        "required": [
+          "aliases"
+        ],
+        "type": "object",
+        "properties": {
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SetAttributeScopeRequest": {
+        "required": [
+          "scope",
+          "categoryId"
+        ],
+        "type": "object",
+        "properties": {
+          "scope": {
+            "$ref": "#/components/schemas/AttributeScope"
+          },
+          "categoryId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "SetAttributeUnitRequest": {
+        "required": [
+          "unitId"
+        ],
+        "type": "object",
+        "properties": {
+          "unitId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "SetBrandAliasesRequest": {
+        "required": [
+          "aliases"
+        ],
+        "type": "object",
+        "properties": {
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SetBrandStatusRequest": {
+        "required": [
+          "isActive"
+        ],
+        "type": "object",
+        "properties": {
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SetCartCurrencyRequest": {
+        "required": [
+          "currency"
+        ],
+        "type": "object",
+        "properties": {
+          "currency": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "SetCategoryAliasesRequest": {
+        "required": [
+          "aliases"
+        ],
+        "type": "object",
+        "properties": {
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SetCategoryStatusRequest": {
+        "required": [
+          "isActive"
+        ],
+        "type": "object",
+        "properties": {
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SetCurrencyEnabledRequest": {
+        "required": [
+          "enabled"
+        ],
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SetCurrencyOverrideRequest": {
+        "required": [
+          "amount"
+        ],
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "string"
+          }
+        }
+      },
+      "SetFxOverrideRequest": {
+        "required": [
+          "base",
+          "quote",
+          "rate",
+          "validUntil"
+        ],
+        "type": "object",
+        "properties": {
+          "base": {
+            "type": "string"
+          },
+          "quote": {
+            "type": "string"
+          },
+          "rate": {
+            "type": "string"
+          },
+          "validUntil": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "SetLimitsRequest": {
+        "required": [
+          "rateLimitPerMinute",
+          "bulkMaxItems"
+        ],
+        "type": "object",
+        "properties": {
+          "rateLimitPerMinute": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "bulkMaxItems": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "SetMappingRequest": {
+        "required": [
+          "mapping"
+        ],
+        "type": "object",
+        "properties": {
+          "mapping": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SetScopesRequest": {
+        "required": [
+          "scopes"
+        ],
+        "type": "object",
+        "properties": {
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SetSecondaryCategoriesRequest": {
+        "required": [
+          "categoryIds"
+        ],
+        "type": "object",
+        "properties": {
+          "categoryIds": {
+            "type": "array",
+            "items": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "SetVariantPriceRequest": {
+        "required": [
+          "amount",
+          "currency"
+        ],
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          }
+        }
+      },
+      "SourcePolicyRequest": {
+        "required": [
+          "domain",
+          "crawlAllowed",
+          "contentUseAllowed",
+          "imageUseAllowed",
+          "notes"
+        ],
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "crawlAllowed": {
+            "type": "boolean"
+          },
+          "contentUseAllowed": {
+            "type": "boolean"
+          },
+          "imageUseAllowed": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "UpdateAttributeRequest": {
+        "required": [
+          "name",
+          "dataType",
+          "isActive",
+          "options"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "dataType": {
+            "$ref": "#/components/schemas/AttributeBlueprintDataType"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttributeOptionRequest"
+            }
+          }
+        }
+      },
+      "UpdateCartLineRequest": {
+        "required": [
+          "quantity"
+        ],
+        "type": "object",
+        "properties": {
+          "quantity": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "UpdateCategoryRequest": {
+        "required": [
+          "name",
+          "slug",
+          "description",
+          "displayOrder"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "displayOrder": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "UpdateCommerceLimitsRequest": {
+        "required": [
+          "minUsd",
+          "maxUsd",
+          "bulkDefaultMax",
+          "compositionDeadlineMs",
+          "compositionMaxLines"
+        ],
+        "type": "object",
+        "properties": {
+          "minUsd": {
+            "type": "string"
+          },
+          "maxUsd": {
+            "type": "string"
+          },
+          "bulkDefaultMax": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "compositionDeadlineMs": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "compositionMaxLines": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        },
+        "description": "Amounts are two-decimal strings; see SettingsAdminEndpoints."
+      },
+      "UpdateProductRequest": {
+        "required": [
+          "brandId",
+          "primaryCategoryId",
+          "title",
+          "shortDescription",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "brandId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "primaryCategoryId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "title": {
+            "type": "string"
+          },
+          "shortDescription": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "UpdateProfileRequest": {
+        "required": [
+          "fullName",
+          "companyName",
+          "phone",
+          "billingAddress",
+          "registrationNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "companyName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "billingAddress": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AddressRequest"
+              }
+            ]
+          },
+          "registrationNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "description": "No email field. Keycloak owns the address for a website account, so accepting one here would\r\nlet a customer set a value the next sign-in silently overwrites."
+      },
+      "UpdateSellerRequest": {
+        "required": [
+          "legalName",
+          "uen",
+          "address",
+          "email",
+          "gstRegistered",
+          "invoiceFooter",
+          "requiredBuyerFields"
+        ],
+        "type": "object",
+        "properties": {
+          "legalName": {
+            "type": "string"
+          },
+          "uen": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "gstRegistered": {
+            "type": "boolean"
+          },
+          "invoiceFooter": {
+            "type": "string"
+          },
+          "requiredBuyerFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Backoffice": {
+        "type": "oauth2",
+        "description": "Keycloak SSO login for the 'Backoffice' realm (Authorization Code + PKCE).",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "http://localhost:8081/realms/Backoffice/protocol/openid-connect/auth",
+            "tokenUrl": "http://localhost:8081/realms/Backoffice/protocol/openid-connect/token",
+            "scopes": {
+              "openid": "OpenID Connect"
+            }
+          }
+        }
+      },
+      "Shop": {
+        "type": "oauth2",
+        "description": "Keycloak SSO login for the 'Shop' realm (Authorization Code + PKCE).",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "http://localhost:8081/realms/Shop/protocol/openid-connect/auth",
+            "tokenUrl": "http://localhost:8081/realms/Shop/protocol/openid-connect/token",
+            "scopes": {
+              "openid": "OpenID Connect"
+            }
+          }
+        }
+      },
+      "PartnerApiKey": {
+        "type": "http",
+        "description": "A partner API key, sent as `Authorization: Bearer pk_...`. Keys are issued by the seller and carry their own scopes and rate limit.",
+        "scheme": "bearer",
+        "bearerFormat": "pk_<prefix>_<secret>"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Partner Orders"
+    },
+    {
+      "name": "Order administration"
+    },
+    {
+      "name": "Admin"
+    },
+    {
+      "name": "Shop"
+    },
+    {
+      "name": "Catalog administration"
+    },
+    {
+      "name": "Pricing administration"
+    },
+    {
+      "name": "Customer administration"
+    },
+    {
+      "name": "Partner administration"
+    },
+    {
+      "name": "Settings administration"
+    },
+    {
+      "name": "Shop Cart"
+    },
+    {
+      "name": "Shop Orders"
+    },
+    {
+      "name": "Partner Invoices"
+    },
+    {
+      "name": "Imports"
+    }
+  ]
+}

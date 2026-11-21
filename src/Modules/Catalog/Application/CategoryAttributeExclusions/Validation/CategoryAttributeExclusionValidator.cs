@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Validation;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Validation;
 
 public sealed class CategoryAttributeExclusionValidator : AbstractValidator<(long CategoryId, long SourceAssignmentId)>
 {

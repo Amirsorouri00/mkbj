@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace EwaysVNext.Core.Application.Security;
+namespace Mkbj.Core.Application.Security;
 
 /// <summary>
 /// Which of a principal's role claims count as backoffice authority.
@@ -21,7 +21,7 @@ public static class BackofficeRoles
     /// </summary>
     public static IReadOnlyCollection<string>? From(ClaimsPrincipal? user)
     {
-        if (user is null || !user.HasClaim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm))
+        if (user is null || !user.HasClaim(MkbjClaimTypes.Tenant, AdminRoles.BackofficeRealm))
             return null;
 
         var roles = user.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray();

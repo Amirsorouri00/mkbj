@@ -1,8 +1,8 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Jobs;
+using Mkbj.Domain.Common;
+using Mkbj.Jobs;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Audit.Implementation;
+namespace Mkbj.Audit.Implementation;
 
 /// <summary>
 /// Extends the hash chain over events that have settled.

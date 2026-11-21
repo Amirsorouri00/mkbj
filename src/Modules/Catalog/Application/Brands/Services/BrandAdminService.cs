@@ -1,15 +1,15 @@
-﻿using EwaysVNext.Audit;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Brands.Domain;
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Common;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using Mkbj.Audit;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Brands.Domain;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Common;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 
-namespace EwaysVNext.Modules.Catalog.Application.Brands.Services;
+namespace Mkbj.Modules.Catalog.Application.Brands.Services;
 
 public sealed class BrandAdminService(
     IBrandRepository repository,

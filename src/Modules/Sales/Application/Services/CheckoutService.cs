@@ -1,13 +1,13 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 using Microsoft.Extensions.Logging;
 
-namespace EwaysVNext.Modules.Sales.Application.Services;
+namespace Mkbj.Modules.Sales.Application.Services;
 
 /// <summary>
 /// Turns a cart into a website order, or refuses because the price moved.

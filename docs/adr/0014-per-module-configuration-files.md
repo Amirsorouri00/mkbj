@@ -18,7 +18,7 @@ file next, and there is no single place to look for "everything Catalog needs to
 dedicated `IConfigurationBuilder` extension.**
 
 ```
-src/Host/EwaysVNext.Host/
+src/Host/Mkbj.Host/
 ├── ConfigurationExtensions.cs
 └── ModuleAppSetting/
     ├── Catalog/
@@ -89,6 +89,6 @@ the environment variable, not the JSON file, wins.
   the same way this ADR reasons about `AddEnvironmentVariables()`.
 
 ## References
-- `src/Host/EwaysVNext.Host/ConfigurationExtensions.cs` — the extension method
-- `src/Host/EwaysVNext.Host/Program.cs` — call site and the precedence-restoring line
+- `src/Host/Mkbj.Host/ConfigurationExtensions.cs` — the extension method
+- `src/Host/Mkbj.Host/Program.cs` — call site and the precedence-restoring line
 - `docker-compose.yml` — the environment-variable source this ADR's fix protects

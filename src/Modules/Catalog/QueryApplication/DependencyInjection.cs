@@ -1,9 +1,9 @@
-﻿using EwaysVNext.Modules.Catalog.QueryApplication.Categories;
-using EwaysVNext.Modules.Catalog.QueryApplication.Products;
-using EwaysVNext.Modules.Catalog.QueryApplication.Storefront;
+using Mkbj.Modules.Catalog.QueryApplication.Categories;
+using Mkbj.Modules.Catalog.QueryApplication.Products;
+using Mkbj.Modules.Catalog.QueryApplication.Storefront;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Catalog.QueryApplication;
+namespace Mkbj.Modules.Catalog.QueryApplication;
 
 public static class DependencyInjection
 {

@@ -1,12 +1,12 @@
 using System.Net;
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Host;
+using Mkbj.Core.Application;
+using Mkbj.Host;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Host;
+namespace Mkbj.IntegrationTests.Host;
 
 /// <summary>
 /// The one-shot commands the production image relies on. The refusal to seed in Production is the
@@ -115,7 +115,7 @@ public sealed class WorkerOnlyHostTests(PostgresFixture fixture)
         });
 
         await using var scope = factory.Services.CreateAsyncScope();
-        await EwaysVNext.Database.DatabaseMigrator.MigrateAsync(scope.ServiceProvider);
-        await EwaysVNext.Database.DatabaseMigrator.MigrateAsync(scope.ServiceProvider);
+        await Mkbj.Database.DatabaseMigrator.MigrateAsync(scope.ServiceProvider);
+        await Mkbj.Database.DatabaseMigrator.MigrateAsync(scope.ServiceProvider);
     }
 }

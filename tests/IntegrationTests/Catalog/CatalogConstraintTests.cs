@@ -1,14 +1,14 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
-using EwaysVNext.Modules.Catalog.Application.Brands.Domain;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
+using AwesomeAssertions;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Modules.Catalog.Application.Brands.Domain;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Catalog;
+namespace Mkbj.IntegrationTests.Catalog;
 
 /// <summary>
 /// What the catalogue's own database guarantees, as opposed to what its domain checks. These
@@ -32,7 +32,7 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
 
         using (var scope = factory.Services.CreateScope())
         {
-            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
             db.Set<Category>().Add(Root($"Garden Tools {suffix}", $"garden-tools-{suffix}"));
             await db.SaveChangesAsync();
         }
@@ -42,7 +42,7 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
         var act = async () =>
         {
             using var scope = factory.Services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
             db.Set<Category>().Add(Root($"Garden  Tools  {suffix}", $"garden-tools-{suffix}-2"));
             await db.SaveChangesAsync();
         };
@@ -63,7 +63,7 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
         var suffix = Guid.NewGuid().ToString("N")[..8];
 
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         var first = Root($"Parent A {suffix}", $"parent-a-{suffix}");
         var second = Root($"Parent B {suffix}", $"parent-b-{suffix}");
@@ -90,7 +90,7 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
 
         using (var scope = factory.Services.CreateScope())
         {
-            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
             var category = Root($"Kettles {suffix}", $"kettles-{suffix}");
             category.SetAliases(["Electric Kettles", "Tea Makers"], DateTimeOffset.UtcNow);
 
@@ -101,7 +101,7 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
 
         using (var scope = factory.Services.CreateScope())
         {
-            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
             var reloaded = await db.Set<Category>().AsNoTracking()
                 .SingleAsync(category => category.Id == id);
@@ -119,7 +119,7 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
 
         using (var scope = factory.Services.CreateScope())
         {
-            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
             db.Set<AttributeBlueprint>().Add(AttributeBlueprint.Create(
                 NextId(), $"Screen Size {suffix}", AttributeBlueprintDataType.Number, DateTimeOffset.UtcNow));
             await db.SaveChangesAsync();
@@ -128,7 +128,7 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
         var act = async () =>
         {
             using var scope = factory.Services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
             db.Set<AttributeBlueprint>().Add(AttributeBlueprint.Create(
                 NextId(), $"screen  size  {suffix}", AttributeBlueprintDataType.Number, DateTimeOffset.UtcNow));
             await db.SaveChangesAsync();
@@ -150,7 +150,7 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
         var suffix = Guid.NewGuid().ToString("N")[..8];
 
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         var first = AttributeBlueprint.Create(
             NextId(), $"Size A {suffix}", AttributeBlueprintDataType.Option, DateTimeOffset.UtcNow);
@@ -180,7 +180,7 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
 
         using (var scope = factory.Services.CreateScope())
         {
-            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
             db.Set<Brand>().Add(Brand.Create(NextId(), $"Northwind {suffix}", "admin", DateTimeOffset.UtcNow));
             await db.SaveChangesAsync();
         }
@@ -188,7 +188,7 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
         var act = async () =>
         {
             using var scope = factory.Services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
             db.Set<Brand>().Add(Brand.Create(NextId(), $"NORTHWIND  {suffix}", "import", DateTimeOffset.UtcNow));
             await db.SaveChangesAsync();
         };
@@ -208,7 +208,7 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
 
         using (var scope = factory.Services.CreateScope())
         {
-            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
             var first = Brand.Create(NextId(), $"Northwind {suffix}", "admin", DateTimeOffset.UtcNow);
             first.AddAlias(NextId(), $"Acme {suffix}", DateTimeOffset.UtcNow);
             db.Set<Brand>().Add(first);
@@ -220,7 +220,7 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
         var act = async () =>
         {
             using var scope = factory.Services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
             var second = Brand.Create(NextId(), $"Southwind {suffix}", "import", DateTimeOffset.UtcNow);
             second.AddAlias(NextId(), $"ACME  {suffix}", DateTimeOffset.UtcNow);
             db.Set<Brand>().Add(second);
@@ -241,7 +241,7 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
         var suffix = Guid.NewGuid().ToString("N")[..8];
 
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         // Written past the aggregate, the way an import fix-up script would.
         var act = async () => await db.Database.ExecuteSqlRawAsync(
@@ -265,7 +265,7 @@ public sealed class CatalogConstraintTests(PostgresFixture fixture)
         var suffix = Guid.NewGuid().ToString("N")[..8];
 
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         var category = Root($"Kettles {suffix}", $"kettles-{suffix}");
         category.SetAliases([$"Boilers {suffix}"], DateTimeOffset.UtcNow);

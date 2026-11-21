@@ -1,21 +1,21 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sales.Application.Composition;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
-using EwaysVNext.Modules.Sales.Application.Domain.Telemetry;
-using EwaysVNext.Modules.Sales.Application.Money;
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sales.Application.Composition;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Modules.Sales.Application.Domain.Telemetry;
+using Mkbj.Modules.Sales.Application.Money;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Outcomes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace EwaysVNext.Modules.Sales.Application.Services;
+namespace Mkbj.Modules.Sales.Application.Services;
 
 /// <summary>
 /// Turns a partner's requested amount into a real, paid, invoiced order.
@@ -72,7 +72,7 @@ internal sealed class PartnerOrderService(
         ArgumentNullException.ThrowIfNull(command);
 
         // Read once: every snapshot, rate and timestamp on this order must agree.
-        var now = clock.UtcNow;
+        var now = command.ReceivedAt ?? clock.UtcNow;
 
         // 1. Idempotency, before anything else — a retry must be cheap.
         var existing = await orders.FindPartnerOrderKeyAsync(

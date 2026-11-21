@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace EwaysVNext.Domain.ValueObjects;
+namespace Mkbj.Domain.ValueObjects;
 
 internal static class MoneyMessages
 {

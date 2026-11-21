@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace EwaysVNext.Domain.Common;
+namespace Mkbj.Domain.Common;
 
 public sealed class SnowflakeIdGenerator(IClock? clock = null) : IIdGenerator
 {

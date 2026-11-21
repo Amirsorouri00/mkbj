@@ -1,7 +1,7 @@
 using System.Numerics;
 using System.Security.Cryptography;
 
-namespace EwaysVNext.Modules.Partners.Application.Partners.Keys;
+namespace Mkbj.Modules.Partners.Application.Partners.Keys;
 
 /// <summary>A freshly generated key. <see cref="Plaintext"/> is shown once and never stored.</summary>
 public sealed record GeneratedApiKey(string Prefix, string Secret, string Plaintext);

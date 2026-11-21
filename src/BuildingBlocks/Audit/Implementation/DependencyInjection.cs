@@ -1,9 +1,9 @@
-﻿using EwaysVNext.Jobs;
-using EwaysVNext.Jobs.Implementation;
+using Mkbj.Jobs;
+using Mkbj.Jobs.Implementation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace EwaysVNext.Audit.Implementation;
+namespace Mkbj.Audit.Implementation;
 
 public static class DependencyInjection
 {

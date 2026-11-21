@@ -1,15 +1,15 @@
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Sales.Application;
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Modules.Sales.Application.Services;
-using EwaysVNext.Outcomes;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Sales.Application;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.Application.Services;
+using Mkbj.Outcomes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Services;
+namespace Mkbj.UnitTests.Sales.Services;
 
 /// <summary>
 /// A batch of partner orders: isolation, bounded parallelism, and a deadline.
@@ -218,14 +218,14 @@ public sealed class PartnerBulkOrderTests
         public long NextSeed() => 1;
     }
 
-    private sealed class StubIds : EwaysVNext.Domain.Common.IIdGenerator
+    private sealed class StubIds : Mkbj.Domain.Common.IIdGenerator
     {
         private long _next;
 
         public long Generate() => Interlocked.Increment(ref _next);
     }
 
-    private sealed class StubClock : EwaysVNext.Domain.Common.IClock
+    private sealed class StubClock : Mkbj.Domain.Common.IClock
     {
         public DateTimeOffset UtcNow { get; } = new(2026, 11, 7, 9, 0, 0, TimeSpan.Zero);
     }

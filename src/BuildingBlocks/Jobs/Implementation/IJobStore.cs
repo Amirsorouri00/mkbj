@@ -1,4 +1,4 @@
-namespace EwaysVNext.Jobs.Implementation;
+namespace Mkbj.Jobs.Implementation;
 
 public sealed record ClaimedJob(long Id, string Type, string Payload, int Attempts, int MaxAttempts);
 

@@ -1,8 +1,8 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace EwaysVNext.Modules.Catalog.Application.Categories;
+namespace Mkbj.Modules.Catalog.Application.Categories;
 
 public static class DependencyInjection
 {

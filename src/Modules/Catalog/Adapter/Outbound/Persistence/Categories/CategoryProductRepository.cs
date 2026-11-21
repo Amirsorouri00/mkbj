@@ -1,12 +1,12 @@
-﻿using System.Data.Common;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
+using System.Data.Common;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound.Persistence.Categories;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound.Persistence.Categories;
 
-internal sealed class CategoryProductRepository(EwaysVNextDbContext db)
+internal sealed class CategoryProductRepository(MkbjDbContext db)
     : ICategoryProductRepository
 {
     public Task<bool> ExistsAsync(long categoryId, long productId, CancellationToken ct = default) =>

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Domain.Common;
+namespace Mkbj.Domain.Common;
 
 internal static class SnowflakeIdGeneratorMessages
 {

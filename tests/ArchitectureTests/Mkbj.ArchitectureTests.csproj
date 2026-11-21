@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- xUnit.net v3 test projects MUST be executables; the package errors out otherwise. -->
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
+    <PackageReference Include="AwesomeAssertions" />
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\Catalog\Installer\Mkbj.Modules.Catalog.Installer.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Customer\Installer\Mkbj.Modules.Customer.Installer.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Partners\Installer\Mkbj.Modules.Partners.Installer.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Settings\Installer\Mkbj.Modules.Settings.Installer.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Pricing\Installer\Mkbj.Modules.Pricing.Installer.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sales\Installer\Mkbj.Modules.Sales.Installer.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sales\Adapter\Inbound\Rest\Mkbj.Modules.Sales.Adapter.Inbound.Rest.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Admin\Installer\Mkbj.Modules.Admin.Installer.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sourcing\Installer\Mkbj.Modules.Sourcing.Installer.csproj" />
+  </ItemGroup>
+</Project>

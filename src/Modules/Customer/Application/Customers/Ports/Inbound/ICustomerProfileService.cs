@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
+namespace Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
 
 /// <summary>
 /// Email is absent on purpose. Keycloak owns the address for a website account, and letting a

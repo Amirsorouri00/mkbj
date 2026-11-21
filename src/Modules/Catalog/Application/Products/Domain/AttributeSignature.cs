@@ -1,9 +1,9 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Common;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Common;
 
-namespace EwaysVNext.Modules.Catalog.Application.Products.Domain;
+namespace Mkbj.Modules.Catalog.Application.Products.Domain;
 
 /// <summary>
 /// The canonical form of a variant's distinguishing attributes, and the hash that identifies it.

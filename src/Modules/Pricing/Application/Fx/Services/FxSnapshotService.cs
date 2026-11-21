@@ -1,8 +1,8 @@
-﻿using EwaysVNext.Modules.Pricing.Application.Fx.Domain;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Pricing.Application.Fx.Domain;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Inbound;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Pricing.Application.Fx.Services;
+namespace Mkbj.Modules.Pricing.Application.Fx.Services;
 
 public sealed class FxSnapshotService(FxBookLoader books) : IFxSnapshotPort
 {

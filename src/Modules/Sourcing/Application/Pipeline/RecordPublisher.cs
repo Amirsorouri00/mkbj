@@ -1,12 +1,12 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourceListings;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
-using EwaysVNext.Modules.Sourcing.Application.Normalization;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sourcing.Application.Domain.SourceListings;
+using Mkbj.Modules.Sourcing.Application.Domain.SourcePolicies;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Modules.Sourcing.Application.Normalization;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Pipeline;
+namespace Mkbj.Modules.Sourcing.Application.Pipeline;
 
 /// <summary>
 /// Turns a validated record into a real product at a real price.

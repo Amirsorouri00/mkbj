@@ -1,7 +1,7 @@
-﻿using EwaysVNext.Jobs;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound;
+using Mkbj.Jobs;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Inbound;
 
-namespace EwaysVNext.Modules.Pricing.Adapter.Outbound.Fx;
+namespace Mkbj.Modules.Pricing.Adapter.Outbound.Fx;
 
 /// <summary>
 /// Runs the FX refresh on a schedule, and again whenever an admin asks.

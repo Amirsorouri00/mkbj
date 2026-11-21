@@ -2,18 +2,18 @@ using System.Security.Claims;
 
 using AuthorizationService.Abstractions.Attributes;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.QueryApplication.Brands;
-using EwaysVNext.Modules.Catalog.QueryApplication.Products;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
-using EwaysVNext.Presentation.Endpoint.Security;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Inbound;
+using Mkbj.Modules.Catalog.QueryApplication.Brands;
+using Mkbj.Modules.Catalog.QueryApplication.Products;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.Security;
+using Mkbj.Queries.Application.Paginations;
 using HotChocolate.Authorization;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Brands;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.Brands;
 
 // Both attributes sit on every resolver, never on the class. A type-level attribute on an
 // [ExtendObjectType] is merged onto the whole Query/Mutation and would gate every other module's

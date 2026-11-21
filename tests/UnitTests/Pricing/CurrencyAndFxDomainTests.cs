@@ -1,10 +1,10 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Pricing.Application.Currencies.Domain;
-using EwaysVNext.Modules.Pricing.Application.Fx.Domain;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Pricing.Application.Currencies.Domain;
+using Mkbj.Modules.Pricing.Application.Fx.Domain;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Pricing;
+namespace Mkbj.UnitTests.Pricing;
 
 /// <summary>
 /// Currencies and exchange rates. Nearly everything refused here would otherwise become a wrong

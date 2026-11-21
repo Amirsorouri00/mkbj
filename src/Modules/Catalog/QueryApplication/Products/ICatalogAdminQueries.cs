@@ -1,8 +1,8 @@
-﻿using EwaysVNext.Modules.Catalog.QueryApplication.Brands;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Modules.Catalog.QueryApplication.Brands;
+using Mkbj.Outcomes;
+using Mkbj.Queries.Application.Paginations;
 
-namespace EwaysVNext.Modules.Catalog.QueryApplication.Products;
+namespace Mkbj.Modules.Catalog.QueryApplication.Products;
 
 /// <summary>
 /// The catalogue's administrative read side. Unlike the storefront's, these projections include
@@ -16,6 +16,9 @@ public interface ICatalogAdminQueries
 
     Task<PaginatedQuery<ProductAdminRowDto>> ListProductsAsync(
         ProductAdminFilter filter, int page, int pageSize, CancellationToken ct = default);
+
+    Task<IReadOnlyList<ProductAdminVariantLookupDto>> SearchVariantsAsync(
+        string query, int take, CancellationToken ct = default);
 
     Task<Result<ProductAdminDetailDto>> GetProductAsync(long productId, CancellationToken ct = default);
 }

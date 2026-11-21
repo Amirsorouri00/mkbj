@@ -1,9 +1,9 @@
 using System.Text.RegularExpressions;
-using EwaysVNext.Core.Application;
+using Mkbj.Core.Application;
 using Microsoft.AspNetCore.Http;
 using Serilog.Context;
 
-namespace EwaysVNext.Presentation.Endpoint;
+namespace Mkbj.Presentation.Endpoint;
 
 /// <summary>
 /// Gives every request a correlation id, echoes it on the response and puts it on the log scope.

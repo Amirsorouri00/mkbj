@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Mkbj.Modules.Catalog.Adapter.Outbound</RootNamespace>
+    <Description>Catalog driven adapters: SQL DB repository, EF Core DbContext. Implements IProductRepository (outbound port).</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="EFCore.NamingConventions" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Jobs\Implementation\Mkbj.Jobs.Implementation.csproj" />
+    <ProjectReference Include="..\..\Application\Mkbj.Modules.Catalog.Application.csproj" />
+    <ProjectReference Include="..\..\QueryApplication\Mkbj.Modules.Catalog.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Persistence\Mkbj.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Storage\Application\Mkbj.Storage.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Queries\Application\Mkbj.Queries.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Events\Application\Mkbj.Events.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\Database\Mkbj.Database.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Mkbj.Modules.Catalog.Contracts\Mkbj.Modules.Catalog.Contracts.csproj" />
+  </ItemGroup>
+</Project>

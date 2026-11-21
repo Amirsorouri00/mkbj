@@ -4,17 +4,17 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
-using EwaysVNext.Persistence;
+using Mkbj.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Modules.Sourcing.Application.Ports.Inbound;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Persistence;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sourcing;
+namespace Mkbj.IntegrationTests.Sourcing;
 
 /// <summary>
 /// PRD acceptance 10: import twice, get one catalogue.
@@ -162,7 +162,7 @@ public sealed class ImportAcceptanceTests(PostgresFixture fixture)
                 new MemoryStream(Encoding.UTF8.GetBytes(
                     "name,price,currency\nSteel Kettle,19.99,SGD\nGlass Kettle,24.50,SGD\n")),
                 ImportFileFormat.Csv,
-                new EwaysVNext.Core.Application.AdminActor(Guid.NewGuid(), true),
+                new Mkbj.Core.Application.AdminActor(Guid.NewGuid(), true),
                 Ct));
 
         preview.IsSuccess.Should().BeTrue(preview.Error?.Message);

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Audit;
+namespace Mkbj.Audit;
 
 /// <summary>
 /// Records an admin action.

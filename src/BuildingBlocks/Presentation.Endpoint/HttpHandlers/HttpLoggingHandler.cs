@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace EwaysVNext.Presentation.Endpoint.HttpHandlers;
+namespace Mkbj.Presentation.Endpoint.HttpHandlers;
 
 public sealed class HttpLoggingHandler(ILogger<HttpLoggingHandler> logger, HttpLoggingOption httpLoggingOption) : DelegatingHandler
 {

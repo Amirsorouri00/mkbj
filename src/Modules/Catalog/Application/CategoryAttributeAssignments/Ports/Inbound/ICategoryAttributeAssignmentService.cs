@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Inbound;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Inbound;
 
 
 public interface ICategoryAttributeAssignmentService

@@ -1,6 +1,6 @@
-﻿using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
 
-namespace EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
+namespace Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
 
 public interface ICategoryProductRepository
 {

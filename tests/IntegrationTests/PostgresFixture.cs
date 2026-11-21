@@ -1,7 +1,7 @@
 using System.Text;
 using Amazon.S3;
 using Amazon.S3.Model;
-using EwaysVNext.Database;
+using Mkbj.Database;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
@@ -12,14 +12,14 @@ using Testcontainers.LocalStack;
 using Testcontainers.PostgreSql;
 using Xunit;
 using AuthorizationService.Implementation.Persistence;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Presentation.Endpoint.Security;
 
-namespace EwaysVNext.IntegrationTests;
+namespace Mkbj.IntegrationTests;
 
 /// <summary>
 /// The real platform the suite runs against: a Postgres container built by the same
 /// <c>build/postgres/init/01-roles.sql</c> production uses, and an S3 server with the three
-/// buckets. Tests connect to Postgres as <c>eways_app</c>, the role that owns nothing — so
+/// buckets. Tests connect to Postgres as <c>mkbj_app</c>, the role that owns nothing — so
 /// anything the schema forbids the application fails here too, instead of passing as a superuser
 /// and failing in production.
 /// <para>
@@ -35,7 +35,7 @@ public sealed class PostgresFixture : IAsyncLifetime
     private const string AppPassword = "app";
     private const string MigratorPassword = "migrator";
     private const string SuperuserPassword = "postgres";
-    private const string Database = "eways";
+    private const string Database = "mkbj";
 
     // Testcontainers 4.16 marks the parameterless builder constructors obsolete but ships no
     // public replacement. SuppressMessage does not apply to compiler warnings, so this is a pragma.
@@ -64,8 +64,8 @@ public sealed class PostgresFixture : IAsyncLifetime
     public const string TestRouterScheme = "IntegrationTestRouter";
 
     public string SuperuserConnectionString => _postgres.GetConnectionString();
-    public string AppConnectionString => ConnectionStringFor("eways_app", AppPassword);
-    public string MigratorConnectionString => ConnectionStringFor("eways_migrator", MigratorPassword);
+    public string AppConnectionString => ConnectionStringFor("mkbj_app", AppPassword);
+    public string MigratorConnectionString => ConnectionStringFor("mkbj_migrator", MigratorPassword);
 
     public string StorageEndpoint => _s3.GetConnectionString();
     public const string StorageAccessKey = "test";
@@ -147,7 +147,7 @@ public sealed class PostgresFixture : IAsyncLifetime
 
         await CreateBucketsAsync();
 
-        // Migrate as eways_migrator: the owner role. The app role cannot create objects, which is
+        // Migrate as mkbj_migrator: the owner role. The app role cannot create objects, which is
         // the point — the suite proves the production grant split, not just the schema.
         using var migrator = CreateFactory(new Dictionary<string, string?>
         {
@@ -171,7 +171,7 @@ public sealed class PostgresFixture : IAsyncLifetime
             StorageSecretKey,
             new AmazonS3Config { ServiceURL = StorageEndpoint, ForcePathStyle = true, AuthenticationRegion = "us-east-1" });
 
-        foreach (var bucket in EwaysVNext.Storage.StorageBuckets.All)
+        foreach (var bucket in Mkbj.Storage.StorageBuckets.All)
         {
             await client.PutBucketAsync(new PutBucketRequest { BucketName = bucket });
         }
@@ -200,14 +200,14 @@ public sealed class PostgresFixture : IAsyncLifetime
     /// </summary>
     public async Task<WebApplicationFactory<Program>> CreateFreshDatabaseFactoryAsync()
     {
-        var name = $"eways_fresh_{Guid.NewGuid():N}";
+        var name = $"mkbj_fresh_{Guid.NewGuid():N}";
 
         await using (var admin = new Npgsql.NpgsqlConnection(SuperuserConnectionString))
         {
             await admin.OpenAsync();
 
             await using var create = new Npgsql.NpgsqlCommand(
-                $"CREATE DATABASE \"{name}\" OWNER eways_migrator", admin);
+                $"CREATE DATABASE \"{name}\" OWNER mkbj_migrator", admin);
             await create.ExecuteNonQueryAsync();
         }
 
@@ -222,15 +222,15 @@ public sealed class PostgresFixture : IAsyncLifetime
 
             await using var grant = new Npgsql.NpgsqlCommand(
                 $"""
-                GRANT CONNECT ON DATABASE "{name}" TO eways_app;
-                ALTER DEFAULT PRIVILEGES FOR ROLE eways_migrator GRANT USAGE ON SCHEMAS TO eways_app;
-                ALTER DEFAULT PRIVILEGES FOR ROLE eways_migrator GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO eways_app;
-                ALTER DEFAULT PRIVILEGES FOR ROLE eways_migrator GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO eways_app;
+                GRANT CONNECT ON DATABASE "{name}" TO mkbj_app;
+                ALTER DEFAULT PRIVILEGES FOR ROLE mkbj_migrator GRANT USAGE ON SCHEMAS TO mkbj_app;
+                ALTER DEFAULT PRIVILEGES FOR ROLE mkbj_migrator GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO mkbj_app;
+                ALTER DEFAULT PRIVILEGES FOR ROLE mkbj_migrator GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO mkbj_app;
                 """, admin);
             await grant.ExecuteNonQueryAsync();
         }
 
-        var migratorConnection = ConnectionStringFor("eways_migrator", MigratorPassword, name);
+        var migratorConnection = ConnectionStringFor("mkbj_migrator", MigratorPassword, name);
 
         using (var migrator = CreateFactory(new Dictionary<string, string?>
         {
@@ -247,7 +247,7 @@ public sealed class PostgresFixture : IAsyncLifetime
         // grant split, not just the schema.
         return CreateFactory(new Dictionary<string, string?>
         {
-            ["ConnectionStrings:Default"] = ConnectionStringFor("eways_app", AppPassword, name),
+            ["ConnectionStrings:Default"] = ConnectionStringFor("mkbj_app", AppPassword, name),
         });
     }
 
@@ -257,13 +257,13 @@ public sealed class PostgresFixture : IAsyncLifetime
         {
             var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-            while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "EwaysVNext.slnx")))
+            while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "Mkbj.slnx")))
             {
                 directory = directory.Parent;
             }
 
             return directory?.FullName
-                ?? throw new DirectoryNotFoundException("Could not locate the EwaysVNext solution directory.");
+                ?? throw new DirectoryNotFoundException("Could not locate the Mkbj solution directory.");
         }
     }
 }

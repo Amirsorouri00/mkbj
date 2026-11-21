@@ -1,7 +1,7 @@
-﻿using EwaysVNext.Core.Application;
-using EwaysVNext.Outcomes;
+using Mkbj.Core.Application;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
+namespace Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
 
 /// <summary>
 /// Everything an admin does to a product. Every method takes the actor explicitly — there is no

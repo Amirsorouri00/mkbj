@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Sales.Application.Composition;
+namespace Mkbj.Modules.Sales.Application.Composition;
 
 /// <summary>
 /// One sellable variant the engine may put in a basket, with the price band it may be sold at.

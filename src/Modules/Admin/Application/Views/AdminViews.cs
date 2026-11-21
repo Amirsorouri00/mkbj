@@ -1,4 +1,5 @@
-namespace EwaysVNext.Modules.Admin.Application.Views;
+using System.Text.Json.Serialization;
+namespace Mkbj.Modules.Admin.Application.Views;
 
 /// <summary>
 /// Everything the backoffice reads, in Admin's own words.
@@ -32,7 +33,7 @@ public sealed record CompositionFailure(
     string Currency,
     long TargetMinor,
     long DurationMs,
-    long? PartnerId);
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long? PartnerId);
 
 public sealed record SalesSnapshot(
     IReadOnlyList<OrderTotalsRow> OrderTotals,
@@ -74,12 +75,12 @@ public sealed record OrderStatusView(
     string Documents);
 
 public sealed record OrderRow(
-    long Id,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long Id,
     string Number,
     string Channel,
-    long? PartnerId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long? PartnerId,
     string? ExternalOrderId,
-    long CustomerId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long CustomerId,
     string Currency,
     long TotalMinor,
     long RefundedMinor,
@@ -91,15 +92,15 @@ public sealed record OrderRow(
 /// which route a reader may use is a property of who is reading, not of the document.
 /// </remarks>
 public sealed record DocumentView(
-    long Id,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long Id,
     string Type,
     string Number,
     DateTimeOffset IssuedAt,
-    long? RelatedDocumentId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long? RelatedDocumentId,
     string PdfPath);
 
 public sealed record PaymentView(
-    long Id,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long Id,
     string Source,
     string? Method,
     string? Reference,
@@ -108,13 +109,13 @@ public sealed record PaymentView(
     long AmountMinor);
 
 public sealed record RefundView(
-    long Id,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long Id,
     long AmountMinor,
     string Reason,
     Guid RecordedBy,
     DateTimeOffset RecordedAt,
     string? ExternalReference,
-    long CreditNoteDocumentId);
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long CreditNoteDocumentId);
 
 /// <remarks>
 /// <c>LineCount</c> rather than the lines. An order sheet is a summary an operator scans; the
@@ -139,13 +140,13 @@ public sealed record ContactChangeEntry(
     string? OldValue,
     string? NewValue,
     DateTimeOffset ChangedAt,
-    long? SourcePartnerId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long? SourcePartnerId,
     string CorrelationId);
 
 public sealed record CustomerProfile(
-    long Id,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long Id,
     string Kind,
-    long? PartnerId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long? PartnerId,
     string? ExternalCustomerId,
     string? Email,
     string? Phone,
@@ -170,6 +171,6 @@ public sealed record Order360(OrderSheet Order, CustomerProfile? Customer);
 public sealed record AuditVerificationView(
     bool Intact,
     long SealedCount,
-    long? FirstMismatchEventId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long? FirstMismatchEventId,
     long UnsealedBelowWatermark,
     DateTimeOffset VerifiedAt);

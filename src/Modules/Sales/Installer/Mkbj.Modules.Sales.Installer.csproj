@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Mkbj.Modules.Sales.Installer</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Mkbj.Modules.Sales.Application.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\Mkbj.Modules.Sales.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\Rest\Mkbj.Modules.Sales.Adapter.Inbound.Rest.csproj" />
+    <ProjectReference Include="..\QueryApplication\Mkbj.Modules.Sales.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\DependencyInjection\Mkbj.DependencyInjection.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\GraphQL\Mkbj.Modules.Sales.Adapter.Inbound.GraphQL.csproj" />
+  </ItemGroup>
+</Project>

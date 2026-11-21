@@ -1,10 +1,10 @@
 using AwesomeAssertions;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public sealed class AttributeBlueprintArchivePersistenceTests
 {
@@ -31,8 +31,8 @@ public sealed class AttributeBlueprintArchivePersistenceTests
             .Which.Status.Should().Be(AttributeBlueprintStatus.Inactive);
     }
 
-    private static EwaysVNextDbContext CreateDatabase()
-        => new(new DbContextOptionsBuilder<EwaysVNextDbContext>()
+    private static MkbjDbContext CreateDatabase()
+        => new(new DbContextOptionsBuilder<MkbjDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options);
 }

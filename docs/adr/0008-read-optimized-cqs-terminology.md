@@ -2,7 +2,7 @@
 
 ## Status
 Accepted — 2026-08-24 | **Amended (2026-09-01)**: a generic `ICommandBus`/`IQueryBus`
-(service-locator dispatch) was added to `EwaysVNext.Commands.*`/`EwaysVNext.Queries.*` as
+(service-locator dispatch) was added to `Mkbj.Commands.*`/`Mkbj.Queries.*` as
 available infrastructure, then removed — see
 [ADR-0011](0011-simplify-back-to-a-broker-free-bus-free-architecture.md). It had zero real
 callers in either module; every `Application/Ports/Service` class was, and still is, called

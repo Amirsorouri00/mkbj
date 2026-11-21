@@ -1,6 +1,6 @@
-﻿using EwaysVNext.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest.Admin;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.Rest.Admin;
 
 public sealed record CreateProductRequest(
     long BrandId,

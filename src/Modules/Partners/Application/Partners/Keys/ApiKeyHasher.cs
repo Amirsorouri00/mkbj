@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace EwaysVNext.Modules.Partners.Application.Partners.Keys;
+namespace Mkbj.Modules.Partners.Application.Partners.Keys;
 
 /// <summary>
 /// Hashes and verifies key secrets with HMAC-SHA256 under the pepper.

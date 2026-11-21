@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Brands.Domain;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Brands.Domain;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 /// <summary>
 /// A brand is one of the few catalogue facts an import creates on its own, so the aggregate has

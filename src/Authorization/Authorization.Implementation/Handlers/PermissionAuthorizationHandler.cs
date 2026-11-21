@@ -2,7 +2,7 @@ using System.Security.Claims;
 using AuthorizationService.Abstractions.Authorization;
 using AuthorizationService.Abstractions.Authorization.Requests;
 using AuthorizationService.Abstractions.Requirements;
-using EwaysVNext.Core.Application.Security;
+using Mkbj.Core.Application.Security;
 using Microsoft.AspNetCore.Authorization;
 
 namespace AuthorizationService.Implementation.Handlers;
@@ -14,7 +14,7 @@ public sealed class PermissionAuthorizationHandler(IAuthorizationCheckService ch
         AuthorizationHandlerContext context, PermissionRequirement requirement)
     {
         var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-            ?? context.User.FindFirst(EwaysClaimTypes.Subject)?.Value;
+            ?? context.User.FindFirst(MkbjClaimTypes.Subject)?.Value;
 
         if (!Guid.TryParse(userIdClaim, out var userId))
         {

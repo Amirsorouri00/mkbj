@@ -1,16 +1,16 @@
 using System.Globalization;
-using EwaysVNext.Audit;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
-using EwaysVNext.Storage;
+using Mkbj.Audit;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Ports.Inbound;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
+using Mkbj.Storage;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Services;
+namespace Mkbj.Modules.Sourcing.Application.Services;
 
 /// <summary>
 /// Uploading a file against a draft job, and saying what is in it.
@@ -84,10 +84,30 @@ internal sealed class ImportFileService(
 
         await unitOfWork.SaveChangesAsync(ct);
 
-        return Result.Success(new ImportFilePreview(
-            contents.Value!.Columns,
-            [.. contents.Value.Rows.Select(row => row.Cells)],
-            SampleSize));
+        return Result.Success(Preview(contents.Value!));
+    }
+
+    public async Task<Result<ImportFilePreview>> PreviewAsync(
+        long jobId, CancellationToken ct = default)
+    {
+        var job = await jobs.GetAsync(jobId, ct);
+        if (job is null) return Result.Failure<ImportFilePreview>(SourcingErrors.JobNotFound);
+        if (job.FileObjectKey is null || job.FileFormat is not { } format)
+            return Result.Failure<ImportFilePreview>(SourcingErrors.FileRequired);
+
+        var reader = readers.FirstOrDefault(candidate => candidate.Handles(format));
+        if (reader is null)
+            return Result.Failure<ImportFilePreview>(SourcingErrors.FileFormatUnsupported);
+
+        await using var content = await storage.GetAsync(
+            StorageBuckets.ImportStaging, job.FileObjectKey, ct);
+        if (content is null)
+            return Result.Failure<ImportFilePreview>(SourcingErrors.FileRequired);
+
+        var contents = await reader.ReadAsync(content, SampleSize, ct);
+        return contents.IsFailure
+            ? Result.Failure<ImportFilePreview>(contents.Error!)
+            : Result.Success(Preview(contents.Value!));
     }
 
     public async Task<Result> SetMappingAsync(
@@ -157,4 +177,9 @@ internal sealed class ImportFileService(
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         _ => "application/json",
     };
+
+    private static ImportFilePreview Preview(ImportFileContents contents) => new(
+        contents.Columns,
+        [.. contents.Rows.Select(row => row.Cells)],
+        SampleSize);
 }

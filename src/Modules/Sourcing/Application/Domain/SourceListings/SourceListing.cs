@@ -1,8 +1,8 @@
 using System.Text.RegularExpressions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sourcing.Application.Domain.SourcePolicies;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Domain.SourceListings;
+namespace Mkbj.Modules.Sourcing.Application.Domain.SourceListings;
 
 /// <summary>
 /// One price, as seen at one source at one moment.

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Settings.QueryApplication;
+namespace Mkbj.Modules.Settings.QueryApplication;
 
 public sealed record SellerView(
     string LegalName,

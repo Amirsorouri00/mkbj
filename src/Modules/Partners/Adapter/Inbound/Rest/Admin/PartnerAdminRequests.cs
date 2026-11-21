@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Partners.Adapter.Inbound.Rest.Admin;
+namespace Mkbj.Modules.Partners.Adapter.Inbound.Rest.Admin;
 
 /// <summary>Null limits take the spec defaults; they do not mean "no limit".</summary>
 public sealed record CreatePartnerRequest(

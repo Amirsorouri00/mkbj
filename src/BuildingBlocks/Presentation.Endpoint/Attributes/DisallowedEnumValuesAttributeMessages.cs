@@ -1,4 +1,4 @@
-namespace EwaysVNext.Presentation.Endpoint.Attributes;
+namespace Mkbj.Presentation.Endpoint.Attributes;
 
 internal static class DisallowedEnumValuesAttributeMessages
 {

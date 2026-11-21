@@ -1,11 +1,11 @@
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Domain;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Prices.Domain;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sourcing.Adapter.Outbound.Gateways;
+namespace Mkbj.Modules.Sourcing.Adapter.Outbound.Gateways;
 
 /// <summary>
 /// Publishes a validated record into the catalogue.

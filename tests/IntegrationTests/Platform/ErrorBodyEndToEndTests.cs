@@ -3,7 +3,7 @@ using System.Text.Json;
 using AwesomeAssertions;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Platform;
+namespace Mkbj.IntegrationTests.Platform;
 
 /// <summary>
 /// The error contract as a caller actually receives it: a correlation id on every response, and a

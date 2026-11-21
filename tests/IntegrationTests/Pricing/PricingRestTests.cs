@@ -1,22 +1,22 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Categories.Commands;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Outbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Categories.Commands;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Outbound;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Pricing;
+namespace Mkbj.IntegrationTests.Pricing;
 
 /// <summary>
 /// The pricing API end to end, and acceptance 8's pricing half: a base price converts to exact

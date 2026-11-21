@@ -1,15 +1,15 @@
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Admin.Adapter.Outbound.Gateways;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
-using EwaysVNext.Queries.Application.Paginations;
-using EwaysVNext.Modules.Customer.QueryApplication.Customers;
-using EwaysVNext.Modules.Sales.QueryApplication.Admin;
-using EwaysVNext.Modules.Sales.QueryApplication.Partner;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Admin.Adapter.Outbound.Gateways;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
+using Mkbj.Queries.Application.Paginations;
+using Mkbj.Modules.Customer.QueryApplication.Customers;
+using Mkbj.Modules.Sales.QueryApplication.Admin;
+using Mkbj.Modules.Sales.QueryApplication.Partner;
+using Mkbj.Outcomes;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Admin;
+namespace Mkbj.UnitTests.Admin;
 
 /// <summary>
 /// The hand-written mappings, against the real provider types.
@@ -32,7 +32,7 @@ public sealed class AdminGatewayMappingTests
         var snapshot = await new SalesReadGateway(new FakeSales()).GetDashboardAsync(Now, Ct);
 
         snapshot.OrderTotals.Should().Equal(
-            new EwaysVNext.Modules.Admin.Application.Views.OrderTotalsRow(
+            new Mkbj.Modules.Admin.Application.Views.OrderTotalsRow(
                 "24h", "PartnerApi", "USD", 3, 30_000));
 
         snapshot.PendingWebsitePayments.Count.Should().Be(1);
@@ -92,7 +92,7 @@ public sealed class AdminGatewayMappingTests
         profile.EmailVerified.Should().BeTrue();
         profile.RegistrationNumber.Should().Be("UEN-9");
         profile.BillingAddress.Should().Be(
-            new EwaysVNext.Modules.Admin.Application.Views.AddressView(
+            new Mkbj.Modules.Admin.Application.Views.AddressView(
                 "1 Example Road", "Unit 2", "Singapore", "049999", "SG"));
 
         // An operator reading contact history is asking what changed most recently.

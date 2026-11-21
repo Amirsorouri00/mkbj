@@ -1,18 +1,18 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Services;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Products.Services;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 /// <summary>
 /// Publishing is what an import does on every pass over the same feed, so the thing being pinned

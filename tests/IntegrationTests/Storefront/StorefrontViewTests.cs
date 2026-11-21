@@ -1,13 +1,13 @@
 using AwesomeAssertions;
-using EwaysVNext.Database.Catalog.Views;
-using EwaysVNext.IntegrationTests.Support;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound.Storefront;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Database.Catalog.Views;
+using Mkbj.IntegrationTests.Support;
+using Mkbj.Modules.Catalog.Adapter.Outbound.Storefront;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Storefront;
+namespace Mkbj.IntegrationTests.Storefront;
 
 /// <summary>
 /// The storefront's materialized views against the migrated database.
@@ -166,7 +166,7 @@ public sealed class StorefrontViewTests(PostgresFixture fixture)
             "SELECT variant_count::text FROM catalog.mv_storefront_product WHERE product_id = @id",
             ("id", productId))).Select(int.Parse)];
 
-    private static void Succeeded(EwaysVNext.Outcomes.Result result) =>
+    private static void Succeeded(Mkbj.Outcomes.Result result) =>
         result.IsSuccess.Should().BeTrue(result.Error?.Message);
 
     private static (string Schema, string Name) Split(string qualified)

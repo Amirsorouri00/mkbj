@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Pricing.Application.Prices.Domain;
+using Mkbj.Modules.Pricing.Application.Prices.Domain;
 
-namespace EwaysVNext.Modules.Pricing.Application.Prices.Ports.Outbound;
+namespace Mkbj.Modules.Pricing.Application.Prices.Ports.Outbound;
 
 /// <summary>
 /// Loads carry their overrides. Every write path consults them — setting a base price has to know

@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
 
-namespace EwaysVNext.Modules.Catalog.Application.Products.Services;
+namespace Mkbj.Modules.Catalog.Application.Products.Services;
 
 public sealed class SellableVariantService(
     ISellableVariantReader reader,

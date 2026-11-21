@@ -1,10 +1,10 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using AwesomeAssertions;
 using NetArchTest.Rules;
 using Xunit;
 
-namespace EwaysVNext.ArchitectureTests;
+namespace Mkbj.ArchitectureTests;
 
 /// <summary>
 /// Executable module-boundary rules. Later phases append to <see cref="ModuleNames"/> and to
@@ -49,8 +49,8 @@ public sealed class HexagonalBoundaryTests
     public static TheoryData<string> AdminReadReferences => new(AdminReadModules);
 
     /// <summary>
-    /// Rows are (consumerModule, providerModule): `EwaysVNext.Modules.{consumer}.Adapter.Outbound`
-    /// may reference `EwaysVNext.Modules.{provider}.Application`. Phase 0 has no rows — each later
+    /// Rows are (consumerModule, providerModule): `Mkbj.Modules.{consumer}.Adapter.Outbound`
+    /// may reference `Mkbj.Modules.{provider}.Application`. Phase 0 has no rows — each later
     /// phase adds its own in the task that introduces the reference. The final set (spec §3.6) is
     /// (Sales,Catalog), (Sales,Pricing), (Sales,Customer), (Sales,Settings), (Pricing,Catalog),
     /// (Pricing,Settings), (Sourcing,Catalog), (Sourcing,Pricing).
@@ -91,7 +91,7 @@ public sealed class HexagonalBoundaryTests
     /// </summary>
     [Fact]
     public void Pricing_Application_References_No_Other_Module() =>
-        OtherModuleReferences("Pricing", "EwaysVNext.Modules.Pricing.Application").Should().BeEmpty();
+        OtherModuleReferences("Pricing", "Mkbj.Modules.Pricing.Application").Should().BeEmpty();
 
     [Theory, MemberData(nameof(AdminReadReferences))]
     public void Admin_Read_Row_Is_Well_Formed(string provider)
@@ -137,18 +137,18 @@ public sealed class HexagonalBoundaryTests
     [Theory, MemberData(nameof(Modules))]
     public void Application_Depends_On_No_Adapter_And_No_EfCore(string module)
     {
-        var application = Load($"EwaysVNext.Modules.{module}.Application");
+        var application = Load($"Mkbj.Modules.{module}.Application");
         if (application.GetTypes().Length == 0) return; // a module stripped to a shell has nothing to check
 
         Types.InAssembly(application).ShouldNot()
-            .HaveDependencyOnAny($"EwaysVNext.Modules.{module}.Adapter", "Microsoft.EntityFrameworkCore")
+            .HaveDependencyOnAny($"Mkbj.Modules.{module}.Adapter", "Microsoft.EntityFrameworkCore")
             .GetResult().IsSuccessful.Should().BeTrue();
     }
 
     [Theory, MemberData(nameof(Modules))]
     public void Application_Services_Are_Sealed(string module)
     {
-        var application = Load($"EwaysVNext.Modules.{module}.Application");
+        var application = Load($"Mkbj.Modules.{module}.Application");
         if (application.GetTypes().Length == 0) return;
 
         var result = Types.InAssembly(application).That().AreClasses()
@@ -196,13 +196,13 @@ public sealed class HexagonalBoundaryTests
         List<string> violations = [];
 
         foreach (var assemblyPath in Directory.EnumerateFiles(
-                     AppContext.BaseDirectory, $"EwaysVNext.Modules.{module}.*.dll"))
+                     AppContext.BaseDirectory, $"Mkbj.Modules.{module}.*.dll"))
         {
             var assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
 
             foreach (var reference in Assembly.LoadFrom(assemblyPath).GetReferencedAssemblies())
             {
-                var match = Regex.Match(reference.Name ?? string.Empty, @"^EwaysVNext\.Modules\.([^.]+)\.(.+)$");
+                var match = Regex.Match(reference.Name ?? string.Empty, @"^Mkbj\.Modules\.([^.]+)\.(.+)$");
                 if (!match.Success) continue;
 
                 var other = match.Groups[1].Value;
@@ -210,13 +210,13 @@ public sealed class HexagonalBoundaryTests
                 if (other == module) continue;
 
                 var isSanctionedGateway =
-                    assemblyName == $"EwaysVNext.Modules.{module}.Adapter.Outbound"
+                    assemblyName == $"Mkbj.Modules.{module}.Adapter.Outbound"
                     && layer == "Application"
                     && sanctioned.Contains(other);
 
                 var isAdminComposition =
                     module == "Admin"
-                    && assemblyName == "EwaysVNext.Modules.Admin.Adapter.Outbound"
+                    && assemblyName == "Mkbj.Modules.Admin.Adapter.Outbound"
                     && ((layer == "QueryApplication" && AdminReadModules.Contains(other, StringComparer.Ordinal))
                         || (layer == "Application"
                             && AdminTransitiveApplications.Contains(other, StringComparer.Ordinal)));
@@ -236,7 +236,7 @@ public sealed class HexagonalBoundaryTests
         if (!File.Exists(path)) return [$"{assemblyName}.dll was not built"];
 
         return Assembly.LoadFrom(path).GetReferencedAssemblies()
-            .Select(reference => Regex.Match(reference.Name ?? string.Empty, @"^EwaysVNext\.Modules\.([^.]+)\."))
+            .Select(reference => Regex.Match(reference.Name ?? string.Empty, @"^Mkbj\.Modules\.([^.]+)\."))
             .Where(match => match.Success && match.Groups[1].Value != module)
             .Select(match => match.Groups[1].Value)
             .ToList();
@@ -261,7 +261,7 @@ public sealed class HexagonalBoundaryTests
                          File.ReadAllText(projectPath), @"ProjectReference\s+Include=""([^""]+)""")
                      .Select(match => Path.GetFileNameWithoutExtension(match.Groups[1].Value)))
             {
-                var match = Regex.Match(referenced, @"^EwaysVNext\.Modules\.([^.]+)\.(.+)$");
+                var match = Regex.Match(referenced, @"^Mkbj\.Modules\.([^.]+)\.(.+)$");
                 if (!match.Success) continue;
 
                 var other = match.Groups[1].Value;
@@ -269,13 +269,13 @@ public sealed class HexagonalBoundaryTests
                 if (other == module) continue;
 
                 var isSanctionedGateway =
-                    projectName == $"EwaysVNext.Modules.{module}.Adapter.Outbound"
+                    projectName == $"Mkbj.Modules.{module}.Adapter.Outbound"
                     && layer == "Application"
                     && sanctioned.Contains(other);
 
                 var isAdminComposition =
                     module == "Admin"
-                    && projectName == "EwaysVNext.Modules.Admin.Adapter.Outbound"
+                    && projectName == "Mkbj.Modules.Admin.Adapter.Outbound"
                     && layer == "QueryApplication"
                     && AdminReadModules.Contains(other, StringComparer.Ordinal);
 
@@ -309,13 +309,13 @@ public sealed class HexagonalBoundaryTests
         {
             var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-            while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "EwaysVNext.slnx")))
+            while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "Mkbj.slnx")))
             {
                 directory = directory.Parent;
             }
 
             return directory?.FullName
-                ?? throw new DirectoryNotFoundException("Could not locate the EwaysVNext solution directory.");
+                ?? throw new DirectoryNotFoundException("Could not locate the Mkbj solution directory.");
         }
     }
 }

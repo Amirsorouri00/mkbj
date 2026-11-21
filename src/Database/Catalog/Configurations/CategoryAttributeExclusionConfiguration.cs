@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EwaysVNext.Database.Catalog.Configurations;
+namespace Mkbj.Database.Catalog.Configurations;
 
 internal sealed class CategoryAttributeExclusionConfiguration : IEntityTypeConfiguration<CategoryAttributeExclusion>
 {

@@ -1,10 +1,10 @@
 using System.Security.Claims;
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Core.Application.Security;
+using Mkbj.Core.Application;
+using Mkbj.Core.Application.Security;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Identity;
+namespace Mkbj.UnitTests.Identity;
 
 /// <summary>
 /// An admin actor is read from the token and nowhere else. The tenant check is the part that
@@ -25,8 +25,8 @@ public sealed class AdminActorTests
     {
         var sub = Guid.NewGuid();
         var user = Principal(
-            (EwaysClaimTypes.Tenant, tenant),
-            (EwaysClaimTypes.Subject, sub.ToString()),
+            (MkbjClaimTypes.Tenant, tenant),
+            (MkbjClaimTypes.Subject, sub.ToString()),
             (ClaimTypes.Role, role));
 
         AdminActor.TryFrom(user, out var actor).Should().Be(ok);
@@ -39,8 +39,8 @@ public sealed class AdminActorTests
     public void TryFrom_Rejects_A_Non_Guid_Sub() =>
         AdminActor.TryFrom(
             Principal(
-                (EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm),
-                (EwaysClaimTypes.Subject, "abc"),
+                (MkbjClaimTypes.Tenant, AdminRoles.BackofficeRealm),
+                (MkbjClaimTypes.Subject, "abc"),
                 (ClaimTypes.Role, AdminRoles.Staff)),
             out _).Should().BeFalse();
 
@@ -48,7 +48,7 @@ public sealed class AdminActorTests
     public void TryFrom_Rejects_A_Token_With_No_Tenant() =>
         AdminActor.TryFrom(
             Principal(
-                (EwaysClaimTypes.Subject, Guid.NewGuid().ToString()),
+                (MkbjClaimTypes.Subject, Guid.NewGuid().ToString()),
                 (ClaimTypes.Role, AdminRoles.SuperAdmin)),
             out _).Should().BeFalse();
 
@@ -57,8 +57,8 @@ public sealed class AdminActorTests
     {
         var sub = Guid.NewGuid();
         var user = Principal(
-            (EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm),
-            (EwaysClaimTypes.Subject, sub.ToString()),
+            (MkbjClaimTypes.Tenant, AdminRoles.BackofficeRealm),
+            (MkbjClaimTypes.Subject, sub.ToString()),
             (ClaimTypes.Role, AdminRoles.Staff),
             (ClaimTypes.Role, AdminRoles.SuperAdmin));
 
@@ -73,7 +73,7 @@ public sealed class AdminActorTests
         // principal built by the JWT handler may carry only the mapped name.
         var sub = Guid.NewGuid();
         var user = Principal(
-            (EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm),
+            (MkbjClaimTypes.Tenant, AdminRoles.BackofficeRealm),
             (ClaimTypes.NameIdentifier, sub.ToString()),
             (ClaimTypes.Role, AdminRoles.Staff));
 

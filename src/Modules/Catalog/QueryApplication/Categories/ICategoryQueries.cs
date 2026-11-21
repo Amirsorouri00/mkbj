@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Catalog.Contracts.Categories;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Catalog.QueryApplication.Categories;
+namespace Mkbj.Modules.Catalog.QueryApplication.Categories;
 
 /// <summary>Read-side queries for the public, effectively active category tree.</summary>
 public interface ICategoryQueries

@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 using Microsoft.AspNetCore.Http;
 
-namespace EwaysVNext.Presentation.Endpoint;
+namespace Mkbj.Presentation.Endpoint;
 
 /// <summary>
 /// The one error shape every REST response uses (spec §6.3). <c>details</c> and <c>items</c> are

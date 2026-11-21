@@ -1,9 +1,9 @@
-using EwaysVNext.Modules.Settings.Application.Settings.Domain;
-using EwaysVNext.Modules.Settings.Application.Settings.Ports.Inbound;
-using EwaysVNext.Modules.Settings.Application.Settings.Ports.Outbound;
+using Mkbj.Modules.Settings.Application.Settings.Domain;
+using Mkbj.Modules.Settings.Application.Settings.Ports.Inbound;
+using Mkbj.Modules.Settings.Application.Settings.Ports.Outbound;
 using Microsoft.Extensions.Options;
 
-namespace EwaysVNext.Modules.Settings.Application.Settings.Services;
+namespace Mkbj.Modules.Settings.Application.Settings.Services;
 
 public sealed class SettingsPortService(
     ISettingsRepository repository, IOptions<FxAgeOptions> fxOptions) : ISettingsPort

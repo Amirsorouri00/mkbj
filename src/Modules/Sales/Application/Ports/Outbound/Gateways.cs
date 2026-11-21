@@ -1,9 +1,9 @@
-using EwaysVNext.Modules.Sales.Application.Composition;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Sales.Application.Composition;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+namespace Mkbj.Modules.Sales.Application.Ports.Outbound;
 
 /// <summary>
 /// One sellable variant, as Sales sees it.

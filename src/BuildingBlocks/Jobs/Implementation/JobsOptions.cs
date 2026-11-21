@@ -1,4 +1,4 @@
-namespace EwaysVNext.Jobs.Implementation;
+namespace Mkbj.Jobs.Implementation;
 
 public enum JobsMode
 {

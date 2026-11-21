@@ -1,12 +1,12 @@
-﻿using System.Text.Json;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
+using System.Text.Json;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace EwaysVNext.Jobs.Implementation;
+namespace Mkbj.Jobs.Implementation;
 
 /// <summary>
 /// Claims jobs and runs them. Each job gets its own DI scope — and so its own DbContext — because

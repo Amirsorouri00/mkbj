@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Catalog.Application.Categories.Domain;
+namespace Mkbj.Modules.Catalog.Application.Categories.Domain;
 
 public sealed class CategorySlug : ValueObject
 {

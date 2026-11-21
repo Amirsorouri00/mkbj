@@ -1,7 +1,7 @@
 using System.IO.Compression;
 using System.Text;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 /// <summary>Minimal but structurally genuine file contents for file-type detection tests.</summary>
 internal static class FileSamples

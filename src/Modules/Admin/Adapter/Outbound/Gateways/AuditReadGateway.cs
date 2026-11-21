@@ -1,8 +1,8 @@
-using EwaysVNext.Audit;
-using EwaysVNext.Modules.Admin.Application.Ports.Outbound;
-using EwaysVNext.Modules.Admin.Application.Views;
+using Mkbj.Audit;
+using Mkbj.Modules.Admin.Application.Ports.Outbound;
+using Mkbj.Modules.Admin.Application.Views;
 
-namespace EwaysVNext.Modules.Admin.Adapter.Outbound.Gateways;
+namespace Mkbj.Modules.Admin.Adapter.Outbound.Gateways;
 
 /// <summary>
 /// The audit chain's verdict, stamped with when it was reached.

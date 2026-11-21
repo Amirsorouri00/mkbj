@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Settings.Application.Settings.Ports.Inbound;
+namespace Mkbj.Modules.Settings.Application.Settings.Ports.Inbound;
 
 public sealed record SellerSnapshot(
     string LegalName,

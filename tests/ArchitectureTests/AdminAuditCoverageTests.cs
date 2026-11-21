@@ -1,9 +1,9 @@
 using System.Reflection;
 using AwesomeAssertions;
-using EwaysVNext.Audit;
+using Mkbj.Audit;
 using Xunit;
 
-namespace EwaysVNext.ArchitectureTests;
+namespace Mkbj.ArchitectureTests;
 
 /// <summary>
 /// Every service an administrator can change something through can write an audit entry.
@@ -69,7 +69,7 @@ public sealed class AdminAuditCoverageTests
 
     private static List<Type> AdminServices() =>
         [.. Directory
-            .EnumerateFiles(AppContext.BaseDirectory, "EwaysVNext.Modules.*.Application.dll")
+            .EnumerateFiles(AppContext.BaseDirectory, "Mkbj.Modules.*.Application.dll")
             .Select(Assembly.LoadFrom)
             .SelectMany(assembly => assembly.GetTypes())
             .Where(type => type is { IsClass: true, IsAbstract: false })

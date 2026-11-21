@@ -1,17 +1,17 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Customer.Application.Customers.Domain;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Customer.Application.Customers.Domain;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Outbound;
 using Microsoft.EntityFrameworkCore;
 
-using CustomerAggregate = EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer;
+using CustomerAggregate = Mkbj.Modules.Customer.Application.Customers.Domain.Customer;
 
-namespace EwaysVNext.Modules.Customer.Adapter.Outbound.Persistence;
+namespace Mkbj.Modules.Customer.Adapter.Outbound.Persistence;
 
 /// <summary>
 /// Loads customers with their contact history. Tracked: every caller either mutates the
 /// aggregate or is about to decide whether to.
 /// </summary>
-public sealed class CustomerRepository(EwaysVNextDbContext db) : ICustomerRepository
+public sealed class CustomerRepository(MkbjDbContext db) : ICustomerRepository
 {
     public Task<CustomerAggregate?> GetAsync(long id, CancellationToken ct = default) =>
         db.Customers

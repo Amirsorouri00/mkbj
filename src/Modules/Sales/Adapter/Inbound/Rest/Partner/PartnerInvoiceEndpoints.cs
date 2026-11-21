@@ -1,15 +1,15 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Common;
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Modules.Sales.QueryApplication.Partner;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Sales.Adapter.Inbound.Rest.Common;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.QueryApplication.Partner;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Partner;
+namespace Mkbj.Modules.Sales.Adapter.Inbound.Rest.Partner;
 
 public sealed record SearchInvoicesRequest(IReadOnlyList<string>? ExternalOrderIds);
 

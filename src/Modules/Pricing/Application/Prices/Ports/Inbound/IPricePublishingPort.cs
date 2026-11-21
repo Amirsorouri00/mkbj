@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Pricing.Application.Prices.Domain;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Pricing.Application.Prices.Domain;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
+namespace Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
 
 /// <summary>
 /// How an import sets a price. Idempotent by construction, like the catalogue's publishing port:

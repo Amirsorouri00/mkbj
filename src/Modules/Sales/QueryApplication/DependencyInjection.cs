@@ -1,9 +1,9 @@
-using EwaysVNext.Modules.Sales.QueryApplication.Admin;
-using EwaysVNext.Modules.Sales.QueryApplication.Partner;
-using EwaysVNext.Modules.Sales.QueryApplication.Shop;
+using Mkbj.Modules.Sales.QueryApplication.Admin;
+using Mkbj.Modules.Sales.QueryApplication.Partner;
+using Mkbj.Modules.Sales.QueryApplication.Shop;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Sales.QueryApplication;
+namespace Mkbj.Modules.Sales.QueryApplication;
 
 public static class DependencyInjection
 {
@@ -12,6 +12,7 @@ public static class DependencyInjection
         services.AddScoped<IPartnerOrderQueries, PartnerOrderQueries>();
         services.AddScoped<IShopOrderQueries, ShopOrderQueries>();
         services.AddScoped<ISalesAdminQueries, SalesAdminQueries>();
+        services.AddScoped<IPartnerRequestQueries, PartnerRequestQueries>();
 
         return services;
     }

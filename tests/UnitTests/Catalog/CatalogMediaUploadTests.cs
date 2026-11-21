@@ -1,24 +1,26 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Audit;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Core.Application.FileTypeDetection;
-using EwaysVNext.Core.Implementation.FileTypeDetection;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Products;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Services;
-using EwaysVNext.Persistence;
+using AwesomeAssertions;
+using Mkbj.Audit;
+using Mkbj.Core.Application;
+using Mkbj.Core.Application.FileTypeDetection;
+using Mkbj.Core.Implementation.FileTypeDetection;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Products.Services;
+using Mkbj.Persistence;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 /// <summary>
 /// Image upload. The two rules worth pinning are that the file's type comes from its bytes
@@ -39,6 +41,8 @@ public sealed class CatalogMediaUploadTests
     private readonly ILogger<CatalogAdminService> _logger = NullLogger<CatalogAdminService>.Instance;
     private readonly IBrandRepository _brands = Substitute.For<IBrandRepository>();
     private readonly ICategoryRepository _categories = Substitute.For<ICategoryRepository>();
+    private readonly ICategoryAttributeExclusionQueryService _categoryAttributes = Substitute.For<ICategoryAttributeExclusionQueryService>();
+    private readonly IAttributeBlueprintRepository _attributeBlueprints = Substitute.For<IAttributeBlueprintRepository>();
     private readonly ICategoryProductRepository _categoryProducts = Substitute.For<ICategoryProductRepository>();
     private readonly IAuditTrail _audit = Substitute.For<IAuditTrail>();
     private readonly ICatalogChangeNotifier _notifier = Substitute.For<ICatalogChangeNotifier>();
@@ -52,7 +56,7 @@ public sealed class CatalogMediaUploadTests
     public CatalogMediaUploadTests() => _ids.Generate().Returns(MediaId);
 
     private CatalogAdminService CreateService() => new(
-        _products, _media, _fileTypes, _mediaOptions, _logger, _brands, _categories,
+        _products, _media, _fileTypes, _mediaOptions, _logger, _brands, _categories, _categoryAttributes, _attributeBlueprints,
         _categoryProducts, _audit, _notifier, _unitOfWork, _ids, _clock);
 
     private Product Draft()
