@@ -1,9 +1,9 @@
-using EwaysVNext.Modules.Pricing.Application.Currencies.Ports.Outbound;
-using EwaysVNext.Modules.Pricing.Application.Fx.Domain;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Outbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Outbound;
+using Mkbj.Modules.Pricing.Application.Currencies.Ports.Outbound;
+using Mkbj.Modules.Pricing.Application.Fx.Domain;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Outbound;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Outbound;
 
-namespace EwaysVNext.Modules.Pricing.Application.Fx.Services;
+namespace Mkbj.Modules.Pricing.Application.Fx.Services;
 
 /// <summary>
 /// Recomputes the resolved-rate table from the current book.

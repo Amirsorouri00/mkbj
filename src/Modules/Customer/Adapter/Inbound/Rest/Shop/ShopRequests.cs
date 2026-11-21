@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Customer.Adapter.Inbound.Rest.Shop;
+namespace Mkbj.Modules.Customer.Adapter.Inbound.Rest.Shop;
 
 public sealed record AddressRequest(
     string Line1, string? Line2, string City, string PostalCode, string CountryIso2);

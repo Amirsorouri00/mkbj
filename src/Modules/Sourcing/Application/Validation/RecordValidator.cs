@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
-using EwaysVNext.Modules.Sourcing.Application.Normalization;
+using Mkbj.Modules.Sourcing.Application.Domain.SourcePolicies;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Modules.Sourcing.Application.Normalization;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Validation;
+namespace Mkbj.Modules.Sourcing.Application.Validation;
 
 /// <summary>
 /// Decides what is wrong with a normalized record, and how badly.

@@ -3,13 +3,13 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.IntegrationTests.Support;
+using Mkbj.IntegrationTests.Support;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sales;
+namespace Mkbj.IntegrationTests.Sales;
 
 /// <summary>
 /// PRD acceptance 9 and 12: the website order's life, and money going back.
@@ -95,7 +95,7 @@ public sealed class WebsiteOrderAcceptanceTests(PostgresFixture fixture)
         var invoice = order.GetProperty("documents").EnumerateArray()
             .Single(d => d.GetProperty("type").GetString() == "Commercial");
 
-        var invoiceId = invoice.GetProperty("id").GetInt64();
+        var invoiceId = invoice.GetProperty("id").ReadId();
         var invoiceContent = invoice.GetProperty("content").GetRawText();
 
         using var staffAttempt = await staff.PostAsJsonAsync(
@@ -134,7 +134,7 @@ public sealed class WebsiteOrderAcceptanceTests(PostgresFixture fixture)
 
         creditNotes.Should().HaveCount(2);
         creditNotes.Should().OnlyContain(
-            note => note.GetProperty("relatedDocumentId").GetInt64() == invoiceId);
+            note => note.GetProperty("relatedDocumentId").ReadId() == invoiceId);
 
         after.GetProperty("documents").EnumerateArray()
             .Single(d => d.GetProperty("type").GetString() == "Commercial")

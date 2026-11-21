@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sales.Application.Domain.Carts;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sales.Application.Domain.Carts;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Carts;
+namespace Mkbj.UnitTests.Sales.Carts;
 
 /// <summary>
 /// The cart's own rules: quantities, ceilings, and what a reprice does to a line.

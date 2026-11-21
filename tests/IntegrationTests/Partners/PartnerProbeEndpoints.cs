@@ -1,12 +1,12 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace EwaysVNext.IntegrationTests.Partners;
+namespace Mkbj.IntegrationTests.Partners;
 
 /// <summary>
 /// One endpoint per partner scope, gated by that scope's policy and nothing else.

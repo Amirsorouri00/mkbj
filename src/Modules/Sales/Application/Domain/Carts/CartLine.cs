@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Sales.Application.Domain.Carts;
+namespace Mkbj.Modules.Sales.Application.Domain.Carts;
 
 /// <summary>
 /// One variant in a cart, at the price the customer was last shown.

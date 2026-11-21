@@ -1,12 +1,12 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Exceptions;
+using Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint.GraphQL.Exceptions;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public sealed class AttributeBlueprintArchiveMutationTests
 {

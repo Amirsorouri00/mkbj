@@ -1,10 +1,10 @@
 using System.Net;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sourcing.Adapter.Outbound.Crawling;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Adapter.Outbound.Crawling;
+using Mkbj.Modules.Sourcing.Application.Discovery;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sourcing;
+namespace Mkbj.UnitTests.Sourcing;
 
 /// <summary>
 /// The crawler's three obligations: where it may go, how fast, and what it reads.
@@ -48,12 +48,12 @@ public sealed class CrawlerSafetyTests
     [Fact]
     public void A_Missing_Robots_File_Means_No_Restrictions() =>
         // Refusing to crawl would be inventing a prohibition the site never made.
-        RobotsTxt.Parse(null, "EwaysVNextBot").IsAllowed("/anything").Should().BeTrue();
+        RobotsTxt.Parse(null, "MkbjBot").IsAllowed("/anything").Should().BeTrue();
 
     [Fact]
     public void A_Blanket_Disallow_Is_Honoured()
     {
-        var robots = RobotsTxt.Parse("User-agent: *\nDisallow: /", "EwaysVNextBot");
+        var robots = RobotsTxt.Parse("User-agent: *\nDisallow: /", "MkbjBot");
 
         robots.IsAllowed("/products/1").Should().BeFalse();
     }
@@ -62,15 +62,15 @@ public sealed class CrawlerSafetyTests
     public void An_Empty_Disallow_Means_Nothing_Is_Disallowed() =>
         // The standard's way of saying "crawl freely", and reading it as "disallow /" would stop
         // every crawl of a site that welcomed one.
-        RobotsTxt.Parse("User-agent: *\nDisallow:", "EwaysVNextBot")
+        RobotsTxt.Parse("User-agent: *\nDisallow:", "MkbjBot")
             .IsAllowed("/products/1").Should().BeTrue();
 
     [Fact]
     public void A_Rule_Naming_This_Crawler_Wins_Over_The_Wildcard()
     {
         var robots = RobotsTxt.Parse(
-            "User-agent: *\nDisallow: /\n\nUser-agent: EwaysVNextBot\nDisallow: /private\n",
-            "EwaysVNextBot");
+            "User-agent: *\nDisallow: /\n\nUser-agent: MkbjBot\nDisallow: /private\n",
+            "MkbjBot");
 
         robots.IsAllowed("/products/1").Should().BeTrue("the site named us specifically");
         robots.IsAllowed("/private/x").Should().BeFalse();
@@ -80,7 +80,7 @@ public sealed class CrawlerSafetyTests
     public void A_Longer_Allow_Carves_A_Directory_Out_Of_A_Prohibition()
     {
         var robots = RobotsTxt.Parse(
-            "User-agent: *\nDisallow: /catalogue\nAllow: /catalogue/public\n", "EwaysVNextBot");
+            "User-agent: *\nDisallow: /catalogue\nAllow: /catalogue/public\n", "MkbjBot");
 
         robots.IsAllowed("/catalogue/private").Should().BeFalse();
         robots.IsAllowed("/catalogue/public/1").Should().BeTrue();
@@ -88,12 +88,12 @@ public sealed class CrawlerSafetyTests
 
     [Fact]
     public void A_Crawl_Delay_Is_Read() =>
-        RobotsTxt.Parse("User-agent: *\nCrawl-delay: 5\n", "EwaysVNextBot")
+        RobotsTxt.Parse("User-agent: *\nCrawl-delay: 5\n", "MkbjBot")
             .CrawlDelay.Should().Be(TimeSpan.FromSeconds(5));
 
     [Fact]
     public void Comments_Are_Not_Rules() =>
-        RobotsTxt.Parse("# Disallow: /\nUser-agent: *\nDisallow: /x\n", "EwaysVNextBot")
+        RobotsTxt.Parse("# Disallow: /\nUser-agent: *\nDisallow: /x\n", "MkbjBot")
             .IsAllowed("/anything").Should().BeTrue();
 
     [Fact]

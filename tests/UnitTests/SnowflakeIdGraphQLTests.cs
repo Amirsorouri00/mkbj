@@ -1,14 +1,14 @@
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
+using Mkbj.Domain.Common;
+using Mkbj.Presentation.Endpoint.GraphQL;
 using HotChocolate;
 using HotChocolate.Execution;
 using HotChocolate.Types;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public class SnowflakeIdGraphQLTests
 {

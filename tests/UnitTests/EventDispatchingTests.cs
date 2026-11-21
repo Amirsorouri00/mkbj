@@ -1,13 +1,13 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Domain.Events;
-using EwaysVNext.Events.Application;
-using EwaysVNext.Persistence;
+using AwesomeAssertions;
+using Mkbj.Domain.Common;
+using Mkbj.Domain.Events;
+using Mkbj.Events.Application;
+using Mkbj.Persistence;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public class EventDispatchingTests
 {
@@ -25,7 +25,7 @@ public class EventDispatchingTests
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // InMemory has no xmin: keep RowVersion an inert property, as EwaysVNextDbContext does.
+            // InMemory has no xmin: keep RowVersion an inert property, as MkbjDbContext does.
             foreach (var property in modelBuilder.Model.GetEntityTypes()
                          .SelectMany(e => e.GetProperties()).Where(p => p.Name == "RowVersion"))
             {

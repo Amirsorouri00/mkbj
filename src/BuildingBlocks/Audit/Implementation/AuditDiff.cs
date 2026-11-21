@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace EwaysVNext.Audit.Implementation;
+namespace Mkbj.Audit.Implementation;
 
 /// <summary>
 /// Reduces a before/after pair to the top-level properties that actually differ.

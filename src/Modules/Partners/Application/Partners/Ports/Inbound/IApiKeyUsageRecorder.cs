@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Partners.Application.Usage;
+using Mkbj.Modules.Partners.Application.Usage;
 
-namespace EwaysVNext.Modules.Partners.Application.Partners.Ports.Inbound;
+namespace Mkbj.Modules.Partners.Application.Partners.Ports.Inbound;
 
 /// <summary>
 /// Accepts a usage entry for later writing.

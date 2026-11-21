@@ -1,4 +1,4 @@
-namespace EwaysVNext.Presentation.Endpoint.HttpHandlers;
+namespace Mkbj.Presentation.Endpoint.HttpHandlers;
 
 public sealed class HttpLoggingOption
 {

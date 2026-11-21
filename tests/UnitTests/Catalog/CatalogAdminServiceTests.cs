@@ -1,25 +1,29 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Audit;
-using EwaysVNext.Core.Application.FileTypeDetection;
-using EwaysVNext.Core.Implementation.FileTypeDetection;
-using EwaysVNext.Modules.Catalog.Application.Products;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Services;
-using EwaysVNext.Persistence;
+using AwesomeAssertions;
+using Mkbj.Audit;
+using Mkbj.Core.Application.FileTypeDetection;
+using Mkbj.Core.Implementation.FileTypeDetection;
+using Mkbj.Modules.Catalog.Application.Products;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Products.Services;
+using Mkbj.Modules.Catalog.QueryApplication.AttributeBlueprints;
+using Mkbj.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
+using Mkbj.Persistence;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 /// <summary>
 /// The admin write path for products. Most of what is asserted here is ordering: nothing is
@@ -39,6 +43,8 @@ public sealed class CatalogAdminServiceTests
     private readonly ILogger<CatalogAdminService> _logger = NullLogger<CatalogAdminService>.Instance;
     private readonly IBrandRepository _brands = Substitute.For<IBrandRepository>();
     private readonly ICategoryRepository _categories = Substitute.For<ICategoryRepository>();
+    private readonly ICategoryAttributeExclusionQueryService _categoryAttributes = Substitute.For<ICategoryAttributeExclusionQueryService>();
+    private readonly IAttributeBlueprintRepository _attributeBlueprints = Substitute.For<IAttributeBlueprintRepository>();
     private readonly ICategoryProductRepository _categoryProducts = Substitute.For<ICategoryProductRepository>();
     private readonly IAuditTrail _audit = Substitute.For<IAuditTrail>();
     private readonly ICatalogChangeNotifier _notifier = Substitute.For<ICatalogChangeNotifier>();
@@ -56,10 +62,12 @@ public sealed class CatalogAdminServiceTests
             .Returns(Category.Create(CategoryId, "Kettles", "kettles", null, null, 0, _clock.UtcNow));
         _ids.Generate().Returns(_ => Random.Shared.NextInt64(1_000, long.MaxValue));
         _unitOfWork.TrySaveChangesAsync(Arg.Any<CancellationToken>()).Returns(SaveOutcome.Saved);
+        _categoryAttributes.GetEffectiveAttributesAsync(Arg.Any<long>(), Arg.Any<CancellationToken>()).Returns([]);
+        _attributeBlueprints.GetSnapshotsByIdsAsync(Arg.Any<IReadOnlyCollection<long>>(), Arg.Any<CancellationToken>()).Returns([]);
     }
 
     private CatalogAdminService CreateService() => new(
-        _products, _media, _fileTypes, _mediaOptions, _logger, _brands, _categories, _categoryProducts, _audit, _notifier, _unitOfWork, _ids, _clock);
+        _products, _media, _fileTypes, _mediaOptions, _logger, _brands, _categories, _categoryAttributes, _attributeBlueprints, _categoryProducts, _audit, _notifier, _unitOfWork, _ids, _clock);
 
     private Product Draft(string title = "Demo Kettle") =>
         Product.CreateDraft(ProductId, BrandId, CategoryId, title, "demo-kettle", null, null, _clock.UtcNow);
@@ -79,6 +87,29 @@ public sealed class CatalogAdminServiceTests
 
     private static CreateProductCommand CreateCommand(long brandId = BrandId, long categoryId = CategoryId) =>
         new(brandId, categoryId, "Demo Kettle", null, null, null);
+
+    private void CategoryRule(
+        string key = "colour",
+        string dataType = "Option",
+        bool required = true,
+        IReadOnlyList<string>? options = null)
+    {
+        _categoryAttributes.GetEffectiveAttributesAsync(CategoryId, Arg.Any<CancellationToken>())
+            .Returns([
+                new EffectiveCategoryAttributeSnapshot(
+                    91, CategoryId, 92, "Colour", false, false, required, true, true,
+                    true, 1, true, true)
+            ]);
+        _attributeBlueprints.GetSnapshotsByIdsAsync(
+                Arg.Any<IReadOnlyCollection<long>>(), Arg.Any<CancellationToken>())
+            .Returns([
+                new AttributeBlueprintSnapshot(
+                    92, "Colour", key, dataType, "Active", "Global", null, [], null,
+                    null, _clock.UtcNow, null,
+                    [.. (options ?? ["Red", "Blue"]).Select((value, index) =>
+                        new AttributeBlueprintOptionSnapshot(100 + index, value, null))])
+            ]);
+    }
 
     [Fact]
     public async Task CreateProduct_Saves_Draft_And_Audits()
@@ -157,6 +188,74 @@ public sealed class CatalogAdminServiceTests
         product.Variants.Single().Sku.Value.Should().Be(
             $"SKU-{result.Value}",
             "the id is already unique, so a derived SKU cannot collide");
+    }
+
+    [Fact]
+    public async Task AddVariant_Rejects_A_Missing_Required_Category_Attribute()
+    {
+        var product = Draft();
+        Loaded(product);
+        CategoryRule();
+
+        var result = await CreateService().AddVariantAsync(
+            new AddVariantCommand(ProductId, "SKU-NO-COLOUR", new Dictionary<string, string>()),
+            _actor, Ct);
+
+        result.Error!.Code.Should().Be("PRODUCT_ATTRIBUTE_INVALID");
+        result.Error.Message.Should().Contain("attributes.colour").And.Contain("required");
+        product.Variants.Should().BeEmpty();
+        await _unitOfWork.DidNotReceive().TrySaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task AddVariant_Rejects_A_Value_Outside_The_Category_Options()
+    {
+        var product = Draft();
+        Loaded(product);
+        CategoryRule(options: ["Red", "Blue"]);
+
+        var result = await CreateService().AddVariantAsync(
+            new AddVariantCommand(ProductId, "SKU-GREEN", new Dictionary<string, string>
+            {
+                ["colour"] = "Green",
+            }), _actor, Ct);
+
+        result.Error!.Code.Should().Be("PRODUCT_ATTRIBUTE_INVALID");
+        result.Error.Message.Should().Contain("not an allowed value");
+        product.Variants.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AddVariant_Accepts_The_Category_Defined_Value()
+    {
+        var product = Draft();
+        Loaded(product);
+        CategoryRule(options: ["Red", "Blue"]);
+
+        var result = await CreateService().AddVariantAsync(
+            new AddVariantCommand(ProductId, "SKU-RED", new Dictionary<string, string>
+            {
+                ["colour"] = "Red",
+            }), _actor, Ct);
+
+        result.IsSuccess.Should().BeTrue();
+        product.Variants.Single().AttributeValues.Should().ContainKey("colour").WhoseValue.Should().Be("Red");
+    }
+
+    [Fact]
+    public async Task Activation_Revalidates_Existing_Variants_Against_Current_Category_Rules()
+    {
+        var product = Draft();
+        product.AddVariant(2, "SKU-LEGACY", new Dictionary<string, string>(), _clock.UtcNow);
+        product.AddMedia(3, "products/500/3.png", 0, null, null, MediaUsageRights.Allowed, _clock.UtcNow);
+        Loaded(product);
+        CategoryRule();
+
+        var result = await CreateService().SetProductActiveAsync(ProductId, true, _actor, Ct);
+
+        result.Error!.Code.Should().Be("PRODUCT_ATTRIBUTE_INVALID");
+        product.Status.Should().Be(ProductStatus.Draft);
+        await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]

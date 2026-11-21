@@ -1,7 +1,7 @@
-using EwaysVNext.Jobs;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Jobs;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
 
-namespace EwaysVNext.Modules.Sourcing.Adapter.Outbound.Jobs;
+namespace Mkbj.Modules.Sourcing.Adapter.Outbound.Jobs;
 
 /// <remarks>
 /// The dedupe key is the job and the step, so two requests for one step — a retried API call,

@@ -1,11 +1,11 @@
 using System.Globalization;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Outbound.Documents;
+namespace Mkbj.Modules.Sales.Adapter.Outbound.Documents;
 
 /// <summary>
 /// Renders a document snapshot to a PDF.
@@ -25,7 +25,8 @@ namespace EwaysVNext.Modules.Sales.Adapter.Outbound.Documents;
 /// </remarks>
 internal sealed class QuestPdfDocumentRenderer : IDocumentPdfRenderer
 {
-    private const string Producer = "EwaysVNext";
+    private const string Producer = "MKBJ";
+    private static readonly string[] ColumnLabels = ["#", "Product / SKU", "Qty", "Unit price", "Line total"];
 
     static QuestPdfDocumentRenderer() =>
         // The community licence covers this use. Set once, here, rather than at startup: the
@@ -40,11 +41,19 @@ internal sealed class QuestPdfDocumentRenderer : IDocumentPdfRenderer
             {
                 page.Size(PageSizes.A4);
                 page.Margin(2, Unit.Centimetre);
-                page.DefaultTextStyle(text => text.FontSize(10));
+                page.DefaultTextStyle(text => text.FontFamily("Lato").FontSize(10).FontColor("#181818"));
 
                 page.Header().Element(header => Seller(header, content));
                 page.Content().Element(body => Body(body, content));
-                page.Footer().Text(content.Seller.Footer);
+                page.Footer().BorderTop(1).BorderColor("#DDDDDD").PaddingTop(10).Row(row =>
+                {
+                    row.RelativeItem().Text(content.Seller.Footer).FontSize(8).FontColor("#606060");
+                    row.ConstantItem(75).AlignRight().Text(text =>
+                    {
+                        text.DefaultTextStyle(style => style.FontSize(8).FontColor("#606060"));
+                        text.Span("Page "); text.CurrentPageNumber(); text.Span(" of "); text.TotalPages();
+                    });
+                });
             }))
             .WithMetadata(new DocumentMetadata
             {
@@ -59,12 +68,25 @@ internal sealed class QuestPdfDocumentRenderer : IDocumentPdfRenderer
     }
 
     private static void Seller(IContainer container, DocumentContent content) =>
-        container.Column(column =>
+        container.BorderBottom(3).BorderColor("#F28C00").PaddingBottom(16).Row(row =>
         {
-            column.Item().Text(content.Seller.LegalName).Bold().FontSize(14);
-            column.Item().Text(content.Seller.Uen);
-            column.Item().Text(content.Seller.Address);
-            column.Item().Text(content.Seller.Email);
+            row.RelativeItem().Column(column =>
+            {
+                column.Spacing(4);
+                column.Item().Text("MKBJ").Bold().FontSize(24);
+                column.Item().Text(content.Seller.LegalName).SemiBold();
+                column.Item().Text($"UEN: {content.Seller.Uen}").FontSize(9);
+                column.Item().Text(content.Seller.Address).FontSize(9);
+                column.Item().Text(content.Seller.Email).FontSize(9);
+            });
+            row.ConstantItem(195).AlignRight().Column(column =>
+            {
+                column.Spacing(6);
+                column.Item().AlignRight().Text(content.Title).Bold().FontSize(23);
+                column.Item().AlignRight().Text(content.DocumentNumber).SemiBold();
+                column.Item().AlignRight().Text("Issue date: " + content.IssuedAt.ToOffset(TimeSpan.FromHours(8)).ToString("dd MMM yyyy", CultureInfo.InvariantCulture)).FontSize(9);
+                column.Item().AlignRight().Text("Singapore (UTC+08:00)").FontSize(8).FontColor("#606060");
+            });
         });
 
     private static void Body(IContainer container, DocumentContent content) =>
@@ -72,25 +94,36 @@ internal sealed class QuestPdfDocumentRenderer : IDocumentPdfRenderer
         {
             column.Spacing(12);
 
-            column.Item().Text(content.Title).Bold().FontSize(18);
-
-            column.Item().Text(content.DocumentNumber);
-            column.Item().Text(content.IssuedAt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
-            column.Item().Text(content.OrderNumber);
-
-            column.Item().Element(buyer => Buyer(buyer, content.Buyer));
+            column.Item().Row(row =>
+            {
+                row.RelativeItem().Column(bill =>
+                {
+                    bill.Item().PaddingBottom(6).Text("BILL TO").Bold().FontSize(9).FontColor("#606060");
+                    bill.Item().Element(buyer => Buyer(buyer, content.Buyer));
+                });
+                row.ConstantItem(195).Column(reference =>
+                {
+                    reference.Spacing(5);
+                    reference.Item().Text($"Order: {content.OrderNumber}").FontSize(9);
+                    if (!string.IsNullOrEmpty(content.ExternalOrderId))
+                        reference.Item().Text($"Your reference: {content.ExternalOrderId}").FontSize(9);
+                    reference.Item().Text($"Payment: {content.PaymentStatus}").SemiBold().FontSize(9);
+                    if (!string.IsNullOrEmpty(content.PaymentSource))
+                        reference.Item().Text($"Source: {content.PaymentSource}").FontSize(9);
+                });
+            });
             column.Item().Element(lines => Lines(lines, content));
             column.Item().Element(totals => Totals(totals, content));
 
             // Said on every document, because the system knows what an operator marked as
             // fulfilled and not what arrived.
-            column.Item().Text(content.FulfillmentStatement);
+            column.Item().Text(content.FulfillmentStatement).FontSize(9).FontColor("#606060");
 
             if (content.PaymentInstruction is { } instruction)
                 column.Item().Text(instruction.Text);
 
             if (content.RelatedDocumentNumber is { } related)
-                column.Item().Text(related);
+                column.Item().Text($"Related document: {related}");
 
             if (content.RefundReason is { } reason) column.Item().Text(reason);
         });
@@ -117,39 +150,59 @@ internal sealed class QuestPdfDocumentRenderer : IDocumentPdfRenderer
         {
             table.ColumnsDefinition(columns =>
             {
-                columns.ConstantColumn(30);
-                columns.RelativeColumn(2);
-                columns.RelativeColumn(4);
-                columns.ConstantColumn(50);
-                columns.ConstantColumn(80);
-                columns.ConstantColumn(80);
+                columns.ConstantColumn(35);
+                columns.RelativeColumn();
+                columns.ConstantColumn(40);
+                columns.ConstantColumn(85);
+                columns.ConstantColumn(85);
+            });
+
+            table.Header(header =>
+            {
+                for (var index = 0; index < ColumnLabels.Length; index++)
+                {
+                    var cell = header.Cell().Background("#1C1C1C").Padding(8);
+                    (index >= 2 ? cell.AlignRight() : cell).Text(ColumnLabels[index]).FontSize(9).SemiBold().FontColor(Colors.White);
+                }
             });
 
             foreach (var line in content.Lines)
             {
-                table.Cell().Text(Text(line.LineNo));
-                table.Cell().Text(line.Sku);
-                table.Cell().Text(line.Description);
-                table.Cell().AlignRight().Text(Text(line.Quantity));
-                table.Cell().AlignRight().Text(Money(line.UnitPriceMinor, content.Currency));
-                table.Cell().AlignRight().Text(Money(line.LineTotalMinor, content.Currency));
+                IContainer Cell(IContainer cell) => cell.ShowEntire().Background(line.LineNo % 2 == 0 ? "#F5F5F3" : "#FFFFFF")
+                    .BorderBottom(0.5f).BorderColor("#DDDDDD").PaddingVertical(10).PaddingHorizontal(8);
+                table.Cell().Element(Cell).Text(Text(line.LineNo)).FontSize(9);
+                table.Cell().Element(Cell).Column(description =>
+                {
+                    description.Item().Text(line.Description).SemiBold();
+                    description.Item().PaddingTop(4).Text(line.Sku).FontSize(8).FontColor("#606060");
+                });
+                table.Cell().Element(Cell).AlignRight().Text(Text(line.Quantity)).FontSize(9);
+                table.Cell().Element(Cell).AlignRight().Text(Money(line.UnitPriceMinor, content.Currency)).FontSize(9);
+                table.Cell().Element(Cell).AlignRight().Text(Money(line.LineTotalMinor, content.Currency)).FontSize(9);
             }
         });
 
     private static void Totals(IContainer container, DocumentContent content) =>
-        container.AlignRight().Column(column =>
+        container.ShowEntire().Column(column =>
         {
-            column.Item().Text(Money(content.SubtotalMinor, content.Currency));
-            column.Item().Text(Money(content.TaxMinor, content.Currency));
-            column.Item().Text(Money(content.TotalMinor, content.Currency)).Bold();
+            column.Spacing(7);
+            void Amount(string label, long amount, bool total = false) =>
+                column.Item().AlignRight().Width(270).Background(total ? "#FFF2DC" : "#FFFFFF").Padding(8).Row(row =>
+                {
+                    row.RelativeItem().Text(label).SemiBold();
+                    row.RelativeItem().AlignRight().Text(Money(amount, content.Currency)).Bold();
+                });
+            Amount("Subtotal", content.SubtotalMinor);
+            Amount("Tax", content.TaxMinor);
+            Amount("Total", content.TotalMinor, true);
 
             // Without this a buyer may read a zero tax line as a zero-rated supply and try to
             // reclaim input tax that was never charged.
-            column.Item().Text(content.TaxStatement);
+            column.Item().AlignRight().Text(content.TaxStatement).FontSize(9).FontColor("#606060");
         });
 
     private static string Money(long minor, string currency) =>
-        $"{currency.Trim()} {EwaysVNext.Modules.Sales.Application.Money.AmountText.Format(minor)}";
+        $"{currency.Trim()} {Mkbj.Modules.Sales.Application.Money.AmountText.Format(minor)}";
 
     private static string Text(long value) => value.ToString(CultureInfo.InvariantCulture);
 }

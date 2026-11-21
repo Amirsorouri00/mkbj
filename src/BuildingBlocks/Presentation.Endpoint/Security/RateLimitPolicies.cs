@@ -1,4 +1,4 @@
-namespace EwaysVNext.Presentation.Endpoint.Security;
+namespace Mkbj.Presentation.Endpoint.Security;
 
 /// <summary>
 /// The named rate-limit policies, so an endpoint and the limiter cannot disagree about a string.

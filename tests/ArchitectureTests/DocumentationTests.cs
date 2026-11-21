@@ -1,7 +1,7 @@
 using AwesomeAssertions;
 using Xunit;
 
-namespace EwaysVNext.ArchitectureTests;
+namespace Mkbj.ArchitectureTests;
 
 /// <summary>
 /// Documentation that describes modules which do not exist is worse than no documentation: a
@@ -61,13 +61,13 @@ public sealed class DocumentationTests
         {
             var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-            while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "EwaysVNext.slnx")))
+            while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "Mkbj.slnx")))
             {
                 directory = directory.Parent;
             }
 
             return directory?.FullName
-                ?? throw new DirectoryNotFoundException("Could not locate the EwaysVNext solution directory.");
+                ?? throw new DirectoryNotFoundException("Could not locate the Mkbj solution directory.");
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 internal static class TestTime
 {

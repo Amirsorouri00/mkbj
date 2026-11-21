@@ -1,6 +1,6 @@
-﻿using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
 
-namespace EwaysVNext.Modules.Pricing.Application.Fx.Domain;
+namespace Mkbj.Modules.Pricing.Application.Fx.Domain;
 
 /// <summary>
 /// Everything needed to resolve a rate, read once and passed in whole.

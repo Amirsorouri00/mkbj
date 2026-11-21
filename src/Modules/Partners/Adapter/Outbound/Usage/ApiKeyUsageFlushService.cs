@@ -1,13 +1,13 @@
-using EwaysVNext.Database;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Partners.Application.Usage;
+using Mkbj.Database;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Partners.Application.Usage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace EwaysVNext.Modules.Partners.Adapter.Outbound.Usage;
+namespace Mkbj.Modules.Partners.Adapter.Outbound.Usage;
 
 /// <summary>
 /// Drains the recorder and writes entries in batches.
@@ -120,7 +120,7 @@ public sealed class ApiKeyUsageFlushService(
     {
         using var scope = scopeFactory.CreateScope();
 
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
         var ids = scope.ServiceProvider.GetRequiredService<IIdGenerator>();
 
         db.ApiKeyUsages.AddRange(batch.Select(entry => new ApiKeyUsage

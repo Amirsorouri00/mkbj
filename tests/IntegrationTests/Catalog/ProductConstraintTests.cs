@@ -1,14 +1,14 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.Brands.Domain;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
+using AwesomeAssertions;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.Brands.Domain;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Catalog;
+namespace Mkbj.IntegrationTests.Catalog;
 
 /// <summary>
 /// The dedup guarantees the product tables make on their own.
@@ -50,7 +50,7 @@ public sealed class ProductConstraintTests(PostgresFixture fixture)
     private static async Task<Fixtures> SeedAsync(IServiceProvider services, string suffix)
     {
         using var scope = services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         var brand = Brand.Create(NextId(), $"Brand {suffix}", "seed", DateTimeOffset.UtcNow);
         var category = Category.Create(
@@ -70,7 +70,7 @@ public sealed class ProductConstraintTests(PostgresFixture fixture)
     private static async Task SaveAsync(IServiceProvider services, Product product)
     {
         using var scope = services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
         db.Set<Product>().Add(product);
         await db.SaveChangesAsync();
     }
@@ -246,7 +246,7 @@ public sealed class ProductConstraintTests(PostgresFixture fixture)
         // Written past the aggregate, which is the only way this can happen in practice: two
         // import workers claiming the same feed row at the same moment.
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
         var newVariantId = NextId();
         var otherSku = $"SKB{suffix}".ToUpperInvariant();
         var signature = variant.AttributeSignature;
@@ -282,7 +282,7 @@ public sealed class ProductConstraintTests(PostgresFixture fixture)
         await SaveAsync(factory.Services, product);
 
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         // Read as jsonb, not as text: phase 3's storefront views index into this column, and a
         // string column holding JSON would serve every one of those queries wrongly.
@@ -304,7 +304,7 @@ public sealed class ProductConstraintTests(PostgresFixture fixture)
         await SaveAsync(factory.Services, product);
 
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         var act = async () => await db.Database.ExecuteSqlAsync(
             $"UPDATE catalog.products SET status = 'Published' WHERE id = {product.Id}");

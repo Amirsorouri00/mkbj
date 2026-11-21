@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
+namespace Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
 
 /// <summary>
 /// Contact details as they arrive from a partner: raw strings, because the partner's wire format

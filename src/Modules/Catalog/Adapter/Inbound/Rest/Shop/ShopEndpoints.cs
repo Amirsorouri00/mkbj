@@ -1,13 +1,13 @@
 using System.Globalization;
-using EwaysVNext.Modules.Catalog.QueryApplication.Storefront;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Presentation.Endpoint.Money;
+using Mkbj.Modules.Catalog.QueryApplication.Storefront;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint.Money;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest.Shop;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.Rest.Shop;
 
 /// <summary>
 /// The storefront a visitor browses before signing in to anything.

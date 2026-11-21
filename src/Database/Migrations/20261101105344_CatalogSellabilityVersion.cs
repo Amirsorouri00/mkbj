@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace EwaysVNext.Database.Migrations
+namespace Mkbj.Database.Migrations
 {
     /// <summary>
     /// A sequence the catalogue bumps whenever something sellable changes, so a cart can tell

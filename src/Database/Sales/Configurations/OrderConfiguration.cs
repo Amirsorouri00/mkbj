@@ -1,10 +1,10 @@
 using System.Text.Json;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EwaysVNext.Database.Sales.Configurations;
+namespace Mkbj.Database.Sales.Configurations;
 
 /// <summary>
 /// The order aggregate's tables, and the constraints that hold its invariants in the database.

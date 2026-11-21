@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
 
-namespace EwaysVNext.Modules.Sales.Application.Domain.Orders;
+namespace Mkbj.Modules.Sales.Application.Domain.Orders;
 
 /// <summary>
 /// What a line's price was, and how it was arrived at.

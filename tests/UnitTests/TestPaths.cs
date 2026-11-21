@@ -1,4 +1,4 @@
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 /// <summary>
 /// Locates the repository root for the few tests that assert on files shipped beside the code —
@@ -13,10 +13,10 @@ internal static class TestPaths
     {
         var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "EwaysVNext.slnx")))
+        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "Mkbj.slnx")))
             directory = directory.Parent;
 
         return directory?.FullName
-            ?? throw new DirectoryNotFoundException("Could not locate the EwaysVNext solution directory.");
+            ?? throw new DirectoryNotFoundException("Could not locate the Mkbj solution directory.");
     }
 }

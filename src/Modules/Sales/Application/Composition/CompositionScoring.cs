@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Sales.Application.Composition;
+namespace Mkbj.Modules.Sales.Application.Composition;
 
 /// <summary>
 /// How good a basket is, when several hit the amount exactly.

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Partners.Application.Partners.Domain;
+namespace Mkbj.Modules.Partners.Application.Partners.Domain;
 
 /// <summary>
 /// The bounds a partner's limits must fall inside.

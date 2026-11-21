@@ -1,11 +1,11 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Pricing.Application.Fx.Domain;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Pricing.Application.Fx.Domain;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Outbound;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Pricing.Adapter.Outbound.Persistence;
+namespace Mkbj.Modules.Pricing.Adapter.Outbound.Persistence;
 
-internal sealed class FxRateOverrideRepository(EwaysVNextDbContext db) : IFxRateOverrideRepository
+internal sealed class FxRateOverrideRepository(MkbjDbContext db) : IFxRateOverrideRepository
 {
     public async Task<IReadOnlyList<FxRateOverride>> GetActiveAsync(CancellationToken ct = default) =>
         await db.FxRateOverrides.Where(@override => @override.IsActive).ToListAsync(ct);

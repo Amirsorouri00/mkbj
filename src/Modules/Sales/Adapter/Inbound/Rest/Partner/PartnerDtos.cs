@@ -1,11 +1,12 @@
+using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using EwaysVNext.Modules.Sales.Application.Money;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Modules.Sales.QueryApplication.Partner;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Sales.Application.Money;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.QueryApplication.Partner;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Partner;
+namespace Mkbj.Modules.Sales.Adapter.Inbound.Rest.Partner;
 
 /// <remarks>
 /// <c>Amount</c> is a <see cref="JsonElement"/> rather than a string so that a JSON <b>number</b>
@@ -44,12 +45,12 @@ public sealed record BulkOrdersResponse(IReadOnlyList<BulkOutcomeResponse> Items
 public sealed record MoneyDto(string Amount, string Currency);
 
 public sealed record PartnerInvoiceResponse(
-    long Id, string Number, JsonElement Json, string PdfUrl);
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long Id, string Number, JsonElement Json, string PdfUrl);
 
 public sealed record PartnerOrderLineResponse(
     int LineNo,
-    long VariantId,
-    long ProductId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long VariantId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long ProductId,
     string Sku,
     string ProductTitle,
     string BrandName,
@@ -63,10 +64,10 @@ public sealed record PartnerOrderLineResponse(
     string PriceSource);
 
 public sealed record PartnerOrderResponse(
-    long Id,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long Id,
     string Number,
     string ExternalOrderId,
-    long CustomerId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long CustomerId,
     string ExternalCustomerId,
     MoneyDto Total,
     MoneyDto Subtotal,

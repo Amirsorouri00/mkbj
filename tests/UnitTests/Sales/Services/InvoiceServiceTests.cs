@@ -1,11 +1,11 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Modules.Sales.Application.Services;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.Application.Services;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Services;
+namespace Mkbj.UnitTests.Sales.Services;
 
 /// <summary>
 /// Handing out a link to an invoice PDF.
@@ -18,6 +18,30 @@ namespace EwaysVNext.UnitTests.Sales.Services;
 public sealed class InvoiceServiceTests
 {
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
+
+    [Fact]
+    public async Task Direct_Download_Preserves_Authorization_And_Reuses_Stored_Bytes()
+    {
+        var (service, renderer, store, orders) = BuildWithRepository(Document());
+        var access = new DocumentAccess.Admin();
+        var first = await service.GetPdfAsync(access, 1, Ct);
+        var second = await service.GetPdfAsync(access, 1, Ct);
+        first.Value!.FileName.Should().Be("INV-000123.pdf");
+        second.Value!.Content.Should().Equal(first.Value.Content);
+        renderer.Renders.Should().Be(1);
+        store.Puts.Should().ContainSingle();
+        orders.LastAccess.Should().Be(access);
+    }
+
+    [Fact]
+    public async Task Direct_Download_Refuses_An_Inaccessible_Document()
+    {
+        var (service, renderer, store) = Build(null);
+        var result = await service.GetPdfAsync(new DocumentAccess.Admin(), 1, Ct);
+        result.Error!.Code.Should().Be("NOT_FOUND");
+        renderer.Renders.Should().Be(0);
+        store.Puts.Should().BeEmpty();
+    }
 
     [Fact]
     public async Task A_Document_The_Caller_Cannot_See_Is_Not_Found_And_Is_Never_Rendered()
@@ -149,6 +173,8 @@ public sealed class InvoiceServiceTests
 
     private sealed class StubStore : IDocumentStore
     {
+        public Task<byte[]?> ReadPdfAsync(string key, CancellationToken ct = default) =>
+            Task.FromResult<byte[]?>(Existing.Contains(key) ? [1, 2, 3] : null);
         public HashSet<string> Existing { get; } = new(StringComparer.Ordinal);
         public List<string> Puts { get; } = [];
 

@@ -1,7 +1,7 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Domain.ValueObjects;
+using Mkbj.Domain.Common;
+using Mkbj.Domain.ValueObjects;
 
-namespace EwaysVNext.Modules.Customer.Application.Customers.Domain;
+namespace Mkbj.Modules.Customer.Application.Customers.Domain;
 
 /// <summary>
 /// A buyer, from either sales path (spec §5.2).

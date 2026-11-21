@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
+namespace Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
 
 public sealed class AttributeBlueprintOption : Entity<long>
 {

@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
+namespace Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
 
 /// <summary>
 /// How a source listing becomes a catalogue product.

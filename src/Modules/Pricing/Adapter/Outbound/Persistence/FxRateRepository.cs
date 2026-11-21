@@ -1,11 +1,11 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Pricing.Application.Fx.Domain;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Pricing.Application.Fx.Domain;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Outbound;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Pricing.Adapter.Outbound.Persistence;
+namespace Mkbj.Modules.Pricing.Adapter.Outbound.Persistence;
 
-internal sealed class FxRateRepository(EwaysVNextDbContext db) : IFxRateRepository
+internal sealed class FxRateRepository(MkbjDbContext db) : IFxRateRepository
 {
     public async Task<IReadOnlyList<FxRate>> GetLatestPerPairAsync(CancellationToken ct = default) =>
         await db.FxRates.AsNoTracking()

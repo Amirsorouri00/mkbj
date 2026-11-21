@@ -1,13 +1,13 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 /// <summary>
 /// Every error a caller sees has the same shape (spec §6.3), carries whether retrying could help,

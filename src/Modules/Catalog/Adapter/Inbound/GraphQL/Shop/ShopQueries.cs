@@ -1,10 +1,11 @@
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
-using EwaysVNext.Modules.Catalog.QueryApplication.Storefront;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Modules.Catalog.Contracts.Categories;
+using Mkbj.Modules.Catalog.QueryApplication.Storefront;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
 using HotChocolate.Authorization;
+using HotChocolate.Types;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Shop;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.Shop;
 
 /// <summary>One listing filter, as a GraphQL input.</summary>
 /// <remarks>
@@ -12,8 +13,8 @@ namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Shop;
 /// type, and the set of attribute keys is whatever the category carries.
 /// </remarks>
 public sealed record ShopProductFilterInput(
-    long? CategoryId,
-    IReadOnlyList<long>? BrandIds,
+    [property: GraphQLType(typeof(IdType))] long? CategoryId,
+    [property: GraphQLType(typeof(ListType<NonNullType<IdType>>))] IReadOnlyList<long>? BrandIds,
     IReadOnlyList<AttributeFilterInput>? Attributes,
     string? PriceMin,
     string? PriceMax,
@@ -71,7 +72,7 @@ public sealed class ShopQueries
     [AllowAnonymous]
     public async Task<FacetSetDto> ShopFacetsAsync(
         string currency, [Service] IStorefrontQueries queries,
-        long? categoryId = null, CancellationToken ct = default) =>
+        [GraphQLType(typeof(IdType))] long? categoryId = null, CancellationToken ct = default) =>
         (await queries.GetFacetsAsync(categoryId, currency, ct)).ValueOrThrow();
 
     [AllowAnonymous]

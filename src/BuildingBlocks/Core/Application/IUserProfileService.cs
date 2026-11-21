@@ -1,4 +1,4 @@
-namespace EwaysVNext.Core.Application;
+namespace Mkbj.Core.Application;
 
 public interface IUserProfileService
 {

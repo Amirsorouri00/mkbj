@@ -2,15 +2,15 @@ using System.Security.Claims;
 
 using AuthorizationService.Abstractions.Attributes;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Inbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Inbound;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
 
-namespace EwaysVNext.Modules.Partners.Adapter.Inbound.GraphQL;
+namespace Mkbj.Modules.Partners.Adapter.Inbound.GraphQL;
 
 /// <summary>
 /// The key is here and nowhere else: this payload is the only time the plaintext exists outside

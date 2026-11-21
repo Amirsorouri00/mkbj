@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Pricing.Application;
+namespace Mkbj.Modules.Pricing.Application;
 
 /// <summary>
 /// Every refusal pricing can give, with the status it means.

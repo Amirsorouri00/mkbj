@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Mkbj.Modules.Catalog.Adapter.Inbound.Rest</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\Mkbj.Modules.Catalog.Application.csproj" />
+    <ProjectReference Include="..\..\..\QueryApplication\Mkbj.Modules.Catalog.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Mkbj.Modules.Catalog.Contracts\Mkbj.Modules.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Outcomes\Mkbj.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Presentation.Endpoint\Mkbj.Presentation.Endpoint.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Core\Application\Mkbj.Core.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Authorization\Authorization.Abstractions\Authorization.Abstractions.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Core.Application.Security;
+namespace Mkbj.Core.Application.Security;
 
 /// <summary>
 /// The two backoffice roles (spec §6.1) and the two realm names.

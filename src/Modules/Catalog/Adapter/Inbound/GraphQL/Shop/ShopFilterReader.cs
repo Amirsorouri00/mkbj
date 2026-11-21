@@ -1,10 +1,10 @@
-using EwaysVNext.Modules.Catalog.QueryApplication.Storefront;
-using Error = EwaysVNext.Outcomes.Error;
-using Result = EwaysVNext.Outcomes.Result;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
-using EwaysVNext.Presentation.Endpoint.Money;
+using Mkbj.Modules.Catalog.QueryApplication.Storefront;
+using Error = Mkbj.Outcomes.Error;
+using Result = Mkbj.Outcomes.Result;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.Money;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Shop;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.Shop;
 
 /// <summary>
 /// Turns a GraphQL filter input into the one <see cref="ProductListQuery"/> both surfaces use.
@@ -16,7 +16,7 @@ namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Shop;
 /// </remarks>
 internal static class ShopFilterReader
 {
-    public static EwaysVNext.Outcomes.Result<ProductListQuery> Read(
+    public static Mkbj.Outcomes.Result<ProductListQuery> Read(
         string currency, ShopProductFilterInput? filter, StorefrontSort? sort,
         string? after, int? first)
     {
@@ -48,7 +48,7 @@ internal static class ShopFilterReader
 
     public static Exception AsGraphQLError(Error error) => error.ToGraphQLException();
 
-    private static EwaysVNext.Outcomes.Result<long?> ReadMinor(string? text, string name)
+    private static Mkbj.Outcomes.Result<long?> ReadMinor(string? text, string name)
     {
         if (string.IsNullOrEmpty(text)) return Result.Success<long?>(null);
 

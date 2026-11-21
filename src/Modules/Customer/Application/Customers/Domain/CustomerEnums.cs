@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Customer.Application.Customers.Domain;
+namespace Mkbj.Modules.Customer.Application.Customers.Domain;
 
 /// <summary>
 /// How this customer came to exist, which decides who owns their details.

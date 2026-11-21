@@ -64,7 +64,7 @@ panel ships as APIs only, with no UI.
 ### 3.1 What is kept
 - The hexagonal module layout: `Application`, `Adapter/Inbound/{Rest,GraphQL}`,
   `Adapter/Outbound`, `QueryApplication`, `Installer`.
-- One `EwaysVNextDbContext` (`src/Database`), with schema-per-module.
+- One `MkbjDbContext` (`src/Database`), with schema-per-module.
 - `Result`/`Error`, `EndpointResult`, Snowflake `long` ids with `[Snowflake]` on the wire,
   `IClock` passed as `now`, and in-process domain events through `EfCoreUnitOfWork`.
 - Keycloak multi-realm authentication (`Shop`, `Backoffice`).
@@ -116,7 +116,7 @@ Catalog's `AttributeBlueprint`, `MeasurementUnit`, `Category`, `CategoryAttribut
 | 0020 Storefront materialized views | Amends ADR-0008's "reads are never stale" for **storefront browse reads only**. Records the cross-schema SQL dependency (catalog + pricing) and that purchasing re-validates against live tables. |
 | 0021 Partner API-key authentication | Key format, hashing, scopes, per-partner rate limits, usage logging. |
 | 0022 Remove Iran-specific modules | Records §3.2. |
-| Accept ADR-0016 | QueryApplication is the read-side implementation (it injects `EwaysVNextDbContext` and projects). Current Catalog code already works this way. New modules follow it. **[Design call]** |
+| Accept ADR-0016 | QueryApplication is the read-side implementation (it injects `MkbjDbContext` and projects). Current Catalog code already works this way. New modules follow it. **[Design call]** |
 
 `AGENTS.md`, `docs/ONBOARDING.md`, `docs/TESTING-GUARANTEES.md` and the architecture-test
 `ModuleNames` and exception theory rows are updated to the real module list. Today AGENTS.md

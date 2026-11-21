@@ -1,16 +1,16 @@
 using Microsoft.EntityFrameworkCore;
-using EwaysVNext.Database;
-using EwaysVNext.Persistence;
-using EwaysVNext.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
+using Mkbj.Database;
+using Mkbj.Persistence;
+using Mkbj.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound.Repositories;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound.Repositories;
 
 internal sealed class CategoryAttributeAssignmentRepository
     : EfCoreRepository<Application.CategoryAttributeAssignments.Domain.CategoryAttributeAssignment, long>,
         Application.CategoryAttributeAssignments.Ports.Outbound.ICategoryAttributeAssignmentRepository
 {
-    private readonly EwaysVNextDbContext _db;
-    public CategoryAttributeAssignmentRepository(EwaysVNextDbContext db) : base(db) => _db = db;
+    private readonly MkbjDbContext _db;
+    public CategoryAttributeAssignmentRepository(MkbjDbContext db) : base(db) => _db = db;
 
     public new async Task<Application.CategoryAttributeAssignments.Domain.CategoryAttributeAssignment?> GetByIdAsync(long id, CancellationToken ct = default)
         => await _db.CategoryAttributeAssignments.FirstOrDefaultAsync(a => a.Id == id, ct);

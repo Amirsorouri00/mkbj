@@ -17,14 +17,14 @@ processes collide only if they generate in the same millisecond *and* draw the s
 (about 1 in 4.2 million per shared millisecond), which the primary-key constraint rejects. A clock
 that moves backwards, or a millisecond whose sequence is exhausted, borrows the next millisecond
 instead of throwing or spinning. Because these ids exceed JavaScript's 2^53 safe-integer range, a
-developer marks each one that crosses the wire with `[Snowflake]` (`EwaysVNext.Domain.Common`) —
+developer marks each one that crosses the wire with `[Snowflake]` (`Mkbj.Domain.Common`) —
 `[property: Snowflake] long Id` on a record's positional parameter, `[Snowflake] long customerId`
 on a GraphQL resolver argument. A marked `long`, `long?` or collection of `long` is written as a
 JSON string in REST responses (numbers or strings accepted on input) and typed `ID` in GraphQL;
 anything unmarked keeps its normal number type. Marking a member that is not a `long` throws, so a
 misplaced mark fails at schema build or first serialization instead of silently doing nothing. The
 mark is recognized by its type name, `SnowflakeAttribute`, not by assembly: a project that must stay
-reference-free, such as `EwaysVNext.Modules.Catalog.Contracts`, declares its own internal
+reference-free, such as `Mkbj.Modules.Catalog.Contracts`, declares its own internal
 `SnowflakeAttribute` instead of referencing Domain.
 
 ## Context
@@ -70,7 +70,7 @@ had a real (if narrow) purpose:
    `OutboxProcessorJob` and `InboxMessage`/`InboxCleanerJob`, and the `.AddOutbox()`/`.AddInbox()`
    model-builder calls in `ModuleDbContextBase`.
 3. **Domain events dispatch synchronously, in-process, without persistence.** `EfCoreUnitOfWork`
-   (in `EwaysVNext.Persistence`, the one class that actually implements `IUnitOfWork.
+   (in `Mkbj.Persistence`, the one class that actually implements `IUnitOfWork.
    SaveChangesAsync` for both modules via their thin `CatalogUnitOfWork`/`CustomerUnitOfWork`
    wrappers) now captures every tracked aggregate's pending `DomainEvents` immediately before
    calling `SaveChangesAsync`, and — once the save succeeds — publishes each one through
@@ -80,10 +80,10 @@ had a real (if narrow) purpose:
    row. This is deliberately weaker than the Outbox it replaces; see Consequences.
 4. **No CQRS command/query bus (CQS, not CQRS).** Delete `ICommand`/`ICommandBus`/
    `ICommandHandler`, `IQuery`/`IQueryBus`/`IQueryHandler`, `CommandBus`, `QueryBus`, and the
-   entire `Commands` building block (`EwaysVNext.Commands.Application`/`.Implementation`).
+   entire `Commands` building block (`Mkbj.Commands.Application`/`.Implementation`).
    `IUnitOfWork` — the one piece of `Commands.Application` with a real implementation
-   (`EfCoreUnitOfWork<TDbContext>`) — moves to `EwaysVNext.Persistence`, the layer that actually
-   owns it. `EwaysVNext.Queries.Application`/`.Implementation` keep only the pagination shapes
+   (`EfCoreUnitOfWork<TDbContext>`) — moves to `Mkbj.Persistence`, the layer that actually
+   owns it. `Mkbj.Queries.Application`/`.Implementation` keep only the pagination shapes
    (`PaginationQuery`, `CursorPaginationQuery`, `ICursorResponse`, …) and the Gridify-based
    `QueryExtensions` filtering/ordering helpers — application services remain plain classes
    called directly.

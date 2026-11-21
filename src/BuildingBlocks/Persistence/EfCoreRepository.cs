@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Persistence;
+namespace Mkbj.Persistence;
 
 public abstract class EfCoreRepository<TAggregate, TId>(DbContext context)
     where TAggregate : class

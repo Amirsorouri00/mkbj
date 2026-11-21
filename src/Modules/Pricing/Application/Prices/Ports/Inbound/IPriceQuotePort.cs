@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
+namespace Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
 
 /// <summary>
 /// What a set of variants costs in one currency, right now.

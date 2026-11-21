@@ -1,12 +1,12 @@
 using System.Globalization;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
-using EwaysVNext.Storage;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Storage;
 using Microsoft.Extensions.Logging;
 
-namespace EwaysVNext.Modules.Sourcing.Adapter.Outbound.Files;
+namespace Mkbj.Modules.Sourcing.Adapter.Outbound.Files;
 
 /// <summary>
 /// Reads an uploaded file as a source of listings.

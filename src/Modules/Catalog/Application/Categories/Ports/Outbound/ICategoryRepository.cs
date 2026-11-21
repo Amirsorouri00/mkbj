@@ -1,7 +1,7 @@
-﻿using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
-using CategoryEntity = EwaysVNext.Modules.Catalog.Application.Categories.Domain.Category;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
+using CategoryEntity = Mkbj.Modules.Catalog.Application.Categories.Domain.Category;
 
-namespace EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
+namespace Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
 
 public interface ICategoryRepository
 {

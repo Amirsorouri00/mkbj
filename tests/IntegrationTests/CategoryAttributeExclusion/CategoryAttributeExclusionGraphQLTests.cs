@@ -1,12 +1,12 @@
 using System.Net.Http.Headers;
 using AwesomeAssertions;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests;
+namespace Mkbj.IntegrationTests;
 
 [Collection(PostgresSuite.Name)]
 public sealed class CategoryAttributeExclusionGraphQLTests
@@ -183,7 +183,7 @@ public sealed class CategoryAttributeExclusionGraphQLTests
         var now = DateTimeOffset.UtcNow;
 
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         db.Categories.Add(Category.Create(grandparentId, $"Grandparent {grandparentId}", $"grandparent-{grandparentId}", null, null, 0, now));
         db.Categories.Add(Category.Create(parentId, $"Parent {parentId}", $"parent-{parentId}", null, grandparentId, 0, now));
@@ -203,7 +203,7 @@ public sealed class CategoryAttributeExclusionGraphQLTests
     private static long NextId() => Random.Shared.NextInt64(1_000_000_000, 9_000_000_000);
 
     private const string AssignMutation = """
-        mutation($categoryId: Long!, $attributeBlueprintId: Long!) {
+        mutation($categoryId: ID!, $attributeBlueprintId: ID!) {
           assignCategoryAttribute(categoryId: $categoryId, attributeBlueprintId: $attributeBlueprintId, isRequired: false, isFilterable: false, isSearchable: false, isInTitle: false, titleOrder: null, isPrimary: false, isVariantGenerating: false) {
             id categoryId attributeBlueprintId
           }
@@ -219,7 +219,7 @@ public sealed class CategoryAttributeExclusionGraphQLTests
     }
 
     private const string ExcludeMutation = """
-        mutation($categoryId: Long!, $sourceAssignmentId: Long!) {
+        mutation($categoryId: ID!, $sourceAssignmentId: ID!) {
           excludeInheritedCategoryAttribute(categoryId: $categoryId, sourceAssignmentId: $sourceAssignmentId) {
             categoryId sourceAssignmentId isExcluded
           }
@@ -238,7 +238,7 @@ public sealed class CategoryAttributeExclusionGraphQLTests
     }
 
     private const string IncludeMutation = """
-        mutation($categoryId: Long!, $sourceAssignmentId: Long!) {
+        mutation($categoryId: ID!, $sourceAssignmentId: ID!) {
           includeInheritedCategoryAttribute(categoryId: $categoryId, sourceAssignmentId: $sourceAssignmentId) {
             categoryId sourceAssignmentId isExcluded
           }
@@ -257,7 +257,7 @@ public sealed class CategoryAttributeExclusionGraphQLTests
     }
 
     private const string SetExclusionsMutation = """
-        mutation($categoryId: Long!, $excludedSourceAssignmentIds: [Long!]!) {
+        mutation($categoryId: ID!, $excludedSourceAssignmentIds: [ID!]!) {
           setCategoryAttributeExclusions(categoryId: $categoryId, excludedSourceAssignmentIds: $excludedSourceAssignmentIds) {
             categoryId sourceAssignmentId isExcluded
           }
@@ -280,7 +280,7 @@ public sealed class CategoryAttributeExclusionGraphQLTests
     private sealed record ExclusionShape(long CategoryId, long SourceAssignmentId, bool IsExcluded);
 
     private const string EffectiveAttributesQuery = """
-        query($categoryId: Long!) {
+        query($categoryId: ID!) {
           effectiveCategoryAttributes(categoryId: $categoryId) {
             assignmentId sourceCategoryId attributeBlueprintId isInherited isExcluded
           }

@@ -1,15 +1,15 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Database;
-using EwaysVNext.Jobs;
-using EwaysVNext.Jobs.Implementation;
+using AwesomeAssertions;
+using Mkbj.Core.Application;
+using Mkbj.Database;
+using Mkbj.Jobs;
+using Mkbj.Jobs.Implementation;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Platform;
+namespace Mkbj.IntegrationTests.Platform;
 
 /// <summary>
 /// What the worker does with each handler outcome, and what it does when a handler misbehaves.
@@ -210,7 +210,7 @@ public sealed class JobWorkerTests(PostgresFixture fixture)
 
         using (var scope = factory.Services.CreateScope())
         {
-            scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>()
+            scope.ServiceProvider.GetRequiredService<MkbjDbContext>()
                 .Database.ExecuteSqlRaw("DELETE FROM jobs.job; DELETE FROM jobs.recurring;");
         }
 
@@ -224,7 +224,7 @@ public sealed class JobWorkerTests(PostgresFixture fixture)
         await scope.ServiceProvider.GetRequiredService<IJobQueue>()
             .EnqueueAsync(type, new TestPayload("x"), DateTimeOffset.UtcNow, dedupeKey);
 
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
         return await db.Jobs.Where(j => j.Type == type)
             .OrderByDescending(j => j.Id).Select(j => j.Id).FirstAsync();
     }
@@ -239,14 +239,14 @@ public sealed class JobWorkerTests(PostgresFixture fixture)
     private static async Task MakeDueAsync(TestHost host, long id)
     {
         await using var scope = host.Factory.Services.CreateAsyncScope();
-        await scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>()
+        await scope.ServiceProvider.GetRequiredService<MkbjDbContext>()
             .Database.ExecuteSqlAsync($"UPDATE jobs.job SET run_at = now() - interval '1 hour' WHERE id = {id};");
     }
 
     private static async Task<JobRecord> ReadAsync(TestHost host, long id)
     {
         await using var scope = host.Factory.Services.CreateAsyncScope();
-        return await scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>()
+        return await scope.ServiceProvider.GetRequiredService<MkbjDbContext>()
             .Jobs.AsNoTracking().SingleAsync(j => j.Id == id);
     }
 

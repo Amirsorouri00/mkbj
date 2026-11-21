@@ -1,4 +1,4 @@
-namespace EwaysVNext.Presentation.Endpoint.GraphQL;
+namespace Mkbj.Presentation.Endpoint.GraphQL;
 
 /// <summary>
 /// What one GraphQL request may cost.
@@ -21,4 +21,12 @@ public static class GraphQLLimits
     public const int MaxDepth = 10;
 
     public const int MaxCost = 20_000;
+
+    /// <summary>
+    /// A category hierarchy has at most five levels, so its recursive <c>children</c> field may
+    /// appear four times below a root node. Hot Chocolate counts the root coordinate too, hence
+    /// five is needed to load the product editor's complete picker. This still bounds every
+    /// recursive GraphQL field well below the general execution-depth limit.
+    /// </summary>
+    public const ushort MaxCoordinateCycleDepth = 5;
 }

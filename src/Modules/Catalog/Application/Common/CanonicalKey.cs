@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Text;
 
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Catalog.Application.Common;
+namespace Mkbj.Modules.Catalog.Application.Common;
 
 /// <summary>
 /// Reduces a name to a stable key, so two spellings of one thing are recognised as the same

@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Customer.Application.Customers.Domain;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Customer.Application.Customers.Domain;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Customers;
+namespace Mkbj.UnitTests.Customers;
 
 public sealed class AddressTests
 {

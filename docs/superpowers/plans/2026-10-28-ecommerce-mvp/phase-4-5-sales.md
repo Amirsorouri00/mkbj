@@ -42,11 +42,11 @@ documents only), §9.3 (orders only), §10, §11, §13 (Sales rows), §14 phases
 
 ```
 src/Modules/Sales/
-├── Application/EwaysVNext.Modules.Sales.Application.csproj
+├── Application/Mkbj.Modules.Sales.Application.csproj
 │   ├── DependencyInjection.cs                 AddSalesApplication()
 │   ├── SalesErrors.cs                         every Error the module returns (codes, HTTP, retryable)
 │   ├── SalesOptions.cs                        Sales:Bulk:Parallelism (4), Sales:Bulk:DeadlineSeconds (120), Sales:CandidateCacheSeconds (30)
-│   ├── SalesMetrics.cs                        Meter "EwaysVNext.Sales": customer_contact_sync_failures, composition_duration_ms
+│   ├── SalesMetrics.cs                        Meter "Mkbj.Sales": customer_contact_sync_failures, composition_duration_ms
 │   ├── Money/AmountText.cs                    "500.00" ⇄ minor units, ^\d+\.\d{2}$ only
 │   ├── Money/RequestFingerprint.cs            SHA-256(external_customer_id|amount_minor|currency)
 │   ├── Composition/                           PURE: no IO, no ports, no EF (arch-tested)
@@ -121,10 +121,10 @@ candidate_pool_size, seed, strategy_version, recompositions, order_id`.
 ### Task 1: Sales module scaffold and boundary rows
 
 **Files:**
-- Create: `src/Modules/Sales/**` using `./New-EwaysModule.ps1 -ModuleName Sales`. Then add
-  `Adapter/Inbound/GraphQL/EwaysVNext.Modules.Sales.Adapter.Inbound.GraphQL.csproj` by hand,
+- Create: `src/Modules/Sales/**` using `./New-MkbjModule.ps1 -ModuleName Sales`. Then add
+  `Adapter/Inbound/GraphQL/Mkbj.Modules.Sales.Adapter.Inbound.GraphQL.csproj` by hand,
   copying the Catalog GraphQL csproj.
-- Modify: `src/Host/EwaysVNext.Host/Program.cs`, `EwaysVNext.slnx`
+- Modify: `src/Host/Mkbj.Host/Program.cs`, `Mkbj.slnx`
 - Create: `tests/ArchitectureTests/SalesArchitectureTests.cs`
 - Modify: `tests/ArchitectureTests/HexagonalBoundaryTests.cs` (`ModuleNames`, exception theory)
 
@@ -140,18 +140,18 @@ candidate_pool_size, seed, strategy_version, recompositions, order_id`.
 ```csharp
 [Fact] public void Sales_Composition_Has_No_IO_Or_Port_Dependencies() =>
     Types.InAssembly(typeof(CompositionEngine).Assembly)
-        .That().ResideInNamespace("EwaysVNext.Modules.Sales.Application.Composition")
+        .That().ResideInNamespace("Mkbj.Modules.Sales.Application.Composition")
         .ShouldNot().HaveDependencyOnAny(
             "Microsoft.EntityFrameworkCore", "System.Net", "System.IO", "System.Data",
-            "EwaysVNext.Modules.Sales.Application.Ports", "EwaysVNext.Persistence",
+            "Mkbj.Modules.Sales.Application.Ports", "Mkbj.Persistence",
             "Microsoft.Extensions.DependencyInjection", "Microsoft.Extensions.Logging")
         .GetResult().IsSuccessful.Should().BeTrue();
 
 [Fact] public void Sales_Domain_Never_References_Ports_Or_Services() =>
     Types.InAssembly(typeof(CompositionEngine).Assembly)
-        .That().ResideInNamespace("EwaysVNext.Modules.Sales.Application.Domain")
-        .ShouldNot().HaveDependencyOnAny("EwaysVNext.Modules.Sales.Application.Ports",
-            "EwaysVNext.Modules.Sales.Application.Services")
+        .That().ResideInNamespace("Mkbj.Modules.Sales.Application.Domain")
+        .ShouldNot().HaveDependencyOnAny("Mkbj.Modules.Sales.Application.Ports",
+            "Mkbj.Modules.Sales.Application.Services")
         .GetResult().IsSuccessful.Should().BeTrue();
 
 [Fact] public void Sales_Source_Never_Calls_An_Invoice_A_Tax_Invoice() =>
@@ -162,7 +162,7 @@ candidate_pool_size, seed, strategy_version, recompositions, order_id`.
   Also add the four exception rows and `"Sales"` to `ModuleNames`.
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj`.
+  `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj`.
   Expected: build FAILS, because `CompositionEngine` does not exist yet.
 
 - [ ] **Step 3: Implement the scaffold.**
@@ -177,18 +177,18 @@ candidate_pool_size, seed, strategy_version, recompositions, order_id`.
   - Add `ModuleInstaller.AddSalesModule`. It calls `AddSalesApplication`,
     `AddSalesOutboundAdapters`, `AddSalesRestAdapter`, `AddSalesGraphQL` and
     `AddSalesQueryApplication`, then
-    `.AddPersistenceInterceptors().AddUserProfileService().AddUnitOfWork<EwaysVNextDbContext>().AddEvents(typeof(CompositionEngine).Assembly)`.
+    `.AddPersistenceInterceptors().AddUserProfileService().AddUnitOfWork<MkbjDbContext>().AddEvents(typeof(CompositionEngine).Assembly)`.
   - In `Program.cs`, call `.AddSalesModule(builder.Configuration)` next to the other modules.
   - The Application folder is `Application/Domain/**` (top level), so the existing
     `DeterministicTimeTests` scan covers the Sales aggregates.
 
 - [ ] **Step 4: Run the tests to see them pass.** Command:
-  `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj`.
+  `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj`.
   Expected: PASS. That includes `HexagonalBoundaryTests` with the four new rows.
 
 - [ ] **Step 5: Commit.**
 ```bash
-git add src/Modules/Sales src/Host EwaysVNext.slnx tests/ArchitectureTests
+git add src/Modules/Sales src/Host Mkbj.slnx tests/ArchitectureTests
 git commit -m "feat(sales): scaffold Sales module with boundary rows and composition purity test" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
@@ -261,7 +261,7 @@ public void Parses_Two_Decimal_Strings(string text, long expected)
 ```
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-namespace "EwaysVNext.UnitTests.Sales.Money"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-namespace "Mkbj.UnitTests.Sales.Money"`.
   Expected: FAIL (compile).
 
 - [ ] **Step 3: Implement.**
@@ -284,7 +284,7 @@ git commit -am "feat(sales): error catalogue, strict two-decimal amounts, reques
 - Test: `tests/UnitTests/Sales/Composition/CompositionVerifierTests.cs`, `SplitMix64Tests.cs`
 
 **Interfaces:**
-- Produces (namespace `EwaysVNext.Modules.Sales.Application.Composition`):
+- Produces (namespace `Mkbj.Modules.Sales.Application.Composition`):
 ```csharp
 public sealed record CompositionCandidate(long VariantId, long CategoryId, long ReferenceMinor, long LoMinor, long HiMinor);
 public sealed record CompositionOptions(int MaxLines, long TargetUsdMinor, int MaxQuantityPerLine = 500,
@@ -326,7 +326,7 @@ public static class CompositionVerifier {
 ```
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-namespace "EwaysVNext.UnitTests.Sales.Composition"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-namespace "Mkbj.UnitTests.Sales.Composition"`.
   Expected: FAIL (compile).
 
 - [ ] **Step 3: Implement.**
@@ -351,7 +351,7 @@ git commit -am "feat(sales): composition types, deterministic PRNG, budgets, ind
 **Files:**
 - Create: `Composition/ExactHit.cs`
 - Test: `tests/UnitTests/Sales/Composition/ExactHitTests.cs`. Add
-  `[assembly: InternalsVisibleTo("EwaysVNext.UnitTests")]` to the Sales Application project.
+  `[assembly: InternalsVisibleTo("Mkbj.UnitTests")]` to the Sales Application project.
 
 **Interfaces:**
 - Produces:
@@ -388,7 +388,7 @@ internal static class ExactHit {
 ```
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "EwaysVNext.UnitTests.Sales.Composition.ExactHitTests"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "Mkbj.UnitTests.Sales.Composition.ExactHitTests"`.
   Expected: FAIL (compile).
 
 - [ ] **Step 3: Implement.** The tests do not determine this algorithm, so the body is given in
@@ -522,7 +522,7 @@ internal static class CompositionScoring { public static long Score(long targetM
   60-candidate pool in `CompositionEngineTests`, and switch it to `SeedLikeCatalog` in Task 6.
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "EwaysVNext.UnitTests.Sales.Composition.CompositionEngineTests"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "Mkbj.UnitTests.Sales.Composition.CompositionEngineTests"`.
   Expected: FAIL.
 
 - [ ] **Step 3: Implement spec §10.2 exactly in this order.** No `float` or `double` anywhere.
@@ -582,7 +582,7 @@ git commit -am "feat(sales): composition engine strategy v1 (variety, anchor q=1
 **Files:**
 - Create: `tools/CompositionSimulator/SeedLikeCatalog.cs`. Task 19 adds the csproj, and this
   file is linked into UnitTests.
-- Modify: `tests/UnitTests/EwaysVNext.UnitTests.csproj`. Add
+- Modify: `tests/UnitTests/Mkbj.UnitTests.csproj`. Add
   `<Compile Include="..\..\tools\CompositionSimulator\SeedLikeCatalog.cs" Link="Sales\Composition\SeedLikeCatalog.cs" />`,
   `PackageReference FsCheck.Xunit.v3`, and a `ProjectReference` to Pricing.Application.
 - Modify: `Directory.Packages.props`. Add `FsCheck` and `FsCheck.Xunit.v3`, both 3.3.x.
@@ -650,7 +650,7 @@ public void Mandated_Amount_Composes_Exactly(string currency, long target)
   the service does (Task 12).
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-namespace "EwaysVNext.UnitTests.Sales.Composition"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-namespace "Mkbj.UnitTests.Sales.Composition"`.
   Expected: FAIL. `SeedLikeCatalog` is missing, which is a compile error.
 
 - [ ] **Step 3: Implement `SeedLikeCatalog`.**
@@ -716,7 +716,7 @@ public interface ITaxPolicy { TaxAssessment Assess(long subtotalMinor, string cu
     record, and serializing twice gives identical strings.
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "EwaysVNext.UnitTests.Sales.Documents.DocumentRulesTests"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "Mkbj.UnitTests.Sales.Documents.DocumentRulesTests"`.
   Expected: FAIL.
 
 - [ ] **Step 3: Implement** the signatures above. `DocumentContent` equality over its lists:
@@ -807,7 +807,7 @@ public static class OrderNumberFormat { public static string Order(long n); publ
   - The aggregate raises `PartnerOrderCreatedDomainEvent(OrderId, PartnerId)`.
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "EwaysVNext.UnitTests.Sales.Orders.PartnerOrderAggregateTests"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "Mkbj.UnitTests.Sales.Orders.PartnerOrderAggregateTests"`.
   Expected: FAIL.
 
 - [ ] **Step 3: Implement.**
@@ -834,9 +834,9 @@ git commit -am "feat(sales): Order aggregate with atomic CreatePartnerOrder (lin
   - `Adapter/Outbound/Persistence/{OrderRepository,DocumentNumberAllocator}.cs`
   - migration `AddSalesOrders`
 - Modify:
-  - `src/Database/EwaysVNextDbContext.cs`: add `DbSet<Order> Orders` and
+  - `src/Database/MkbjDbContext.cs`: add `DbSet<Order> Orders` and
     `DbSet<CompositionAttempt> CompositionAttempts`, and call `SalesSequences.Configure(modelBuilder)`
-  - `src/Database/EwaysVNext.Database.csproj`: reference Sales.Application
+  - `src/Database/Mkbj.Database.csproj`: reference Sales.Application
 - Test:
   - `tests/IntegrationTests/Sales/SalesSchemaTests.cs`
   - `tests/IntegrationTests/Sales/SalesOrderMother.cs`
@@ -895,15 +895,15 @@ public sealed record CompositionAttemptRecord(DateTimeOffset At, long? PartnerId
 [Fact] public async Task Document_Numbers_Come_From_Separate_Sequences()
 { /* allocator.NextAsync(Commercial) twice ⇒ "INV-000001"-style increasing; ProForma starts independently with "PF-" */ }
 ```
-  In `OrderModelTests` (model metadata from `EwaysVNextDbContextDesignTimeFactory`, no
+  In `OrderModelTests` (model metadata from `MkbjDbContextDesignTimeFactory`, no
   connection), assert:
   - `Order.Id` has `ValueGenerated.Never`
   - the filter `"channel = 'PartnerApi'"` on `ux_orders_partner_external`
   - the presence of every check constraint named in the table
 
 - [ ] **Step 2: Run the tests to see them fail.** Commands:
-  - `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "EwaysVNext.UnitTests.Sales.Orders.OrderModelTests"`
-  - `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "EwaysVNext.IntegrationTests.Sales.SalesSchemaTests"`
+  - `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "Mkbj.UnitTests.Sales.Orders.OrderModelTests"`
+  - `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "Mkbj.IntegrationTests.Sales.SalesSchemaTests"`
 
   Expected: FAIL (compile).
 
@@ -926,7 +926,7 @@ public sealed record CompositionAttemptRecord(DateTimeOffset At, long? PartnerId
     `o.PartnerId == id && o.Channel == PartnerApi`, and `WebsiteCustomer` on
     `o.CustomerId == id && o.Channel == Website`.
   - Generate the migration:
-    `dotnet ef migrations add AddSalesOrders -p src/Database -s src/Host/EwaysVNext.Host`.
+    `dotnet ef migrations add AddSalesOrders -p src/Database -s src/Host/Mkbj.Host`.
 
 - [ ] **Step 4: Run the tests to see them pass.** Same commands. Expected: PASS.
 
@@ -1018,7 +1018,7 @@ public interface ICandidatePoolGateway {
   `"Line1, Line2, City PostalCode, CC"`.
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-namespace "EwaysVNext.UnitTests.Sales.Gateways"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-namespace "Mkbj.UnitTests.Sales.Gateways"`.
   Expected: FAIL.
 
 - [ ] **Step 3: Implement.**
@@ -1056,13 +1056,13 @@ public interface ICompositionSeedSource { long NextSeed(); }                    
 
 - [ ] **Step 1: Write failing tests.**
   - Recording through a factory scope inserts one row.
-  - The caller's `EwaysVNextDbContext` has no tracked entries afterwards: the recorder opens its
+  - The caller's `MkbjDbContext` has no tracked entries afterwards: the recorder opens its
     own scope.
   - When the database throws (simulated by disposing the provider), the recorder logs and does
     not throw.
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "EwaysVNext.IntegrationTests.Sales.CompositionAttemptRecorderTests"`.
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "Mkbj.IntegrationTests.Sales.CompositionAttemptRecorderTests"`.
   Expected: FAIL.
 
 - [ ] **Step 3: Implement.** The recorder takes `IServiceScopeFactory`, opens a new scope, adds
@@ -1143,7 +1143,7 @@ internal sealed class LiveRequoter { Task<Result<IReadOnlyList<OrderLineInput>>>
     1010, with p inside both bands. The line has `ReferencePriceMinor == 1010`.
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "EwaysVNext.UnitTests.Sales.Services.PartnerOrderServiceTests"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "Mkbj.UnitTests.Sales.Services.PartnerOrderServiceTests"`.
   Expected: FAIL.
 
 - [ ] **Step 3: Implement `CreateAsync`.** Read `now` once. These steps map one-to-one to §10.3:
@@ -1256,7 +1256,7 @@ public interface IPartnerOrderQueries {
   - Website orders never appear in any partner query.
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "EwaysVNext.IntegrationTests.Sales.PartnerOrderQueriesTests"`.
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "Mkbj.IntegrationTests.Sales.PartnerOrderQueriesTests"`.
   Expected: FAIL.
 
 - [ ] **Step 3: Implement.**
@@ -1378,12 +1378,12 @@ public async Task Amount_Must_Be_A_Two_Decimal_String(string amountJson)
 [Fact] public async Task Missing_Scope_Is_403_INSUFFICIENT_SCOPE() { /* pk_nocustw new customer ⇒ 403 INSUFFICIENT_SCOPE, no customer row */ }
 ```
   - In `SalesArchitectureTests`, add `Partner_Request_Dtos_Never_Accept_A_PartnerId`. Every
-    type in namespace `EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Partner` whose name ends
+    type in namespace `Mkbj.Modules.Sales.Adapter.Inbound.Rest.Partner` whose name ends
     with `Request` has no property whose name contains `PartnerId`, case-insensitive.
 
 - [ ] **Step 2: Run the tests to see them fail.** Commands:
-  - `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "EwaysVNext.IntegrationTests.Sales.PartnerOrderFormatTests"`
-  - `... --filter-class "EwaysVNext.IntegrationTests.Sales.PartnerOrderAcceptanceTests"`
+  - `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "Mkbj.IntegrationTests.Sales.PartnerOrderFormatTests"`
+  - `... --filter-class "Mkbj.IntegrationTests.Sales.PartnerOrderAcceptanceTests"`
 
   Expected: FAIL (404 route).
 
@@ -1472,7 +1472,7 @@ the owning task's files.
 ```
 
 - [ ] **Step 2: Run the tests.** Command:
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "EwaysVNext.IntegrationTests.Sales.PartnerOrderFlowTests"`.
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "Mkbj.IntegrationTests.Sales.PartnerOrderFlowTests"`.
   Expected: FAIL first, because the test doubles are not yet in `SalesApiFactory`.
 
 - [ ] **Step 3: Implement the test doubles** in `SalesApiFactory` and fix any defect they expose
@@ -1523,8 +1523,8 @@ git commit -am "test(sales): PRD acceptance 5-8, concurrent idempotency, stale-c
 ```
 
 - [ ] **Step 2: Run the tests to see them fail.** Commands:
-  - `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "EwaysVNext.UnitTests.Sales.Services.PartnerBulkOrderTests"`
-  - `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "EwaysVNext.IntegrationTests.Sales.PartnerBulkAcceptanceTests"`
+  - `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "Mkbj.UnitTests.Sales.Services.PartnerBulkOrderTests"`
+  - `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "Mkbj.IntegrationTests.Sales.PartnerBulkAcceptanceTests"`
 
   Expected: FAIL.
 
@@ -1602,15 +1602,15 @@ public interface IInvoiceService { Task<Result<Uri>> GetPdfUrlAsync(DocumentAcce
       201.** MinIO is off the order-write path.
 
 - [ ] **Step 2: Run the tests to see them fail.** Commands:
-  - `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-namespace "EwaysVNext.UnitTests.Sales.Documents"`
-  - `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "EwaysVNext.IntegrationTests.Sales.PartnerInvoiceTests"`
+  - `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-namespace "Mkbj.UnitTests.Sales.Documents"`
+  - `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "Mkbj.IntegrationTests.Sales.PartnerInvoiceTests"`
 
   Expected: FAIL.
 
 - [ ] **Step 3: Implement.**
   - `QuestPdfDocumentRenderer`:
     - `QuestPDF.Settings.License = LicenseType.Community` is set once in the static ctor.
-    - Metadata `CreationDate = ModifiedDate = content.IssuedAt`, and `Producer = Creator = "EwaysVNext"`.
+    - Metadata `CreationDate = ModifiedDate = content.IssuedAt`, and `Producer = Creator = "MKBJ"`.
     - Layout:
       - the seller block
       - title from `content.Title`
@@ -1653,12 +1653,12 @@ git commit -am "feat(sales): deterministic QuestPDF invoices rendered lazily to 
   - A 31-day-old order is excluded: `UPDATE … created_at = now() - interval '31 days'`.
 
 - [ ] **Step 2: Run the test to see it fail.** Command:
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "EwaysVNext.IntegrationTests.Sales.StorefrontPopularityTests"`.
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "Mkbj.IntegrationTests.Sales.StorefrontPopularityTests"`.
   Expected: FAIL, because popularity is still the placeholder.
 
 - [ ] **Step 3: Implement.**
   - Create the migration with
-    `dotnet ef migrations add StorefrontPopularityFromSales -p src/Database -s src/Host/EwaysVNext.Host`.
+    `dotnet ef migrations add StorefrontPopularityFromSales -p src/Database -s src/Host/Mkbj.Host`.
   - **Up:**
     1. `DROP MATERIALIZED VIEW catalog.mv_home;` then `DROP MATERIALIZED VIEW catalog.mv_storefront_product;`.
        Use the reverse dependency order from phase 2–3, and drop `mv_category_facets` too if it
@@ -1691,7 +1691,7 @@ git commit -am "feat(sales): storefront popularity and best sellers from 30-day 
 
 **Files:**
 - Create: `tools/CompositionSimulator/{CompositionSimulator.csproj,Program.cs,AmountDistribution.cs,CatalogSources.cs,CoverageReport.cs}`
-- Modify: `EwaysVNext.slnx` (add a `/tools/` folder)
+- Modify: `Mkbj.slnx` (add a `/tools/` folder)
 - Test: `tests/UnitTests/Sales/Composition/SimulatorDistributionTests.cs` (links
   `AmountDistribution.cs` the same way as `SeedLikeCatalog.cs`)
 
@@ -1721,7 +1721,7 @@ public sealed record SimAmount(long TargetMinor, long UsdMinor, bool Mandated, b
     `WithinBounds == false`. Example: SGD 10.00 is about $7.40.
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "EwaysVNext.UnitTests.Sales.Composition.SimulatorDistributionTests"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "Mkbj.UnitTests.Sales.Composition.SimulatorDistributionTests"`.
   Expected: FAIL.
 
 - [ ] **Step 3: Implement.**
@@ -1750,7 +1750,7 @@ public sealed record SimAmount(long TargetMinor, long UsdMinor, bool Mandated, b
 
 - [ ] **Step 5: Commit.**
 ```bash
-git add tools/CompositionSimulator tests/UnitTests EwaysVNext.slnx docs/reports/composition-coverage.*
+git add tools/CompositionSimulator tests/UnitTests Mkbj.slnx docs/reports/composition-coverage.*
 git commit -m "feat(tools): composition coverage simulator defining the representative distribution" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
@@ -1800,9 +1800,9 @@ git commit -m "test(load): k6 partner-order script (10 VUs, 5 min, p95<10s thres
   - `docs/TESTING-GUARANTEES.md`: the Sales rows, including what InMemory cannot see — the band
     CHECK and the 23505 path
 
-- [ ] **Step 1: Build.** `dotnet build EwaysVNext.slnx -c Release`. Expected: 0 errors, 0
+- [ ] **Step 1: Build.** `dotnet build Mkbj.slnx -c Release`. Expected: 0 errors, 0
   warnings-as-errors.
-- [ ] **Step 2: Test.** `dotnet test EwaysVNext.slnx`, with Docker running. Expected: all PASS.
+- [ ] **Step 2: Test.** `dotnet test Mkbj.slnx`, with Docker running. Expected: all PASS.
   Report counts per suite.
 - [ ] **Step 3: Simulator.** Rerun the Task 19 command. Expected: report regenerated, with the
   success rate copied into the phase report.
@@ -1863,7 +1863,7 @@ public sealed class CartLine : Entity<long> { long VariantId; int Quantity; long
   - `TotalMinor` is correct.
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "EwaysVNext.UnitTests.Sales.Carts.CartTests"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "Mkbj.UnitTests.Sales.Carts.CartTests"`.
   Expected: FAIL.
 
 - [ ] **Step 3: Implement** the aggregate as specified.
@@ -1926,8 +1926,8 @@ public interface ICartRepository { Task<Cart?> GetByCustomerAsync(long customerI
   - a second cart for the same customer hits `ux_carts_customer`
 
 - [ ] **Step 2: Run the tests to see them fail.** Commands:
-  - `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "EwaysVNext.UnitTests.Sales.Services.CartServiceTests"`
-  - `... IntegrationTests ... --filter-class "EwaysVNext.IntegrationTests.Sales.CartSchemaTests"`
+  - `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "Mkbj.UnitTests.Sales.Services.CartServiceTests"`
+  - `... IntegrationTests ... --filter-class "Mkbj.IntegrationTests.Sales.CartSchemaTests"`
 
   Expected: FAIL.
 
@@ -1981,8 +1981,8 @@ git commit -am "feat(sales): cart persistence and live-quoting cart service" -m 
     - The GraphQL and REST views of the same cart are equal.
 
 - [ ] **Step 2: Run the tests to see them fail.** Commands:
-  - `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "EwaysVNext.UnitTests.Sales.GraphQL.SalesGraphQLSchemaTests"`
-  - `... IntegrationTests ... --filter-class "EwaysVNext.IntegrationTests.Sales.ShopCartTests"`
+  - `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "Mkbj.UnitTests.Sales.GraphQL.SalesGraphQLSchemaTests"`
+  - `... IntegrationTests ... --filter-class "Mkbj.IntegrationTests.Sales.ShopCartTests"`
 
   Expected: FAIL.
 
@@ -2048,7 +2048,7 @@ public long RefundedMinor { get; }   // Σ refunds
     - Partner orders can be refunded too.
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-namespace "EwaysVNext.UnitTests.Sales.Orders"`.
+  `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-namespace "Mkbj.UnitTests.Sales.Orders"`.
   Expected: FAIL.
 
 - [ ] **Step 3: Implement** by reusing `IssueDocument`.
@@ -2115,7 +2115,7 @@ public interface ICheckoutService {
     contains `Price`, `Amount`, `Total` or `Money` is allowed only if it is `ExpectedTotal`.
 
 - [ ] **Step 2: Run the tests to see them fail.** Commands:
-  - `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "EwaysVNext.UnitTests.Sales.Services.CheckoutServiceTests"`
+  - `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "Mkbj.UnitTests.Sales.Services.CheckoutServiceTests"`
   - the `ShopCheckoutTests` integration class
   - the architecture tests
 
@@ -2175,7 +2175,7 @@ public interface IShopOrderQueries {
   - REST and GraphQL bodies agree.
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "EwaysVNext.IntegrationTests.Sales.ShopOrderTests"`.
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "Mkbj.IntegrationTests.Sales.ShopOrderTests"`.
   Expected: FAIL.
 
 - [ ] **Step 3: Implement.** Projections filter
@@ -2247,7 +2247,7 @@ public interface IOrderAdminService {
 ```
 
 - [ ] **Step 2: Run the tests to see them fail.** Commands:
-  - `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "EwaysVNext.UnitTests.Sales.Services.OrderAdminServiceTests"`
+  - `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "Mkbj.UnitTests.Sales.Services.OrderAdminServiceTests"`
   - the `WebsiteOrderAcceptanceTests` integration class
 
   Expected: FAIL.
@@ -2277,7 +2277,7 @@ git commit -am "feat(sales): admin confirm payment, cancel and super-admin refun
 **Interfaces:**
 - Produces. **These are the names phase 6 consumes; they are fixed.**
 ```csharp
-namespace EwaysVNext.Modules.Sales.QueryApplication.Admin;
+namespace Mkbj.Modules.Sales.QueryApplication.Admin;
 public enum AdminChannelFilter { Website, PartnerApi }
 public sealed record AdminOrderFilter(AdminChannelFilter? Channel = null, string? OrderStatus = null, string? PaymentStatus = null,
     string? Currency = null, long? CustomerId = null, long? PartnerId = null, string? ExternalOrderId = null, string? Number = null,
@@ -2331,7 +2331,7 @@ public interface ISalesAdminQueries {
   - REST and GraphQL list/detail agree. A Shop identity gets 403.
 
 - [ ] **Step 2: Run the tests to see them fail.** Command:
-  `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "EwaysVNext.IntegrationTests.Sales.SalesAdminQueriesTests"`.
+  `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "Mkbj.IntegrationTests.Sales.SalesAdminQueriesTests"`.
   Expected: FAIL.
 
 - [ ] **Step 3: Implement.**
@@ -2362,8 +2362,8 @@ git commit -am "feat(sales): admin order list/detail and sales dashboard aggrega
     `/api/v1/admin/orders` rows
   - `docs/TESTING-GUARANTEES.md`
 
-- [ ] **Step 1: Build.** `dotnet build EwaysVNext.slnx -c Release`. Expected: 0 errors.
-- [ ] **Step 2: Test.** `dotnet test EwaysVNext.slnx`. Expected: all PASS. List the PRD
+- [ ] **Step 1: Build.** `dotnet build Mkbj.slnx -c Release`. Expected: 0 errors.
+- [ ] **Step 2: Test.** `dotnet test Mkbj.slnx`. Expected: all PASS. List the PRD
   acceptance tests 1, 2, 3, 4, 5, 6, 7, 8, 9, 12 and 14 by name with their result.
 - [ ] **Step 3: Write `docs/reports/phase-5.md`.** It covers:
   - **What works.**

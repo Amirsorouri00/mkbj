@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Sales.Application.Composition;
+namespace Mkbj.Modules.Sales.Application.Composition;
 
 /// <summary>
 /// SplitMix64 — a small, fast, fully specified PRNG.

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Sales.Application.Domain.Documents;
+namespace Mkbj.Modules.Sales.Application.Domain.Documents;
 
 /// <summary>What kind of document this is.</summary>
 public enum DocumentType

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Core.Application.FileTypeDetection;
+namespace Mkbj.Core.Application.FileTypeDetection;
 
 
 public readonly record struct FileTypeDetectionResult(FileType FileType)

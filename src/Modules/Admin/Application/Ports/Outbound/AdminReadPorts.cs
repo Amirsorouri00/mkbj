@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Admin.Application.Views;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Admin.Application.Views;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Admin.Application.Ports.Outbound;
+namespace Mkbj.Modules.Admin.Application.Ports.Outbound;
 
 /// <summary>
 /// What Admin needs from Sales, in Admin's own terms.

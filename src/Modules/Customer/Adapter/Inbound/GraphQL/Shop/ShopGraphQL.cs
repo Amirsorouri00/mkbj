@@ -1,16 +1,16 @@
 using System.Security.Claims;
 
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Customer.Adapter.Inbound.Rest.Shop;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
-using EwaysVNext.Modules.Customer.QueryApplication.Customers;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Customer.Adapter.Inbound.Rest.Shop;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
+using Mkbj.Modules.Customer.QueryApplication.Customers;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
 
-namespace EwaysVNext.Modules.Customer.Adapter.Inbound.GraphQL.Shop;
+namespace Mkbj.Modules.Customer.Adapter.Inbound.GraphQL.Shop;
 
 public sealed record UpdateProfileInput(
     string? FullName,
@@ -73,7 +73,7 @@ internal static class ShopGraphQLSupport
         ClaimsPrincipal user, IWebsiteCustomerPort website, CancellationToken ct)
     {
         if (!ShopIdentity.TryRead(user, out var subject, out var email, out var emailVerified))
-            throw EwaysVNext.Outcomes.Error.Forbidden.ToGraphQLException();
+            throw Mkbj.Outcomes.Error.Forbidden.ToGraphQLException();
 
         var ensured = await website.EnsureFromIdentityAsync(subject, email, emailVerified, ct);
 

@@ -1,17 +1,17 @@
-﻿using EwaysVNext.Modules.Catalog.Application.Categories.Commands;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
-using EwaysVNext.Modules.Catalog.QueryApplication.Categories;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Modules.Catalog.Application.Categories.Commands;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Inbound;
+using Mkbj.Modules.Catalog.Contracts.Categories;
+using Mkbj.Modules.Catalog.QueryApplication.Categories;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
 using AuthorizationService.Abstractions.Attributes;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
 using HotChocolate.Types.Relay;
 using System.Security.Claims;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
 
 public sealed record CreateCategoryInput(string Name, string Slug, string? Description,
     [property: ID] long? ParentId, int DisplayOrder);
@@ -96,7 +96,7 @@ public sealed class CategoryAdminMutations
             new UnassignCategoryProductCommand(input.CategoryId, input.ProductId), ct));
 
     private static async Task<CategoryAdminDto> ReloadAsync(
-        EwaysVNext.Outcomes.Result<CategoryAdminDto> mutationResult,
+        Mkbj.Outcomes.Result<CategoryAdminDto> mutationResult,
         ICategoryAdminQueries queries,
         CancellationToken ct)
     {
@@ -105,7 +105,7 @@ public sealed class CategoryAdminMutations
             await queries.GetByIdAsync(saved.Id, ct));
     }
 
-    private static bool SuccessOrThrow(EwaysVNext.Outcomes.Result result)
+    private static bool SuccessOrThrow(Mkbj.Outcomes.Result result)
     {
         if (result.IsSuccess) return true;
         throw ErrorGraphQLExtensions.ToGraphQLException(result.Error!);

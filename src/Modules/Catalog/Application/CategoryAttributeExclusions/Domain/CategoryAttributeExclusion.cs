@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
 
 public sealed class CategoryAttributeExclusion : AggregateRoot<long>
 {

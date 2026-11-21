@@ -1,13 +1,13 @@
-﻿using EwaysVNext.Domain.Common;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Validation;
-using EwaysVNext.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
+using Mkbj.Domain.Common;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Validation;
+using Mkbj.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Services;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Services;
 
 public sealed class CategoryAttributeAssignmentService(
     ICategoryAttributeAssignmentRepository assignments,

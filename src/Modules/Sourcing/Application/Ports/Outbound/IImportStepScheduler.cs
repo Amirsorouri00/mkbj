@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
+namespace Mkbj.Modules.Sourcing.Application.Ports.Outbound;
 
 /// <summary>
 /// Asks for a job's next step to be run.

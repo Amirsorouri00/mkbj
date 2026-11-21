@@ -1,4 +1,4 @@
-namespace EwaysVNext.Jobs;
+namespace Mkbj.Jobs;
 
 /// <summary>
 /// Thrown when a heartbeat finds the job no longer belongs to this worker — the lease expired and

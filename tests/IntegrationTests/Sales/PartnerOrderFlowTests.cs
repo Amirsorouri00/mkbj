@@ -2,15 +2,15 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sales;
+namespace Mkbj.IntegrationTests.Sales;
 
 /// <summary>
 /// The partner flow under the conditions that actually go wrong.
@@ -74,7 +74,7 @@ public sealed class PartnerOrderFlowTests(PostgresFixture fixture)
         (await DataAsync(second)).GetProperty("warnings").GetArrayLength().Should().Be(0);
 
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         var customer = await db.Customers
             .Include(c => c.ContactChanges)
@@ -114,7 +114,7 @@ public sealed class PartnerOrderFlowTests(PostgresFixture fixture)
             "a refused order must leave nothing behind for the retry to trip over");
 
         using var scope = factory.Services.CreateScope();
-        (await scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>()
+        (await scope.ServiceProvider.GetRequiredService<MkbjDbContext>()
             .Customers.AnyAsync(c => c.ExternalCustomerId == customerId, Ct))
             .Should().BeFalse();
     }
@@ -138,7 +138,7 @@ public sealed class PartnerOrderFlowTests(PostgresFixture fixture)
         (await CountsAsync(factory)).Should().Be(before);
 
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         (await db.Customers.AnyAsync(c => c.ExternalCustomerId == customerId, Ct))
             .Should().BeFalse("nothing is written until a basket exists");
@@ -179,7 +179,7 @@ public sealed class PartnerOrderFlowTests(PostgresFixture fixture)
         // The database's own check constraint forbids this, so a row here would mean the
         // constraint is missing — which is a different failure from the aggregate letting one
         // through, and worth catching separately.
-        var breaches = await scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>()
+        var breaches = await scope.ServiceProvider.GetRequiredService<MkbjDbContext>()
             .Database.SqlQueryRaw<long>(
                 """
                 SELECT count(*) AS "Value" FROM sales.order_lines
@@ -214,7 +214,7 @@ public sealed class PartnerOrderFlowTests(PostgresFixture fixture)
                 r => r.Headers.GetValues("Idempotent-Replay").Single() == "true");
 
             var ids = new List<long>();
-            foreach (var response in responses) ids.Add((await DataAsync(response)).GetProperty("id").GetInt64());
+            foreach (var response in responses) ids.Add((await DataAsync(response)).GetProperty("id").ReadId());
 
             ids.Distinct().Should().ContainSingle("ten retries are one order");
             (await CountOrdersAsync(factory, externalOrderId)).Should().Be(1);
@@ -253,7 +253,7 @@ public sealed class PartnerOrderFlowTests(PostgresFixture fixture)
             // One customer, not ten: the creation race resolves inside Customer rather than
             // leaving nine orphans behind.
             using var scope = factory.Services.CreateScope();
-            (await scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>()
+            (await scope.ServiceProvider.GetRequiredService<MkbjDbContext>()
                 .Customers.CountAsync(c => c.ExternalCustomerId == customerId, Ct))
                 .Should().Be(1);
         }
@@ -316,7 +316,7 @@ public sealed class PartnerOrderFlowTests(PostgresFixture fixture)
             "the live re-quote drops the withdrawn variant and the basket is composed again");
 
         (await DataAsync(response)).GetProperty("lines").EnumerateArray()
-            .Select(line => line.GetProperty("variant_id").GetInt64())
+            .Select(line => line.GetProperty("variant_id").ReadId())
             .Should().NotContain(variant.VariantId,
                 "a product that was withdrawn before the sale must not be on the invoice");
     }
@@ -378,7 +378,7 @@ public sealed class PartnerOrderFlowTests(PostgresFixture fixture)
             (Units * candidate.HiMinor) + 1);
     }
 
-    private async Task<IReadOnlyList<EwaysVNext.Modules.Sales.Application.Composition.CompositionCandidate>>
+    private async Task<IReadOnlyList<Mkbj.Modules.Sales.Application.Composition.CompositionCandidate>>
         CandidatesAsync()
     {
         using var factory = SalesApiFactory.Create(fixture);
@@ -394,7 +394,7 @@ public sealed class PartnerOrderFlowTests(PostgresFixture fixture)
         WebApplicationFactory<Program> factory, long variantId)
     {
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         await db.Database.ExecuteSqlRawAsync(
             "UPDATE catalog.variants SET is_active = false WHERE id = {0}", [variantId], Ct);
@@ -409,7 +409,7 @@ public sealed class PartnerOrderFlowTests(PostgresFixture fixture)
     private static async Task<Counts> CountsAsync(WebApplicationFactory<Program> factory)
     {
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         // Whole statements, not a table name interpolated into one. The analyser is right to
         // object even here: an interpolated identifier is the shape an injection takes, and a
@@ -429,12 +429,12 @@ public sealed class PartnerOrderFlowTests(PostgresFixture fixture)
     {
         using var scope = factory.Services.CreateScope();
 
-        return await scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>()
+        return await scope.ServiceProvider.GetRequiredService<MkbjDbContext>()
             .Orders.CountAsync(o => o.ExternalOrderId == externalOrderId, Ct);
     }
 
     private static string Format(long minor) =>
-        EwaysVNext.Modules.Sales.Application.Money.AmountText.Format(minor);
+        Mkbj.Modules.Sales.Application.Money.AmountText.Format(minor);
 
     private static async Task<JsonElement> BodyAsync(HttpResponseMessage response) =>
         JsonDocument.Parse(await response.Content.ReadAsStringAsync(Ct)).RootElement.Clone();

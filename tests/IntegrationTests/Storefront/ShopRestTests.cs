@@ -2,12 +2,12 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.IntegrationTests.Support;
+using Mkbj.IntegrationTests.Support;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Storefront;
+namespace Mkbj.IntegrationTests.Storefront;
 
 /// <summary>
 /// The storefront over HTTP, as an unauthenticated visitor sees it.

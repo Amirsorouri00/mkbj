@@ -1,17 +1,17 @@
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Catalog.Contracts.Categories;
+using Mkbj.Outcomes;
 using Microsoft.EntityFrameworkCore;
-using static EwaysVNext.Modules.Catalog.QueryApplication.Categories.CategoryQueryShapes;
-using EwaysVNext.Database;
+using static Mkbj.Modules.Catalog.QueryApplication.Categories.CategoryQueryShapes;
+using Mkbj.Database;
 
 
-namespace EwaysVNext.Modules.Catalog.QueryApplication.Categories;
+namespace Mkbj.Modules.Catalog.QueryApplication.Categories;
 
 /// <summary>
 /// Read-only projections for public category promotion queries. Every query uses
 /// no-tracking projections; no aggregate or association entity is materialised.
 /// </summary>
-public sealed class CategoryQueries(EwaysVNextDbContext db) : ICategoryQueries
+public sealed class CategoryQueries(MkbjDbContext db) : ICategoryQueries
 {
     private const int MaxPageSize = 100;
 

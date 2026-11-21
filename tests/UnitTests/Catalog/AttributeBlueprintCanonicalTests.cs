@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 /// <summary>
 /// An attribute blueprint's canonical key is what an import matches a supplier's attribute column

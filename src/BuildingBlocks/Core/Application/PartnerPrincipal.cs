@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Security.Claims;
 
-namespace EwaysVNext.Core.Application;
+namespace Mkbj.Core.Application;
 
 /// <summary>
 /// The authenticated partner behind a request.

@@ -2,7 +2,7 @@ using System.Data.Common;
 using System.Net.Sockets;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace EwaysVNext.Persistence;
+namespace Mkbj.Persistence;
 
 /// <summary>
 /// Whether a failure is worth retrying. Used to turn an infrastructure blip into a retryable 503

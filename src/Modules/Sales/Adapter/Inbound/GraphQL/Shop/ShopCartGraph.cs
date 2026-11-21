@@ -1,13 +1,14 @@
 using System.Security.Claims;
-using EwaysVNext.Core.Application.Security;
-using EwaysVNext.Modules.Sales.Application.Money;
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application.Security;
+using Mkbj.Modules.Sales.Application.Money;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
+using HotChocolate.Types;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Inbound.GraphQL.Shop;
+namespace Mkbj.Modules.Sales.Adapter.Inbound.GraphQL.Shop;
 
 public sealed record MoneyGraph(string Amount, string Currency);
 
@@ -28,11 +29,14 @@ public sealed record CartGraph(
     MoneyGraph Total,
     IReadOnlyList<CartChangeGraph> Changes);
 
-public sealed record AddToCartInput(long VariantId, int Quantity);
+public sealed record AddToCartInput(
+    [property: GraphQLType(typeof(NonNullType<IdType>))] long VariantId, int Quantity);
 
-public sealed record UpdateCartLineInput(long VariantId, int Quantity);
+public sealed record UpdateCartLineInput(
+    [property: GraphQLType(typeof(NonNullType<IdType>))] long VariantId, int Quantity);
 
-public sealed record RemoveCartLineInput(long VariantId);
+public sealed record RemoveCartLineInput(
+    [property: GraphQLType(typeof(NonNullType<IdType>))] long VariantId);
 
 public sealed record SetCartCurrencyInput(string Currency);
 

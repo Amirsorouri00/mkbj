@@ -1,8 +1,8 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Audit.Implementation;
+namespace Mkbj.Audit.Implementation;
 
 /// <summary>
 /// Adds the audit entry to the caller's change tracker and <b>never saves</b>. The caller's own

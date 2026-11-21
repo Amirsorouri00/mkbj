@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 public class CategoryAttributeAssignmentTests
 {

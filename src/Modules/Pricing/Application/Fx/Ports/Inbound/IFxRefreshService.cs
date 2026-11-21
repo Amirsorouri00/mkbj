@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound;
+namespace Mkbj.Modules.Pricing.Application.Fx.Ports.Inbound;
 
 /// <summary>Fetches and stores rates. Returns how many rows were actually new.</summary>
 public interface IFxRefreshService

@@ -1,11 +1,11 @@
-using EwaysVNext.Modules.Sales.Adapter.Outbound.Candidates;
-using EwaysVNext.Modules.Sales.Adapter.Outbound.Documents;
-using EwaysVNext.Modules.Sales.Adapter.Outbound.Gateways;
-using EwaysVNext.Modules.Sales.Adapter.Outbound.Persistence;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.Adapter.Outbound.Candidates;
+using Mkbj.Modules.Sales.Adapter.Outbound.Documents;
+using Mkbj.Modules.Sales.Adapter.Outbound.Gateways;
+using Mkbj.Modules.Sales.Adapter.Outbound.Persistence;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Outbound;
+namespace Mkbj.Modules.Sales.Adapter.Outbound;
 
 public static class DependencyInjection
 {
@@ -21,6 +21,7 @@ public static class DependencyInjection
         services.AddScoped<ISalesSettingsGateway, SalesSettingsGateway>();
 
         services.AddScoped<ICompositionAttemptRecorder, CompositionAttemptRecorder>();
+        services.AddScoped<IPartnerOrderRequestJournal, PartnerOrderRequestJournal>();
 
         // The renderer holds no state and reads nothing but its argument.
         services.AddSingleton<IDocumentPdfRenderer, QuestPdfDocumentRenderer>();

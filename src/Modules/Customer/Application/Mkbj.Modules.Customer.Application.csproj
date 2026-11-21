@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Mkbj.Modules.Customer.Application</RootNamespace>
+    <Description>Customer hexagon: Domain + Ports + Service implementations of QueryApplication's public contracts.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Domain\Customers\VerificationShahkarStatus.cs" />
+    <Compile Remove="Domain\Enums\VerificationShahkarStatusType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="Refit" />
+    <PackageReference Include="Refit.HttpClientFactory" />
+    <PackageReference Include="Refit.Reflection" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Domain\Mkbj.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Outcomes\Mkbj.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Core\Application\Mkbj.Core.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\Mkbj.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Audit\Application\Mkbj.Audit.Application.csproj" />
+  </ItemGroup>
+</Project>

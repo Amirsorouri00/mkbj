@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Brands.Services;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Brands.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Catalog.Application.Brands;
+namespace Mkbj.Modules.Catalog.Application.Brands;
 
 public static class DependencyInjection
 {

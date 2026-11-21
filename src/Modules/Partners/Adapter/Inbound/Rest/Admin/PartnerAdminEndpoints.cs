@@ -3,18 +3,18 @@ using System.Security.Claims;
 
 using AuthorizationService.Abstractions.Extensions;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Inbound;
-using EwaysVNext.Modules.Partners.QueryApplication;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Inbound;
+using Mkbj.Modules.Partners.QueryApplication;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace EwaysVNext.Modules.Partners.Adapter.Inbound.Rest.Admin;
+namespace Mkbj.Modules.Partners.Adapter.Inbound.Rest.Admin;
 
 /// <summary>
 /// Partner administration over REST.

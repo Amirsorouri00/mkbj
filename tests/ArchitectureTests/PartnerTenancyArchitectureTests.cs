@@ -2,12 +2,12 @@ using System.Reflection;
 using AwesomeAssertions;
 using Xunit;
 
-namespace EwaysVNext.ArchitectureTests;
+namespace Mkbj.ArchitectureTests;
 
 /// <summary>
 /// A partner's identity comes from its API key and from nowhere else.
 /// <para>
-/// <see cref="EwaysVNext.Core.Application.PartnerPrincipal"/> is built from the claims the key
+/// <see cref="Mkbj.Core.Application.PartnerPrincipal"/> is built from the claims the key
 /// handler minted, so a partner can only ever act as itself. That holds only while no request
 /// shape carries a partner id: the moment one does, a partner could name another in a body and
 /// read its orders, and every query filtering on the principal would be filtering on a value the
@@ -57,9 +57,9 @@ public sealed class PartnerTenancyArchitectureTests
 
         // Not every module has every inbound kind, so this asserts the ones that do exist are
         // reached rather than demanding a full matrix.
-        scanned.Should().Contain("EwaysVNext.Modules.Customer.Adapter.Inbound.Rest");
-        scanned.Should().Contain("EwaysVNext.Modules.Partners.Adapter.Inbound.Rest");
-        scanned.Should().Contain("EwaysVNext.Modules.Settings.Adapter.Inbound.Rest");
+        scanned.Should().Contain("Mkbj.Modules.Customer.Adapter.Inbound.Rest");
+        scanned.Should().Contain("Mkbj.Modules.Partners.Adapter.Inbound.Rest");
+        scanned.Should().Contain("Mkbj.Modules.Settings.Adapter.Inbound.Rest");
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public sealed class PartnerTenancyArchitectureTests
     private static List<Assembly> InboundAssemblies() =>
         [.. HexagonalBoundaryTests.ModuleNames
             .SelectMany(module => InboundKinds
-                .Select(kind => $"EwaysVNext.Modules.{module}.Adapter.Inbound.{kind}"))
+                .Select(kind => $"Mkbj.Modules.{module}.Adapter.Inbound.{kind}"))
             .Select(TryLoad)
             .OfType<Assembly>()];
 

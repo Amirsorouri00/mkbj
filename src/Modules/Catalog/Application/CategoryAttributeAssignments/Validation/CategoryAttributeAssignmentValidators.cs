@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Validation;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Validation;
 
 public sealed class CategoryAttributeAssignmentValidator : AbstractValidator<(long CategoryId, long AttributeBlueprintId, int? TitleOrder)>
 {

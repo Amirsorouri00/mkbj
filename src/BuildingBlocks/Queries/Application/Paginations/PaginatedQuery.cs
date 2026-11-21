@@ -1,4 +1,4 @@
-namespace EwaysVNext.Queries.Application.Paginations;
+namespace Mkbj.Queries.Application.Paginations;
 
 public sealed class PaginatedQuery<TData>(int page, int pageSize, int pageCount, int totalCount, IReadOnlyList<TData> items)
 {

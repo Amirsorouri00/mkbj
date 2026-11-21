@@ -1,6 +1,6 @@
-﻿using EwaysVNext.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
 
-namespace EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
+namespace Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
 
 /// <remarks>
 /// A null <c>Slug</c> lets the product take <c>{canonical-title}-{id}</c>. Two products

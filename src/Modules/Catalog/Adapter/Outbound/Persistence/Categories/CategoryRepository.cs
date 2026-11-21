@@ -1,14 +1,14 @@
-﻿using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
-using EwaysVNext.Modules.Catalog.Application.Common;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Modules.Catalog.Application.Common;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
+using Mkbj.Modules.Catalog.Contracts.Categories;
 using Microsoft.EntityFrameworkCore;
-using CategoryEntity = EwaysVNext.Modules.Catalog.Application.Categories.Domain.Category;
+using CategoryEntity = Mkbj.Modules.Catalog.Application.Categories.Domain.Category;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound.Persistence.Categories;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound.Persistence.Categories;
 
-internal sealed class CategoryRepository(EwaysVNextDbContext db) : ICategoryRepository
+internal sealed class CategoryRepository(MkbjDbContext db) : ICategoryRepository
 {
 
     public Task<CategoryEntity?> GetByIdAsync(long id, CancellationToken ct = default) =>

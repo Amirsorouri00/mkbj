@@ -1,4 +1,4 @@
-namespace EwaysVNext.Queries.Application.Paginations;
+namespace Mkbj.Queries.Application.Paginations;
 
 public abstract record PaginationQuery
 {

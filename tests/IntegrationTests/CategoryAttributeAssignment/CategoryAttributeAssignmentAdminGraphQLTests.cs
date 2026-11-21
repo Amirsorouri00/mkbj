@@ -3,7 +3,7 @@ using AwesomeAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests;
+namespace Mkbj.IntegrationTests;
 
 [Collection(PostgresSuite.Name)]
 public sealed class CategoryAttributeAssignmentAdminGraphQLTests
@@ -230,7 +230,7 @@ public sealed class CategoryAttributeAssignmentAdminGraphQLTests
     private static long NextId() => Random.Shared.NextInt64(1_000_000_000, 9_000_000_000);
 
     private const string AssignMutation = """
-        mutation($categoryId: Long!, $attributeBlueprintId: Long!, $isRequired: Boolean!, $isFilterable: Boolean!, $isSearchable: Boolean!, $isInTitle: Boolean!, $titleOrder: Int, $isPrimary: Boolean!, $isVariantGenerating: Boolean!) {
+        mutation($categoryId: ID!, $attributeBlueprintId: ID!, $isRequired: Boolean!, $isFilterable: Boolean!, $isSearchable: Boolean!, $isInTitle: Boolean!, $titleOrder: Int, $isPrimary: Boolean!, $isVariantGenerating: Boolean!) {
           assignCategoryAttribute(categoryId: $categoryId, attributeBlueprintId: $attributeBlueprintId, isRequired: $isRequired, isFilterable: $isFilterable, isSearchable: $isSearchable, isInTitle: $isInTitle, titleOrder: $titleOrder, isPrimary: $isPrimary, isVariantGenerating: $isVariantGenerating) {
             id categoryId attributeBlueprintId isRequired isFilterable isSearchable isInTitle titleOrder isPrimary isVariantGenerating isRemoved
           }
@@ -277,7 +277,7 @@ public sealed class CategoryAttributeAssignmentAdminGraphQLTests
     }
 
     private const string UnassignMutation = """
-        mutation($assignmentId: Long!) {
+        mutation($assignmentId: ID!) {
           unassignCategoryAttribute(assignmentId: $assignmentId) {
             id categoryId attributeBlueprintId isRequired isFilterable isSearchable isInTitle titleOrder isPrimary isVariantGenerating isRemoved
           }
@@ -293,7 +293,7 @@ public sealed class CategoryAttributeAssignmentAdminGraphQLTests
     }
 
     private const string SetRequiredMutation = """
-        mutation($assignmentId: Long!, $isRequired: Boolean!) {
+        mutation($assignmentId: ID!, $isRequired: Boolean!) {
           setCategoryAttributeRequired(assignmentId: $assignmentId, isRequired: $isRequired) {
             id categoryId attributeBlueprintId isRequired isFilterable isSearchable isInTitle titleOrder isPrimary isVariantGenerating isRemoved
           }
@@ -304,7 +304,7 @@ public sealed class CategoryAttributeAssignmentAdminGraphQLTests
         AdminGraphQLClient.PostAsync(admin, SetRequiredMutation, new { assignmentId, isRequired });
 
     private const string SetPrimaryMutation = """
-        mutation($assignmentId: Long!, $isPrimary: Boolean!) {
+        mutation($assignmentId: ID!, $isPrimary: Boolean!) {
           setCategoryAttributePrimary(assignmentId: $assignmentId, isPrimary: $isPrimary) {
             id categoryId attributeBlueprintId isRequired isFilterable isSearchable isInTitle titleOrder isPrimary isVariantGenerating isRemoved
           }
@@ -323,7 +323,7 @@ public sealed class CategoryAttributeAssignmentAdminGraphQLTests
         AdminGraphQLClient.PostAsync(admin, SetPrimaryMutation, new { assignmentId, isPrimary });
 
     private const string SetVariantGeneratingMutation = """
-        mutation($assignmentId: Long!, $isVariantGenerating: Boolean!) {
+        mutation($assignmentId: ID!, $isVariantGenerating: Boolean!) {
           setCategoryAttributeVariantGenerating(assignmentId: $assignmentId, isVariantGenerating: $isVariantGenerating) {
             id categoryId attributeBlueprintId isRequired isFilterable isSearchable isInTitle titleOrder isPrimary isVariantGenerating isRemoved
           }
@@ -339,7 +339,7 @@ public sealed class CategoryAttributeAssignmentAdminGraphQLTests
     }
 
     private const string ReorderMutation = """
-        mutation($assignmentId: Long!, $titleOrder: Int!) {
+        mutation($assignmentId: ID!, $titleOrder: Int!) {
           reorderCategoryAttribute(assignmentId: $assignmentId, titleOrder: $titleOrder) {
             id categoryId attributeBlueprintId isRequired isFilterable isSearchable isInTitle titleOrder isPrimary isVariantGenerating isRemoved
           }
@@ -358,7 +358,7 @@ public sealed class CategoryAttributeAssignmentAdminGraphQLTests
         AdminGraphQLClient.PostAsync(admin, ReorderMutation, new { assignmentId, titleOrder });
 
     private const string ListByCategoryQuery = """
-        query($categoryId: Long!) {
+        query($categoryId: ID!) {
           categoryAttributeAssignments(categoryId: $categoryId) {
             id categoryId attributeBlueprintId isRequired isFilterable isSearchable isInTitle titleOrder isPrimary isVariantGenerating isRemoved
           }
@@ -374,7 +374,7 @@ public sealed class CategoryAttributeAssignmentAdminGraphQLTests
     }
 
     private const string AdminRowsQuery = """
-        query($categoryId: Long!) {
+        query($categoryId: ID!) {
           categoryAttributeAdminRows(categoryId: $categoryId) {
             id categoryId attributeBlueprintId isRequired isFilterable isSearchable isInTitle titleOrder isPrimary isVariantGenerating priorityGroup
           }

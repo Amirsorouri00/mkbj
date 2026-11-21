@@ -1,9 +1,9 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Partners.Application.Partners.Domain;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Partners.Application.Partners.Domain;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Outbound;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Partners.Adapter.Outbound.Persistence;
+namespace Mkbj.Modules.Partners.Adapter.Outbound.Persistence;
 
 /// <summary>
 /// The authentication read: one indexed lookup on the clear prefix, projected without tracking.
@@ -13,7 +13,7 @@ namespace EwaysVNext.Modules.Partners.Adapter.Outbound.Persistence;
 /// one of them.
 /// </para>
 /// </summary>
-public sealed class ApiKeyLookup(EwaysVNextDbContext db) : IApiKeyLookup
+public sealed class ApiKeyLookup(MkbjDbContext db) : IApiKeyLookup
 {
     public async Task<ApiKeyCredential?> FindByPrefixAsync(string prefix, CancellationToken ct = default)
     {

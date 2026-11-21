@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Storage;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Storage;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Outbound.Documents;
+namespace Mkbj.Modules.Sales.Adapter.Outbound.Documents;
 
 /// <summary>
 /// Documents in the private <c>documents</c> bucket.
@@ -22,6 +22,15 @@ internal sealed class ObjectStorageDocumentStore(IObjectStorage storage) : IDocu
     private static readonly TimeSpan LinkLifetime = TimeSpan.FromMinutes(5);
 
     private const string ContentType = "application/pdf";
+
+    public async Task<byte[]?> ReadPdfAsync(string key, CancellationToken ct = default)
+    {
+        await using var content = await storage.GetAsync(StorageBuckets.Documents, key, ct);
+        if (content is null) return null;
+        using var buffer = new MemoryStream();
+        await content.CopyToAsync(buffer, ct);
+        return buffer.ToArray();
+    }
 
     public Task<bool> ExistsAsync(string key, CancellationToken ct = default) =>
         storage.ExistsAsync(StorageBuckets.Documents, key, ct);

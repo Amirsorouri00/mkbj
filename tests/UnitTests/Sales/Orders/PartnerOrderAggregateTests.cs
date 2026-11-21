@@ -1,10 +1,10 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Orders;
+namespace Mkbj.UnitTests.Sales.Orders;
 
 /// <summary>
 /// Creating a partner order: sold, paid, fulfilled and invoiced in one indivisible act.
@@ -35,10 +35,10 @@ public sealed class PartnerOrderAggregateTests
 
         order.Status.Should().Be(OrderStatus.Completed);
         order.PaymentStatus.Should().Be(PaymentStatus.Paid);
-        order.PaymentSource.Should().Be(EwaysVNext.Modules.Sales.Application.Domain.Orders
+        order.PaymentSource.Should().Be(Mkbj.Modules.Sales.Application.Domain.Orders
             .PaymentSource.PartnerReported);
         order.FulfillmentStatus.Should().Be(FulfillmentStatus.Fulfilled);
-        order.FulfillmentSource.Should().Be(EwaysVNext.Modules.Sales.Application.Domain.Orders
+        order.FulfillmentSource.Should().Be(Mkbj.Modules.Sales.Application.Domain.Orders
             .FulfillmentSource.SystemAutomatic);
         order.Channel.Should().Be(OrderChannel.PartnerApi);
     }
@@ -50,7 +50,7 @@ public sealed class PartnerOrderAggregateTests
 
         var payment = order.Payments.Should().ContainSingle().Which;
         payment.AmountMinor.Should().Be(order.TotalMinor);
-        payment.Source.Should().Be(EwaysVNext.Modules.Sales.Application.Domain.Orders
+        payment.Source.Should().Be(Mkbj.Modules.Sales.Application.Domain.Orders
             .PaymentSource.PartnerReported);
         payment.RecordedAt.Should().Be(OrderMother.Now);
     }

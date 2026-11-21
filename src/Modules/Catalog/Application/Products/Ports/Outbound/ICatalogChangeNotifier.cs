@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
+namespace Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
 
 /// <summary>
 /// Tells the rest of the system that the catalogue moved.

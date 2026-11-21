@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Mkbj.Modules.Customer.Adapter.Inbound.GraphQL</RootNamespace>
+    <NoWarn>$(NoWarn);CA1822</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+      <ProjectReference Include="..\..\..\QueryApplication\Mkbj.Modules.Customer.QueryApplication.csproj" />
+      <ProjectReference Include="..\Rest\Mkbj.Modules.Customer.Adapter.Inbound.Rest.csproj" />
+      <ProjectReference Include="..\..\..\..\..\Authorization\Authorization.Abstractions\Authorization.Abstractions.csproj" />
+      <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Queries\Application\Mkbj.Queries.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="HotChocolate.AspNetCore" />
+    <PackageReference Include="HotChocolate.AspNetCore.Authorization" />
+    <PackageReference Include="HotChocolate.Types.OffsetPagination" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\Mkbj.Modules.Customer.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Outcomes\Mkbj.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Core\Application\Mkbj.Core.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Presentation.Endpoint\Mkbj.Presentation.Endpoint.csproj" />
+  </ItemGroup>
+</Project>

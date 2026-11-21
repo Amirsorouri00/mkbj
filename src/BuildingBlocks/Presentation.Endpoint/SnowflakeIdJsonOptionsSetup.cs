@@ -1,8 +1,8 @@
-using EwaysVNext.Presentation.Endpoint.Extensions;
+using Mkbj.Presentation.Endpoint.Extensions;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Options;
 
-namespace EwaysVNext.Presentation.Endpoint;
+namespace Mkbj.Presentation.Endpoint;
 
 internal sealed class SnowflakeIdJsonOptionsSetup : IConfigureOptions<JsonOptions>
 {

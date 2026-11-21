@@ -1,6 +1,6 @@
 # Architectural Defense & Rationale Guide
 
-> **Audience:** senior engineers reviewing or extending EwaysVNext v3.
+> **Audience:** senior engineers reviewing or extending MKBJ v3.
 >
 > **Contract of this document.** Every answer is grounded in the current codebase, the ten ADRs,
 > or a named test. Where a decision has a real cost, the cost is stated. Where we do not know
@@ -166,7 +166,7 @@ reference `Contracts.Supplier` today and no test would object. That is a real, u
 
 - **Snapshots in `QueryApplication`.** Rejected: creates the exact cross-module reference the
   architecture bans. Would also fail `QueryApplication_Must_Be_Isolated_From_Other_Modules_And_Infrastructure`.
-- **One `Contracts` assembly per module** (`EwaysVNext.Contracts.Catalog`, etc.). Genuinely
+- **One `Contracts` assembly per module** (`Mkbj.Contracts.Catalog`, etc.). Genuinely
   better at scale — it makes "who may reference whom" a project-level fact, and kills the
   rebuild-everything problem. Rejected **for now** as premature at 8 modules; it multiplies the
   project count by ~8 for a cost we have not yet felt. **This is the recommended refactor at

@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Settings.Application.Settings.Domain;
+using Mkbj.Modules.Settings.Application.Settings.Domain;
 
-namespace EwaysVNext.Modules.Settings.Application.Settings.Ports.Outbound;
+namespace Mkbj.Modules.Settings.Application.Settings.Ports.Outbound;
 
 /// <summary>
 /// Loads the three singletons. Each returns null only if the seed has not run, which is a

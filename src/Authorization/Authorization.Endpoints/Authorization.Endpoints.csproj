@@ -14,7 +14,7 @@
     <ProjectReference Include="..\Authorization.Application\Authorization.Application.csproj" />
     <ProjectReference Include="..\Authorization.Abstractions\Authorization.Abstractions.csproj" />
     <ProjectReference Include="..\Authorization.Implementation\Authorization.Implementation.csproj" />
-    <ProjectReference Include="..\..\BuildingBlocks\Presentation.Endpoint\EwaysVNext.Presentation.Endpoint.csproj" />
-    <ProjectReference Include="..\..\BuildingBlocks\Outcomes\EwaysVNext.Outcomes.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\Presentation.Endpoint\Mkbj.Presentation.Endpoint.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\Outcomes\Mkbj.Outcomes.csproj" />
   </ItemGroup>
 </Project>

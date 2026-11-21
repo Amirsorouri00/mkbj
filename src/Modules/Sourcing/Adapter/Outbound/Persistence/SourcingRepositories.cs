@@ -1,14 +1,14 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourceListings;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Domain.SourceListings;
+using Mkbj.Modules.Sourcing.Application.Domain.SourcePolicies;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Sourcing.Adapter.Outbound.Persistence;
+namespace Mkbj.Modules.Sourcing.Adapter.Outbound.Persistence;
 
-internal sealed class ImportJobRepository(EwaysVNextDbContext db) : IImportJobRepository
+internal sealed class ImportJobRepository(MkbjDbContext db) : IImportJobRepository
 {
     public Task<ImportJob?> GetAsync(long jobId, CancellationToken ct = default) =>
         db.ImportJobs.FirstOrDefaultAsync(job => job.Id == jobId, ct);
@@ -20,7 +20,7 @@ internal sealed class ImportJobRepository(EwaysVNextDbContext db) : IImportJobRe
     }
 }
 
-internal sealed class StagedRecordRepository(EwaysVNextDbContext db) : IStagedRecordRepository
+internal sealed class StagedRecordRepository(MkbjDbContext db) : IStagedRecordRepository
 {
     public Task<StagedRecord?> GetAsync(long recordId, CancellationToken ct = default) =>
         db.StagedRecords.FirstOrDefaultAsync(record => record.Id == recordId, ct);
@@ -50,7 +50,7 @@ internal sealed class StagedRecordRepository(EwaysVNextDbContext db) : IStagedRe
             .ToListAsync(ct);
 }
 
-internal sealed class SourceListingRepository(EwaysVNextDbContext db) : ISourceListingRepository
+internal sealed class SourceListingRepository(MkbjDbContext db) : ISourceListingRepository
 {
     public Task<SourceListing?> FindByUrlAsync(string url, CancellationToken ct = default) =>
         db.SourceListings.FirstOrDefaultAsync(listing => listing.Url == url, ct);
@@ -62,7 +62,7 @@ internal sealed class SourceListingRepository(EwaysVNextDbContext db) : ISourceL
     }
 }
 
-internal sealed class SourcePolicyRepository(EwaysVNextDbContext db) : ISourcePolicyRepository
+internal sealed class SourcePolicyRepository(MkbjDbContext db) : ISourcePolicyRepository
 {
     public Task<SourcePolicy?> GetAsync(long policyId, CancellationToken ct = default) =>
         db.SourcePolicies.FirstOrDefaultAsync(policy => policy.Id == policyId, ct);

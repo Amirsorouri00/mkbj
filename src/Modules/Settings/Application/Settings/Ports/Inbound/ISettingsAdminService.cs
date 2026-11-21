@@ -1,7 +1,7 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Outcomes;
+using Mkbj.Core.Application;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Settings.Application.Settings.Ports.Inbound;
+namespace Mkbj.Modules.Settings.Application.Settings.Ports.Inbound;
 
 public sealed record UpdateSellerCommand(
     string LegalName,

@@ -1,4 +1,4 @@
-﻿namespace EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
+namespace Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
 
 /// <summary>Where a quoted price came from, which an order line records verbatim.</summary>
 public enum PriceSource

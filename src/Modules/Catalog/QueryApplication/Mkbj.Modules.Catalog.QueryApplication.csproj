@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Mkbj.Modules.Catalog.QueryApplication</RootNamespace>
+    <Description>Catalog read side: direct EF Core projections grouped by business concept.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Outcomes\Mkbj.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Queries\Application\Mkbj.Queries.Application.csproj" />
+    <ProjectReference Include="..\..\..\Database\Mkbj.Database.csproj" />
+    <ProjectReference Include="..\..\..\..\Mkbj.Modules.Catalog.Contracts\Mkbj.Modules.Catalog.Contracts.csproj" />
+  </ItemGroup>
+</Project>

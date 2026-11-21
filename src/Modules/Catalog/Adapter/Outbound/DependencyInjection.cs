@@ -1,23 +1,23 @@
-﻿using EwaysVNext.Jobs;
-using EwaysVNext.Jobs.Implementation;
+using Mkbj.Jobs;
+using Mkbj.Jobs.Implementation;
 using Microsoft.Extensions.DependencyInjection;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound.Dependencies.AttributeBlueprints;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound.Repositories;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound.Repositories.AttributeBlueprints;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound.Repositories.Brands;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound.Media;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound.Storefront;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Storefront.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound.Persistence.Categories;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound.Persistence.Products;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
+using Mkbj.Modules.Catalog.Adapter.Outbound.Dependencies.AttributeBlueprints;
+using Mkbj.Modules.Catalog.Adapter.Outbound.Repositories;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Outbound;
+using Mkbj.Modules.Catalog.Adapter.Outbound.Repositories.AttributeBlueprints;
+using Mkbj.Modules.Catalog.Adapter.Outbound.Repositories.Brands;
+using Mkbj.Modules.Catalog.Adapter.Outbound.Media;
+using Mkbj.Modules.Catalog.Adapter.Outbound.Storefront;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Storefront.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Modules.Catalog.Adapter.Outbound.Persistence.Categories;
+using Mkbj.Modules.Catalog.Adapter.Outbound.Persistence.Products;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound;
 
 public static class DependencyInjection
 {

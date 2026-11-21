@@ -1,14 +1,14 @@
-﻿using AuthorizationService.Abstractions.Attributes;
+using AuthorizationService.Abstractions.Attributes;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.QueryApplication.Products;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
-using EwaysVNext.Presentation.Endpoint.Security;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.QueryApplication.Products;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.Security;
+using Mkbj.Queries.Application.Paginations;
 using HotChocolate.Authorization;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Products;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.Products;
 
 // Both attributes on every resolver, never on the class: a type-level attribute on an
 // [ExtendObjectType] is merged onto the whole Query and would gate every other module's fields
@@ -33,4 +33,11 @@ public sealed class ProductAdminQueries
         [GraphQLType(typeof(NonNullType<IdType>))] long id,
         [Service] ICatalogAdminQueries queries, CancellationToken ct = default) =>
         ResultGraphQLExtensions.ValueOrThrow(await queries.GetProductAsync(id, ct));
+
+    [Authorize(Policy = AuthPolicies.AdminStaff)]
+    [RequirePermission(AdminPermissions.CatalogManage)]
+    public Task<IReadOnlyList<ProductAdminVariantLookupDto>> AdminVariantLookupAsync(
+        string query, int take,
+        [Service] ICatalogAdminQueries queries, CancellationToken ct = default) =>
+        queries.SearchVariantsAsync(query, take, ct);
 }

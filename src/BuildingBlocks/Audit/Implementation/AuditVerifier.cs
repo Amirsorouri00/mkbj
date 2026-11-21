@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Audit.Implementation;
+namespace Mkbj.Audit.Implementation;
 
 /// <summary>
 /// Recomputes the chain and reports the first link that does not match, plus any sealed-era event

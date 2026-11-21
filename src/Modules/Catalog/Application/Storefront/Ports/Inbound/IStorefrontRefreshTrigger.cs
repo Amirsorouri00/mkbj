@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Catalog.Application.Storefront.Ports.Inbound;
+namespace Mkbj.Modules.Catalog.Application.Storefront.Ports.Inbound;
 
 /// <summary>
 /// Asks for the storefront's materialized views to be rebuilt.

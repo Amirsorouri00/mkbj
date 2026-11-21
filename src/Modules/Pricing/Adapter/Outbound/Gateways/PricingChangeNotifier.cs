@@ -1,15 +1,15 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.Storefront.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Fx.Services;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Outbound;
-using EwaysVNext.Domain.Common;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.Storefront.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Fx.Services;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Outbound;
+using Mkbj.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace EwaysVNext.Modules.Pricing.Adapter.Outbound.Gateways;
+namespace Mkbj.Modules.Pricing.Adapter.Outbound.Gateways;
 
 internal sealed class PricingChangeNotifier(
-    EwaysVNextDbContext db,
+    MkbjDbContext db,
     ResolvedRateProjectionService projection,
     IStorefrontRefreshTrigger refresh,
     IClock clock,

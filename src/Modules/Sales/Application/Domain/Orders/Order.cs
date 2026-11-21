@@ -1,8 +1,8 @@
 using System.Globalization;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
 
-namespace EwaysVNext.Modules.Sales.Application.Domain.Orders;
+namespace Mkbj.Modules.Sales.Application.Domain.Orders;
 
 /// <summary>
 /// One order, with its lines, payments, documents and refunds.

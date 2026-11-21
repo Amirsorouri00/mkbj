@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Mkbj.Modules.Admin.Adapter.Outbound</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\Mkbj.Modules.Admin.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Audit\Application\Mkbj.Audit.Application.csproj" />
+    <ProjectReference Include="..\..\..\Sales\QueryApplication\Mkbj.Modules.Sales.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\Customer\QueryApplication\Mkbj.Modules.Customer.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\Sourcing\QueryApplication\Mkbj.Modules.Sourcing.QueryApplication.csproj" />
+  </ItemGroup>
+</Project>

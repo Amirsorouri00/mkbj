@@ -1,4 +1,4 @@
-namespace EwaysVNext.Jobs;
+namespace Mkbj.Jobs;
 
 /// <summary>
 /// Every job type in the system. Values equal their names so a row in <c>jobs.job</c> reads the

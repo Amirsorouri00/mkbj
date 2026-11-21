@@ -1,0 +1,39 @@
+{
+  "name": "@mkbj/shop-web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src next.config.ts --max-warnings=0",
+    "test": "vitest run",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "@graphql-typed-document-node/core": "3.2.0",
+    "@mkbj/api-graphql": "workspace:*",
+    "@mkbj/design-tokens": "workspace:*",
+    "graphql": "16.15.0",
+    "keycloak-js": "26.2.5",
+    "lucide-react": "1.70.0",
+    "next": "16.2.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@mkbj/config": "workspace:*",
+    "@playwright/test": "1.65.0",
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.3",
+    "@types/node": "26.6.6",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "6.3.0",
+    "jsdom": "31.0.0",
+    "typescript": "5.9.3",
+    "vitest": "5.1.0"
+  }
+}

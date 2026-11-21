@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Settings.QueryApplication;
+namespace Mkbj.Modules.Settings.QueryApplication;
 
 public static class DependencyInjection
 {

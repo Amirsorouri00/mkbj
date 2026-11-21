@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Pricing.Application.Fx.Domain;
+namespace Mkbj.Modules.Pricing.Application.Fx.Domain;
 
 /// <summary>
 /// The UAE dirham's fixed peg to the US dollar.

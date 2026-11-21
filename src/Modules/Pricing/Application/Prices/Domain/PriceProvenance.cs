@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Pricing.Application.Prices.Domain;
+namespace Mkbj.Modules.Pricing.Application.Prices.Domain;
 
 /// <summary>
 /// Where a base price came from, kept beside it.

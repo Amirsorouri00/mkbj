@@ -1,7 +1,7 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Outcomes;
+using Mkbj.Core.Application;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sales.QueryApplication.Partner;
+namespace Mkbj.Modules.Sales.QueryApplication.Partner;
 
 /// <summary>
 /// Everything a partner may read about its own orders.

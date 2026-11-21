@@ -1,11 +1,11 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Services;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Validation;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Services;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions;
 
 public static class DependencyInjection
 {

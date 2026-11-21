@@ -1,9 +1,9 @@
 using System.Linq.Expressions;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Queries.Application.Paginations;
 using Gridify;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Queries.Implementation;
+namespace Mkbj.Queries.Implementation;
 
 public static class QueryExtensions
 {

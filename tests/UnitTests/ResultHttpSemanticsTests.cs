@@ -1,5 +1,5 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Outcomes;
+using AwesomeAssertions;
+using Mkbj.Outcomes;
 using Xunit;
 
 namespace ModularMonolith.UnitTests;

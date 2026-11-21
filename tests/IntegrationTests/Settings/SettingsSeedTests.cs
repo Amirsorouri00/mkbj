@@ -1,11 +1,11 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Settings.Application.Settings.Domain;
-using EwaysVNext.Modules.Settings.Application.Settings.Ports.Inbound;
+using Mkbj.Modules.Settings.Application.Settings.Domain;
+using Mkbj.Modules.Settings.Application.Settings.Ports.Inbound;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Settings;
+namespace Mkbj.IntegrationTests.Settings;
 
 /// <summary>
 /// The settings singletons are created by the migration, not on demand, so the only thing worth

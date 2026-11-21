@@ -1,7 +1,7 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Outcomes;
+using Mkbj.Core.Application;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Partners.Application.Partners.Ports.Inbound;
+namespace Mkbj.Modules.Partners.Application.Partners.Ports.Inbound;
 
 /// <summary>Null limits take the spec defaults rather than meaning "no limit".</summary>
 public sealed record CreatePartnerCommand(

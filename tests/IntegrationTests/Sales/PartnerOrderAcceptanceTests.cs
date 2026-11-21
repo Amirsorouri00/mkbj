@@ -6,7 +6,7 @@ using AwesomeAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sales;
+namespace Mkbj.IntegrationTests.Sales;
 
 /// <summary>
 /// The PRD's partner promises, over HTTP, against the real seeded catalogue.
@@ -92,7 +92,7 @@ public sealed class PartnerOrderAcceptanceTests(PostgresFixture fixture)
         var invoice = order.GetProperty("invoice");
         invoice.GetProperty("number").GetString().Should().StartWith("INV-");
         invoice.GetProperty("pdf_url").GetString().Should()
-            .Be($"/api/v1/invoices/{invoice.GetProperty("id").GetInt64()}/pdf");
+            .Be($"/api/v1/invoices/{invoice.GetProperty("id").ReadId()}/pdf");
 
         var json = invoice.GetProperty("json");
         json.GetProperty("title").GetString().Should().Be("Invoice");
@@ -119,7 +119,7 @@ public sealed class PartnerOrderAcceptanceTests(PostgresFixture fixture)
         var original = await DataAsync(first);
         var replayed = await DataAsync(second);
 
-        replayed.GetProperty("id").GetInt64().Should().Be(original.GetProperty("id").GetInt64());
+        replayed.GetProperty("id").ReadId().Should().Be(original.GetProperty("id").ReadId());
         replayed.GetProperty("invoice").GetProperty("number").GetString()
             .Should().Be(original.GetProperty("invoice").GetProperty("number").GetString());
         replayed.GetProperty("lines").GetArrayLength()
@@ -169,22 +169,22 @@ public sealed class PartnerOrderAcceptanceTests(PostgresFixture fixture)
         var a = await DataAsync(aResponse);
         var b = await DataAsync(bResponse);
 
-        b.GetProperty("id").GetInt64().Should().NotBe(a.GetProperty("id").GetInt64());
-        b.GetProperty("customer_id").GetInt64().Should().NotBe(a.GetProperty("customer_id").GetInt64());
+        b.GetProperty("id").ReadId().Should().NotBe(a.GetProperty("id").ReadId());
+        b.GetProperty("customer_id").ReadId().Should().NotBe(a.GetProperty("customer_id").ReadId());
 
         // Partner B cannot reach any of partner A's records, and learns nothing from trying.
-        using var byId = await partnerB.GetAsync($"/api/v1/orders/{a.GetProperty("id").GetInt64()}", Ct);
+        using var byId = await partnerB.GetAsync($"/api/v1/orders/{a.GetProperty("id").ReadId()}", Ct);
         byId.StatusCode.Should().Be(HttpStatusCode.NotFound);
         (await CodeAsync(byId)).Should().Be("NOT_FOUND");
 
         using var byCustomer = await partnerB.GetAsync(
-            $"/api/v1/customers/{a.GetProperty("customer_id").GetInt64()}/orders", Ct);
+            $"/api/v1/customers/{a.GetProperty("customer_id").ReadId()}/orders", Ct);
         byCustomer.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
         // The shared external id resolves to B's own order, not A's.
         using var byExternal = await partnerB.GetAsync($"/api/v1/orders/ext:{externalOrderId}", Ct);
-        (await DataAsync(byExternal)).GetProperty("id").GetInt64()
-            .Should().Be(b.GetProperty("id").GetInt64());
+        (await DataAsync(byExternal)).GetProperty("id").ReadId()
+            .Should().Be(b.GetProperty("id").ReadId());
     }
 
     [Fact]
@@ -231,7 +231,7 @@ public sealed class PartnerOrderAcceptanceTests(PostgresFixture fixture)
         var order = await DataAsync(created);
 
         using var byId = await client.GetAsync(
-            $"/api/v1/orders/{order.GetProperty("id").GetInt64()}", Ct);
+            $"/api/v1/orders/{order.GetProperty("id").ReadId()}", Ct);
         using var byExternal = await client.GetAsync($"/api/v1/orders/ext:{externalOrderId}", Ct);
 
         // Create, replay and both reads all reload through one query, so a partner diffing them

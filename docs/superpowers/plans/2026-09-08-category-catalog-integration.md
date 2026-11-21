@@ -15,7 +15,7 @@
 - Work only on `feature/SHOP-424`.
 - Commit Stage 1 rename before beginning Stage 2 moves.
 - Preserve Application, QueryApplication, Adapter, Contracts, and Installer boundaries.
-- Project and namespace are both `EwaysVNext.Modules.Catalog.Contracts`; singular
+- Project and namespace are both `Mkbj.Modules.Catalog.Contracts`; singular
   `Catalog.Contract` naming is forbidden.
 - Catalog.Contracts is the Catalog module's only public cross-module contract boundary; other
   modules must not reference Catalog.Application, Catalog.QueryApplication, or Catalog.Adapter.
@@ -52,7 +52,7 @@
 
 - [ ] **Step 2: Run the focused tests and verify RED**
 
-  Run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --no-restore --filter "FullyQualifiedName~Category"`
+  Run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --no-restore --filter "FullyQualifiedName~Category"`
 
   Expected: compile/assertion failures naming the still-existing Secondary Category API/types.
 
@@ -63,20 +63,20 @@
 ### Task 2: Rename the standalone module to Category
 
 **Files:**
-- Rename: `EwaysVNext.Modules.SecondaryCategory.Contract` → `EwaysVNext.Modules.Category.Contracts`
+- Rename: `Mkbj.Modules.SecondaryCategory.Contract` → `Mkbj.Modules.Category.Contracts`
 - Rename: `src/Modules/SecondaryCategory` → `src/Modules/Category`
 - Rename: `src/Database/SecondaryCategories` → `src/Database/Category`
-- Modify: `src/Database/EwaysVNextDbContext.cs`
+- Modify: `src/Database/MkbjDbContext.cs`
 - Replace: `src/Database/Migrations/20260907132714_AddSecondaryCategoryHierarchyAndSnowflakeIds.cs`
 - Replace: `src/Database/Migrations/20260907132714_AddSecondaryCategoryHierarchyAndSnowflakeIds.Designer.cs`
-- Modify: `src/Database/Migrations/EwaysVNextDbContextModelSnapshot.cs`
-- Modify: `src/Host/EwaysVNext.Host/Program.cs`
-- Modify: `EwaysVNext.slnx`
+- Modify: `src/Database/Migrations/MkbjDbContextModelSnapshot.cs`
+- Modify: `src/Host/Mkbj.Host/Program.cs`
+- Modify: `Mkbj.slnx`
 - Rename: `tests/UnitTests/SecondaryCategory*.cs` → `tests/UnitTests/Category*.cs`
 
 **Interfaces:**
 - Consumes: naming expectations from Task 1.
-- Produces: buildable standalone `EwaysVNext.Modules.Category` projects and Category-named REST/GraphQL/database surfaces.
+- Produces: buildable standalone `Mkbj.Modules.Category` projects and Category-named REST/GraphQL/database surfaces.
 
 - [ ] **Step 1: Rename paths and project files**
 
@@ -100,9 +100,9 @@
 
 - [ ] **Step 4: Run focused tests and build**
 
-  Run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --no-restore --filter "FullyQualifiedName~Category"`
+  Run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --no-restore --filter "FullyQualifiedName~Category"`
 
-  Run: `dotnet build EwaysVNext.slnx --no-restore`
+  Run: `dotnet build Mkbj.slnx --no-restore`
 
   Expected: focused tests and build pass.
 
@@ -136,7 +136,7 @@
 
 - [ ] **Step 2: Run the focused tests and verify RED**
 
-  Run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --no-restore --filter "FullyQualifiedName~CategoryProductionCompositionTests"`
+  Run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --no-restore --filter "FullyQualifiedName~CategoryProductionCompositionTests"`
 
   Expected: failure because Catalog does not yet own/register Category.
 
@@ -147,14 +147,14 @@
 ### Task 4: Merge Contracts and Application by concept
 
 **Files:**
-- Move: `EwaysVNext.Modules.Category.Contracts/Categories/CategoryDtos.cs` → `EwaysVNext.Modules.Catalog.Contracts/Categories/CategoryDtos.cs`
+- Move: `Mkbj.Modules.Category.Contracts/Categories/CategoryDtos.cs` → `Mkbj.Modules.Catalog.Contracts/Categories/CategoryDtos.cs`
 - Move: `src/Modules/Category/Application/*` → `src/Modules/Catalog/Application/Categories/*`
 - Move: `src/Modules/Catalog/Application/Domain/Products/*` → `src/Modules/Catalog/Application/Products/Domain/*`
 - Move: `src/Modules/Catalog/Application/Ports/Inbound/*` → `src/Modules/Catalog/Application/Products/Ports/Inbound/*`
 - Move: `src/Modules/Catalog/Application/Ports/Outbound/*` → `src/Modules/Catalog/Application/Products/Ports/Outbound/*`
 - Move: `src/Modules/Catalog/Application/Service/*` → `src/Modules/Catalog/Application/Products/Services/*`
 - Move: `src/Modules/Catalog/Application/Validation/*` → `src/Modules/Catalog/Application/Products/Validation/*`
-- Modify: `src/Modules/Catalog/Application/EwaysVNext.Modules.Catalog.Application.csproj`
+- Modify: `src/Modules/Catalog/Application/Mkbj.Modules.Catalog.Application.csproj`
 
 **Interfaces:**
 - Consumes: Category contracts/application types and existing Product application types.
@@ -163,8 +163,8 @@
 - [ ] **Step 1: Move Category contracts and update namespaces/references**
 
   Rename the existing Catalog contracts directory/project if needed so both project and namespace
-  are exactly `EwaysVNext.Modules.Catalog.Contracts`. Use
-  `EwaysVNext.Modules.Catalog.Contracts.Categories` and remove references to the temporary
+  are exactly `Mkbj.Modules.Catalog.Contracts`. Use
+  `Mkbj.Modules.Catalog.Contracts.Categories` and remove references to the temporary
   Category contracts project. Do not create a singular `Catalog.Contract` directory or project.
 
 - [ ] **Step 2: Move Category application code and update namespaces**
@@ -179,7 +179,7 @@
 
 - [ ] **Step 4: Build and run Category/Product unit tests**
 
-  Run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --no-restore --filter "FullyQualifiedName~Category|FullyQualifiedName~Product"`
+  Run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --no-restore --filter "FullyQualifiedName~Category|FullyQualifiedName~Product"`
 
   Expected: pass.
 
@@ -200,8 +200,8 @@
 - Move: `src/Modules/Catalog/Adapter/Outbound/ReservationExpirationService.cs` → `src/Modules/Catalog/Adapter/Outbound/Persistence/Products/ReservationExpirationService.cs`
 - Move: `src/Database/Category/Configurations/*` → `src/Database/Catalog/Configurations/Categories/*`
 - Move: `src/Database/Catalog/Configurations/ProductConfiguration.cs` → `src/Database/Catalog/Configurations/Products/ProductConfiguration.cs`
-- Modify: `src/Modules/Catalog/QueryApplication/EwaysVNext.Modules.Catalog.QueryApplication.csproj`
-- Modify: `src/Modules/Catalog/Adapter/Outbound/EwaysVNext.Modules.Catalog.Adapter.Outbound.csproj`
+- Modify: `src/Modules/Catalog/QueryApplication/Mkbj.Modules.Catalog.QueryApplication.csproj`
+- Modify: `src/Modules/Catalog/Adapter/Outbound/Mkbj.Modules.Catalog.Adapter.Outbound.csproj`
 - Modify: `src/Modules/Catalog/Adapter/Outbound/DependencyInjection.cs`
 
 **Interfaces:**
@@ -224,7 +224,7 @@
 
 - [ ] **Step 4: Run query, persistence, service, and reservation tests**
 
-  Run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --no-restore --filter "FullyQualifiedName~Category|FullyQualifiedName~ProductReservation"`
+  Run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --no-restore --filter "FullyQualifiedName~Category|FullyQualifiedName~ProductReservation"`
 
   Expected: pass.
 
@@ -243,10 +243,10 @@
 - Move: `src/Modules/Catalog/Adapter/Inbound/Rest/Endpoints/*` → `src/Modules/Catalog/Adapter/Inbound/Rest/Products/Endpoints/*`
 - Move: `src/Modules/Category/Adapter/Inbound/GraphQL/*` → `src/Modules/Catalog/Adapter/Inbound/GraphQL/Categories/*`
 - Modify: `src/Modules/Catalog/Installer/ModuleInstaller.cs`
-- Modify: `src/Modules/Catalog/Installer/EwaysVNext.Modules.Catalog.Installer.csproj`
-- Modify: `src/Host/EwaysVNext.Host/Program.cs`
-- Modify: `tests/UnitTests/EwaysVNext.UnitTests.csproj`
-- Modify: `EwaysVNext.slnx`
+- Modify: `src/Modules/Catalog/Installer/Mkbj.Modules.Catalog.Installer.csproj`
+- Modify: `src/Host/Mkbj.Host/Program.cs`
+- Modify: `tests/UnitTests/Mkbj.UnitTests.csproj`
+- Modify: `Mkbj.slnx`
 - Remove: temporary standalone Category project files and installer.
 
 **Interfaces:**
@@ -260,7 +260,7 @@
 
 - [ ] **Step 2: Move GraphQL under Catalog**
 
-  Rename the project to `EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL`, retain thin Category
+  Rename the project to `Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL`, retain thin Category
   resolvers and the approved `/api/v1/admin/category/graphql` endpoint.
 
 - [ ] **Step 3: Merge installer and Host composition**
@@ -270,7 +270,7 @@
 
 - [ ] **Step 4: Run focused executor and composition tests**
 
-  Run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --no-restore --filter "FullyQualifiedName~CategoryApiAdapterTests|FullyQualifiedName~CategoryProductionCompositionTests"`
+  Run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --no-restore --filter "FullyQualifiedName~CategoryApiAdapterTests|FullyQualifiedName~CategoryProductionCompositionTests"`
 
   Expected: pass.
 
@@ -292,21 +292,21 @@
 
 - [ ] **Step 1: Run focused Category tests**
 
-  Run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --no-restore --filter "FullyQualifiedName~Category"`
+  Run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --no-restore --filter "FullyQualifiedName~Category"`
 
 - [ ] **Step 2: Run full unit and architecture suites**
 
-  Run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --no-restore`
+  Run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --no-restore`
 
-  Run: `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --no-restore`
+  Run: `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --no-restore`
 
 - [ ] **Step 3: Build the solution**
 
-  Run: `dotnet build EwaysVNext.slnx --no-restore`
+  Run: `dotnet build Mkbj.slnx --no-restore`
 
 - [ ] **Step 4: Verify terminology and removed projects**
 
-  Run: `rg -n -i "secondary.?categor|secondary catalog|categorys|Catalog\.Contract(?!s)" --pcre2 --glob "!**/bin/**" --glob "!**/obj/**" src tests EwaysVNext.Modules.Catalog.Contracts EwaysVNext.slnx`
+  Run: `rg -n -i "secondary.?categor|secondary catalog|categorys|Catalog\.Contract(?!s)" --pcre2 --glob "!**/bin/**" --glob "!**/obj/**" src tests Mkbj.Modules.Catalog.Contracts Mkbj.slnx`
 
   Expected: no matches.
 

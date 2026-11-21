@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Customer.QueryApplication.Customers;
+using Mkbj.Modules.Customer.QueryApplication.Customers;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Customer.QueryApplication;
+namespace Mkbj.Modules.Customer.QueryApplication;
 
 public static class DependencyInjection
 {

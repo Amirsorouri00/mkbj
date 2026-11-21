@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Presentation.Endpoint.GraphQL.Exceptions;
+namespace Mkbj.Presentation.Endpoint.GraphQL.Exceptions;
 
 /// <summary>
 /// A temporary failure (503). It must be its own type so the filter keeps its code and its

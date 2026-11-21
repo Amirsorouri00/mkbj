@@ -2,15 +2,15 @@ using System.Globalization;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
-using EwaysVNext.Core.Application.Security;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Inbound;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application.Security;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Inbound;
+using Mkbj.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 
-namespace EwaysVNext.Modules.Partners.Adapter.Inbound.Rest.Authentication;
+namespace Mkbj.Modules.Partners.Adapter.Inbound.Rest.Authentication;
 
 /// <summary>
 /// Turns a <c>Bearer pk_…</c> header into a partner principal.
@@ -54,13 +54,13 @@ public sealed class PartnerApiKeyAuthenticationHandler(
 
         var claims = new List<Claim>
         {
-            new(EwaysClaimTypes.PartnerId, result.PartnerId.ToString(CultureInfo.InvariantCulture)),
-            new(EwaysClaimTypes.ApiKeyId, result.ApiKeyId.ToString(CultureInfo.InvariantCulture)),
-            new(EwaysClaimTypes.RateLimitPerMinute, result.RateLimitPerMinute.ToString(CultureInfo.InvariantCulture)),
-            new(EwaysClaimTypes.BulkMaxItems, result.BulkMaxItems.ToString(CultureInfo.InvariantCulture)),
+            new(MkbjClaimTypes.PartnerId, result.PartnerId.ToString(CultureInfo.InvariantCulture)),
+            new(MkbjClaimTypes.ApiKeyId, result.ApiKeyId.ToString(CultureInfo.InvariantCulture)),
+            new(MkbjClaimTypes.RateLimitPerMinute, result.RateLimitPerMinute.ToString(CultureInfo.InvariantCulture)),
+            new(MkbjClaimTypes.BulkMaxItems, result.BulkMaxItems.ToString(CultureInfo.InvariantCulture)),
         };
 
-        claims.AddRange(result.Scopes.Select(scope => new Claim(EwaysClaimTypes.Scope, scope)));
+        claims.AddRange(result.Scopes.Select(scope => new Claim(MkbjClaimTypes.Scope, scope)));
 
         var identity = new ClaimsIdentity(claims, AuthSchemes.PartnerApiKey);
 

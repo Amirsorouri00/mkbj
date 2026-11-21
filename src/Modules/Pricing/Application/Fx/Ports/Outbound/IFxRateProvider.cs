@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Inbound;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Pricing.Application.Fx.Ports.Outbound;
+namespace Mkbj.Modules.Pricing.Application.Fx.Ports.Outbound;
 
 /// <summary>
 /// Somewhere rates come from. <see cref="Name"/> is stored on every row it produces, so two

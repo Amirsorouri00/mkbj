@@ -1,0 +1,29 @@
+{
+  "name": "mkbj-web-workspace",
+  "private": true,
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev --filter=@mkbj/admin-web",
+    "dev:admin": "turbo run dev --filter=@mkbj/admin-web",
+    "dev:shop": "turbo run dev --filter=@mkbj/shop-web",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "generate:contracts": "turbo run generate",
+    "check:contracts": "turbo run check:generated",
+    "e2e": "pnpm --filter @mkbj/admin-web e2e",
+    "e2e:shop": "pnpm --filter @mkbj/shop-web e2e"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.14.0",
+    "prettier": "3.9.10",
+    "turbo": "2.11.10",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.2"
+  }
+}

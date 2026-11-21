@@ -4,16 +4,16 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.IntegrationTests.Support;
-using EwaysVNext.Modules.Partners.Application.Partners.Keys;
-using EwaysVNext.Modules.Partners.QueryApplication;
-using EwaysVNext.Presentation.Endpoint;
+using Mkbj.Core.Application;
+using Mkbj.IntegrationTests.Support;
+using Mkbj.Modules.Partners.Application.Partners.Keys;
+using Mkbj.Modules.Partners.QueryApplication;
+using Mkbj.Presentation.Endpoint;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Partners;
+namespace Mkbj.IntegrationTests.Partners;
 
 /// <summary>
 /// The admin surface over HTTP, as a super admin. The single thread running through these is that

@@ -1,7 +1,8 @@
+using System.Text.Json.Serialization;
 using System.Text.Json;
-using EwaysVNext.Modules.Sales.QueryApplication.Partner;
+using Mkbj.Modules.Sales.QueryApplication.Partner;
 
-namespace EwaysVNext.Modules.Sales.QueryApplication.Admin;
+namespace Mkbj.Modules.Sales.QueryApplication.Admin;
 
 public enum AdminChannelFilter
 {
@@ -18,8 +19,8 @@ public sealed record AdminOrderFilter(
     string? OrderStatus = null,
     string? PaymentStatus = null,
     string? Currency = null,
-    long? CustomerId = null,
-    long? PartnerId = null,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long? CustomerId = null,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long? PartnerId = null,
     string? ExternalOrderId = null,
     string? Number = null,
     DateTimeOffset? From = null,
@@ -28,12 +29,12 @@ public sealed record AdminOrderFilter(
     int PageSize = 50);
 
 public sealed record AdminOrderListItemDto(
-    long Id,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long Id,
     string Number,
     string Channel,
-    long? PartnerId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long? PartnerId,
     string? ExternalOrderId,
-    long CustomerId,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long CustomerId,
     string Currency,
     long TotalMinor,
     long RefundedMinor,
@@ -41,7 +42,7 @@ public sealed record AdminOrderListItemDto(
     DateTimeOffset CreatedAt);
 
 public sealed record AdminPaymentDto(
-    long Id,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long Id,
     string Source,
     string? Method,
     string? Reference,
@@ -50,13 +51,13 @@ public sealed record AdminPaymentDto(
     long AmountMinor);
 
 public sealed record AdminRefundDto(
-    long Id,
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long Id,
     long AmountMinor,
     string Reason,
     Guid RecordedBy,
     DateTimeOffset RecordedAt,
     string? ExternalReference,
-    long CreditNoteDocumentId);
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long CreditNoteDocumentId);
 
 /// <remarks>
 /// The seed and strategy version are the reproduction recipe: the engine is pure, so an
@@ -108,7 +109,7 @@ public sealed record CompositionFailureDto(
     string Currency,
     long TargetMinor,
     long DurationMs,
-    long? PartnerId);
+    [property: JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)] long? PartnerId);
 
 public sealed record SalesDashboardDto(
     IReadOnlyList<ChannelCurrencyTotalsDto> OrderTotals,

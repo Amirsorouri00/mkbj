@@ -1,12 +1,12 @@
-﻿using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
+using Mkbj.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
 using AuthorizationService.Abstractions.Attributes;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.CategoryAttributeExclusion;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.CategoryAttributeExclusion;
 
 [ExtendObjectType("Mutation")]
 public sealed class CategoryAttributeExclusionMutationResolvers
@@ -14,8 +14,8 @@ public sealed class CategoryAttributeExclusionMutationResolvers
     [Authorize(Policy = AuthPolicies.AdminStaff)]
     [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<CategoryAttributeExclusionSnapshot> ExcludeInheritedCategoryAttribute(
-        long categoryId,
-        long sourceAssignmentId,
+        [GraphQLType(typeof(NonNullType<IdType>))] long categoryId,
+        [GraphQLType(typeof(NonNullType<IdType>))] long sourceAssignmentId,
         [Service] ICategoryAttributeExclusionService exclusions,
         CancellationToken ct)
     {
@@ -26,8 +26,8 @@ public sealed class CategoryAttributeExclusionMutationResolvers
     [Authorize(Policy = AuthPolicies.AdminStaff)]
     [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<CategoryAttributeExclusionSnapshot> IncludeInheritedCategoryAttribute(
-        long categoryId,
-        long sourceAssignmentId,
+        [GraphQLType(typeof(NonNullType<IdType>))] long categoryId,
+        [GraphQLType(typeof(NonNullType<IdType>))] long sourceAssignmentId,
         [Service] ICategoryAttributeExclusionService exclusions,
         CancellationToken ct)
     {
@@ -38,7 +38,8 @@ public sealed class CategoryAttributeExclusionMutationResolvers
     [Authorize(Policy = AuthPolicies.AdminStaff)]
     [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<IReadOnlyList<CategoryAttributeExclusionSnapshot>> SetCategoryAttributeExclusions(
-        long categoryId,
+        [GraphQLType(typeof(NonNullType<IdType>))] long categoryId,
+        [GraphQLType(typeof(NonNullType<ListType<NonNullType<IdType>>>))]
         IReadOnlyList<long> excludedSourceAssignmentIds,
         [Service] ICategoryAttributeExclusionService exclusions,
         CancellationToken ct)
@@ -54,7 +55,7 @@ public sealed class CategoryAttributeExclusionQueryResolvers
     [Authorize(Policy = AuthPolicies.AdminStaff)]
     [RequirePermission(AdminPermissions.CatalogManage)]
     public async Task<IReadOnlyList<EffectiveCategoryAttributeSnapshot>> EffectiveCategoryAttributes(
-        long categoryId,
+        [GraphQLType(typeof(NonNullType<IdType>))] long categoryId,
         [Service] ICategoryAttributeExclusionQueryService query,
         CancellationToken ct)
         => await query.GetEffectiveAttributesAsync(categoryId, ct);

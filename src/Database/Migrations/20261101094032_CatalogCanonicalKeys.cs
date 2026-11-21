@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace EwaysVNext.Database.Migrations
+namespace Mkbj.Database.Migrations
 {
     /// <inheritdoc />
     public partial class CatalogCanonicalKeys : Migration

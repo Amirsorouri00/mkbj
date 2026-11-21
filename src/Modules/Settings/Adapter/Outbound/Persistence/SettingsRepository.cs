@@ -1,16 +1,16 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Settings.Application.Settings.Domain;
-using EwaysVNext.Modules.Settings.Application.Settings.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Settings.Application.Settings.Domain;
+using Mkbj.Modules.Settings.Application.Settings.Ports.Outbound;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Settings.Adapter.Outbound.Persistence;
+namespace Mkbj.Modules.Settings.Adapter.Outbound.Persistence;
 
 /// <summary>
 /// Loads the singletons by their fixed id. Tracking is a parameter because the same rows serve
 /// two very different callers: the read port, which must not track, and the admin service, which
 /// must.
 /// </summary>
-public sealed class SettingsRepository(EwaysVNextDbContext db) : ISettingsRepository
+public sealed class SettingsRepository(MkbjDbContext db) : ISettingsRepository
 {
     public Task<SellerProfile?> GetSellerAsync(bool tracking, CancellationToken ct = default) =>
         Track(db.SellerProfiles, tracking)

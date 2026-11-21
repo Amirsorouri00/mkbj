@@ -1,7 +1,7 @@
-﻿using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Exceptions;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint.GraphQL.Exceptions;
 
-namespace EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
+namespace Mkbj.Presentation.Endpoint.GraphQL.Extensions;
 
 public static class ErrorGraphQLExtensions
 {

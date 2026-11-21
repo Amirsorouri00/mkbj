@@ -1,11 +1,11 @@
 using AwesomeAssertions;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Xunit;
 
-namespace EwaysVNext.PersistenceContractTests;
+namespace Mkbj.PersistenceContractTests;
 
 /// <summary>
 /// The AttributeBlueprint mapping contract. Names are asserted in the snake_case the Postgres
@@ -16,7 +16,7 @@ public sealed class AttributeBlueprintPersistenceModelTests
 {
     private static IEntityType Blueprint()
     {
-        using var db = Providers.Npgsql<EwaysVNextDbContext>();
+        using var db = Providers.Npgsql<MkbjDbContext>();
         return db.Model.FindEntityType(typeof(AttributeBlueprint))!;
     }
 

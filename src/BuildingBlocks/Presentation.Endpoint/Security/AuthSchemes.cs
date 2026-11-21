@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 
-namespace EwaysVNext.Presentation.Endpoint.Security;
+namespace Mkbj.Presentation.Endpoint.Security;
 
 /// <summary>
 /// Partner keys and human tokens both arrive as <c>Authorization: Bearer …</c>, so something has

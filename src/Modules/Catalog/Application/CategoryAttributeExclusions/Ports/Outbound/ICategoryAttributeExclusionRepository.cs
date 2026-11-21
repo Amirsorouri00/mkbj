@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Outbound;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Outbound;
 
 public interface ICategoryAttributeExclusionRepository
 {

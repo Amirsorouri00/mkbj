@@ -1,15 +1,15 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
-using EwaysVNext.Modules.Sales.Adapter.Outbound.Gateways;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
-using EwaysVNext.Modules.Settings.Application.Settings.Ports.Inbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Modules.Sales.Adapter.Outbound.Gateways;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Modules.Settings.Application.Settings.Ports.Inbound;
+using Mkbj.Outcomes;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Gateways;
+namespace Mkbj.UnitTests.Sales.Gateways;
 
 /// <summary>
 /// The anti-corruption layer, field by field.

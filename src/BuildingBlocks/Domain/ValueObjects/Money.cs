@@ -1,7 +1,7 @@
 using System.Globalization;
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Domain.ValueObjects;
+namespace Mkbj.Domain.ValueObjects;
 
 public sealed class Money : ValueObject
 {

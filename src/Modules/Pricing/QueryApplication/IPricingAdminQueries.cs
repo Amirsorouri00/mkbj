@@ -1,7 +1,7 @@
-using EwaysVNext.Outcomes;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Outcomes;
+using Mkbj.Queries.Application.Paginations;
 
-namespace EwaysVNext.Modules.Pricing.QueryApplication;
+namespace Mkbj.Modules.Pricing.QueryApplication;
 
 /// <summary>
 /// The administrative read side. Unlike the shopper's, it shows disabled currencies and

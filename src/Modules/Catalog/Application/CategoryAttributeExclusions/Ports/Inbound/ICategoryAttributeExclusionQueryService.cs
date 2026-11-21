@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
+using Mkbj.Modules.Catalog.QueryApplication.CategoryAttributeAssignments;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
 
 public interface ICategoryAttributeExclusionQueryService
 {

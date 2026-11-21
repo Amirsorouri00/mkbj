@@ -1,20 +1,20 @@
-﻿using AuthorizationService.Abstractions.Authorization;
+using AuthorizationService.Abstractions.Authorization;
 using AuthorizationService.Abstractions.Authorization.Requests;
 using AuthorizationService.Abstractions.Authorization.Responses;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest.Categories;
-using EwaysVNext.Modules.Catalog.Application.Categories.Commands;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
-using EwaysVNext.Modules.Catalog.QueryApplication.Categories;
-using EwaysVNext.Core.Application.Security;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint.Security;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Exceptions;
+using Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL;
+using Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.Categories;
+using Mkbj.Modules.Catalog.Adapter.Inbound.Rest;
+using Mkbj.Modules.Catalog.Adapter.Inbound.Rest.Categories;
+using Mkbj.Modules.Catalog.Application.Categories.Commands;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Inbound;
+using Mkbj.Modules.Catalog.Contracts.Categories;
+using Mkbj.Modules.Catalog.QueryApplication.Categories;
+using Mkbj.Core.Application.Security;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint.Security;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Exceptions;
 using HotChocolate;
 using HotChocolate.Execution;
 using HotChocolate.Types;
@@ -27,11 +27,11 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Security.Claims;
 using System.Text.Json;
 using Xunit;
-using CategoryAdminQueries = EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Categories.CategoryAdminQueries;
-using FrameworkError = EwaysVNext.Outcomes.Error;
+using CategoryAdminQueries = Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.Categories.CategoryAdminQueries;
+using FrameworkError = Mkbj.Outcomes.Error;
 using HotChocolateAuthorizeAttribute = HotChocolate.Authorization.AuthorizeAttribute;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public sealed class CategoryApiAdapterTests
 {
@@ -229,7 +229,13 @@ public sealed class CategoryApiAdapterTests
                 id name status
                 children {
                   id name status
-                  children { id name status }
+                  children {
+                    id name status
+                    children {
+                      id name status
+                      children { id name status }
+                    }
+                  }
                 }
               }
             }
@@ -594,7 +600,7 @@ public sealed class CategoryApiAdapterTests
         // the gate. It used to reach the resolver and be recorded as an anonymous actor, which
         // meant an unattributable write; the permission check needs a user id and says so.
         var malformedPrincipal = Acting(new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm),
+            new Claim(MkbjClaimTypes.Tenant, AdminRoles.BackofficeRealm),
             new Claim(ClaimTypes.Role, AdminRoles.Staff),
             new Claim("sub", "not-a-guid")], "test")));
         var missingActor = await executor.ExecuteAsync(OperationRequestBuilder.New()
@@ -699,13 +705,13 @@ public sealed class CategoryApiAdapterTests
     /// </summary>
     private static ClaimsPrincipal StaffPrincipal(Guid? subject = null) => Acting(new ClaimsPrincipal(new ClaimsIdentity([
         new Claim(ClaimTypes.NameIdentifier, (subject ?? Guid.NewGuid()).ToString()),
-        new Claim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm),
+        new Claim(MkbjClaimTypes.Tenant, AdminRoles.BackofficeRealm),
         new Claim(ClaimTypes.Role, AdminRoles.Staff),
     ], "test")));
 
     private static ClaimsPrincipal CustomerPrincipal() => Acting(new ClaimsPrincipal(new ClaimsIdentity([
         new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
-        new Claim(EwaysClaimTypes.Tenant, AdminRoles.ShopRealm),
+        new Claim(MkbjClaimTypes.Tenant, AdminRoles.ShopRealm),
         new Claim(ClaimTypes.Role, "customer"),
     ], "test")));
 
@@ -777,7 +783,7 @@ public sealed class CategoryApiAdapterTests
             builder.Services.AddAuthorization(options => options.AddPolicy(
                 AuthPolicies.AdminStaff,
                 policy => policy
-                    .RequireClaim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm)
+                    .RequireClaim(MkbjClaimTypes.Tenant, AdminRoles.BackofficeRealm)
                     .RequireRole(AdminRoles.Staff, AdminRoles.SuperAdmin)));
             builder.Services.AddSingleton<ICategoryQueries>(queries);
             builder.Services.AddSingleton(adminQueries);

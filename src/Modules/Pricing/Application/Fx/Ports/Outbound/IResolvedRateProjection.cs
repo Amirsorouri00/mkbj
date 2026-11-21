@@ -1,4 +1,4 @@
-﻿namespace EwaysVNext.Modules.Pricing.Application.Fx.Ports.Outbound;
+namespace Mkbj.Modules.Pricing.Application.Fx.Ports.Outbound;
 
 /// <remarks><c>Provenance</c> is how the rate was arrived at, copied from the resolver's snapshot.</remarks>
 public sealed record ResolvedRateRow(

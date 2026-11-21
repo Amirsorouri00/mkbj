@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace EwaysVNext.Database.Migrations;
+namespace Mkbj.Database.Migrations;
 
 /// <summary>
 /// Gives the attribute-blueprint options table the plural name every other catalog table uses.

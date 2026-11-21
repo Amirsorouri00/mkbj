@@ -1,4 +1,4 @@
-# DDD Best Practices — EwaysVNext v3
+# DDD Best Practices — MKBJ v3
 
 > Companion to `docs/ONBOARDING.md`. These rules are enforced where possible by
 > `tests/ArchitectureTests/` — treat violations as build failures, not style notes.

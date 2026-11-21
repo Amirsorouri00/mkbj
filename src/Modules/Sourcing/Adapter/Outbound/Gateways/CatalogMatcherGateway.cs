@@ -1,9 +1,9 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Sourcing.Adapter.Outbound.Gateways;
+namespace Mkbj.Modules.Sourcing.Adapter.Outbound.Gateways;
 
 /// <summary>
 /// Asks the catalogue whether it already has this product.
@@ -21,7 +21,7 @@ namespace EwaysVNext.Modules.Sourcing.Adapter.Outbound.Gateways;
 /// to compare — slower than the import it is meant to speed up.
 /// </para>
 /// </remarks>
-internal sealed class CatalogMatcherGateway(EwaysVNextDbContext db) : ICatalogMatcher
+internal sealed class CatalogMatcherGateway(MkbjDbContext db) : ICatalogMatcher
 {
     public async Task<long?> FindByIdentifierAsync(
         string identifierType, string value, CancellationToken ct = default)

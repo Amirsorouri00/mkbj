@@ -1,18 +1,18 @@
 using System.Security.Claims;
 using AuthorizationService.Abstractions.Attributes;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Sales.Application;
-using EwaysVNext.Modules.Sales.Application.Money;
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sales.QueryApplication.Admin;
-using EwaysVNext.Modules.Sales.QueryApplication.Partner;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Sales.Application;
+using Mkbj.Modules.Sales.Application.Money;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Modules.Sales.QueryApplication.Admin;
+using Mkbj.Modules.Sales.QueryApplication.Partner;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Inbound.GraphQL.Admin;
+namespace Mkbj.Modules.Sales.Adapter.Inbound.GraphQL.Admin;
 
 public sealed record ConfirmOrderPaymentInput(long OrderId, string Method, string? Reference);
 

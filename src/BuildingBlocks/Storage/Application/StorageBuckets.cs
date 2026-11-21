@@ -1,4 +1,4 @@
-namespace EwaysVNext.Storage;
+namespace Mkbj.Storage;
 
 /// <summary>
 /// The three buckets (ADR-0017 D11). They are separate because their access rules differ:

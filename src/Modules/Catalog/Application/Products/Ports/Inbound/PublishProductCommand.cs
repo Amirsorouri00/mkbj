@@ -1,6 +1,6 @@
-﻿using EwaysVNext.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
 
-namespace EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
+namespace Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
 
 public sealed record PublishBrand(string Name, IReadOnlyList<string> Aliases);
 

@@ -1,13 +1,13 @@
 using System.Buffers.Binary;
 using AwesomeAssertions;
-using EwaysVNext.Core.Application.FileTypeDetection;
-using EwaysVNext.Core.Implementation.FileTypeDetection;
-using EwaysVNext.Host.Seeding;
+using Mkbj.Core.Application.FileTypeDetection;
+using Mkbj.Core.Implementation.FileTypeDetection;
+using Mkbj.Host.Seeding;
 using Microsoft.Extensions.Hosting;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Seeding;
+namespace Mkbj.UnitTests.Seeding;
 
 /// <summary>
 /// The demo catalogue's guard rails. The data is fictitious on purpose and the guard exists so
@@ -120,8 +120,8 @@ public sealed class DemoCatalogDataTests
         foreach (var gtin in DemoCatalogData.Products.Select(product => product.Gtin))
         {
             FluentActions.Invoking(() =>
-                    EwaysVNext.Modules.Catalog.Application.Products.Domain.ProductIdentifier.Normalize(
-                        EwaysVNext.Modules.Catalog.Application.Products.Domain.ProductIdentifierType.Gtin,
+                    Mkbj.Modules.Catalog.Application.Products.Domain.ProductIdentifier.Normalize(
+                        Mkbj.Modules.Catalog.Application.Products.Domain.ProductIdentifierType.Gtin,
                         gtin, null))
                 .Should().NotThrow(gtin);
         }

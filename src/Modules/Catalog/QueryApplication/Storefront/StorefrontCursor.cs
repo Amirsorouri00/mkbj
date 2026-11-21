@@ -2,7 +2,7 @@ using System.Buffers.Text;
 using System.Text;
 using System.Text.Json;
 
-namespace EwaysVNext.Modules.Catalog.QueryApplication.Storefront;
+namespace Mkbj.Modules.Catalog.QueryApplication.Storefront;
 
 public enum StorefrontSort
 {

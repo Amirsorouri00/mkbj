@@ -1,8 +1,8 @@
-﻿using EwaysVNext.Jobs.Implementation;
+using Mkbj.Jobs.Implementation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EwaysVNext.Database.Jobs.Configurations;
+namespace Mkbj.Database.Jobs.Configurations;
 
 internal sealed class RecurringJobRecordConfiguration : IEntityTypeConfiguration<RecurringJobRecord>
 {

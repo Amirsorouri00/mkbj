@@ -1,10 +1,10 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace EwaysVNext.Persistence.Audit;
+namespace Mkbj.Persistence.Audit;
 
 public sealed class AuditInterceptor(IUserProfileService userProfile, IClock clock) : SaveChangesInterceptor
 {

@@ -1,7 +1,7 @@
 using System.Globalization;
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Sales.Application.Domain.Carts;
+namespace Mkbj.Modules.Sales.Application.Domain.Carts;
 
 /// <summary>
 /// One website customer's cart, holding the prices they were shown.

@@ -1,13 +1,13 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Core.Implementation;
-using EwaysVNext.Presentation.Endpoint;
+using AwesomeAssertions;
+using Mkbj.Core.Application;
+using Mkbj.Core.Implementation;
+using Mkbj.Presentation.Endpoint;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 /// <summary>
 /// Every response carries a correlation id (spec §6.3). An id supplied by the caller is echoed so

@@ -1,7 +1,7 @@
-using EwaysVNext.Core.Application;
+using Mkbj.Core.Application;
 using Microsoft.AspNetCore.Authorization;
 
-namespace EwaysVNext.Presentation.Endpoint.Security;
+namespace Mkbj.Presentation.Endpoint.Security;
 
 /// <summary>One partner scope an endpoint requires.</summary>
 public sealed record PartnerScopeRequirement(string Scope) : IAuthorizationRequirement;

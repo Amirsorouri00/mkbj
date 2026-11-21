@@ -1,6 +1,6 @@
 using AuthorizationService.Application.Roles.Requests;
 using AuthorizationService.Application.Roles.Responses;
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
 namespace AuthorizationService.Application.Roles;
 

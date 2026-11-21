@@ -1,15 +1,15 @@
-﻿using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.QueryApplication.Abstractions.AttributeBlueprints;
-using EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
+using Mkbj.Modules.Catalog.QueryApplication.Abstractions.AttributeBlueprints;
+using Mkbj.Modules.Catalog.QueryApplication.AttributeBlueprints;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Queries.Application.Paginations;
 using AuthorizationService.Abstractions.Attributes;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
 
 [ExtendObjectType(typeof(Query))]
 public sealed class AttributeBlueprintQueries

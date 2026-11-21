@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Common;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Common;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 /// <summary>
 /// The canonical key is how two spellings of one thing are recognised as the same thing — across

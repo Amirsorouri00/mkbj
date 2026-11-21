@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Partners.Application.Partners.Domain;
+namespace Mkbj.Modules.Partners.Application.Partners.Domain;
 
 /// <summary>
 /// One issued credential. A child of <see cref="Partner"/>: every state change goes through the

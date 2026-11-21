@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.QueryApplication.Abstractions.AttributeBlueprints;
-using EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Modules.Catalog.QueryApplication.Abstractions.AttributeBlueprints;
+using Mkbj.Modules.Catalog.QueryApplication.AttributeBlueprints;
 
-namespace EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Services;
+namespace Mkbj.Modules.Catalog.Application.AttributeBlueprints.Services;
 
 public sealed class MeasurementUnitQueryService(IMeasurementUnitRepository repository) : IMeasurementUnitQueryService
 {

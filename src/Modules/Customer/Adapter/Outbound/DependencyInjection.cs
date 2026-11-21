@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Customer.Adapter.Outbound.Persistence;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Outbound;
+using Mkbj.Modules.Customer.Adapter.Outbound.Persistence;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Outbound;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Customer.Adapter.Outbound;
+namespace Mkbj.Modules.Customer.Adapter.Outbound;
 
 public static class DependencyInjection
 {

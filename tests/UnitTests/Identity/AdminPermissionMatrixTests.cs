@@ -6,12 +6,12 @@ using AuthorizationService.Implementation.Persistence;
 using AuthorizationService.Implementation.Seeding;
 using AuthorizationService.Implementation.Services;
 using AwesomeAssertions;
-using EwaysVNext.Core.Application.Security;
+using Mkbj.Core.Application.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Identity;
+namespace Mkbj.UnitTests.Identity;
 
 /// <summary>
 /// The spec §6.1 matrix as an executable table. Staff run the shop day to day; a super admin
@@ -38,7 +38,7 @@ public sealed class AdminPermissionMatrixTests : IDisposable
     {
         var user = new ClaimsPrincipal(new ClaimsIdentity(
             [
-                new Claim(EwaysClaimTypes.Tenant, tenant),
+                new Claim(MkbjClaimTypes.Tenant, tenant),
                 new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.Role, role),
             ],

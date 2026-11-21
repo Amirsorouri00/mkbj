@@ -1,7 +1,7 @@
 using System.Globalization;
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies;
+namespace Mkbj.Modules.Sourcing.Application.Domain.SourcePolicies;
 
 /// <summary>
 /// One host, reduced to the form two URLs for the same site agree on.

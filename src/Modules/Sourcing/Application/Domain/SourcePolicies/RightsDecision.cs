@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies;
+namespace Mkbj.Modules.Sourcing.Application.Domain.SourcePolicies;
 
 /// <summary>What the seller is entitled to do with one source's material.</summary>
 public enum RightsStatus

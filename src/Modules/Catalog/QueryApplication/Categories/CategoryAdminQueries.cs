@@ -1,13 +1,13 @@
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Catalog.Contracts.Categories;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Outcomes;
 using Microsoft.EntityFrameworkCore;
-using EwaysVNext.Database;
+using Mkbj.Database;
 
-namespace EwaysVNext.Modules.Catalog.QueryApplication.Categories;
+namespace Mkbj.Modules.Catalog.QueryApplication.Categories;
 
 /// <summary>Administrative projections deliberately include inactive and soft-deleted categories.</summary>
-public sealed class CategoryAdminQueries(EwaysVNextDbContext db) : ICategoryAdminQueries
+public sealed class CategoryAdminQueries(MkbjDbContext db) : ICategoryAdminQueries
 {
     public IQueryable<CategoryAdminDto> Search(CategoryAdminFilterDto? filter)
     {

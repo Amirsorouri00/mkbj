@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
+namespace Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
 
 /// <summary>
 /// Where product images live. Narrower than the storage port on purpose: the catalogue names

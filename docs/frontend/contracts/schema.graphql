@@ -1,0 +1,1962 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+"""
+The storefront over GraphQL — the same queries the REST shop serves, for a client that would
+rather ask for a page in one round trip.
+"""
+type Query {
+  categoryAttributeAssignments(categoryId: Long!): [CategoryAttributeAssignmentSnapshot!]!
+    @cost(weight: "10")
+  categoryAttributeAdminRows(categoryId: Long!): [CategoryAttributeAssignmentAdminRow!]!
+    @cost(weight: "10")
+  effectiveCategoryAttributes(categoryId: Long!): [EffectiveCategoryAttributeSnapshot!]!
+    @cost(weight: "10")
+  adminProducts(
+    q: String
+    status: ProductStatus
+    brandId: ID
+    categoryId: ID
+    page: Int!
+    pageSize: Int!
+  ): PaginatedQueryOfProductAdminRowDto! @cost(weight: "10")
+  adminProduct(id: ID!): ProductAdminDetailDto! @cost(weight: "10")
+  adminBrands(search: String, page: Int!, pageSize: Int!): PaginatedQueryOfBrandAdminRow!
+    @cost(weight: "10")
+  categories(
+    filter: CategoryAdminFilterDtoInput
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the last _n_ elements from the list."
+    last: Int
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+  ): CategoriesConnection
+    @listSize(
+      assumedSize: 100
+      slicingArguments: ["first", "last"]
+      slicingArgumentDefaultValue: 10
+      sizedFields: ["edges", "nodes"]
+      requireOneSlicingArgument: false
+    )
+    @cost(weight: "10")
+  category(id: ID!): CategoryAdminDto! @cost(weight: "10")
+  categoryParent(categoryId: ID!): CategoryAdminDto @cost(weight: "10")
+  categoryDescendants(categoryId: ID!): [CategoryAdminTreeNodeDto!]!
+    @cost(weight: "10")
+  categoryChildren(parentId: ID): [CategoryAdminDto!]! @cost(weight: "10")
+  categoryHierarchy: [CategoryAdminTreeNodeDto!]! @cost(weight: "10")
+  categoryProducts(
+    categoryId: ID!
+    "Returns the first _n_ elements from the list."
+    first: Int
+    "Returns the elements in the list that come after the specified cursor."
+    after: String
+    "Returns the last _n_ elements from the list."
+    last: Int
+    "Returns the elements in the list that come before the specified cursor."
+    before: String
+  ): CategoryProductsConnection
+    @listSize(
+      assumedSize: 100
+      slicingArguments: ["first", "last"]
+      slicingArgumentDefaultValue: 10
+      sizedFields: ["edges", "nodes"]
+      requireOneSlicingArgument: false
+    )
+    @cost(weight: "10")
+  attributeBlueprints(
+    page: Int!
+    pageSize: Int!
+    includeDeleted: Boolean!
+    filter: AttributeBlueprintFilterInput
+  ): PaginatedQueryOfAttributeBlueprintSnapshot! @cost(weight: "10")
+  attributeBlueprint(id: ID!): AttributeBlueprintSnapshot! @cost(weight: "10")
+  attributeBlueprintUsage(id: ID!): AttributeBlueprintUsageSnapshot!
+    @cost(weight: "10")
+  measurementUnits: [MeasurementUnitSnapshot!]! @cost(weight: "10")
+  shopHome(currency: String!): HomeDto! @cost(weight: "10")
+  shopCategories: [CategoryTreeNodeDto!]! @cost(weight: "10")
+  shopProducts(
+    currency: String!
+    filter: ShopProductFilterInput
+    sort: StorefrontSort
+    after: String
+    first: Int
+  ): ProductPageDto! @cost(weight: "10")
+  shopFacets(currency: String!, categoryId: ID): FacetSetDto!
+    @cost(weight: "10")
+  shopProduct(slug: String!, currency: String!): ProductDetailDto!
+    @cost(weight: "10")
+  shopSearch(q: String!, currency: String!, after: String, first: Int): ProductPageDto!
+    @cost(weight: "10")
+  """
+  Anonymous, like its REST twin: a storefront asks which currencies exist before a visitor
+  has done anything, and requiring a token would make every page load wait on
+  authentication it does not need.
+  """
+  currencies: [CurrencyDto!]! @cost(weight: "10")
+  adminVariantPrice(variantId: ID!): VariantPriceAdminDto! @cost(weight: "10")
+  adminFxRates(quote: String, page: Int!, pageSize: Int!): PaginatedQueryOfFxRateDto!
+    @cost(weight: "10")
+  adminFxOverrides(activeOnly: Boolean!): [FxOverrideDto!]! @cost(weight: "10")
+  adminCurrencies: [CurrencyAdminDto!]! @cost(weight: "10")
+  me: CustomerProfileView! @cost(weight: "10")
+  adminCustomers(filter: AdminCustomerListInput): PaginatedQueryOfCustomerAdminListItem!
+    @cost(weight: "10")
+  adminCustomer(id: Long!): CustomerAdminDetail! @cost(weight: "10")
+  adminPartners(page: Int, pageSize: Int): PaginatedQueryOfPartnerListItem!
+    @cost(weight: "10")
+  adminPartner(id: Long!): PartnerDetail! @cost(weight: "10")
+  adminPartnerUsage(
+    id: Long!
+    from: DateTime
+    to: DateTime
+    page: Int
+    pageSize: Int
+  ): PaginatedQueryOfApiKeyUsageItem! @cost(weight: "10")
+  adminSeller: SellerView! @cost(weight: "10")
+  adminPaymentInstructions: [PaymentInstructionVersionView!]!
+    @cost(weight: "10")
+  adminCommerceLimits: CommerceLimitsView! @cost(weight: "10")
+  cart: CartGraph! @cost(weight: "10")
+  myOrders(cursor: ID, limit: Int! = 20): CursorPageOfShopOrderDto!
+    @cost(weight: "10")
+  order(id: ID!): ShopOrderDto! @cost(weight: "10")
+  documentPdfUrl(documentId: ID!): String! @cost(weight: "10")
+  adminOrders(filter: AdminOrderFilterInput): CursorPageOfAdminOrderListItemDto!
+    @cost(weight: "10")
+  adminOrder(id: Long!): AdminOrderDetailDto! @cost(weight: "10")
+  adminDashboard: AdminDashboard! @cost(weight: "10")
+  adminCustomer360(customerId: Long!, recentOrders: Int! = 20): Customer360!
+    @cost(weight: "10")
+  adminOrder360(orderId: Long!): Order360! @cost(weight: "10")
+  adminAuditVerification: AuditVerificationView! @cost(weight: "10")
+  permissions: [PermissionDto!]! @cost(weight: "10")
+  permission(id: UUID!): PermissionDto @cost(weight: "10")
+  permissionByCode(code: String!): PermissionDto @cost(weight: "10")
+  roles: [RoleDto!]! @cost(weight: "10")
+  scopes: [ScopeDto!]! @cost(weight: "10")
+  userRoleScopesForUser(userId: UUID!): [UserRoleScopeDto!]! @cost(weight: "10")
+}
+
+"The administrator's acts on an order, over GraphQL."
+type Mutation {
+  assignCategoryAttribute(
+    categoryId: Long!
+    attributeBlueprintId: Long!
+    isRequired: Boolean!
+    isFilterable: Boolean!
+    isSearchable: Boolean!
+    isInTitle: Boolean!
+    titleOrder: Int
+    isPrimary: Boolean!
+    isVariantGenerating: Boolean!
+  ): CategoryAttributeAssignmentSnapshot! @cost(weight: "10")
+  unassignCategoryAttribute(assignmentId: Long!): CategoryAttributeAssignmentSnapshot!
+    @cost(weight: "10")
+  setCategoryAttributeRequired(assignmentId: Long!, isRequired: Boolean!): CategoryAttributeAssignmentSnapshot!
+    @cost(weight: "10")
+  setCategoryAttributeFilterable(assignmentId: Long!, isFilterable: Boolean!): CategoryAttributeAssignmentSnapshot!
+    @cost(weight: "10")
+  setCategoryAttributeSearchable(assignmentId: Long!, isSearchable: Boolean!): CategoryAttributeAssignmentSnapshot!
+    @cost(weight: "10")
+  setCategoryAttributeTitleConfiguration(
+    assignmentId: Long!
+    isInTitle: Boolean!
+    titleOrder: Int
+  ): CategoryAttributeAssignmentSnapshot! @cost(weight: "10")
+  reorderCategoryAttribute(assignmentId: Long!, titleOrder: Int!): CategoryAttributeAssignmentSnapshot!
+    @cost(weight: "10")
+  setCategoryAttributePrimary(assignmentId: Long!, isPrimary: Boolean!): CategoryAttributeAssignmentSnapshot!
+    @cost(weight: "10")
+  setCategoryAttributeVariantGenerating(
+    assignmentId: Long!
+    isVariantGenerating: Boolean!
+  ): CategoryAttributeAssignmentSnapshot! @cost(weight: "10")
+  excludeInheritedCategoryAttribute(
+    categoryId: Long!
+    sourceAssignmentId: Long!
+  ): CategoryAttributeExclusionSnapshot! @cost(weight: "10")
+  includeInheritedCategoryAttribute(
+    categoryId: Long!
+    sourceAssignmentId: Long!
+  ): CategoryAttributeExclusionSnapshot! @cost(weight: "10")
+  setCategoryAttributeExclusions(
+    categoryId: Long!
+    excludedSourceAssignmentIds: [Long!]!
+  ): [CategoryAttributeExclusionSnapshot!]! @cost(weight: "10")
+  createProduct(input: CreateProductInput!): ProductAdminDetailDto!
+    @cost(weight: "10")
+  updateProduct(input: UpdateProductInput!): ProductAdminDetailDto!
+    @cost(weight: "10")
+  setProductSecondaryCategories(input: SetProductSecondaryCategoriesInput!): ProductAdminDetailDto!
+    @cost(weight: "10")
+  addVariant(input: AddVariantInput!): ProductAdminDetailDto!
+    @cost(weight: "10")
+  setVariantActive(input: SetVariantActiveInput!): ProductAdminDetailDto!
+    @cost(weight: "10")
+  addProductIdentifier(input: AddProductIdentifierInput!): ProductAdminDetailDto!
+    @cost(weight: "10")
+  removeProductIdentifier(input: RemoveProductIdentifierInput!): ProductAdminDetailDto!
+    @cost(weight: "10")
+  setProductActive(input: SetProductActiveInput!): ProductAdminDetailDto!
+    @cost(weight: "10")
+  uploadProductMedia(input: UploadProductMediaInput!): ProductAdminDetailDto!
+    @cost(weight: "10")
+  removeProductMedia(input: RemoveProductMediaInput!): ProductAdminDetailDto!
+    @cost(weight: "10")
+  bulkEditProducts(input: BulkEditProductsInput!): BulkEditResult!
+    @cost(weight: "10")
+  mergeDuplicateProduct(input: MergeDuplicateProductInput!): ProductAdminDetailDto!
+    @cost(weight: "10")
+  createBrand(displayName: String!, aliases: [String!]): ID! @cost(weight: "10")
+  renameBrand(brandId: ID!, displayName: String!): Boolean! @cost(weight: "10")
+  setBrandAliases(brandId: ID!, aliases: [String!]!): Boolean!
+    @cost(weight: "10")
+  setBrandActive(brandId: ID!, active: Boolean!): Boolean! @cost(weight: "10")
+  createCategory(input: CreateCategoryInput!): ID! @cost(weight: "10")
+  updateCategory(input: UpdateCategoryInput!): CategoryAdminDto!
+    @cost(weight: "10")
+  setCategoryStatus(input: SetCategoryStatusInput!): CategoryAdminDto!
+    @cost(weight: "10")
+  moveCategory(input: MoveCategoryInput!): Boolean! @cost(weight: "10")
+  deactivateCategories(input: BulkDeactivateCategoriesInput!): Boolean!
+    @cost(weight: "10")
+  deleteCategory(input: CategoryIdInput!): Boolean! @cost(weight: "10")
+  assignCategoryProduct(input: AssignCategoryProductInput!): Boolean!
+    @cost(weight: "10")
+  unassignCategoryProduct(input: UnassignCategoryProductInput!): Boolean!
+    @cost(weight: "10")
+  createAttributeBlueprint(input: CreateAttributeBlueprintInput!): ID!
+    @cost(weight: "10")
+  updateAttributeBlueprint(input: UpdateAttributeBlueprintInput!): Boolean!
+    @cost(weight: "10")
+  addAttributeBlueprintOption(input: AddAttributeBlueprintOptionInput!): ID!
+    @cost(weight: "10")
+  updateAttributeBlueprintOption(input: UpdateAttributeBlueprintOptionInput!): Boolean!
+    @cost(weight: "10")
+  removeAttributeBlueprintOption(attributeBlueprintId: ID!, optionId: ID!): Boolean!
+    @cost(weight: "10")
+  renameAttributeBlueprint(attributeBlueprintId: Long!, newName: String!): Boolean!
+    @cost(weight: "10")
+  changeAttributeBlueprintDataType(
+    attributeBlueprintId: Long!
+    dataType: AttributeBlueprintDataType!
+  ): Boolean! @cost(weight: "10")
+  setAttributeBlueprintStatus(attributeBlueprintId: Long!, isActive: Boolean!): Boolean!
+    @cost(weight: "10")
+  setAttributeBlueprintArchiveStatus(
+    attributeBlueprintId: Long!
+    isArchived: Boolean!
+  ): Boolean! @cost(weight: "10")
+  setAttributeBlueprintScope(input: SetAttributeBlueprintScopeInput!): Boolean!
+    @cost(weight: "10")
+  setAttributeBlueprintAliases(input: SetAttributeBlueprintAliasesInput!): Boolean!
+    @cost(weight: "10")
+  setAttributeBlueprintUnit(input: SetAttributeBlueprintUnitInput!): Boolean!
+    @cost(weight: "10")
+  deleteAttributeBlueprint(attributeBlueprintId: Long!): Boolean!
+    @cost(weight: "10")
+  setVariantPrice(input: SetVariantPriceInput!): Boolean! @cost(weight: "10")
+  setCurrencyOverride(input: SetCurrencyOverrideInput!): Boolean!
+    @cost(weight: "10")
+  removeCurrencyOverride(input: RemoveCurrencyOverrideInput!): Boolean!
+    @cost(weight: "10")
+  setFxOverride(input: SetFxOverrideInput!): ID! @cost(weight: "10")
+  clearFxOverride(input: ClearFxOverrideInput!): Boolean! @cost(weight: "10")
+  setCurrencyEnabled(input: SetCurrencyEnabledInput!): Boolean!
+    @cost(weight: "10")
+  requestFxRefresh: Boolean! @cost(weight: "10")
+  updateProfile(input: UpdateProfileInput!): CustomerProfileView!
+    @cost(weight: "10")
+  suspendCustomer(id: Long!): Boolean! @cost(weight: "10")
+  reactivateCustomer(id: Long!): Boolean! @cost(weight: "10")
+  createPartner(
+    name: String!
+    scopes: [String!]!
+    rateLimitPerMinute: Int
+    bulkMaxItems: Int
+  ): Long! @cost(weight: "10")
+  suspendPartner(id: Long!): Boolean! @cost(weight: "10")
+  reactivatePartner(id: Long!): Boolean! @cost(weight: "10")
+  setPartnerScopes(id: Long!, scopes: [String!]!): Boolean! @cost(weight: "10")
+  setPartnerLimits(id: Long!, rateLimitPerMinute: Int!, bulkMaxItems: Int!): Boolean!
+    @cost(weight: "10")
+  issuePartnerApiKey(id: Long!, scopes: [String!], expiresAt: DateTime): IssuedApiKeyPayload!
+    @cost(weight: "10")
+  rotatePartnerApiKey(id: Long!, keyId: Long!, overlapHours: Float): IssuedApiKeyPayload!
+    @cost(weight: "10")
+  revokePartnerApiKey(id: Long!, keyId: Long!): Boolean! @cost(weight: "10")
+  updateSeller(
+    legalName: String!
+    uen: String!
+    address: String!
+    email: String!
+    gstRegistered: Boolean!
+    invoiceFooter: String!
+    requiredBuyerFields: [String!]!
+  ): Boolean! @cost(weight: "10")
+  publishPaymentInstruction(text: String!): Int! @cost(weight: "10")
+  activatePaymentInstruction(version: Int!): Boolean! @cost(weight: "10")
+  """
+  Amounts arrive as two-decimal strings here too. The same reasoning as REST applies and,
+  more sharply: GraphQL has no decimal scalar, so a Float would make rounding the client's
+  problem on every request.
+  """
+  updateCommerceLimits(
+    minUsd: String!
+    maxUsd: String!
+    bulkDefaultMax: Int!
+    compositionDeadlineMs: Int!
+    compositionMaxLines: Int!
+  ): Boolean! @cost(weight: "10")
+  addToCart(input: AddToCartInput!): CartGraph! @cost(weight: "10")
+  updateCartLine(input: UpdateCartLineInput!): CartGraph! @cost(weight: "10")
+  removeCartLine(input: RemoveCartLineInput!): CartGraph! @cost(weight: "10")
+  setCartCurrency(input: SetCartCurrencyInput!): CartGraph! @cost(weight: "10")
+  checkout(input: CheckoutInput!): CheckoutPayload! @cost(weight: "10")
+  confirmOrderPayment(input: ConfirmOrderPaymentInput!): AdminOrderDetailDto!
+    @cost(weight: "10")
+  cancelOrder(input: CancelOrderInput!): AdminOrderDetailDto!
+    @cost(weight: "10")
+  refundOrder(input: RefundOrderInput!): AdminOrderDetailDto!
+    @cost(weight: "10")
+  createPermission(input: CreatePermissionInput!): CreatePermissionPayload!
+    @cost(weight: "10")
+  updatePermission(input: UpdatePermissionInput!): UpdatePermissionPayload!
+    @cost(weight: "10")
+  deletePermission(input: DeletePermissionInput!): DeletePermissionPayload!
+    @cost(weight: "10")
+  createRole(input: CreateRoleInput!): CreateRolePayload! @cost(weight: "10")
+  updateRole(input: UpdateRoleInput!): UpdateRolePayload! @cost(weight: "10")
+  deleteRole(input: DeleteRoleInput!): DeleteRolePayload! @cost(weight: "10")
+  createScope(input: CreateScopeInput!): CreateScopePayload! @cost(weight: "10")
+  updateScope(input: UpdateScopeInput!): UpdateScopePayload! @cost(weight: "10")
+  deleteScope(input: DeleteScopeInput!): DeleteScopePayload! @cost(weight: "10")
+  bootstrapAdmin(input: BootstrapAdminInput!): BootstrapAdminPayload!
+    @cost(weight: "10")
+  assignUserRoleScope(input: AssignUserRoleScopeInput!): AssignUserRoleScopePayload!
+    @cost(weight: "10")
+  removeUserRoleScope(input: RemoveUserRoleScopeInput!): RemoveUserRoleScopePayload!
+    @cost(weight: "10")
+}
+
+type AddressSnapshot {
+  line1: String!
+  line2: String
+  city: String!
+  postalCode: String!
+  countryIso2: String!
+}
+
+type AddressView {
+  line1: String!
+  line2: String
+  city: String!
+  postalCode: String!
+  countryIso2: String!
+}
+
+type AdminCompositionTraceDto {
+  seed: Long!
+  strategyVersion: String!
+  iterations: Int!
+  durationMs: Long!
+  candidatePoolSize: Int!
+  attempts: Any!
+}
+
+type AdminDashboard {
+  generatedAt: DateTime!
+  sales: SalesSnapshot!
+  imports: ImportSnapshot!
+  recentFailureCodes: [FailureCodeCount!]!
+}
+
+type AdminOrderDetailDto {
+  summary: AdminOrderListItemDto!
+  externalCustomerId: String
+  usdEquivalentMinor: Long!
+  correlationId: String!
+  buyer: Any!
+  lines: [OrderLineDto!]!
+  payments: [AdminPaymentDto!]!
+  documents: [DocumentDto!]!
+  refunds: [AdminRefundDto!]!
+  compositionTrace: AdminCompositionTraceDto
+}
+
+type AdminOrderListItemDto {
+  id: Long!
+  number: String!
+  channel: String!
+  partnerId: Long
+  externalOrderId: String
+  customerId: Long!
+  currency: String!
+  totalMinor: Long!
+  refundedMinor: Long!
+  status: OrderStatusDto!
+  createdAt: DateTime!
+}
+
+type AdminPaymentDto {
+  id: Long!
+  source: String!
+  method: String
+  reference: String
+  verifiedBy: UUID
+  recordedAt: DateTime!
+  amountMinor: Long!
+}
+
+type AdminRefundDto {
+  id: Long!
+  amountMinor: Long!
+  reason: String!
+  recordedBy: UUID!
+  recordedAt: DateTime!
+  externalReference: String
+  creditNoteDocumentId: Long!
+}
+
+type ApiKeyUsageItem {
+  keyId: Long!
+  at: DateTime!
+  method: String!
+  path: String!
+  status: Int!
+  correlationId: String!
+  durationMs: Int!
+}
+
+"""
+A key as an admin sees it. Carries the prefix, never the secret or its hash — there is nothing
+stored that could reconstruct the key, and this shape is the reason it stays that way.
+
+Status is derived at read time from RevokedAt, ExpiresAt and the current
+moment rather than stored: a stored status would need a job to turn keys Expired on a schedule
+and would be wrong in between runs.
+
+
+LastUsedAt is the newest usage row for this key, or null if it has never been used.
+Derived rather than written on the authentication path, which would turn a read into a write
+on a row every concurrent request for that key shares.
+"""
+type ApiKeyView {
+  id: Long!
+  prefix: String!
+  scopes: [String!]!
+  createdAt: DateTime!
+  expiresAt: DateTime
+  revokedAt: DateTime
+  status: String!
+  lastUsedAt: DateTime
+}
+
+type AssignUserRoleScopePayload {
+  assignment: UserRoleScopeDto!
+}
+
+type AttributeBlueprintOptionSnapshot {
+  id: ID!
+  measurementUnitId: ID
+  value: String!
+}
+
+type AttributeBlueprintSnapshot {
+  id: ID!
+  scopeCategoryId: ID
+  unitId: ID
+  name: String!
+  canonicalKey: String!
+  dataType: String!
+  status: String!
+  scope: String!
+  aliases: [String!]!
+  deletedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime
+  options: [AttributeBlueprintOptionSnapshot!]!
+}
+
+type AttributeBlueprintUsageSnapshot {
+  attributeBlueprintId: Long!
+  productValueCount: Int!
+  categoryMappingCount: Int!
+  canChangeDataType: Boolean!
+  canDelete: Boolean!
+}
+
+type AuditVerificationView {
+  intact: Boolean!
+  sealedCount: Long!
+  firstMismatchEventId: Long
+  unsealedBelowWatermark: Long!
+  verifiedAt: DateTime!
+}
+
+type BootstrapAdminPayload {
+  assignment: UserRoleScopeDto!
+}
+
+"""
+A brand as the admin list shows it. Aliases are included because they are the whole reason a
+name an admin wants may already be taken, and the list is where they find out why.
+"""
+type BrandAdminRow {
+  id: Long!
+  canonicalName: String!
+  displayName: String!
+  provenance: String!
+  isActive: Boolean!
+  aliases: [String!]!
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+"""
+Per-item outcomes rather than one verdict: a bulk edit where one product cannot go active is
+a normal day, and failing all 500 because of it would make the feature useless.
+"""
+type BulkEditResult {
+  items: [BulkItemOutcome!]!
+}
+
+type BulkItemOutcome {
+  productId: Long!
+  succeeded: Boolean!
+  errorCode: String
+}
+
+type CartChangeGraph {
+  variantId: ID!
+  kind: String!
+  oldUnitPrice: String
+  newUnitPrice: String
+}
+
+type CartGraph {
+  currency: String!
+  lines: [CartLineGraph!]!
+  total: MoneyGraph!
+  changes: [CartChangeGraph!]!
+}
+
+type CartLineGraph {
+  variantId: ID!
+  sku: String!
+  productTitle: String!
+  quantity: Int!
+  unitPrice: MoneyGraph!
+  lineTotal: MoneyGraph!
+}
+
+"A connection to a list of items."
+type CategoriesConnection {
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+  "A list of edges."
+  edges: [CategoriesEdge!]
+  "A flattened list of the nodes."
+  nodes: [CategoryAdminDto!]
+  "Identifies the total count of items in the connection."
+  totalCount: Int! @cost(weight: "10")
+}
+
+"An edge in a connection."
+type CategoriesEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: CategoryAdminDto!
+}
+
+type CategoryAdminDto {
+  id: ID!
+  parentId: ID
+  name: String!
+  slug: String!
+  description: String
+  displayOrder: Int!
+  status: CategoryStatus!
+  parent: CategoryAdminParentDto
+  childCount: Int!
+}
+
+type CategoryAdminParentDto {
+  id: ID!
+  name: String!
+}
+
+type CategoryAdminTreeNodeDto {
+  id: ID!
+  parentId: ID
+  name: String!
+  slug: String!
+  description: String
+  displayOrder: Int!
+  status: CategoryStatus!
+  children: [CategoryAdminTreeNodeDto!]!
+}
+
+type CategoryAttributeAssignmentAdminRow {
+  id: Long!
+  categoryId: Long!
+  attributeBlueprintId: Long!
+  isRequired: Boolean!
+  isFilterable: Boolean!
+  isSearchable: Boolean!
+  isInTitle: Boolean!
+  titleOrder: Int
+  isPrimary: Boolean!
+  isVariantGenerating: Boolean!
+  priorityGroup: CategoryAttributePriorityGroup!
+}
+
+type CategoryAttributeAssignmentSnapshot {
+  id: Long!
+  categoryId: Long!
+  attributeBlueprintId: Long!
+  isRequired: Boolean!
+  isFilterable: Boolean!
+  isSearchable: Boolean!
+  isInTitle: Boolean!
+  titleOrder: Int
+  isPrimary: Boolean!
+  isVariantGenerating: Boolean!
+  isRemoved: Boolean!
+}
+
+type CategoryAttributeExclusionSnapshot {
+  categoryId: Long!
+  sourceAssignmentId: Long!
+  isExcluded: Boolean!
+}
+
+type CategoryCrumbDto {
+  categoryId: ID!
+  name: String!
+  slug: String!
+}
+
+"A connection to a list of items."
+type CategoryProductsConnection {
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+  "A list of edges."
+  edges: [CategoryProductsEdge!]
+  "A flattened list of the nodes."
+  nodes: [ID]
+  "Identifies the total count of items in the connection."
+  totalCount: Int! @cost(weight: "10")
+}
+
+"An edge in a connection."
+type CategoryProductsEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: ID
+}
+
+type CategoryTileDto {
+  categoryId: ID!
+  name: String!
+  slug: String!
+  productCount: Long!
+}
+
+type CategoryTreeNodeDto {
+  id: ID!
+  parentId: ID
+  name: String!
+  slug: String!
+  description: String
+  displayOrder: Int!
+  children: [CategoryTreeNodeDto!]!
+}
+
+type CheckoutPayload {
+  order: ShopOrderDto
+  priceChanged: CartGraph
+  code: String
+}
+
+"""
+Amounts are two-decimal strings on the wire, not numbers: JSON numbers are doubles in most
+clients, and a price that arrives as 24.999999999999996 is a rounding argument nobody wins.
+"""
+type CommerceLimitsView {
+  minUsd: String!
+  maxUsd: String!
+  bulkDefaultMax: Int!
+  compositionDeadlineMs: Int!
+  compositionMaxLines: Int!
+}
+
+type CompositionFailure {
+  at: DateTime!
+  errorCode: String!
+  currency: String!
+  targetMinor: Long!
+  durationMs: Long!
+  partnerId: Long
+}
+
+type CompositionWindow {
+  window: String!
+  attempts: Int!
+  succeeded: Int!
+  successRate: Decimal!
+  p95DurationMs: Long
+}
+
+type ContactChangeEntry {
+  field: String!
+  oldValue: String
+  newValue: String
+  changedAt: DateTime!
+  sourcePartnerId: Long
+  correlationId: String!
+}
+
+type ContactChangeView {
+  field: String!
+  oldValue: String
+  newValue: String
+  changedAt: DateTime!
+  sourcePartnerId: Long
+  correlationId: String!
+}
+
+type CreatePermissionPayload {
+  permission: PermissionDto!
+}
+
+type CreateRolePayload {
+  role: RoleDto!
+}
+
+type CreateScopePayload {
+  scope: ScopeDto!
+}
+
+type CurrencyAdminDto {
+  id: Long!
+  code: String!
+  minorUnits: Int!
+  isEnabled: Boolean!
+}
+
+type CurrencyAmount {
+  currency: String!
+  amountMinor: Long!
+}
+
+type CurrencyDto {
+  code: String!
+  minorUnits: Int!
+}
+
+type CurrencyOverrideDto {
+  currency: String!
+  amountMinor: Long!
+  priceList: String!
+}
+
+type CursorPageOfAdminOrderListItemDto {
+  items: [AdminOrderListItemDto!]!
+  nextCursor: Long
+}
+
+type CursorPageOfShopOrderDto {
+  nextCursor: ID
+  items: [ShopOrderDto!]!
+}
+
+type Customer360 {
+  customer: CustomerProfile!
+  recentOrders: [OrderRow!]!
+}
+
+type CustomerAdminDetail {
+  customer: CustomerAdminListItem!
+  emailVerified: Boolean!
+  billingAddress: AddressSnapshot
+  registrationNumber: String
+  identityUserId: UUID
+  contactHistory: [ContactChangeView!]!
+}
+
+type CustomerAdminListItem {
+  id: Long!
+  kind: String!
+  partnerId: Long
+  externalCustomerId: String
+  email: String
+  phone: String
+  fullName: String
+  companyName: String
+  status: String!
+  createdAt: DateTime!
+}
+
+type CustomerProfile {
+  id: Long!
+  kind: String!
+  partnerId: Long
+  externalCustomerId: String
+  email: String
+  phone: String
+  fullName: String
+  companyName: String
+  status: String!
+  emailVerified: Boolean!
+  billingAddress: AddressView
+  registrationNumber: String
+  createdAt: DateTime!
+  contactHistory: [ContactChangeEntry!]!
+}
+
+"""
+A customer's own view of themselves. Carries no partner fields: a website customer has none,
+and a shape that could show them would be one more place to leak a partner's data.
+"""
+type CustomerProfileView {
+  id: ID!
+  email: String
+  emailVerified: Boolean!
+  phone: String
+  fullName: String
+  companyName: String
+  billingAddress: AddressSnapshot
+  registrationNumber: String
+  status: String!
+}
+
+type DeletePermissionPayload {
+  success: Boolean!
+}
+
+type DeleteRolePayload {
+  success: Boolean!
+}
+
+type DeleteScopePayload {
+  success: Boolean!
+}
+
+type DocumentDto {
+  id: ID!
+  relatedDocumentId: ID
+  type: String!
+  number: String!
+  issuedAt: DateTime!
+  content: Any!
+}
+
+type DocumentView {
+  id: Long!
+  type: String!
+  number: String!
+  issuedAt: DateTime!
+  relatedDocumentId: Long
+  pdfPath: String!
+}
+
+type EffectiveCategoryAttributeSnapshot {
+  assignmentId: Long!
+  sourceCategoryId: Long!
+  attributeBlueprintId: Long!
+  attributeBlueprintName: String!
+  isInherited: Boolean!
+  isExcluded: Boolean!
+  isRequired: Boolean!
+  isFilterable: Boolean!
+  isSearchable: Boolean!
+  isInTitle: Boolean!
+  titleOrder: Int
+  isPrimary: Boolean!
+  isVariantGenerating: Boolean!
+}
+
+type FacetGroupDto {
+  key: String!
+  values: [FacetValueDto!]!
+}
+
+type FacetSetDto {
+  attributes: [FacetGroupDto!]!
+  brands: [FacetValueDto!]!
+  priceBuckets: [PriceBucketDto!]!
+}
+
+type FacetValueDto {
+  value: String!
+  label: String!
+  count: Long!
+}
+
+type FailureCodeCount {
+  errorCode: String!
+  count: Int!
+}
+
+type FxOverrideDto {
+  id: Long!
+  base: String!
+  quote: String!
+  rate: Decimal!
+  setBy: UUID!
+  setAt: DateTime!
+  validUntil: DateTime
+  isActive: Boolean!
+}
+
+type FxRateDto {
+  id: Long!
+  base: String!
+  quote: String!
+  rate: Decimal!
+  provider: String!
+  rateDate: LocalDate!
+  fetchedAt: DateTime!
+}
+
+type HomeDto {
+  currency: String!
+  newArrivals: [ProductCardDto!]!
+  bestSellers: [ProductCardDto!]!
+  featuredCategories: [CategoryTileDto!]!
+}
+
+type ImportSnapshot {
+  jobsQueued: Int!
+  jobsRunning: Int!
+  jobsPaused: Int!
+  jobsFailed7d: Int!
+  jobsCompleted7d: Int!
+  recordsNeedsReview: Int!
+  recordsValidUnpublished: Int!
+  recordsInvalid: Int!
+  recordsPublished7d: Int!
+}
+
+"""
+The key is here and nowhere else: this payload is the only time the plaintext exists outside
+the holder's hands, and no read ever returns it.
+"""
+type IssuedApiKeyPayload {
+  keyId: Long!
+  prefix: String!
+  key: String!
+  scopes: [String!]!
+  expiresAt: DateTime
+}
+
+type KeyValuePairOfStringAndIReadOnlyListOfString {
+  key: String!
+  value: [String!]!
+}
+
+type KeyValuePairOfStringAndString {
+  key: String!
+  value: String!
+}
+
+type MeasurementUnitSnapshot {
+  id: ID!
+  name: String!
+  symbol: String!
+}
+
+"An amount as a two-decimal string, never a number."
+type MoneyDto {
+  amount: String!
+  currency: String!
+}
+
+type MoneyGraph {
+  amount: String!
+  currency: String!
+}
+
+type Order360 {
+  order: OrderSheet!
+  customer: CustomerProfile
+}
+
+type OrderLineDto {
+  variantId: ID!
+  productId: ID!
+  unitPriceMinor: String! @cost(weight: "10")
+  lineTotalMinor: String! @cost(weight: "10")
+  referencePriceMinor: String! @cost(weight: "10")
+  lineNo: Int!
+  sku: String!
+  productTitle: String!
+  brandName: String!
+  categoryPath: [String!]!
+  attributes: [KeyValuePairOfStringAndString!]!
+  quantity: Int!
+  deviationBps: Int!
+  priceSource: String!
+}
+
+type OrderRow {
+  id: Long!
+  number: String!
+  channel: String!
+  partnerId: Long
+  externalOrderId: String
+  customerId: Long!
+  currency: String!
+  totalMinor: Long!
+  refundedMinor: Long!
+  status: OrderStatusView!
+  createdAt: DateTime!
+}
+
+type OrderSheet {
+  summary: OrderRow!
+  externalCustomerId: String
+  usdEquivalentMinor: Long!
+  correlationId: String!
+  lineCount: Int!
+  payments: [PaymentView!]!
+  documents: [DocumentView!]!
+  refunds: [RefundView!]!
+}
+
+type OrderStatusDto {
+  order: String!
+  payment: String!
+  paymentSource: String
+  fulfillment: String!
+  fulfillmentSource: String
+  fulfillmentStatement: String!
+  documents: String!
+}
+
+type OrderStatusView {
+  order: String!
+  payment: String!
+  paymentSource: String
+  fulfillment: String!
+  fulfillmentSource: String
+  fulfillmentStatement: String!
+  documents: String!
+}
+
+"Everything the backoffice reads, in Admin's own words."
+type OrderTotalsRow {
+  window: String!
+  channel: String!
+  currency: String!
+  orderCount: Int!
+  totalMinor: Long!
+}
+
+"Information about pagination in a connection."
+type PageInfo {
+  "Indicates whether more edges exist following the set defined by the clients arguments."
+  hasNextPage: Boolean!
+  "Indicates whether more edges exist prior the set defined by the clients arguments."
+  hasPreviousPage: Boolean!
+  "When paginating backwards, the cursor to continue."
+  startCursor: String
+  "When paginating forwards, the cursor to continue."
+  endCursor: String
+}
+
+type PaginatedQueryOfApiKeyUsageItem {
+  page: Int!
+  pageSize: Int!
+  pageCount: Int!
+  totalCount: Int!
+  items: [ApiKeyUsageItem!]!
+}
+
+type PaginatedQueryOfAttributeBlueprintSnapshot {
+  page: Int!
+  pageSize: Int!
+  pageCount: Int!
+  totalCount: Int!
+  items: [AttributeBlueprintSnapshot!]!
+}
+
+type PaginatedQueryOfBrandAdminRow {
+  page: Int!
+  pageSize: Int!
+  pageCount: Int!
+  totalCount: Int!
+  items: [BrandAdminRow!]!
+}
+
+type PaginatedQueryOfCustomerAdminListItem {
+  page: Int!
+  pageSize: Int!
+  pageCount: Int!
+  totalCount: Int!
+  items: [CustomerAdminListItem!]!
+}
+
+type PaginatedQueryOfFxRateDto {
+  page: Int!
+  pageSize: Int!
+  pageCount: Int!
+  totalCount: Int!
+  items: [FxRateDto!]!
+}
+
+type PaginatedQueryOfPartnerListItem {
+  page: Int!
+  pageSize: Int!
+  pageCount: Int!
+  totalCount: Int!
+  items: [PartnerListItem!]!
+}
+
+type PaginatedQueryOfProductAdminRowDto {
+  page: Int!
+  pageSize: Int!
+  pageCount: Int!
+  totalCount: Int!
+  items: [ProductAdminRowDto!]!
+}
+
+type PartnerDetail {
+  partner: PartnerListItem!
+  keys: [ApiKeyView!]!
+}
+
+type PartnerListItem {
+  id: Long!
+  name: String!
+  status: String!
+  scopes: [String!]!
+  rateLimitPerMinute: Int!
+  bulkMaxItems: Int!
+  activeKeyCount: Int!
+  createdAt: DateTime!
+}
+
+type PaymentInstructionVersionView {
+  id: Long!
+  version: Int!
+  text: String!
+  isActive: Boolean!
+  createdBy: UUID
+  createdAt: DateTime!
+}
+
+type PaymentView {
+  id: Long!
+  source: String!
+  method: String
+  reference: String
+  verifiedBy: UUID
+  recordedAt: DateTime!
+  amountMinor: Long!
+}
+
+type PendingPayments {
+  count: Int!
+  amountsByCurrency: [CurrencyAmount!]!
+  oldestCreatedAt: DateTime
+}
+
+type PermissionDto {
+  id: UUID!
+  code: String!
+  name: String!
+  description: String
+  rules: [PermissionRuleDto!]!
+}
+
+type PermissionRuleDto {
+  id: UUID!
+  roleId: UUID
+  roleCode: String
+  scopes: [PermissionRuleScopeDto!]!
+}
+
+type PermissionRuleScopeDto {
+  scopeId: UUID!
+  scopeCode: String!
+}
+
+type PriceBucketDto {
+  from: MoneyDto!
+  to: MoneyDto
+  count: Long!
+}
+
+type ProductAdminDetailDto {
+  id: ID!
+  brandId: ID!
+  primaryCategoryId: ID!
+  mergedIntoProductId: ID
+  title: String!
+  slug: String!
+  shortDescription: String
+  description: String
+  status: String!
+  deactivatedByAdmin: Boolean!
+  brandName: String!
+  primaryCategoryName: String!
+  secondaryCategoryIds: [Long!]!
+  mpn: String
+  sourceRefs: [Long!]!
+  variants: [ProductAdminVariantDto!]!
+  identifiers: [ProductAdminIdentifierDto!]!
+  media: [ProductAdminMediaDto!]!
+  activationProblems: [String!]!
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+type ProductAdminIdentifierDto {
+  id: ID!
+  type: String!
+  value: String!
+  sourceDomain: String
+}
+
+type ProductAdminMediaDto {
+  id: ID!
+  objectKey: String!
+  url: String!
+  sortOrder: Int!
+  alt: String
+  usageRights: String!
+  isUsable: Boolean!
+}
+
+"One row of the admin product list — enough to decide which product to open."
+type ProductAdminRowDto {
+  id: ID!
+  brandId: ID!
+  primaryCategoryId: ID!
+  mergedIntoProductId: ID
+  title: String!
+  slug: String!
+  status: String!
+  deactivatedByAdmin: Boolean!
+  brandName: String!
+  primaryCategoryName: String!
+  mpn: String
+  variantCount: Int!
+  activeVariantCount: Int!
+  hasUsableImage: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+type ProductAdminVariantDto {
+  id: ID!
+  sku: String!
+  attributeSignature: String!
+  attributeValues: [KeyValuePairOfStringAndString!]!
+  isActive: Boolean!
+  deactivatedByAdmin: Boolean!
+}
+
+type ProductCardDto {
+  productId: ID!
+  brandId: ID!
+  categoryId: ID!
+  slug: String!
+  title: String!
+  brandName: String!
+  minPrice: MoneyDto!
+  maxPrice: MoneyDto!
+  variantCount: Int!
+  imageUrl: String
+}
+
+type ProductDetailDto {
+  productId: ID!
+  brandId: ID!
+  slug: String!
+  title: String!
+  shortDescription: String
+  description: String
+  brandName: String!
+  breadcrumb: [CategoryCrumbDto!]!
+  imageUrls: [String!]!
+  variants: [VariantOfferDto!]!
+  attributeOptions: [KeyValuePairOfStringAndIReadOnlyListOfString!]!
+}
+
+type ProductPageDto {
+  items: [ProductCardDto!]!
+  nextCursor: String
+  usedTypoFallback: Boolean!
+}
+
+type RefundView {
+  id: Long!
+  amountMinor: Long!
+  reason: String!
+  recordedBy: UUID!
+  recordedAt: DateTime!
+  externalReference: String
+  creditNoteDocumentId: Long!
+}
+
+type RemoveUserRoleScopePayload {
+  success: Boolean!
+}
+
+type RoleDto {
+  id: UUID!
+  code: String!
+  name: String!
+  rank: Int!
+}
+
+type SalesSnapshot {
+  orderTotals: [OrderTotalsRow!]!
+  pendingWebsitePayments: PendingPayments!
+  composition24h: CompositionWindow!
+  composition7d: CompositionWindow!
+  recentFailures: [CompositionFailure!]!
+}
+
+type ScopeDto {
+  id: UUID!
+  code: String!
+  name: String!
+}
+
+type SellerView {
+  legalName: String!
+  uen: String!
+  address: String!
+  email: String!
+  gstRegistered: Boolean!
+  invoiceFooter: String!
+  requiredBuyerFields: [String!]!
+}
+
+type ShopOrderDto {
+  id: ID!
+  totalMinor: String! @cost(weight: "10")
+  number: String!
+  currency: String!
+  status: OrderStatusDto!
+  lines: [OrderLineDto!]!
+  documents: [DocumentDto!]!
+  createdAt: DateTime!
+}
+
+type UpdatePermissionPayload {
+  permission: PermissionDto!
+}
+
+type UpdateRolePayload {
+  role: RoleDto!
+}
+
+type UpdateScopePayload {
+  scope: ScopeDto!
+}
+
+type UserRoleScopeDto {
+  id: UUID!
+  userId: UUID!
+  roleId: UUID!
+  roleCode: String!
+  scopeId: UUID!
+  scopeCode: String!
+  createdAtUtc: DateTime!
+}
+
+type VariantOfferDto {
+  variantId: ID!
+  sku: String!
+  attributes: [KeyValuePairOfStringAndString!]!
+  price: MoneyDto!
+}
+
+type VariantPriceAdminDto {
+  variantId: Long!
+  baseAmountMinor: Long!
+  baseCurrency: String!
+  overrides: [CurrencyOverrideDto!]!
+  provenanceObservationId: Long
+  provenanceSourceUrl: String
+  provenanceCollectedAt: DateTime
+  updatedAt: DateTime!
+}
+
+input AddAttributeBlueprintOptionInput {
+  attributeBlueprintId: ID!
+  value: String!
+  measurementUnitId: ID
+}
+
+input AddProductIdentifierInput {
+  productId: ID!
+  type: ProductIdentifierType!
+  value: String!
+  sourceDomain: String
+}
+
+input AddressSnapshotInput {
+  line1: String!
+  line2: String
+  city: String!
+  postalCode: String!
+  countryIso2: String!
+}
+
+input AddToCartInput {
+  variantId: ID!
+  quantity: Int!
+}
+
+input AddVariantInput {
+  productId: ID!
+  sku: String
+  attributes: [KeyValuePairOfStringAndStringInput!]
+}
+
+"""
+Named with the Admin prefix deliberately: an architecture test uses that to tell an
+admin-facing input, where a partner id is a legitimate filter, from a partner-facing one,
+where it must never be bindable.
+"""
+input AdminCustomerListInput {
+  kind: String
+  status: String
+  partnerId: Long
+  search: String
+  page: Int
+  pageSize: Int
+}
+
+input AdminOrderFilterInput {
+  channel: AdminChannelFilter
+  orderStatus: String
+  paymentStatus: String
+  currency: String
+  customerId: Long
+  partnerId: Long
+  externalOrderId: String
+  number: String
+  from: DateTime
+  to: DateTime
+  cursor: Long
+  pageSize: Int! = 50
+}
+
+input AssignCategoryProductInput {
+  categoryId: ID!
+  productId: ID!
+}
+
+input AssignUserRoleScopeInput {
+  userId: UUID!
+  roleId: UUID!
+  scopeId: UUID!
+}
+
+input AttributeBlueprintFilterInput {
+  nameContains: String
+  status: AttributeBlueprintStatusFilter
+  dataType: AttributeBlueprintDataTypeFilter
+}
+
+input AttributeBlueprintOptionInput {
+  value: String!
+  measurementUnitId: ID
+}
+
+input AttributeBlueprintOptionUpdateInput {
+  optionId: ID
+  value: String!
+  measurementUnitId: ID
+}
+
+input AttributeFilterInput {
+  key: String!
+  values: [String!]!
+}
+
+input BootstrapAdminInput {
+  scopeId: UUID!
+}
+
+input BulkDeactivateCategoriesInput {
+  categoryIds: [ID!]!
+}
+
+input BulkEditProductsInput {
+  productIds: [ID!]
+  status: BulkStatusChange!
+  primaryCategoryId: ID
+  brandId: ID
+}
+
+input CancelOrderInput {
+  orderId: Long!
+}
+
+input CategoryAdminFilterDtoInput {
+  name: String
+  status: CategoryStatus
+}
+
+input CategoryIdInput {
+  categoryId: ID!
+}
+
+input CheckoutInput {
+  expectedTotal: MoneyGraphInput!
+}
+
+input ClearFxOverrideInput {
+  base: String!
+  quote: String!
+}
+
+input ConfirmOrderPaymentInput {
+  orderId: Long!
+  method: String!
+  reference: String
+}
+
+input CreateAttributeBlueprintInput {
+  name: String!
+  dataType: AttributeBlueprintDataType!
+  options: [AttributeBlueprintOptionInput!]
+}
+
+input CreateCategoryInput {
+  name: String!
+  slug: String!
+  description: String
+  parentId: ID
+  displayOrder: Int!
+}
+
+input CreatePermissionInput {
+  code: String!
+  name: String!
+  description: String
+  rules: [PermissionRuleInput!]!
+}
+
+input CreateProductInput {
+  brandId: ID!
+  primaryCategoryId: ID!
+  title: String!
+  slug: String
+  shortDescription: String
+  description: String
+}
+
+input CreateRoleInput {
+  code: String!
+  name: String!
+  rank: Int!
+}
+
+input CreateScopeInput {
+  code: String!
+  name: String!
+}
+
+input DeletePermissionInput {
+  id: UUID!
+}
+
+input DeleteRoleInput {
+  id: UUID!
+}
+
+input DeleteScopeInput {
+  id: UUID!
+}
+
+input KeyValuePairOfStringAndStringInput {
+  key: String!
+  value: String!
+}
+
+input MergeDuplicateProductInput {
+  duplicateProductId: ID!
+  survivorProductId: ID!
+}
+
+input MoneyGraphInput {
+  amount: String!
+  currency: String!
+}
+
+input MoveCategoryInput {
+  categoryId: ID!
+  parentId: ID
+  displayOrder: Int!
+}
+
+input PermissionRuleInput {
+  roleId: UUID
+  scopeIds: [UUID!]
+}
+
+input RefundOrderInput {
+  orderId: Long!
+  amount: String!
+  reason: String!
+  externalReference: String
+}
+
+input RemoveCartLineInput {
+  variantId: ID!
+}
+
+input RemoveCurrencyOverrideInput {
+  variantId: ID!
+  currency: String!
+}
+
+input RemoveProductIdentifierInput {
+  productId: ID!
+  identifierId: ID!
+}
+
+input RemoveProductMediaInput {
+  productId: ID!
+  mediaId: ID!
+}
+
+input RemoveUserRoleScopeInput {
+  id: UUID!
+}
+
+input SetAttributeBlueprintAliasesInput {
+  attributeBlueprintId: ID!
+  aliases: [String!]!
+}
+
+input SetAttributeBlueprintScopeInput {
+  attributeBlueprintId: ID!
+  scope: AttributeScope!
+  categoryId: ID
+}
+
+input SetAttributeBlueprintUnitInput {
+  attributeBlueprintId: ID!
+  unitId: ID
+}
+
+input SetCartCurrencyInput {
+  currency: String!
+}
+
+input SetCategoryStatusInput {
+  categoryId: ID!
+  status: CategoryStatus!
+}
+
+input SetCurrencyEnabledInput {
+  code: String!
+  enabled: Boolean!
+}
+
+input SetCurrencyOverrideInput {
+  variantId: ID!
+  currency: String!
+  amount: String!
+}
+
+input SetFxOverrideInput {
+  base: String!
+  quote: String!
+  rate: String!
+  validUntil: DateTime
+}
+
+input SetProductActiveInput {
+  productId: ID!
+  active: Boolean!
+}
+
+input SetProductSecondaryCategoriesInput {
+  productId: ID!
+  categoryIds: [ID!]
+}
+
+input SetVariantActiveInput {
+  productId: ID!
+  variantId: ID!
+  active: Boolean!
+}
+
+input SetVariantPriceInput {
+  variantId: ID!
+  amount: String!
+  currency: String!
+}
+
+"One listing filter, as a GraphQL input."
+input ShopProductFilterInput {
+  categoryId: ID
+  brandIds: [ID!]
+  attributes: [AttributeFilterInput!]
+  priceMin: String
+  priceMax: String
+  q: String
+}
+
+input UnassignCategoryProductInput {
+  categoryId: ID!
+  productId: ID!
+}
+
+input UpdateAttributeBlueprintInput {
+  attributeBlueprintId: ID!
+  name: String!
+  dataType: AttributeBlueprintDataType!
+  isActive: Boolean!
+  options: [AttributeBlueprintOptionUpdateInput!]!
+}
+
+input UpdateAttributeBlueprintOptionInput {
+  attributeBlueprintId: ID!
+  optionId: ID!
+  value: String!
+  measurementUnitId: ID
+}
+
+input UpdateCartLineInput {
+  variantId: ID!
+  quantity: Int!
+}
+
+input UpdateCategoryInput {
+  categoryId: ID!
+  name: String!
+  slug: String!
+  description: String
+  displayOrder: Int!
+  status: CategoryStatus
+}
+
+input UpdatePermissionInput {
+  id: UUID!
+  name: String!
+  description: String
+  rules: [PermissionRuleInput!]!
+}
+
+input UpdateProductInput {
+  productId: ID!
+  brandId: ID!
+  primaryCategoryId: ID!
+  title: String!
+  shortDescription: String
+  description: String
+}
+
+input UpdateProfileInput {
+  fullName: String
+  companyName: String
+  phone: String
+  billingAddress: AddressSnapshotInput
+  registrationNumber: String
+}
+
+input UpdateRoleInput {
+  id: UUID!
+  name: String!
+  rank: Int!
+}
+
+input UpdateScopeInput {
+  id: UUID!
+  name: String!
+}
+
+input UploadProductMediaInput {
+  productId: ID!
+  file: Upload!
+  alt: String
+  rights: MediaUsageRights
+  sortOrder: Int
+}
+
+enum AdminChannelFilter {
+  WEBSITE
+  PARTNER_API
+}
+
+"Defines when a policy shall be executed."
+enum ApplyPolicy {
+  "Before the resolver was executed."
+  BEFORE_RESOLVER
+  "After the resolver was executed."
+  AFTER_RESOLVER
+  "The policy is applied in the validation step before the execution."
+  VALIDATION
+}
+
+enum AttributeBlueprintDataType {
+  TEXT
+  NUMBER
+  BOOLEAN
+  DATE
+  """
+  Values come from the blueprint's own option list. Appended as 5 so every stored row keeps
+  the meaning it was written with.
+  """
+  OPTION
+}
+
+enum AttributeBlueprintDataTypeFilter {
+  TEXT
+  NUMBER
+  BOOLEAN
+  DATE
+  OPTION
+}
+
+enum AttributeBlueprintStatusFilter {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+"""
+Whether an attribute applies to the whole catalogue or only within one category — what stops
+"Size" meaning shoe size in one branch and screen size in another.
+"""
+enum AttributeScope {
+  GLOBAL
+  CATEGORY
+}
+
+enum BulkStatusChange {
+  NONE
+  ACTIVATE
+  DEACTIVATE
+}
+
+enum CategoryAttributePriorityGroup {
+  STANDARD
+  PRIMARY
+  VARIANT_GENERATING
+}
+
+enum CategoryStatus {
+  INACTIVE
+  ACTIVE
+  DELETED
+}
+
+"""
+Whether an image may be shown to customers.
+
+A crawled image usually arrives as , and that is deliberately not
+the same as : a product cannot go active on an image nobody has confirmed
+the seller may publish.
+"""
+enum MediaUsageRights {
+  ALLOWED
+  RIGHTS_UNKNOWN
+  DENIED
+}
+
+"""
+The kinds of identifier a product can be matched on, in descending order of how much they
+prove. A GTIN identifies the article worldwide; a source id identifies it only within the one
+system it came from, which is why that one carries a domain.
+"""
+enum ProductIdentifierType {
+  GTIN
+  UPC
+  EAN
+  MPN
+  SOURCE_ID
+}
+
+"""
+Where a product sits between arriving and being sellable.
+
+Stored by name rather than by number: these values appear in raw SQL in phase 3's storefront
+views and in the check constraint, where a bare 2 says nothing to anyone reading it.
+"""
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  DEACTIVATED
+}
+
+enum StorefrontSort {
+  RELEVANCE
+  NEWEST
+  PRICE_ASC
+  PRICE_DESC
+  POPULAR
+}
+
+"The `Any` scalar type represents any valid GraphQL value."
+scalar Any @specifiedBy(url: "https://scalars.graphql.org/chillicream/any.html")
+
+"The `DateTime` scalar type represents a date and time with time zone offset information."
+scalar DateTime
+  @specifiedBy(url: "https://scalars.graphql.org/chillicream/date-time.html")
+
+"The `Decimal` scalar type represents a decimal floating-point number with high precision."
+scalar Decimal
+  @specifiedBy(url: "https://scalars.graphql.org/chillicream/decimal.html")
+
+"The `LocalDate` scalar type represents a date without time or time zone information."
+scalar LocalDate
+  @specifiedBy(url: "https://scalars.graphql.org/chillicream/local-date.html")
+
+"The `Long` scalar type represents a signed 64-bit integer."
+scalar Long
+  @specifiedBy(url: "https://scalars.graphql.org/chillicream/long.html")
+
+"The `Upload` scalar type represents a file upload."
+scalar Upload
+
+"The `UUID` scalar type represents a Universally Unique Identifier (UUID) as defined by RFC 9562."
+scalar UUID
+  @specifiedBy(url: "https://scalars.graphql.org/chillicream/uuid.html")
+
+"The purpose of the `cost` directive is to define a `weight` for GraphQL types, fields, and arguments. Static analysis can use these weights when calculating the overall cost of a query or response."
+directive @cost(
+  "The `weight` argument defines what value to add to the overall cost for every appearance, or possible appearance, of a type, field, argument, etc."
+  weight: String!
+) on
+  | SCALAR
+  | OBJECT
+  | FIELD_DEFINITION
+  | ARGUMENT_DEFINITION
+  | ENUM
+  | INPUT_FIELD_DEFINITION
+
+"The purpose of the `@listSize` directive is to either inform the static analysis about the size of returned lists (if that information is statically available), or to point the analysis to where to find that information."
+directive @listSize(
+  "The `assumedSize` argument can be used to statically define the maximum length of a list returned by a field."
+  assumedSize: Int
+  "The `slicingArguments` argument can be used to define which of the field's arguments with numeric type are slicing arguments, so that their value determines the size of the list returned by that field. It may specify a list of multiple slicing arguments."
+  slicingArguments: [String!]
+  "The `slicingArgumentDefaultValue` argument can be used to define a default value for a slicing argument, which is used if the argument is not present in a query."
+  slicingArgumentDefaultValue: Int
+  "The `sizedFields` argument can be used to define that the value of the `assumedSize` argument or of a slicing argument does not affect the size of a list returned by a field itself, but that of a list returned by one of its sub-fields."
+  sizedFields: [String!]
+  "The `requireOneSlicingArgument` argument can be used to inform the static analysis that it should expect that exactly one of the defined slicing arguments is present in a query. If that is not the case (i.e., if none or multiple slicing arguments are present), the static analysis may throw an error."
+  requireOneSlicingArgument: Boolean = true
+) on FIELD_DEFINITION

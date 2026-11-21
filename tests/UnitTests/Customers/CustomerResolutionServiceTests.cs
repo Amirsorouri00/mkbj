@@ -1,16 +1,16 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Domain.ValueObjects;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Outbound;
-using EwaysVNext.Modules.Customer.Application.Customers.Services;
-using EwaysVNext.Persistence;
+using Mkbj.Domain.Common;
+using Mkbj.Domain.ValueObjects;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Outbound;
+using Mkbj.Modules.Customer.Application.Customers.Services;
+using Mkbj.Persistence;
 using NSubstitute;
 using Xunit;
 
-using CustomerAggregate = EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer;
+using CustomerAggregate = Mkbj.Modules.Customer.Application.Customers.Domain.Customer;
 
-namespace EwaysVNext.UnitTests.Customers;
+namespace Mkbj.UnitTests.Customers;
 
 public sealed class CustomerResolutionServiceTests
 {
@@ -35,9 +35,9 @@ public sealed class CustomerResolutionServiceTests
         CustomerAggregate.CreatePartnerLinked(
             55, partnerId, external, Email.Create("a@x.com"), PhoneOf("+6591234567"), "Martin", Now);
 
-    private static EwaysVNext.Modules.Customer.Application.Customers.Domain.Phone PhoneOf(string value)
+    private static Mkbj.Modules.Customer.Application.Customers.Domain.Phone PhoneOf(string value)
     {
-        EwaysVNext.Modules.Customer.Application.Customers.Domain.Phone.TryCreate(value, out var phone);
+        Mkbj.Modules.Customer.Application.Customers.Domain.Phone.TryCreate(value, out var phone);
         return phone!;
     }
 

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Jobs;
+namespace Mkbj.Jobs;
 
 /// <summary>
 /// What a handler decided. A handler returns one of these rather than throwing, so "retry in ten

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Security;
+namespace Mkbj.IntegrationTests.Security;
 
 /// <summary>
 /// Every route is authorized unless it is on the list, and the list is short and argued.

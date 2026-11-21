@@ -1,9 +1,9 @@
-using EwaysVNext.Modules.Admin.Application.Ports.Outbound;
-using EwaysVNext.Modules.Admin.Application.Views;
-using EwaysVNext.Modules.Customer.QueryApplication.Customers;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Admin.Application.Ports.Outbound;
+using Mkbj.Modules.Admin.Application.Views;
+using Mkbj.Modules.Customer.QueryApplication.Customers;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Admin.Adapter.Outbound.Gateways;
+namespace Mkbj.Modules.Admin.Adapter.Outbound.Gateways;
 
 /// <summary>Customer's admin read side, mapped into Admin's own profile view.</summary>
 internal sealed class CustomerReadGateway(ICustomerAdminQueries customers) : ICustomerReadPort

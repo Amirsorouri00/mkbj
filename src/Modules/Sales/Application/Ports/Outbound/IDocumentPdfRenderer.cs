@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
 
-namespace EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+namespace Mkbj.Modules.Sales.Application.Ports.Outbound;
 
 /// <summary>
 /// Turns a stored document snapshot into a PDF.
@@ -25,6 +25,7 @@ public interface IDocumentPdfRenderer
 /// </remarks>
 public interface IDocumentStore
 {
+    Task<byte[]?> ReadPdfAsync(string key, CancellationToken ct = default);
     Task<bool> ExistsAsync(string key, CancellationToken ct = default);
 
     Task PutPdfAsync(string key, byte[] pdf, CancellationToken ct = default);

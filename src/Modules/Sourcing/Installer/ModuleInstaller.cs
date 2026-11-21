@@ -1,13 +1,13 @@
-using EwaysVNext.Database;
-using EwaysVNext.DependencyInjection;
-using EwaysVNext.Modules.Sourcing.Adapter.Inbound.Rest;
-using EwaysVNext.Modules.Sourcing.Adapter.Outbound;
-using EwaysVNext.Modules.Sourcing.Application;
-using EwaysVNext.Modules.Sourcing.QueryApplication;
+using Mkbj.Database;
+using Mkbj.DependencyInjection;
+using Mkbj.Modules.Sourcing.Adapter.Inbound.Rest;
+using Mkbj.Modules.Sourcing.Adapter.Outbound;
+using Mkbj.Modules.Sourcing.Application;
+using Mkbj.Modules.Sourcing.QueryApplication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Sourcing;
+namespace Mkbj.Modules.Sourcing;
 
 public static class ModuleInstaller
 {
@@ -22,7 +22,7 @@ public static class ModuleInstaller
         services
             .AddPersistenceInterceptors()
             .AddUserProfileService()
-            .AddUnitOfWork<EwaysVNextDbContext>()
+            .AddUnitOfWork<MkbjDbContext>()
             .AddEvents(typeof(SourcingApplicationMarker).Assembly);
 
         return services;

@@ -33,7 +33,7 @@ fourth models a customer that does not exist here:
 
 Leaving this code in place is not free. `Customer.Application` references `Location.Contracts`, so
 Location cannot be removed while the old Customer survives. Every module here is wired into the one
-shared `EwaysVNextDbContext` and into `Program.cs`, so each dead module keeps a schema, a set of
+shared `MkbjDbContext` and into `Program.cs`, so each dead module keeps a schema, a set of
 entity configurations and a slice of host startup alive. The architecture tests enumerate modules by
 name, so modules nobody maintains still constrain refactors of the ones that matter.
 

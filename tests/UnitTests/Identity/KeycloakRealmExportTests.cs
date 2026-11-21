@@ -1,10 +1,10 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using AwesomeAssertions;
-using EwaysVNext.Core.Application.Security;
+using Mkbj.Core.Application.Security;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Identity;
+namespace Mkbj.UnitTests.Identity;
 
 /// <summary>
 /// The realm exports are configuration that ships in the repository and is imported verbatim, so

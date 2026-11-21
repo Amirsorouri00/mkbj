@@ -1,11 +1,11 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Pricing.Application.Currencies.Domain;
-using EwaysVNext.Modules.Pricing.Application.Currencies.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Pricing.Application.Currencies.Domain;
+using Mkbj.Modules.Pricing.Application.Currencies.Ports.Outbound;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Pricing.Adapter.Outbound.Persistence;
+namespace Mkbj.Modules.Pricing.Adapter.Outbound.Persistence;
 
-internal sealed class CurrencyRepository(EwaysVNextDbContext db) : ICurrencyRepository
+internal sealed class CurrencyRepository(MkbjDbContext db) : ICurrencyRepository
 {
     public async Task<IReadOnlyList<Currency>> GetAllAsync(CancellationToken ct = default) =>
         await db.Currencies.OrderBy(currency => currency.Code).ToListAsync(ct);

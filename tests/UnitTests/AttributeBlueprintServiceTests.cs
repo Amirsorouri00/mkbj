@@ -1,16 +1,16 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Services;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Validation;
-using EwaysVNext.Persistence;
+using AwesomeAssertions;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Services;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Validation;
+using Mkbj.Persistence;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public sealed class AttributeBlueprintServiceTests
 {

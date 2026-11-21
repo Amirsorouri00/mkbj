@@ -2,7 +2,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Database;
+namespace Mkbj.Database;
 
 /// <summary>
 /// Applies the EF migrations, then every repeatable SQL script embedded in this assembly, in
@@ -17,11 +17,11 @@ namespace EwaysVNext.Database;
 /// </summary>
 public static class DatabaseMigrator
 {
-    private const string ScriptPrefix = "EwaysVNext.Database.Scripts.";
+    private const string ScriptPrefix = "Mkbj.Database.Scripts.";
 
     public static async Task MigrateAsync(IServiceProvider services, CancellationToken ct = default)
     {
-        var context = services.GetRequiredService<EwaysVNextDbContext>();
+        var context = services.GetRequiredService<MkbjDbContext>();
 
         await context.Database.MigrateAsync(ct);
 

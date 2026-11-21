@@ -1,4 +1,4 @@
-namespace EwaysVNext.Audit.Implementation;
+namespace Mkbj.Audit.Implementation;
 
 /// <summary>
 /// One recorded admin action. A plain class, not <c>Entity&lt;TId&gt;</c>: an audit row is never

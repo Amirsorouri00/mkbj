@@ -1,11 +1,11 @@
 using System.Globalization;
 
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Settings.Application.Settings.Domain;
-using EwaysVNext.Persistence;
+using Mkbj.Database;
+using Mkbj.Modules.Settings.Application.Settings.Domain;
+using Mkbj.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Settings.QueryApplication;
+namespace Mkbj.Modules.Settings.QueryApplication;
 
 public interface ISettingsAdminQueries
 {
@@ -17,7 +17,7 @@ public interface ISettingsAdminQueries
     Task<CommerceLimitsView> GetCommerceLimitsAsync(CancellationToken ct = default);
 }
 
-public sealed class SettingsAdminQueries(EwaysVNextDbContext db) : ISettingsAdminQueries
+public sealed class SettingsAdminQueries(MkbjDbContext db) : ISettingsAdminQueries
 {
     public async Task<SellerView> GetSellerAsync(CancellationToken ct = default)
     {

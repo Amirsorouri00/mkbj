@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using ProductEntity = EwaysVNext.Modules.Catalog.Application.Products.Domain.Product;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using ProductEntity = Mkbj.Modules.Catalog.Application.Products.Domain.Product;
 
-namespace EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
+namespace Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
 
 /// <summary>
 /// Loading a product means loading its variants, media and identifiers: every write path touches

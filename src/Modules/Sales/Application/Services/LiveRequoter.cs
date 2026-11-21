@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Sales.Application.Composition;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.Application.Composition;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
 
-namespace EwaysVNext.Modules.Sales.Application.Services;
+namespace Mkbj.Modules.Sales.Application.Services;
 
 /// <summary>What a re-quote decided about one composed basket.</summary>
 /// <remarks>

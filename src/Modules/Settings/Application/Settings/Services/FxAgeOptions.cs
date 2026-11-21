@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Settings.Application.Settings.Services;
+namespace Mkbj.Modules.Settings.Application.Settings.Services;
 
 /// <summary>
 /// How stale an FX rate may be before the system refuses to price with it.

@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Catalog.Application.Brands.Domain;
+using Mkbj.Modules.Catalog.Application.Brands.Domain;
 
-namespace EwaysVNext.Modules.Catalog.Application.Brands.Ports.Outbound;
+namespace Mkbj.Modules.Catalog.Application.Brands.Ports.Outbound;
 
 public interface IBrandRepository
 {

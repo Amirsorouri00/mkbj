@@ -1,9 +1,9 @@
-using EwaysVNext.Presentation.Endpoint.GraphQL.Exceptions;
+using Mkbj.Presentation.Endpoint.GraphQL.Exceptions;
 using HotChocolate;
 using HotChocolate.Execution;
-using Error = EwaysVNext.Outcomes.Error;
+using Error = Mkbj.Outcomes.Error;
 
-namespace EwaysVNext.Presentation.Endpoint.GraphQL;
+namespace Mkbj.Presentation.Endpoint.GraphQL;
 
 /// <summary>
 /// Shapes a GraphQL error and records whether retrying could help.

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Pricing.QueryApplication;
+namespace Mkbj.Modules.Pricing.QueryApplication;
 
 /// <summary>
 /// The currencies a shopper may choose. Anonymous-readable, which is why it exposes only what a

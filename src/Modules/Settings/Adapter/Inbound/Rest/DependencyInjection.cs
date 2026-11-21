@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Settings.Adapter.Inbound.Rest.Admin;
-using EwaysVNext.Presentation.Endpoint;
+using Mkbj.Modules.Settings.Adapter.Inbound.Rest.Admin;
+using Mkbj.Presentation.Endpoint;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Settings.Adapter.Inbound.Rest;
+namespace Mkbj.Modules.Settings.Adapter.Inbound.Rest;
 
 public static class DependencyInjection
 {

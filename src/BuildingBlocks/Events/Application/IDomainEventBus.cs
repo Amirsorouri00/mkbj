@@ -1,4 +1,4 @@
-namespace EwaysVNext.Events.Application;
+namespace Mkbj.Events.Application;
 
 public interface IDomainEventBus
 {

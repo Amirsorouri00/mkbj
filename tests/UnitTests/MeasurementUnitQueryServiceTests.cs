@@ -1,11 +1,11 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Services;
-using EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Services;
+using Mkbj.Modules.Catalog.QueryApplication.AttributeBlueprints;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public sealed class MeasurementUnitQueryServiceTests
 {

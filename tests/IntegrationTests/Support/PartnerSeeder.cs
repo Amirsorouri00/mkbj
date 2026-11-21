@@ -1,9 +1,9 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Inbound;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Inbound;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.IntegrationTests.Support;
+namespace Mkbj.IntegrationTests.Support;
 
 /// <summary>
 /// Creates partners through the real admin service rather than by inserting rows, so a test

@@ -1,8 +1,8 @@
-using EwaysVNext.Events.Application;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
+using Mkbj.Events.Application;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
 using Microsoft.Extensions.Logging;
 
-namespace EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.EventHandlers;
+namespace Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.EventHandlers;
 
 public sealed class CategoryAttributeBecameRequiredHandler(
     ILogger<CategoryAttributeBecameRequiredHandler> logger)

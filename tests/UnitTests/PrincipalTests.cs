@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
+using Mkbj.Core.Application;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 /// <summary>
 /// A partner's identity comes from its authenticated key and nowhere else (spec §6.2) — there is

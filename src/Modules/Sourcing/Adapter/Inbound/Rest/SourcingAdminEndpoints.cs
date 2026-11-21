@@ -1,19 +1,20 @@
 using System.Security.Claims;
 using AuthorizationService.Abstractions.Extensions;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Sourcing.Application;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sourcing.QueryApplication;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Sourcing.Application;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Ports.Inbound;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Modules.Sourcing.QueryApplication;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace EwaysVNext.Modules.Sourcing.Adapter.Inbound.Rest;
+namespace Mkbj.Modules.Sourcing.Adapter.Inbound.Rest;
 
 public sealed record CreateImportJobRequest(
     string? Mode,
@@ -99,11 +100,52 @@ public sealed class SourcingAdminEndpoints : IEndpoint
             long id, ClaimsPrincipal user, IImportJobService service, CancellationToken ct) =>
             Act(user, actor => service.CancelAsync(id, actor, ct)));
 
+        staff.MapPost("/jobs/{id:long}/file", async (
+            long id, HttpRequest http, ClaimsPrincipal user,
+            IImportFileService files, CancellationToken ct) =>
+        {
+            if (!AdminActor.TryFrom(user, out var actor)) return EndpointResult.Forbidden();
+
+            if (!http.HasFormContentType)
+                return EndpointResult.BadRequest("Send the import as multipart/form-data.");
+
+            var form = await http.ReadFormAsync(ct);
+            var file = form.Files["file"];
+            if (file is null)
+                return EndpointResult.BadRequest("The form must contain a 'file' part.");
+
+            var format = Path.GetExtension(file.FileName).ToLowerInvariant() switch
+            {
+                ".csv" => ImportFileFormat.Csv,
+                ".xlsx" => ImportFileFormat.Xlsx,
+                ".json" => ImportFileFormat.Json,
+                _ => (ImportFileFormat?)null,
+            };
+            if (format is null)
+                return Result.Failure(SourcingErrors.FileFormatUnsupported).ToHttpResult();
+
+            await using var content = file.OpenReadStream();
+            return (await files.UploadAsync(id, content, format.Value, actor!, ct)).ToHttpResult();
+        })
+        // The endpoint uses bearer authentication, not a browser cookie.
+        .DisableAntiforgery();
+
         staff.MapPut("/jobs/{id:long}/mapping", (
             long id, SetMappingRequest request, ClaimsPrincipal user,
             IImportFileService files, CancellationToken ct) =>
             Act(user, actor => files.SetMappingAsync(
                 id, request.Mapping ?? new Dictionary<string, string>(), actor, ct)));
+
+        staff.MapPost("/jobs/{id:long}/mapping/preview", async (
+            long id, IImportFileService files, CancellationToken ct) =>
+            (await files.PreviewAsync(id, ct)).ToHttpResult());
+
+        staff.MapGet("/templates/{format:regex(^(csv|xlsx|json-schema)$)}", async (
+            string format, IImportTemplateProvider templates, CancellationToken ct) =>
+        {
+            var file = await templates.GetAsync(format, ct);
+            return EndpointResult.File(file.Content, file.ContentType, file.FileName);
+        });
 
         staff.MapGet("/records", async (
             ISourcingAdminQueries queries, CancellationToken ct,

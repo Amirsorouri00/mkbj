@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace EwaysVNext.Outcomes.Extensions;
+namespace Mkbj.Outcomes.Extensions;
 
 public static class MessageFormat
 {

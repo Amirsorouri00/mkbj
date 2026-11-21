@@ -26,7 +26,7 @@
 
 **Files:**
 - Modify: `tests/UnitTests/CategoryApiAdapterTests.cs`
-- Modify: `tests/UnitTests/EwaysVNext.UnitTests.csproj`
+- Modify: `tests/UnitTests/Mkbj.UnitTests.csproj`
 - Modify: `tests/ArchitectureTests/CategoryArchitectureTests.cs`
 
 **Interfaces:**
@@ -69,8 +69,8 @@ Keep the existing endpoint metadata assertions for the `Admin` policy and `admin
 Add these project references without removing the direct Catalog GraphQL reference used by resolver-level tests:
 
 ```xml
-<ProjectReference Include="..\..\src\Modules\Admin\Installer\EwaysVNext.Modules.Admin.Installer.csproj" />
-<ProjectReference Include="..\..\src\Modules\Catalog\Installer\EwaysVNext.Modules.Catalog.Installer.csproj" />
+<ProjectReference Include="..\..\src\Modules\Admin\Installer\Mkbj.Modules.Admin.Installer.csproj" />
+<ProjectReference Include="..\..\src\Modules\Catalog\Installer\Mkbj.Modules.Catalog.Installer.csproj" />
 ```
 
 - [ ] **Step 3: Add architecture tests for the approved invariants**
@@ -97,8 +97,8 @@ Also assert:
 Run:
 
 ```powershell
-dotnet test tests/UnitTests/EwaysVNext.UnitTests.csproj --filter "FullyQualifiedName~CategoryApiAdapterTests"
-dotnet test tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter "FullyQualifiedName~CategoryArchitectureTests"
+dotnet test tests/UnitTests/Mkbj.UnitTests.csproj --filter "FullyQualifiedName~CategoryApiAdapterTests"
+dotnet test tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter "FullyQualifiedName~CategoryArchitectureTests"
 ```
 
 Expected: compilation or assertions fail because the new public composition methods do not exist and Catalog still owns the server and old endpoint.
@@ -106,7 +106,7 @@ Expected: compilation or assertions fail because the new public composition meth
 - [ ] **Step 5: Commit the failing tests**
 
 ```powershell
-git add tests/UnitTests/CategoryApiAdapterTests.cs tests/UnitTests/EwaysVNext.UnitTests.csproj tests/ArchitectureTests/CategoryArchitectureTests.cs
+git add tests/UnitTests/CategoryApiAdapterTests.cs tests/UnitTests/Mkbj.UnitTests.csproj tests/ArchitectureTests/CategoryArchitectureTests.cs
 git commit -m "test: require centralized GraphQL composition"
 ```
 
@@ -119,8 +119,8 @@ git commit -m "test: require centralized GraphQL composition"
 - Modify: `src/Modules/Admin/Installer/ModuleInstaller.cs`
 - Modify: `src/Modules/Catalog/Adapter/Inbound/GraphQL/DependencyInjection.cs`
 - Modify: `src/Modules/Catalog/Installer/ModuleInstaller.cs`
-- Modify: `src/Host/EwaysVNext.Host/Program.cs`
-- Modify: `src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj`
+- Modify: `src/Host/Mkbj.Host/Program.cs`
+- Modify: `src/Host/Mkbj.Host/Mkbj.Host.csproj`
 
 **Interfaces:**
 - Consumes: `IServiceCollection`, `IRequestExecutorBuilder`, `IEndpointRouteBuilder`, and Catalog's existing resolver extensions.
@@ -149,7 +149,7 @@ public static IRequestExecutorBuilder AddCatalogGraphQlTypes(
     Adapter.Inbound.GraphQL.DependencyInjection.AddCatalogGraphQlTypes(builder);
 ```
 
-Use the fully qualified adapter call to prevent extension-method ambiguity. This lets Host use `EwaysVNext.Modules.Catalog` without naming concrete resolver types or directly referencing the GraphQL adapter project.
+Use the fully qualified adapter call to prevent extension-method ambiguity. This lets Host use `Mkbj.Modules.Catalog` without naming concrete resolver types or directly referencing the GraphQL adapter project.
 
 - [ ] **Step 3: Implement the single Admin-owned server and endpoint mapping**
 
@@ -219,7 +219,7 @@ Remove Host `using` directives for the concrete Admin/Catalog GraphQL adapter na
 Delete only this reference from the Host project:
 
 ```xml
-<ProjectReference Include="..\..\Modules\Catalog\Adapter\Inbound\GraphQL\EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.csproj" />
+<ProjectReference Include="..\..\Modules\Catalog\Adapter\Inbound\GraphQL\Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.csproj" />
 ```
 
 Keep the Catalog Installer reference, which exposes the contribution API and owns the adapter dependency.
@@ -229,8 +229,8 @@ Keep the Catalog Installer reference, which exposes the contribution API and own
 Run:
 
 ```powershell
-dotnet test tests/UnitTests/EwaysVNext.UnitTests.csproj --filter "FullyQualifiedName~CategoryApiAdapterTests"
-dotnet test tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter "FullyQualifiedName~CategoryArchitectureTests"
+dotnet test tests/UnitTests/Mkbj.UnitTests.csproj --filter "FullyQualifiedName~CategoryApiAdapterTests"
+dotnet test tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter "FullyQualifiedName~CategoryArchitectureTests"
 ```
 
 Expected: all selected tests pass, including large Snowflake ID serialization, field authorization, canonical route metadata, and source architecture assertions.
@@ -238,7 +238,7 @@ Expected: all selected tests pass, including large Snowflake ID serialization, f
 - [ ] **Step 8: Commit the implementation**
 
 ```powershell
-git add src/Modules/Admin/Adapter/Inbound/GraphQL/DependencyInjection.cs src/Modules/Admin/Installer/ModuleInstaller.cs src/Modules/Catalog/Adapter/Inbound/GraphQL/DependencyInjection.cs src/Modules/Catalog/Installer/ModuleInstaller.cs src/Host/EwaysVNext.Host/Program.cs src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj
+git add src/Modules/Admin/Adapter/Inbound/GraphQL/DependencyInjection.cs src/Modules/Admin/Installer/ModuleInstaller.cs src/Modules/Catalog/Adapter/Inbound/GraphQL/DependencyInjection.cs src/Modules/Catalog/Installer/ModuleInstaller.cs src/Host/Mkbj.Host/Program.cs src/Host/Mkbj.Host/Mkbj.Host.csproj
 git commit -m "refactor: centralize GraphQL server composition"
 ```
 
@@ -266,8 +266,8 @@ Expected: one `AddGraphQLServer()` in Admin; endpoint/Nitro mapping only in Admi
 - [ ] **Step 2: Run all relevant tests**
 
 ```powershell
-dotnet test tests/UnitTests/EwaysVNext.UnitTests.csproj
-dotnet test tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj
+dotnet test tests/UnitTests/Mkbj.UnitTests.csproj
+dotnet test tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj
 ```
 
 Expected: all tests pass. Any unrelated pre-existing failure must be reported and kept separate.
@@ -275,12 +275,12 @@ Expected: all tests pass. Any unrelated pre-existing failure must be reported an
 - [ ] **Step 3: Build affected projects and solution**
 
 ```powershell
-dotnet build src/Modules/Catalog/Adapter/Inbound/GraphQL/EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.csproj
-dotnet build src/Modules/Catalog/Installer/EwaysVNext.Modules.Catalog.Installer.csproj
-dotnet build src/Modules/Admin/Adapter/Inbound/GraphQL/EwaysVNext.Modules.Admin.Adapter.Inbound.GraphQL.csproj
-dotnet build src/Modules/Admin/Installer/EwaysVNext.Modules.Admin.Installer.csproj
-dotnet build src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj
-dotnet build EwaysVNext.slnx
+dotnet build src/Modules/Catalog/Adapter/Inbound/GraphQL/Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.csproj
+dotnet build src/Modules/Catalog/Installer/Mkbj.Modules.Catalog.Installer.csproj
+dotnet build src/Modules/Admin/Adapter/Inbound/GraphQL/Mkbj.Modules.Admin.Adapter.Inbound.GraphQL.csproj
+dotnet build src/Modules/Admin/Installer/Mkbj.Modules.Admin.Installer.csproj
+dotnet build src/Host/Mkbj.Host/Mkbj.Host.csproj
+dotnet build Mkbj.slnx
 ```
 
 Expected: every affected project and the solution build successfully.

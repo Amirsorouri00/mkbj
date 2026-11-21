@@ -4,7 +4,7 @@
 
 **Goal:** Complete the missing Secondary Category behavior while preserving the `task-177` per-module Contracts architecture.
 
-**Architecture:** Secondary Category keeps Application-owned ports, its existing UnitOfWork convention, and the unified `EwaysVNextDbContext`. A minimal framework-free Catalog Contract replaces the direct Catalog Application dependency. Hierarchy reads use one database query per operation; state changes use domain methods and one save.
+**Architecture:** Secondary Category keeps Application-owned ports, its existing UnitOfWork convention, and the unified `MkbjDbContext`. A minimal framework-free Catalog Contract replaces the direct Catalog Application dependency. Hierarchy reads use one database query per operation; state changes use domain methods and one save.
 
 **Tech Stack:** .NET 10, EF Core 10, SQL Server/InMemory, Hot Chocolate, xUnit v3.
 
@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - Keep per-module Contracts framework-independent; never restore centralized `BuildingBlocks.Contracts`.
-- Keep Secondary Category DTOs solely in `EwaysVNext.Modules.SecondaryCategory.Contracts`; do not duplicate them in QueryApplication.
+- Keep Secondary Category DTOs solely in `Mkbj.Modules.SecondaryCategory.Contracts`; do not duplicate them in QueryApplication.
 - Keep the unified DbContext and existing Secondary Category UnitOfWork/transaction convention.
 - Do not add cross-module events, direct aggregate bulk SQL, `ExecuteUpdateAsync`, or a repository-wide migration.
 - Treat roots as level one; reject level-six create and any move that would place a descendant below level five.
@@ -27,10 +27,10 @@
 ### Task 1: Correct the Catalog Contract boundary
 
 **Files:**
-- Create: `EwaysVNext.Modules.Catalog.Contract/EwaysVNext.Modules.Catalog.Contracts.csproj`
-- Create: `EwaysVNext.Modules.Catalog.Contract/Products/IProductAvailabilityContract.cs`
+- Create: `Mkbj.Modules.Catalog.Contract/Mkbj.Modules.Catalog.Contracts.csproj`
+- Create: `Mkbj.Modules.Catalog.Contract/Products/IProductAvailabilityContract.cs`
 - Modify: Catalog Application project, `ProductService`, and DI.
-- Modify: Secondary Category `CatalogProductLookup`, Outbound project, legacy centralized-contract references, and `EwaysVNext.slnx`.
+- Modify: Secondary Category `CatalogProductLookup`, Outbound project, legacy centralized-contract references, and `Mkbj.slnx`.
 - Test: Secondary Category architecture and production-composition tests.
 
 **Interfaces:** Produces `IProductAvailabilityContract.ExistsAndIsActiveAsync(long productId, CancellationToken ct)`; Secondary Category retains local `ICatalogProductLookup`. Both `IProductService` and `IProductAvailabilityContract` resolve to the same scoped `ProductService` instance.
@@ -86,9 +86,9 @@
 ### Task 5: Expose and verify the GraphQL hierarchy
 
 **Files:**
-- Modify: `EwaysVNext.Modules.SecondaryCategory.Contract/SecondaryCategories/SecondaryCategoryDtos.cs`.
+- Modify: `Mkbj.Modules.SecondaryCategory.Contract/SecondaryCategories/SecondaryCategoryDtos.cs`.
 - Modify: Secondary Category admin query port/implementation and GraphQL query resolver.
-- Verify: QueryApplication imports DTOs from `EwaysVNext.Modules.SecondaryCategory.Contracts` and defines no duplicate transport DTOs.
+- Verify: QueryApplication imports DTOs from `Mkbj.Modules.SecondaryCategory.Contracts` and defines no duplicate transport DTOs.
 - Verify: existing create/activate/deactivate mutations and error helper.
 - Test: API adapter and query tests.
 
@@ -107,7 +107,7 @@
 **Interfaces:** Produces an evidence-based command/result report.
 
 - [ ] Run `git diff --check`, architecture tests, and project-reference inspection.
-- [ ] Run `dotnet restore EwaysVNext.slnx` and `dotnet build EwaysVNext.slnx --no-restore` without dependency downgrades.
-- [ ] Run `dotnet test --solution EwaysVNext.slnx --no-build`; explicitly run any other discovered test projects.
+- [ ] Run `dotnet restore Mkbj.slnx` and `dotnet build Mkbj.slnx --no-restore` without dependency downgrades.
+- [ ] Run `dotnet test --solution Mkbj.slnx --no-build`; explicitly run any other discovered test projects.
 - [ ] Report absent test project files and environment failures separately from implementation failures.
 - [ ] Inspect migration/model snapshot, working tree, and checkpoint commits; commit only a scoped correction if verification requires one.

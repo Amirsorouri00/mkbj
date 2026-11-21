@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace EwaysVNext.Modules.Sourcing.Adapter.Outbound.Crawling;
+namespace Mkbj.Modules.Sourcing.Adapter.Outbound.Crawling;
 
 /// <summary>
 /// What a site's robots.txt permits this crawler to do.
@@ -12,7 +12,7 @@ namespace EwaysVNext.Modules.Sourcing.Adapter.Outbound.Crawling;
 /// goodwill are worth more than any one import.
 /// </para>
 /// <para>
-/// The product token is <c>EwaysVNextBot</c>, so a site can name it specifically. Rules for the
+/// The product token is <c>MkbjBot</c>, so a site can name it specifically. Rules for the
 /// named agent win outright over <c>*</c>; that is what the standard says and what a site owner
 /// writing a specific rule expects.
 /// </para>

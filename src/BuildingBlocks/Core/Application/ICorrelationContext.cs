@@ -1,4 +1,4 @@
-namespace EwaysVNext.Core.Application;
+namespace Mkbj.Core.Application;
 
 /// <summary>
 /// The current request's correlation id, for code that is nowhere near an <c>HttpContext</c> —

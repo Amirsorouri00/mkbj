@@ -1,5 +1,5 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Presentation.Endpoint.GraphQL.Exceptions;
+namespace Mkbj.Presentation.Endpoint.GraphQL.Exceptions;
 
 public sealed class ValidationGraphQLException(Error error) : AppGraphQLException(error);

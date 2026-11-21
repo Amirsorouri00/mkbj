@@ -1,0 +1,278 @@
+<Solution>
+
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="nuget.config" />
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="README.md" />
+    <File Path="build/compose/docker-compose.yml" />
+    <File Path="build/compose/docker-compose.dev.yml" />
+    <File Path="build/docker/api.Dockerfile" />
+    <File Path="build/docker/api.Dockerfile.dockerignore" />
+  </Folder>
+
+  <Folder Name="/docs/">
+    <File Path="docs/ONBOARDING.md" />
+    <File Path="docs/DDD-GUIDELINES.md" />
+  </Folder>
+
+  <Folder Name="/src/" />
+  <Folder Name="/src/BuildingBlocks/" />
+  <Folder Name="/src/BuildingBlocks/Domain/">
+    <Project Path="src/BuildingBlocks/Domain/Mkbj.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Outcomes/">
+    <Project Path="src/BuildingBlocks/Outcomes/Mkbj.Outcomes.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Persistence/">
+    <Project Path="src/BuildingBlocks/Persistence/Mkbj.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Queries/" />
+  <Folder Name="/src/BuildingBlocks/Queries/Application/">
+    <Project Path="src/BuildingBlocks/Queries/Application/Mkbj.Queries.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Queries/Implementation/">
+    <Project Path="src/BuildingBlocks/Queries/Implementation/Mkbj.Queries.Implementation.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Events/">
+    <Project Path="src/BuildingBlocks/Events/Application/Mkbj.Events.Application.csproj" />
+    <Project Path="src/BuildingBlocks/Events/Implementation/Mkbj.Events.Implementation.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Audit/">
+    <Project Path="src/BuildingBlocks/Audit/Application/Mkbj.Audit.Application.csproj" />
+    <Project Path="src/BuildingBlocks/Audit/Implementation/Mkbj.Audit.Implementation.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Jobs/">
+    <Project Path="src/BuildingBlocks/Jobs/Application/Mkbj.Jobs.Application.csproj" />
+    <Project Path="src/BuildingBlocks/Jobs/Implementation/Mkbj.Jobs.Implementation.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Storage/">
+    <Project Path="src/BuildingBlocks/Storage/Application/Mkbj.Storage.Application.csproj" />
+    <Project Path="src/BuildingBlocks/Storage/Implementation/Mkbj.Storage.Implementation.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Core/">
+    <Project Path="src/BuildingBlocks/Core/Application/Mkbj.Core.Application.csproj" />
+    <Project Path="src/BuildingBlocks/Core/Implementation/Mkbj.Core.Implementation.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Presentation.Endpoint/">
+    <Project Path="src/BuildingBlocks/Presentation.Endpoint/Mkbj.Presentation.Endpoint.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/DependencyInjection/">
+    <Project Path="src/BuildingBlocks/DependencyInjection/Mkbj.DependencyInjection.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/" />
+  <Folder Name="/src/Modules/Catalog/Contracts/">
+    <Project Path="Mkbj.Modules.Catalog.Contracts/Mkbj.Modules.Catalog.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/Application/">
+    <Project Path="src/Modules/Catalog/Application/Mkbj.Modules.Catalog.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/Adapter/Outbound/">
+    <Project Path="src/Modules/Catalog/Adapter/Outbound/Mkbj.Modules.Catalog.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/Adapter/" />
+  <Folder Name="/src/Modules/Catalog/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Catalog/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Catalog/Adapter/Inbound/Rest/Mkbj.Modules.Catalog.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Catalog/Adapter/Inbound/GraphQL/Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/QueryApplication/">
+    <Project Path="src/Modules/Catalog/QueryApplication/Mkbj.Modules.Catalog.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/Installer/">
+    <Project Path="src/Modules/Catalog/Installer/Mkbj.Modules.Catalog.Installer.csproj" />
+  </Folder>
+
+
+  <Folder Name="/src/Modules/Customer/" />
+  <Folder Name="/src/Modules/Customer/Application/">
+    <Project Path="src/Modules/Customer/Application/Mkbj.Modules.Customer.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Customer/Adapter/Outbound/">
+    <Project Path="src/Modules/Customer/Adapter/Outbound/Mkbj.Modules.Customer.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Customer/Adapter/" />
+  <Folder Name="/src/Modules/Customer/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Customer/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Customer/Adapter/Inbound/Rest/Mkbj.Modules.Customer.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Customer/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Customer/Adapter/Inbound/GraphQL/Mkbj.Modules.Customer.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Customer/QueryApplication/">
+    <Project Path="src/Modules/Customer/QueryApplication/Mkbj.Modules.Customer.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Customer/Installer/">
+    <Project Path="src/Modules/Customer/Installer/Mkbj.Modules.Customer.Installer.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+
+  <Folder Name="/src/Modules/Sourcing/" />
+  <Folder Name="/src/Modules/Sourcing/Application/">
+    <Project Path="src/Modules/Sourcing/Application/Mkbj.Modules.Sourcing.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Sourcing/Adapter/Outbound/">
+    <Project Path="src/Modules/Sourcing/Adapter/Outbound/Mkbj.Modules.Sourcing.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Sourcing/Adapter/" />
+  <Folder Name="/src/Modules/Sourcing/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Sourcing/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Sourcing/Adapter/Inbound/Rest/Mkbj.Modules.Sourcing.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Sourcing/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Sourcing/Adapter/Inbound/GraphQL/Mkbj.Modules.Sourcing.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Sourcing/QueryApplication/">
+    <Project Path="src/Modules/Sourcing/QueryApplication/Mkbj.Modules.Sourcing.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Sourcing/Installer/">
+    <Project Path="src/Modules/Sourcing/Installer/Mkbj.Modules.Sourcing.Installer.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Modules/Admin/" />
+  <Folder Name="/src/Modules/Admin/Application/">
+    <Project Path="src/Modules/Admin/Application/Mkbj.Modules.Admin.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Admin/Adapter/Outbound/">
+    <Project Path="src/Modules/Admin/Adapter/Outbound/Mkbj.Modules.Admin.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Admin/Adapter/" />
+  <Folder Name="/src/Modules/Admin/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Admin/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Admin/Adapter/Inbound/Rest/Mkbj.Modules.Admin.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Admin/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Admin/Adapter/Inbound/GraphQL/Mkbj.Modules.Admin.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Admin/Installer/">
+    <Project Path="src/Modules/Admin/Installer/Mkbj.Modules.Admin.Installer.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Modules/Sales/" />
+  <Folder Name="/src/Modules/Sales/Application/">
+    <Project Path="src/Modules/Sales/Application/Mkbj.Modules.Sales.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Sales/Adapter/Outbound/">
+    <Project Path="src/Modules/Sales/Adapter/Outbound/Mkbj.Modules.Sales.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Sales/Adapter/" />
+  <Folder Name="/src/Modules/Sales/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Sales/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Sales/Adapter/Inbound/GraphQL/Mkbj.Modules.Sales.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Sales/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Sales/Adapter/Inbound/Rest/Mkbj.Modules.Sales.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Sales/QueryApplication/">
+    <Project Path="src/Modules/Sales/QueryApplication/Mkbj.Modules.Sales.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Sales/Installer/">
+    <Project Path="src/Modules/Sales/Installer/Mkbj.Modules.Sales.Installer.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Modules/Pricing/" />
+  <Folder Name="/src/Modules/Pricing/Application/">
+    <Project Path="src/Modules/Pricing/Application/Mkbj.Modules.Pricing.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Pricing/Adapter/Outbound/">
+    <Project Path="src/Modules/Pricing/Adapter/Outbound/Mkbj.Modules.Pricing.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Pricing/Adapter/" />
+  <Folder Name="/src/Modules/Pricing/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Pricing/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Pricing/Adapter/Inbound/GraphQL/Mkbj.Modules.Pricing.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Pricing/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Pricing/Adapter/Inbound/Rest/Mkbj.Modules.Pricing.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Pricing/QueryApplication/">
+    <Project Path="src/Modules/Pricing/QueryApplication/Mkbj.Modules.Pricing.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Pricing/Installer/">
+    <Project Path="src/Modules/Pricing/Installer/Mkbj.Modules.Pricing.Installer.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Modules/Settings/" />
+  <Folder Name="/src/Modules/Settings/Application/">
+    <Project Path="src/Modules/Settings/Application/Mkbj.Modules.Settings.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Settings/Adapter/Outbound/">
+    <Project Path="src/Modules/Settings/Adapter/Outbound/Mkbj.Modules.Settings.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Settings/Adapter/" />
+  <Folder Name="/src/Modules/Settings/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Settings/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Settings/Adapter/Inbound/Rest/Mkbj.Modules.Settings.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Settings/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Settings/Adapter/Inbound/GraphQL/Mkbj.Modules.Settings.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Settings/QueryApplication/">
+    <Project Path="src/Modules/Settings/QueryApplication/Mkbj.Modules.Settings.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Settings/Installer/">
+    <Project Path="src/Modules/Settings/Installer/Mkbj.Modules.Settings.Installer.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Modules/Partners/" />
+  <Folder Name="/src/Modules/Partners/Application/">
+    <Project Path="src/Modules/Partners/Application/Mkbj.Modules.Partners.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Partners/Adapter/Outbound/">
+    <Project Path="src/Modules/Partners/Adapter/Outbound/Mkbj.Modules.Partners.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Partners/Adapter/" />
+  <Folder Name="/src/Modules/Partners/Adapter/Inbound/" />
+  <Folder Name="/src/Modules/Partners/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Partners/Adapter/Inbound/Rest/Mkbj.Modules.Partners.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Partners/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Partners/Adapter/Inbound/GraphQL/Mkbj.Modules.Partners.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Partners/QueryApplication/">
+    <Project Path="src/Modules/Partners/QueryApplication/Mkbj.Modules.Partners.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Partners/Installer/">
+    <Project Path="src/Modules/Partners/Installer/Mkbj.Modules.Partners.Installer.csproj" />
+  </Folder>
+
+
+
+  <Folder Name="/src/Database/">
+    <Project Path="src/Database/Mkbj.Database.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Host/">
+    <Project Path="src/Host/Mkbj.Host/Mkbj.Host.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Authorization/">
+    <Project Path="src/Authorization/Authorization.Abstractions/Authorization.Abstractions.csproj" />
+    <Project Path="src/Authorization/Authorization.Application/Authorization.Application.csproj" />
+    <Project Path="src/Authorization/Authorization.Implementation/Authorization.Implementation.csproj" />
+    <Project Path="src/Authorization/Authorization.Endpoints/Authorization.Endpoints.csproj" />
+  </Folder>
+
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/ArchitectureTests/">
+    <Project Path="tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/PersistenceContractTests/">
+    <Project Path="tests/PersistenceContractTests/Mkbj.PersistenceContractTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/UnitTests/">
+    <Project Path="tests/UnitTests/Mkbj.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/IntegrationTests/">
+    <Project Path="tests/IntegrationTests/Mkbj.IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/CompositionSimulator/Mkbj.Tools.CompositionSimulator.csproj" />
+  </Folder>
+</Solution>

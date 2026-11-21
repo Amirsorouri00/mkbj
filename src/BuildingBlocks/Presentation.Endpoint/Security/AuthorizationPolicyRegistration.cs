@@ -1,10 +1,10 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 
-using EwaysVNext.Core.Application;
-using EwaysVNext.Core.Application.Security;
+using Mkbj.Core.Application;
+using Mkbj.Core.Application.Security;
 using Microsoft.AspNetCore.Authorization;
 
-namespace EwaysVNext.Presentation.Endpoint.Security;
+namespace Mkbj.Presentation.Endpoint.Security;
 
 public static class AuthorizationPolicyRegistration
 {
@@ -12,18 +12,18 @@ public static class AuthorizationPolicyRegistration
     /// Registers the realm policies. Partner scope policies are registered separately, because
     /// they need the scope requirement handler that ships with the Partners module.
     /// </summary>
-    public static AuthorizationOptions AddEwaysAuthorizationPolicies(this AuthorizationOptions options)
+    public static AuthorizationOptions AddMkbjAuthorizationPolicies(this AuthorizationOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
 
         options.AddPolicy(AuthPolicies.AdminStaff, policy => policy
             .RequireAuthenticatedUser()
-            .RequireClaim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm)
+            .RequireClaim(MkbjClaimTypes.Tenant, AdminRoles.BackofficeRealm)
             .RequireRole(AdminRoles.Staff, AdminRoles.SuperAdmin));
 
         options.AddPolicy(AuthPolicies.AdminSuper, policy => policy
             .RequireAuthenticatedUser()
-            .RequireClaim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm)
+            .RequireClaim(MkbjClaimTypes.Tenant, AdminRoles.BackofficeRealm)
             .RequireRole(AdminRoles.SuperAdmin));
 
         // The Shop realm gate carries no role requirement: every authenticated customer is the
@@ -31,7 +31,7 @@ public static class AuthorizationPolicyRegistration
         // by a role.
         options.AddPolicy(AuthPolicies.ShopCustomer, policy => policy
             .RequireAuthenticatedUser()
-            .RequireClaim(EwaysClaimTypes.Tenant, AdminRoles.ShopRealm));
+            .RequireClaim(MkbjClaimTypes.Tenant, AdminRoles.ShopRealm));
 
         // One policy per scope. They authenticate with the API-key scheme ONLY: a backoffice JWT
         // must not satisfy a partner endpoint, because a partner endpoint answers "for this
@@ -52,7 +52,7 @@ public static class AuthorizationPolicyRegistration
     {
         ArgumentNullException.ThrowIfNull(user);
 
-        return user.HasClaim(EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm)
+        return user.HasClaim(MkbjClaimTypes.Tenant, AdminRoles.BackofficeRealm)
             && (user.IsInRole(AdminRoles.Staff) || user.IsInRole(AdminRoles.SuperAdmin));
     }
 }

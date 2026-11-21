@@ -1,14 +1,14 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Domain.ValueObjects;
-using EwaysVNext.Modules.Customer.Application.Customers.Domain;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Outbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using Mkbj.Domain.Common;
+using Mkbj.Domain.ValueObjects;
+using Mkbj.Modules.Customer.Application.Customers.Domain;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Outbound;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 
-using CustomerAggregate = EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer;
+using CustomerAggregate = Mkbj.Modules.Customer.Application.Customers.Domain.Customer;
 
-namespace EwaysVNext.Modules.Customer.Application.Customers.Services;
+namespace Mkbj.Modules.Customer.Application.Customers.Services;
 
 public sealed class WebsiteCustomerService(
     ICustomerRepository repository,

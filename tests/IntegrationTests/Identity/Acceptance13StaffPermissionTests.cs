@@ -4,13 +4,13 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Settings.Application.Settings.Domain;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Core.Application.Security;
+using Mkbj.Modules.Settings.Application.Settings.Domain;
+using Mkbj.Core.Application;
+using Mkbj.Core.Application.Security;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Identity;
+namespace Mkbj.IntegrationTests.Identity;
 
 /// <summary>
 /// PRD acceptance 13: staff run the shop; a super admin alone touches partners, settings, money

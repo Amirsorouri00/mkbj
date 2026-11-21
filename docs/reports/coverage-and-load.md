@@ -17,13 +17,13 @@ the other is the mistake this split exists to prevent.
 | Docker | 29.5.2 |
 | Git SHA | `201c71b` |
 | Stack | `build/compose/docker-compose.yml` + `docker-compose.smoke.yml`, brought up by `tools/smoke/smoke.sh --keep` |
-| Image | `eways-api:latest`, built by `build/docker/api.Dockerfile` from `mcr.microsoft.com/dotnet/aspnet@sha256:a9298ccc39c6258ae71228479e2f3f8d2ceb6639a9927262a4b0ff7d319a0e7e` |
+| Image | `mkbj-api:latest`, built by `build/docker/api.Dockerfile` from `mcr.microsoft.com/dotnet/aspnet@sha256:a9298ccc39c6258ae71228479e2f3f8d2ceb6639a9927262a4b0ff7d319a0e7e` |
 | Catalogue | 400 sellable variants in each of USD, EUR, SGD, AED, GBP, from `--seed` |
 | Commerce limits | min USD 10.00, max USD 1,000,000.00, composition deadline 8,000 ms, max 200 lines |
 
 The load ran **on the production compose stack**: the real image, migrated by the real `--migrate`
 against the real roles script, with k6 inside the stack's own network reaching the API by service
-name. The database was queried as `eways_app`, the role that owns nothing — the same role the
+name. The database was queried as `mkbj_app`, the role that owns nothing — the same role the
 application uses, under the production grants.
 
 An earlier revision of this report measured a locally built host against the dev containers,
@@ -125,7 +125,7 @@ refusals they are, alongside `EXACT_COMPOSITION_UNAVAILABLE`.
 
 ## 6. Live composition telemetry
 
-From `sales.composition_attempts` on the stack's own database, read as `eways_app` — the engine's
+From `sales.composition_attempts` on the stack's own database, read as `mkbj_app` — the engine's
 own record of the same run.
 
 | Currency | Attempts | Succeeded | p50 ms | p95 ms | p99 ms | Mean lines |
@@ -175,7 +175,7 @@ for whoever answers it:
 ```bash
 # 1. The simulator. No database, no host, no Docker — the engine is pure, so this needs nothing
 #    running and gives the same report on any machine from the same seed.
-dotnet run --project tools/CompositionSimulator/EwaysVNext.Tools.CompositionSimulator.csproj -c Release -- --samples 2000 --seed 20261028 --deadline-ms 8000 --out docs/reports/composition-coverage
+dotnet run --project tools/CompositionSimulator/Mkbj.Tools.CompositionSimulator.csproj -c Release -- --samples 2000 --seed 20261028 --deadline-ms 8000 --out docs/reports/composition-coverage
 ```
 
 ```bash
@@ -196,14 +196,14 @@ curl -fsS -X POST http://127.0.0.1:18080/api/v1/admin/partners -H "Authorization
 ```
 
 ```bash
-# 5. The load run, inside the stack's own network. `eways_default` is the compose project's
-#    network — not `eways-dev_default`, which is the dev stack and resolves no `api` host.
-docker run --rm -i --network eways_default -v "$PWD:/work" -w /work -e BASE_URL=http://api:8080 -e API_KEY="$PARTNER_KEY" -e RATE=90 -e DURATION=5m grafana/k6:0.54.0 run --summary-export=/work/docs/reports/k6-partner-orders.json tests/load/partner-orders.js
+# 5. The load run, inside the stack's own network. `mkbj_default` is the compose project's
+#    network — not `mkbj-dev_default`, which is the dev stack and resolves no `api` host.
+docker run --rm -i --network mkbj_default -v "$PWD:/work" -w /work -e BASE_URL=http://api:8080 -e API_KEY="$PARTNER_KEY" -e RATE=90 -e DURATION=5m grafana/k6:0.54.0 run --summary-export=/work/docs/reports/k6-partner-orders.json tests/load/partner-orders.js
 ```
 
 ```bash
 # 6. The server side of the same run, read as the application's own role.
-docker compose -f build/compose/docker-compose.yml -f build/compose/docker-compose.smoke.yml --env-file build/compose/.env.smoke exec -T -e PGPASSWORD="$APP_DB_PASSWORD" postgres psql -U eways_app -d eways -At -F '|' -c "SELECT currency, count(*), count(*) FILTER (WHERE succeeded), round(percentile_cont(0.5) WITHIN GROUP (ORDER BY duration_ms)), round(percentile_cont(0.95) WITHIN GROUP (ORDER BY duration_ms)), round(percentile_cont(0.99) WITHIN GROUP (ORDER BY duration_ms)), round(avg(lines),1) FROM sales.composition_attempts GROUP BY currency ORDER BY currency;"
+docker compose -f build/compose/docker-compose.yml -f build/compose/docker-compose.smoke.yml --env-file build/compose/.env.smoke exec -T -e PGPASSWORD="$APP_DB_PASSWORD" postgres psql -U mkbj_app -d mkbj -At -F '|' -c "SELECT currency, count(*), count(*) FILTER (WHERE succeeded), round(percentile_cont(0.5) WITHIN GROUP (ORDER BY duration_ms)), round(percentile_cont(0.95) WITHIN GROUP (ORDER BY duration_ms)), round(percentile_cont(0.99) WITHIN GROUP (ORDER BY duration_ms)), round(avg(lines),1) FROM sales.composition_attempts GROUP BY currency ORDER BY currency;"
 ```
 
 ```bash

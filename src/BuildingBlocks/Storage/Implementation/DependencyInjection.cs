@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
-namespace EwaysVNext.Storage.Implementation;
+namespace Mkbj.Storage.Implementation;
 
 public static class DependencyInjection
 {

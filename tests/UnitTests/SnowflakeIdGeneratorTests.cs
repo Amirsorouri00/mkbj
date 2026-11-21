@@ -1,8 +1,8 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public class SnowflakeIdGeneratorTests
 {

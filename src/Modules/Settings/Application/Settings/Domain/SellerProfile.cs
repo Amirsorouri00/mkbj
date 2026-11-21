@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Settings.Application.Settings.Domain;
+namespace Mkbj.Modules.Settings.Application.Settings.Domain;
 
 /// <summary>
 /// Who the seller is, as it appears on an invoice. A singleton: there is one seller.

@@ -1,12 +1,12 @@
-using EwaysVNext.Outcomes;
-using EwaysVNext.Modules.Catalog.QueryApplication.Categories;
-using EwaysVNext.Presentation.Endpoint;
+using Mkbj.Outcomes;
+using Mkbj.Modules.Catalog.QueryApplication.Categories;
+using Mkbj.Presentation.Endpoint;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest.Categories;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.Rest.Categories;
 
 public sealed class CategoryPublicEndpoints
 {

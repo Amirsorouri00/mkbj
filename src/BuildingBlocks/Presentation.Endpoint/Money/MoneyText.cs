@@ -1,7 +1,7 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace EwaysVNext.Presentation.Endpoint.Money;
+namespace Mkbj.Presentation.Endpoint.Money;
 
 /// <summary>
 /// The one wire format for money: exactly <c>digits.dd</c>, parsed to and formatted from minor
@@ -18,7 +18,7 @@ public static partial class MoneyText
 {
     /// <summary>
     /// Every currency the MVP supports has two minor units. This mirrors
-    /// <c>EwaysVNext.Persistence.MinorUnits</c>, which presentation must not reference — the
+    /// <c>Mkbj.Persistence.MinorUnits</c>, which presentation must not reference — the
     /// dependency would run the wrong way.
     /// </summary>
     private const int Factor = 100;

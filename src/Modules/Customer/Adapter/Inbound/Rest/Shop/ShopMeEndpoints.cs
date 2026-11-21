@@ -1,16 +1,16 @@
 using System.Security.Claims;
 
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
-using EwaysVNext.Modules.Customer.QueryApplication.Customers;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
+using Mkbj.Modules.Customer.QueryApplication.Customers;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace EwaysVNext.Modules.Customer.Adapter.Inbound.Rest.Shop;
+namespace Mkbj.Modules.Customer.Adapter.Inbound.Rest.Shop;
 
 /// <summary>
 /// A website customer's own profile.

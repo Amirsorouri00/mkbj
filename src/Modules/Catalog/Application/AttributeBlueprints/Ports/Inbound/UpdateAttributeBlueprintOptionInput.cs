@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
+namespace Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
 
 public sealed record UpdateAttributeBlueprintOptionInput(
     long? OptionId,

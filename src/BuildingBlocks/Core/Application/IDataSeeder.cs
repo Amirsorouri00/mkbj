@@ -1,4 +1,4 @@
-namespace EwaysVNext.Core.Application;
+namespace Mkbj.Core.Application;
 
 /// <summary>
 /// Seeds reference data a module needs to work at all — enabled currencies, the permission matrix,

@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EwaysVNext.Database.Catalog.Configurations;
+namespace Mkbj.Database.Catalog.Configurations;
 
 internal sealed class MeasurementUnitConfiguration : IEntityTypeConfiguration<MeasurementUnit>
 {

@@ -1,7 +1,7 @@
-﻿using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound;
+namespace Mkbj.Modules.Pricing.Application.Fx.Ports.Inbound;
 
 /// <remarks>
 /// <c>Fx</c> is null when no conversion happened — the amount was already in dollars. Otherwise

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace EwaysVNext.Storage.Implementation;
+namespace Mkbj.Storage.Implementation;
 
 /// <summary>
 /// Readiness probe for the object store. It checks that a known private bucket answers, so a

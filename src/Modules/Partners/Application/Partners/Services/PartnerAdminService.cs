@@ -1,17 +1,17 @@
 using System.Globalization;
 
-using EwaysVNext.Audit;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Partners.Application.Partners.Domain;
-using EwaysVNext.Modules.Partners.Application.Partners.Keys;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Inbound;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Outbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using Mkbj.Audit;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Partners.Application.Partners.Domain;
+using Mkbj.Modules.Partners.Application.Partners.Keys;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Inbound;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Outbound;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 using Microsoft.Extensions.Options;
 
-namespace EwaysVNext.Modules.Partners.Application.Partners.Services;
+namespace Mkbj.Modules.Partners.Application.Partners.Services;
 
 /// <summary>
 /// Partner administration (spec §5.1). Each method is load → mutate → audit → one save, and each

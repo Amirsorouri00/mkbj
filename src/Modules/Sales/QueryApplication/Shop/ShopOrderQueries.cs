@@ -1,13 +1,13 @@
 using System.Text.Json;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
-using EwaysVNext.Modules.Sales.QueryApplication.Partner;
-using EwaysVNext.Outcomes;
+using Mkbj.Core.Application;
+using Mkbj.Database;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Modules.Sales.QueryApplication.Partner;
+using Mkbj.Outcomes;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Sales.QueryApplication.Shop;
+namespace Mkbj.Modules.Sales.QueryApplication.Shop;
 
 /// <remarks>
 /// The documents are the pro forma and, once an administrator has confirmed payment, the
@@ -40,7 +40,7 @@ public interface IShopOrderQueries
 /// customer id so nobody reads someone else's order, and the channel so a partner-placed order
 /// billed to the same person does not appear in a shop history they never shopped.
 /// </remarks>
-internal sealed class ShopOrderQueries(EwaysVNextDbContext db) : IShopOrderQueries
+internal sealed class ShopOrderQueries(MkbjDbContext db) : IShopOrderQueries
 {
     private const int MaxLimit = 100;
 

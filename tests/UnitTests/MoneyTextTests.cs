@@ -1,8 +1,8 @@
 using AwesomeAssertions;
-using EwaysVNext.Presentation.Endpoint.Money;
+using Mkbj.Presentation.Endpoint.Money;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 /// <summary>
 /// The wire format for money. Strictness is the whole point: anything this accepts, the API has

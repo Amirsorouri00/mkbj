@@ -1,8 +1,8 @@
 using AuthorizationService.Application.Scopes;
 using AuthorizationService.Application.Scopes.Requests;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.Security;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.Security;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
 using HotChocolate.Authorization;
 
 namespace AuthorizationService.Endpoints.Scopes;

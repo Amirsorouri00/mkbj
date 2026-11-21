@@ -1,6 +1,6 @@
-﻿using EwaysVNext.Domain.Events;
+using Mkbj.Domain.Events;
 
-namespace EwaysVNext.Modules.Catalog.Application.Products.Domain;
+namespace Mkbj.Modules.Catalog.Application.Products.Domain;
 
 public sealed record ProductActivatedDomainEvent(long ProductId) : DomainEvent;
 

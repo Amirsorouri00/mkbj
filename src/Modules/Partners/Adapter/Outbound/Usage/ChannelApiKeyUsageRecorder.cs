@@ -1,10 +1,10 @@
 using System.Threading.Channels;
 
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Inbound;
-using EwaysVNext.Modules.Partners.Application.Usage;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Inbound;
+using Mkbj.Modules.Partners.Application.Usage;
 using Microsoft.Extensions.Options;
 
-namespace EwaysVNext.Modules.Partners.Adapter.Outbound.Usage;
+namespace Mkbj.Modules.Partners.Adapter.Outbound.Usage;
 
 /// <summary>
 /// A bounded in-memory queue between the request thread and the writer.

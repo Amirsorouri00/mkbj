@@ -1,13 +1,13 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.Brands.Domain;
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Common;
-using EwaysVNext.Persistence;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.Brands.Domain;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Common;
+using Mkbj.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound.Repositories.Brands;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound.Repositories.Brands;
 
-internal sealed class BrandRepository(EwaysVNextDbContext db)
+internal sealed class BrandRepository(MkbjDbContext db)
     : EfCoreRepository<Brand, long>(db), IBrandRepository
 {
     public new async Task<Brand?> GetByIdAsync(long id, CancellationToken ct = default)

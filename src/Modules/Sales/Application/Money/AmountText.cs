@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace EwaysVNext.Modules.Sales.Application.Money;
+namespace Mkbj.Modules.Sales.Application.Money;
 
 /// <summary>
 /// The one amount format Sales accepts and emits: exactly two decimal digits, invariantly.

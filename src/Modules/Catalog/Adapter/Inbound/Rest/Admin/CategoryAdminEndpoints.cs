@@ -1,19 +1,19 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using AuthorizationService.Abstractions.Extensions;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Modules.Catalog.Application.Categories.Commands;
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.QueryApplication.Categories;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Modules.Catalog.Application.Categories.Commands;
+using Mkbj.Modules.Catalog.Contracts.Categories;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Inbound;
+using Mkbj.Modules.Catalog.QueryApplication.Categories;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest.Admin;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.Rest.Admin;
 
 public sealed record CreateCategoryRequest(
     string Name, string Slug, string? Description, long? ParentId, int DisplayOrder);

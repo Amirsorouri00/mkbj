@@ -1,10 +1,10 @@
-using EwaysVNext.Modules.Sales.Application.Composition;
-using EwaysVNext.Tools.CompositionSimulator;
+using Mkbj.Modules.Sales.Application.Composition;
+using Mkbj.Tools.CompositionSimulator;
 using FsCheck;
 using FsCheck.Fluent;
 using FsCheck.Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Composition;
+namespace Mkbj.UnitTests.Sales.Composition;
 
 /// <summary>
 /// Properties that must hold for every amount, not just the ones someone thought to write down.
@@ -25,7 +25,7 @@ public sealed class CompositionPropertyTests
 {
     private const int MaxLines = 200;
 
-    private static EwaysVNext.Outcomes.Result<CompositionPlan> Compose(long target, string currency, long seed) =>
+    private static Mkbj.Outcomes.Result<CompositionPlan> Compose(long target, string currency, long seed) =>
         CompositionEngine.Compose(
             target,
             SeedLikeCatalog.For(currency),

@@ -1,11 +1,11 @@
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Services;
+namespace Mkbj.UnitTests.Sales.Services;
 
 /// <summary>
 /// The partner order flow, and the order its steps must happen in.

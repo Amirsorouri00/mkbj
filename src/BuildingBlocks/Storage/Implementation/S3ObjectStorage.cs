@@ -1,9 +1,9 @@
-﻿using System.Net;
+using System.Net;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Options;
 
-namespace EwaysVNext.Storage.Implementation;
+namespace Mkbj.Storage.Implementation;
 
 /// <summary>
 /// <see cref="IObjectStorage"/> over the S3 API. MinIO is the deployed implementation, but nothing

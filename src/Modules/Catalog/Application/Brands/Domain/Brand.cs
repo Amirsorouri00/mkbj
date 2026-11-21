@@ -1,7 +1,7 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Common;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Common;
 
-namespace EwaysVNext.Modules.Catalog.Application.Brands.Domain;
+namespace Mkbj.Modules.Catalog.Application.Brands.Domain;
 
 /// <summary>
 /// A manufacturer or marque a product is sold under.

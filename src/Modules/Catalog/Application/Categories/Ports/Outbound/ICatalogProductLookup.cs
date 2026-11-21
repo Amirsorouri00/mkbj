@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
+namespace Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
 
 public interface ICatalogProductLookup
 {

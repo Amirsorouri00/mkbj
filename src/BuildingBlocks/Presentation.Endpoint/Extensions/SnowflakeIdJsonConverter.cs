@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Presentation.Endpoint.Extensions;
+namespace Mkbj.Presentation.Endpoint.Extensions;
 
 public sealed class SnowflakeIdJsonConverter : JsonConverter<SnowflakeId>
 {

@@ -1,13 +1,13 @@
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Partners.Application.Partners.Keys;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Outbound;
-using EwaysVNext.Modules.Partners.Application.Partners.Services;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Partners.Application.Partners.Keys;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Outbound;
+using Mkbj.Modules.Partners.Application.Partners.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Partners;
+namespace Mkbj.UnitTests.Partners;
 
 /// <summary>
 /// Authentication refuses in exactly one way. Every failure returns null and says nothing about

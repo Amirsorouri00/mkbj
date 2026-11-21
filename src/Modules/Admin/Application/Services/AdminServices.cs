@@ -1,10 +1,10 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Admin.Application.Ports.Inbound;
-using EwaysVNext.Modules.Admin.Application.Ports.Outbound;
-using EwaysVNext.Modules.Admin.Application.Views;
-using EwaysVNext.Outcomes;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Admin.Application.Ports.Inbound;
+using Mkbj.Modules.Admin.Application.Ports.Outbound;
+using Mkbj.Modules.Admin.Application.Views;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Admin.Application.Services;
+namespace Mkbj.Modules.Admin.Application.Services;
 
 /// <summary>
 /// The dashboard, composed from what each module already knows.

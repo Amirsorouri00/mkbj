@@ -1,14 +1,15 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.QueryApplication.Brands;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Queries.Application.Paginations;
+using System.Text.Json;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.QueryApplication.Brands;
+using Mkbj.Outcomes;
+using Mkbj.Queries.Application.Paginations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace EwaysVNext.Modules.Catalog.QueryApplication.Products;
+namespace Mkbj.Modules.Catalog.QueryApplication.Products;
 
-public sealed class CatalogAdminQueries(EwaysVNextDbContext db, IConfiguration configuration)
+public sealed class CatalogAdminQueries(MkbjDbContext db, IConfiguration configuration)
     : ICatalogAdminQueries
 {
     private const int MaxPageSize = 100;
@@ -199,9 +200,109 @@ public sealed class CatalogAdminQueries(EwaysVNextDbContext db, IConfiguration c
             product.UpdatedAt));
     }
 
+    public async Task<IReadOnlyList<ProductAdminVariantLookupDto>> SearchVariantsAsync(
+        string query, int take, CancellationToken ct = default)
+    {
+        var term = query.Trim();
+        if (term.Length < 2) return [];
+
+        var limit = Math.Clamp(take, 1, 20);
+        var hasExactId = long.TryParse(term, out var exactId);
+        var pattern = $"%{EscapeLike(term)}%";
+
+        // SKU is a value object in the aggregate. Reaching through Sku.Value in LINQ cannot be
+        // translated by every relational provider, even though the persistence edge stores it as
+        // text. This read-side query names that storage contract explicitly and keeps all user
+        // input parameterized.
+        FormattableString sql;
+        if (hasExactId)
+        {
+            sql = $"""
+              SELECT
+                  variant.id AS variant_id,
+                  product.id AS product_id,
+                  product.title AS product_title,
+                  brand.display_name AS brand_name,
+                  category.name AS category_name,
+                  variant.sku AS sku,
+                  variant.attribute_values::text AS attribute_values_json,
+                  variant.is_active AS is_active
+              FROM catalog.variants AS variant
+              JOIN catalog.products AS product ON product.id = variant.product_id
+              JOIN catalog.brands AS brand ON brand.id = product.brand_id
+              JOIN catalog.categories AS category ON category.id = product.primary_category_id
+              WHERE product.merged_into_product_id IS NULL
+                AND (
+                      variant.id = {exactId}
+                      OR product.id = {exactId}
+                      OR variant.sku ILIKE {pattern} ESCAPE '\'
+                      OR product.title ILIKE {pattern} ESCAPE '\'
+                      OR COALESCE(product.mpn, '') ILIKE {pattern} ESCAPE '\'
+                    )
+              ORDER BY CASE WHEN variant.id = {exactId} THEN 0 ELSE 1 END, product.title, variant.sku
+              LIMIT {limit}
+              """;
+        }
+        else
+        {
+            sql = $"""
+              SELECT
+                  variant.id AS variant_id,
+                  product.id AS product_id,
+                  product.title AS product_title,
+                  brand.display_name AS brand_name,
+                  category.name AS category_name,
+                  variant.sku AS sku,
+                  variant.attribute_values::text AS attribute_values_json,
+                  variant.is_active AS is_active
+              FROM catalog.variants AS variant
+              JOIN catalog.products AS product ON product.id = variant.product_id
+              JOIN catalog.brands AS brand ON brand.id = product.brand_id
+              JOIN catalog.categories AS category ON category.id = product.primary_category_id
+              WHERE product.merged_into_product_id IS NULL
+                AND (
+                      variant.sku ILIKE {pattern} ESCAPE '\'
+                      OR product.title ILIKE {pattern} ESCAPE '\'
+                      OR COALESCE(product.mpn, '') ILIKE {pattern} ESCAPE '\'
+                    )
+              ORDER BY product.title, variant.sku
+              LIMIT {limit}
+              """;
+        }
+
+        var rows = await db.Database.SqlQuery<VariantLookupRow>(sql).ToListAsync(ct);
+
+        return rows.Select(row => new ProductAdminVariantLookupDto(
+            row.VariantId,
+            row.ProductId,
+            row.ProductTitle,
+            row.BrandName,
+            row.CategoryName,
+            row.Sku,
+            JsonSerializer.Deserialize<Dictionary<string, string>>(row.AttributeValuesJson) ?? [],
+            row.IsActive)).ToList();
+    }
+
+    private static string EscapeLike(string value) =>
+        value.Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace("%", "\\%", StringComparison.Ordinal)
+            .Replace("_", "\\_", StringComparison.Ordinal);
+
     private static (int Page, int PageSize) Paging(int page, int pageSize) =>
         (Math.Max(page, 1), Math.Clamp(pageSize, 1, MaxPageSize));
 
     private static PaginatedQuery<T> Paginate<T>(int page, int pageSize, int totalCount, IReadOnlyList<T> items) =>
         new(page, pageSize, (int)Math.Ceiling(totalCount / (double)pageSize), totalCount, items);
+
+    private sealed class VariantLookupRow
+    {
+        public long VariantId { get; init; }
+        public long ProductId { get; init; }
+        public string ProductTitle { get; init; } = string.Empty;
+        public string BrandName { get; init; } = string.Empty;
+        public string CategoryName { get; init; } = string.Empty;
+        public string Sku { get; init; } = string.Empty;
+        public string AttributeValuesJson { get; init; } = "{}";
+        public bool IsActive { get; init; }
+    }
 }

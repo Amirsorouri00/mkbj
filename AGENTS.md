@@ -1,4 +1,4 @@
-﻿# AGENTS.md — EwaysVNext
+# AGENTS.md — MKBJ
 
 ## Project Overview
 
@@ -99,9 +99,9 @@ BuildingBlocks/
                                     AddUserProfileService
 
 Authorization/                   ← RBAC subsystem (permissions, roles, scopes), its own DbContext
-Database/                        ← The ONE EwaysVNextDbContext, every module's EF configurations,
+Database/                        ← The ONE MkbjDbContext, every module's EF configurations,
                                     DatabaseMigrator, Migrations/, repeatable Scripts/*.sql
-Host/EwaysVNext.Host/            ← Entry point: module wiring, host commands, the pipeline
+Host/Mkbj.Host/            ← Entry point: module wiring, host commands, the pipeline
 Modules/{Catalog,Customer,Partners,Settings,Pricing,Sales}/
 ├── Application/                 ← Hexagon: Domain + Ports + Service
 ├── Adapter/Inbound/{Rest,GraphQL}/
@@ -159,38 +159,38 @@ then `AddUnifiedDatabase`, `AddObjectStorage`, `AddJobs` and `AddAudit`. No modu
 # Dependencies (Postgres, MinIO, Keycloak). The API runs from your IDE against these.
 docker compose -f build/compose/docker-compose.dev.yml up -d
 
-dotnet restore EwaysVNext.slnx
-dotnet build EwaysVNext.slnx
-dotnet run --project src/Host/EwaysVNext.Host
+dotnet restore Mkbj.slnx
+dotnet build Mkbj.slnx
+dotnet run --project src/Host/Mkbj.Host
 
 # Apply migrations — the host NEVER migrates on startup
-dotnet run --project src/Host/EwaysVNext.Host -- --migrate
+dotnet run --project src/Host/Mkbj.Host -- --migrate
 
 # Other host modes (one image, four roles)
-dotnet run --project src/Host/EwaysVNext.Host -- --worker          # background worker only
-dotnet run --project src/Host/EwaysVNext.Host -- --seed            # refuses in Production
+dotnet run --project src/Host/Mkbj.Host -- --worker          # background worker only
+dotnet run --project src/Host/Mkbj.Host -- --seed            # refuses in Production
 #   Runs every registered IDataSeeder in Order, the demo catalogue (160 products /
 #   400 variants, deterministic) last. A seeder reports failure by throwing; --seed
 #   turns that into exit code 2.
-dotnet run --project src/Host/EwaysVNext.Host -- --probe <url>     # 0 healthy, 1 not, 64 usage
+dotnet run --project src/Host/Mkbj.Host -- --probe <url>     # 0 healthy, 1 not, 64 usage
 
 # One DbContext for the whole app, so this is the only migration command
-dotnet ef migrations add {Name} -p src/Database -s src/Host/EwaysVNext.Host
+dotnet ef migrations add {Name} -p src/Database -s src/Host/Mkbj.Host
 
 # Tests. xUnit v3 on Microsoft.Testing.Platform; global.json's
 # "test": { "runner": "Microsoft.Testing.Platform" } is what makes `dotnet test` work here.
-dotnet test EwaysVNext.slnx
-dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj
-dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj
-dotnet test --project tests/PersistenceContractTests/EwaysVNext.PersistenceContractTests.csproj
-dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj   # needs Docker
+dotnet test Mkbj.slnx
+dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj
+dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj
+dotnet test --project tests/PersistenceContractTests/Mkbj.PersistenceContractTests.csproj
+dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj   # needs Docker
 
 # Filters (Microsoft.Testing.Platform, not --filter)
-dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.MinorUnitsTests"
-dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-method "*Rejects_Overflow"
+dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.MinorUnitsTests"
+dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-method "*Rejects_Overflow"
 
 # Production image and stack
-docker build -f build/docker/api.Dockerfile -t eways-api:local .
+docker build -f build/docker/api.Dockerfile -t mkbj-api:local .
 docker compose -f build/compose/docker-compose.yml --env-file build/compose/.env config --quiet
 ```
 
@@ -203,7 +203,7 @@ defaulting.
 | Variable | Required | Notes |
 |---|---|---|
 | `ConnectionStrings__Default` | Yes | Postgres. Missing outside Development throws; in Development it falls back to EF InMemory. |
-| `APP_DB_PASSWORD` / `MIGRATOR_DB_PASSWORD` | Yes (compose) | `eways_app` writes rows and owns nothing; `eways_migrator` owns the schema. |
+| `APP_DB_PASSWORD` / `MIGRATOR_DB_PASSWORD` | Yes (compose) | `mkbj_app` writes rows and owns nothing; `mkbj_migrator` owns the schema. |
 | `Minio__Endpoint` / `Minio__PublicEndpoint` | Yes | Internal address, and the browser-facing one presigned URLs are signed for. |
 | `Minio__AccessKey` / `Minio__SecretKey` | Yes | The application's own MinIO user, never the root account. |
 | `Jobs__Mode` | No | `InProcess` (default), `WorkerOnly`, `Disabled`. Production runs the API Disabled and one worker. |
@@ -272,7 +272,7 @@ A partner's own id is never bindable: it reaches a port through `PartnerPrincipa
 - `--migrate` applies the EF migrations and then every repeatable `src/Database/Scripts/*.sql` in
   name order — grants and anything else the EF model cannot express. The scripts are idempotent
   and run on every migrate.
-- There is one `EwaysVNextDbContext` and one history table; `Authorization` has its own.
+- There is one `MkbjDbContext` and one history table; `Authorization` has its own.
 - **EF validates a plpgsql body at `CREATE` time, and reports a reserved parameter name as a
   syntax error positioned inside the body.** It reads like a truncated statement. `concurrently`,
   `user`, `end` and friends are not available as parameter names.
@@ -296,7 +296,7 @@ Four suites, **2,220 tests** at 2026-11-08 (97 architecture, 1,666 unit, 18 pers
   EF InMemory (which executes, catching materialization failures a connection error would mask).
   Neither alone sees the whole contract.
 - **IntegrationTests** — the real host over a Testcontainers Postgres built by the same roles
-  script production uses, plus an S3 server. Tests connect as `eways_app`, so anything the
+  script production uses, plus an S3 server. Tests connect as `mkbj_app`, so anything the
   production grants forbid fails here too.
 
 Read [`docs/TESTING-GUARANTEES.md`](docs/TESTING-GUARANTEES.md) before trusting a green run.
@@ -307,12 +307,12 @@ is indistinguishable from one that works.
 
 ## Adding a New Module
 
-1. `./New-EwaysModule.ps1 -ModuleName {Name}` scaffolds the projects and wires the solution.
+1. `./New-MkbjModule.ps1 -ModuleName {Name}` scaffolds the projects and wires the solution.
 2. Add the name to `HexagonalBoundaryTests.ModuleNames` **in the same change**.
 3. Put read DTOs in that module's `QueryApplication`; the write side keeps its own local copies.
 4. Cross-module: Outbound Port in the consumer's Application → Gateway in its `Adapter.Outbound` →
    provider's Inbound Port, plus a row in `SanctionedReferences`. This is not transactional.
-5. Add `DbSet<T>` and `IEntityTypeConfiguration<T>` to `EwaysVNext.Database` under
+5. Add `DbSet<T>` and `IEntityTypeConfiguration<T>` to `Mkbj.Database` under
    `{Module}/Configurations/` — never a second `DbContext`.
 6. Register in `Program.cs`.
 
@@ -364,7 +364,7 @@ is indistinguishable from one that works.
 bash tools/smoke/smoke.sh          # --keep leaves it running
 
 # Composition coverage. Pure — no database, no host, no container.
-dotnet run --project tools/CompositionSimulator/EwaysVNext.Tools.CompositionSimulator.csproj -c Release
+dotnet run --project tools/CompositionSimulator/Mkbj.Tools.CompositionSimulator.csproj -c Release
 
 # A Backoffice token without weakening the committed realm (restores it from a trap).
 eval "$(bash tools/smoke/backoffice-token.sh http://127.0.0.1:8081 admin admin)"

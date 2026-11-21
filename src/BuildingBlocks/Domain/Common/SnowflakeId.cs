@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace EwaysVNext.Domain.Common;
+namespace Mkbj.Domain.Common;
 
 public readonly struct SnowflakeId(long value) : IEquatable<SnowflakeId>
 {

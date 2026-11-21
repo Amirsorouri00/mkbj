@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
 
-namespace EwaysVNext.Modules.Customer.QueryApplication.Customers;
+namespace Mkbj.Modules.Customer.QueryApplication.Customers;
 
 /// <summary>
 /// A customer's own view of themselves. Carries no partner fields: a website customer has none,

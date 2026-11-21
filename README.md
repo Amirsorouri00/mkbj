@@ -1,4 +1,4 @@
-# EwaysVNext — API-first B2B e-commerce MVP
+# MKBJ — API-first B2B e-commerce MVP
 
 A .NET 10 modular monolith built Hexagonal-First (Ports & Adapters), with machine-enforced module
 boundaries, synchronous in-process domain events, and no message broker.
@@ -17,8 +17,9 @@ Specified in [`docs/product-scope/ecommerce_mvp_prd.md`](docs/product-scope/ecom
 designed in [`docs/superpowers/specs/2026-10-28-ecommerce-mvp-design.md`](docs/superpowers/specs/2026-10-28-ecommerce-mvp-design.md),
 built against [`docs/superpowers/plans/2026-10-28-ecommerce-mvp.md`](docs/superpowers/plans/2026-10-28-ecommerce-mvp.md).
 
-> **Status: in progress.** The platform (phase 0) is complete. Partners, Settings, Pricing, Sales,
-> Sourcing and Admin are planned and not yet built — see the module table below.
+> **Status: implementation and validation in progress.** The modules below are implemented.
+> To test amount-to-order-to-invoice creation in Scalar and inspect submissions in Backoffice,
+> follow [Partner invoice testing](docs/PARTNER-INVOICE-TESTING.md).
 
 ## Stack
 
@@ -39,13 +40,13 @@ built against [`docs/superpowers/plans/2026-10-28-ecommerce-mvp.md`](docs/superp
 | Module | Status | Owns |
 |---|---|---|
 | **Catalog** | built | Categories, attribute blueprints, brands, products, variants, media |
-| **Customer** | shell | Website accounts and partner-linked identities — rebuilt in phase 1 ([ADR-0022](docs/adr/0022-remove-iran-specific-modules.md)) |
-| Partners | phase 1 | B2B partners, API keys, scopes, usage log |
-| Settings | phase 1 | Seller identity, payment instruction, commerce limits |
-| Pricing | phase 2 | Reference prices, currency overrides, FX rates |
-| Sales | phase 4–5 | Carts, orders, the composition engine, invoices, refunds |
-| Admin | phase 6 | Cross-module composition and the admin GraphQL |
-| Sourcing | phase 7 | Import jobs, staging, crawling, publishing |
+| **Customer** | built | Website accounts and partner-linked identities ([ADR-0022](docs/adr/0022-remove-iran-specific-modules.md)) |
+| Partners | built | B2B partners, API keys, scopes, usage log |
+| Settings | built | Seller identity, payment instruction, commerce limits |
+| Pricing | built | Reference prices, currency overrides, FX rates |
+| Sales | built | Carts, orders, composition, invoices, refunds, partner request history |
+| Admin | built | Cross-module composition and admin APIs |
+| Sourcing | built | Import jobs, staging, crawling, publishing |
 
 `HexagonalBoundaryTests.ModuleNames` is the authoritative list; a module missing from it escapes
 every boundary rule with the build still green.
@@ -72,9 +73,9 @@ every boundary rule with the build still green.
 # Dependencies: Postgres, MinIO, Keycloak. The API runs from your IDE against these.
 docker compose -f build/compose/docker-compose.dev.yml up -d
 
-dotnet run --project src/Host/EwaysVNext.Host -- --migrate   # the host never migrates on startup
-dotnet run --project src/Host/EwaysVNext.Host -- --seed      # refuses in Production
-dotnet run --project src/Host/EwaysVNext.Host
+dotnet run --project src/Host/Mkbj.Host -- --migrate   # the host never migrates on startup
+dotnet run --project src/Host/Mkbj.Host -- --seed      # refuses in Production
+dotnet run --project src/Host/Mkbj.Host
 ```
 
 One image, four roles — no arguments serves the API, plus `--worker`, `--migrate`, `--seed` and
@@ -89,7 +90,7 @@ docker compose -f build/compose/docker-compose.yml up -d
 ## Tests
 
 ```bash
-dotnet test EwaysVNext.slnx
+dotnet test Mkbj.slnx
 ```
 
 **IntegrationTests requires Docker**; the other three suites need nothing. It runs the real host
@@ -99,6 +100,13 @@ too.
 
 Read [`docs/TESTING-GUARANTEES.md`](docs/TESTING-GUARANTEES.md) before trusting a green run. It
 lists what each suite cannot see, including the parts that are written but not yet verified.
+
+## Free demo deployment
+
+The complete API, worker, PostgreSQL, Keycloak, MinIO, Backoffice and shop can be deployed to one
+OCI Always Free ARM VM through GitHub Actions. See
+[`docs/DEPLOYMENT-DEMO.md`](docs/DEPLOYMENT-DEMO.md) for the first-run seed, stable demo identities,
+required repository secrets and continuous-deployment workflow.
 
 ## Documentation
 

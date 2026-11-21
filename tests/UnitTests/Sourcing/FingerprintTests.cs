@@ -1,10 +1,10 @@
 using System.Text.Json.Nodes;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sourcing;
+namespace Mkbj.UnitTests.Sourcing;
 
 /// <summary>
 /// What makes two listings the same product.
@@ -76,7 +76,7 @@ public sealed class FingerprintTests
         if (name is not null) document["name"] = name;
 
         return new RawListing(
-            $"urn:eways:import:{jobId}:row:{row}",
+            $"urn:mkbj:import:{jobId}:row:{row}",
             null,
             null,
             Now,

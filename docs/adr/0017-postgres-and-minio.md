@@ -24,7 +24,7 @@ password in `appsettings.json`.
 ## Decision
 
 ### D1 — Npgsql, snake_case, one naming convention
-Both contexts (`EwaysVNextDbContext` and `AuthorizationDbContext`) use
+Both contexts (`MkbjDbContext` and `AuthorizationDbContext`) use
 `Npgsql.EntityFrameworkCore.PostgreSQL` with `UseSnakeCaseNamingConvention()` and
 `EnableRetryOnFailure(3, 2s)`.
 
@@ -64,7 +64,7 @@ exact-total arithmetic (spec §10) is integer arithmetic over the same unit the 
 
 ### D4 — A named schema per module, with no fallback
 `OnModelCreating` derives the schema from each aggregate's CLR namespace:
-`EwaysVNext.Modules.{X}.*` → `x`, `EwaysVNext.Jobs*` → `jobs`, `EwaysVNext.Audit*` → `audit`.
+`Mkbj.Modules.{X}.*` → `x`, `Mkbj.Jobs*` → `jobs`, `Mkbj.Audit*` → `audit`.
 Anything else **throws** and names the offending CLR type.
 
 The previous code fell back to `dbo` for unrecognised namespaces. A silent default is how two
@@ -76,26 +76,26 @@ Both are declared with `HasPostgresExtension`, so `init` creates them. The store
 (spec §8) needs trigram similarity for typo tolerance and `unaccent` for the search vector; the
 import pipeline's fuzzy matching (spec §5.5) needs `pg_trgm` at a 0.6 threshold.
 
-### D6 — Two database roles: `eways_migrator` owns, `eways_app` writes rows
+### D6 — Two database roles: `mkbj_migrator` owns, `mkbj_app` writes rows
 `build/postgres/init/01-roles.sql` runs once, as the superuser, when the data directory is
-initialised. `eways_migrator` owns the database and everything the migrations create; `eways_app`
+initialised. `mkbj_migrator` owns the database and everything the migrations create; `mkbj_app`
 connects and does DML and owns nothing, so the application cannot change its own schema.
 Passwords are read from the environment with psql's `\getenv`, so none is ever written into the
 file or baked into an image.
 
-The integration suite connects as `eways_app` and migrates as `eways_migrator`, which is what makes
+The integration suite connects as `mkbj_app` and migrates as `mkbj_migrator`, which is what makes
 `App_Role_Can_Write_Catalog_Tables_But_Owns_Nothing` meaningful: a suite running as superuser
 proves nothing about the grants production will actually have.
 
 **Consequence for phase 3:** `REFRESH MATERIALIZED VIEW` requires ownership of the view. The
-storefront refresh therefore cannot run as `eways_app`. Phase 3 must either run the refresh job
+storefront refresh therefore cannot run as `mkbj_app`. Phase 3 must either run the refresh job
 under a role that owns the views, or wrap it in a `SECURITY DEFINER` function owned by
-`eways_migrator` and grant `EXECUTE` to `eways_app`. This is a real decision phase 3 has to make,
+`mkbj_migrator` and grant `EXECUTE` to `mkbj_app`. This is a real decision phase 3 has to make,
 not a detail.
 
 ### D7 — Repeatable SQL scripts, not hand-edited migrations
 `DatabaseMigrator.MigrateAsync` applies the EF migrations, then runs every
-`EwaysVNext.Database.Scripts.*.sql` embedded resource in ordinal name order, each through
+`Mkbj.Database.Scripts.*.sql` embedded resource in ordinal name order, each through
 `CreateExecutionStrategy().ExecuteAsync` (retries are on, so a bare `ExecuteSqlRawAsync` would not
 be replayed — AGENTS.md rule 8).
 
@@ -114,7 +114,7 @@ that category, so `xmin` rejects the loser) and by unique indexes, with `23505` 
 
 ### D9 — Testcontainers replaces LocalDB
 `PostgresFixture` starts `postgres:17-alpine` with the production roles script mapped into
-`/docker-entrypoint-initdb.d/`, applies the real migrations, and hands tests an `eways_app`
+`/docker-entrypoint-initdb.d/`, applies the real migrations, and hands tests an `mkbj_app`
 connection. The suite now requires Docker and no longer requires SQL Server LocalDB. Tests run
 against the migrations rather than `EnsureCreated`, so a broken migration fails the suite — which
 is the point, since `EnsureCreated` would have hidden exactly that.

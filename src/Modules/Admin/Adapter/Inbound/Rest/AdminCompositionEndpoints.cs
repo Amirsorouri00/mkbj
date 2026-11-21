@@ -1,14 +1,14 @@
 using AuthorizationService.Abstractions.Extensions;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Modules.Admin.Application.Ports.Inbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Modules.Admin.Application.Ports.Inbound;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace EwaysVNext.Modules.Admin.Adapter.Inbound.Rest;
+namespace Mkbj.Modules.Admin.Adapter.Inbound.Rest;
 
 /// <summary>
 /// The backoffice's composed views: the dashboard, customer 360 and order 360.

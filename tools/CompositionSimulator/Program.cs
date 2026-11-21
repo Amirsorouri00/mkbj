@@ -2,9 +2,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
-using EwaysVNext.Modules.Sales.Application.Composition;
+using Mkbj.Modules.Sales.Application.Composition;
 
-namespace EwaysVNext.Tools.CompositionSimulator;
+namespace Mkbj.Tools.CompositionSimulator;
 
 /// <summary>
 /// Measures how often the composition engine can hit an exact amount, across the amount range a

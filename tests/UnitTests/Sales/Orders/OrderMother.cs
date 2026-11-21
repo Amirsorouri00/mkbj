@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
 
-namespace EwaysVNext.UnitTests.Sales.Orders;
+namespace Mkbj.UnitTests.Sales.Orders;
 
 /// <summary>
 /// A valid partner order, and the knobs a test needs to make it invalid in exactly one way.

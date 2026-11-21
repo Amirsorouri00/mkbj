@@ -1,9 +1,9 @@
 using System.Security.Claims;
 
-using EwaysVNext.Audit;
-using EwaysVNext.Core.Application.Security;
+using Mkbj.Audit;
+using Mkbj.Core.Application.Security;
 
-namespace EwaysVNext.Core.Application;
+namespace Mkbj.Core.Application;
 
 /// <summary>
 /// The authenticated backoffice user behind an admin action (spec §6.1). Two roles only: staff,
@@ -26,13 +26,13 @@ public sealed record AdminActor(Guid UserId, bool IsSuperAdmin)
     {
         actor = null;
 
-        var tenant = user.FindFirst(EwaysClaimTypes.Tenant)?.Value;
+        var tenant = user.FindFirst(MkbjClaimTypes.Tenant)?.Value;
         if (!string.Equals(tenant, AdminRoles.BackofficeRealm, StringComparison.Ordinal))
             return false;
 
         // The JWT handler maps "sub" to NameIdentifier under the default inbound claim map, so
         // the raw name may be gone by the time a principal reaches here.
-        var subject = user.FindFirst(EwaysClaimTypes.Subject)?.Value
+        var subject = user.FindFirst(MkbjClaimTypes.Subject)?.Value
             ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (!Guid.TryParse(subject, out var userId))

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Database.Catalog.Views;
+namespace Mkbj.Database.Catalog.Views;
 
 /// <summary>
 /// The storefront's read model: four materialized views that decide what a browsing visitor is

@@ -1,19 +1,19 @@
 using System.Globalization;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Common;
-using EwaysVNext.Modules.Sales.Application;
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Modules.Sales.QueryApplication.Partner;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Sales.Adapter.Inbound.Rest.Common;
+using Mkbj.Modules.Sales.Application;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.QueryApplication.Partner;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Partner;
+namespace Mkbj.Modules.Sales.Adapter.Inbound.Rest.Partner;
 
 /// <summary>
 /// What a partner can do with orders.
@@ -93,7 +93,8 @@ public sealed class PartnerOrderEndpoints : IEndpoint
         var created = await service.CreateAsync(
             principal!,
             new CreatePartnerOrderCommand(
-                externalOrderId, externalCustomerId, amountMinor, currency, contact),
+                externalOrderId, externalCustomerId, amountMinor, currency, contact)
+                { ReceivedAt = context.Items[PartnerOrderRequestMiddleware.ReceivedAtKey] as DateTimeOffset? },
             correlationId,
             ct);
 
@@ -178,7 +179,8 @@ public sealed class PartnerOrderEndpoints : IEndpoint
             var (externalOrderId, externalCustomerId, amountMinor, currency, contact) = validated.Value;
 
             accepted.Add(new BulkItem(index, new CreatePartnerOrderCommand(
-                externalOrderId, externalCustomerId, amountMinor, currency, contact)));
+                externalOrderId, externalCustomerId, amountMinor, currency, contact)
+                { ReceivedAt = context.Items[PartnerOrderRequestMiddleware.ReceivedAtKey] as DateTimeOffset? }));
         }
 
         var outcomes = await service.CreateBulkAsync(principal!, accepted, correlationId, ct);

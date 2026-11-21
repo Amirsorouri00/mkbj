@@ -1,0 +1,23 @@
+{
+  "name": "@mkbj/api-rest",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "devDependencies": {
+    "@mkbj/config": "workspace:*",
+    "openapi-typescript": "7.13.0",
+    "typescript": "5.9.3",
+    "vitest": "5.1.0"
+  },
+  "scripts": {
+    "generate": "openapi-typescript openapi.json -o src/schema.ts",
+    "check:generated": "openapi-typescript openapi.json -o src/schema.ts --check",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint src --max-warnings=0",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  }
+}

@@ -1,11 +1,11 @@
-﻿using EwaysVNext.Modules.Pricing.QueryApplication;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint;
+using Mkbj.Modules.Pricing.QueryApplication;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace EwaysVNext.Modules.Pricing.Adapter.Inbound.Rest;
+namespace Mkbj.Modules.Pricing.Adapter.Inbound.Rest;
 
 /// <summary>
 /// The currency picker a storefront renders before anyone has signed in.

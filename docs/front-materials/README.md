@@ -1,6 +1,6 @@
-# Frontend Developer Documentation — EwaysVNext
+# Frontend Developer Documentation — MKBJ
 
-This directory contains everything a frontend team needs to integrate with the EwaysVNext API.
+This directory contains everything a frontend team needs to integrate with the MKBJ API.
 
 ## Documents
 
@@ -19,11 +19,11 @@ This directory contains everything a frontend team needs to integrate with the E
 docker compose -f build/compose/docker-compose.dev.yml up -d
 
 # Run the API
-dotnet run --project src/Host/EwaysVNext.Host
+dotnet run --project src/Host/Mkbj.Host
 
 # Apply migrations + seed demo data
-dotnet run --project src/Host/EwaysVNext.Host -- --migrate
-dotnet run --project src/Host/EwaysVNext.Host -- --seed
+dotnet run --project src/Host/Mkbj.Host -- --migrate
+dotnet run --project src/Host/Mkbj.Host -- --seed
 ```
 
 Then open:

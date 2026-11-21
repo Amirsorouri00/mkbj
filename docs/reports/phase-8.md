@@ -6,8 +6,8 @@ does without reading the source.
 
 Verified at `ff36f60` on `feature/ecommerce-mvp`:
 
-- `dotnet build EwaysVNext.slnx -c Release` — **0 errors, 0 warnings.**
-- `dotnet test EwaysVNext.slnx` — **2,220 tests, 0 failures**, Docker up. One skipped: the
+- `dotnet build Mkbj.slnx -c Release` — **0 errors, 0 warnings.**
+- `dotnet test Mkbj.slnx` — **2,220 tests, 0 failures**, Docker up. One skipped: the
   Identity assertion parked since phase 1.
   - ArchitectureTests 97 · UnitTests 1,666 · PersistenceContractTests 18 · IntegrationTests 439
 - `docker compose -f build/compose/docker-compose.yml --env-file build/compose/ci.env config
@@ -136,7 +136,7 @@ confidence in one direction and false alarm in the other.
 - ~~The load run was not on the compose stack.~~ **Done.** Rerun there once the image could be
   built: 27,001 orders at 90/second for five minutes, p95 **23.79 ms**, 0% unexpected failures,
   every currency at 100%. k6 ran inside the stack's own network and the telemetry was read as
-  `eways_app`, under the production grants. The earlier local figures were replaced, not adjusted.
+  `mkbj_app`, under the production grants. The earlier local figures were replaced, not adjusted.
 - **The contract snapshots are in-code lists, not snapshot files.** The plan called for
   `tests/IntegrationTests/Contracts/Snapshots/{openapi-v1.json,schema.graphql}` and a `git status`
   check over them. They are instead explicit arrays of partner routes and field names inside
@@ -214,11 +214,11 @@ docker compose -f build/compose/docker-compose.dev.yml up -d
 ```
 
 ```bash
-dotnet build EwaysVNext.slnx -c Release
+dotnet build Mkbj.slnx -c Release
 ```
 
 ```bash
-dotnet test EwaysVNext.slnx
+dotnet test Mkbj.slnx
 ```
 
 ```bash
@@ -226,7 +226,7 @@ bash tools/smoke/smoke.sh
 ```
 
 ```bash
-dotnet run --project tools/CompositionSimulator/EwaysVNext.Tools.CompositionSimulator.csproj -c Release -- --samples 2000 --seed 20261028
+dotnet run --project tools/CompositionSimulator/Mkbj.Tools.CompositionSimulator.csproj -c Release -- --samples 2000 --seed 20261028
 ```
 
 ```bash

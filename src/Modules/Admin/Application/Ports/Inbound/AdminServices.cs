@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Admin.Application.Views;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Admin.Application.Views;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Admin.Application.Ports.Inbound;
+namespace Mkbj.Modules.Admin.Application.Ports.Inbound;
 
 /// <summary>One screen's worth of "how is the shop doing".</summary>
 public interface IAdminDashboardService

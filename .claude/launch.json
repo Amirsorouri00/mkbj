@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "EwaysVNext.Host",
+      "name": "Mkbj.Host",
       "runtimeExecutable": "dotnet",
-      "runtimeArgs": ["run", "--project", "src/Host/EwaysVNext.Host"],
+      "runtimeArgs": ["run", "--project", "src/Host/Mkbj.Host"],
       "port": 8608,
       "url": "http://localhost:8608"
     }

@@ -1,9 +1,9 @@
 using System.Security.Cryptography;
 using System.Text;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sourcing.Application.Discovery;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
+namespace Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
 
 /// <summary>
 /// One listing, staged once, however many times it is found.

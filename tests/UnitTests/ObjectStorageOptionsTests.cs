@@ -1,11 +1,11 @@
 using AwesomeAssertions;
-using EwaysVNext.Storage.Implementation;
+using Mkbj.Storage.Implementation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 /// <summary>
 /// An unconfigured object store used to surface as a 500 from <c>/health</c>: the health check's

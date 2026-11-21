@@ -1,11 +1,11 @@
 using System.Text.Json;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Pipeline;
+namespace Mkbj.Modules.Sourcing.Application.Pipeline;
 
 /// <summary>What one discovery batch did.</summary>
 public sealed record StagingResult(

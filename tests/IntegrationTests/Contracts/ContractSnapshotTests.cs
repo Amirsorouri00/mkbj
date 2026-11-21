@@ -5,7 +5,7 @@ using System.Text.Json.Nodes;
 using AwesomeAssertions;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Contracts;
+namespace Mkbj.IntegrationTests.Contracts;
 
 /// <summary>
 /// The shape of the two public contracts, recorded so a change has to be deliberate.

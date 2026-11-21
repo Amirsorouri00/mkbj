@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
-using EwaysVNext.Modules.Sales.Application.Domain.Orders;
-using EwaysVNext.Modules.Sales.QueryApplication.Partner;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Modules.Sales.Application.Domain.Orders;
+using Mkbj.Modules.Sales.QueryApplication.Partner;
 
-namespace EwaysVNext.Modules.Sales.QueryApplication;
+namespace Mkbj.Modules.Sales.QueryApplication;
 
 /// <summary>
 /// The one way an order's status is described to any reader.

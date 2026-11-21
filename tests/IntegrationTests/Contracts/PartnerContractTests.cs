@@ -4,7 +4,7 @@ using AwesomeAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Contracts;
+namespace Mkbj.IntegrationTests.Contracts;
 
 /// <summary>
 /// The published partner contract.

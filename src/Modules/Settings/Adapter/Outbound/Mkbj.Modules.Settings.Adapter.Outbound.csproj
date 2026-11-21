@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\Mkbj.Modules.Settings.Application.csproj" />
+    <ProjectReference Include="..\..\QueryApplication\Mkbj.Modules.Settings.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Persistence\Mkbj.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\..\Database\Mkbj.Database.csproj" />
+  </ItemGroup>
+</Project>

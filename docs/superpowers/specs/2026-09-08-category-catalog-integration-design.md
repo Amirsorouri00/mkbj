@@ -20,9 +20,9 @@ No compatibility aliases are retained. There is no production category data to m
 |---|---|
 | Aggregate | `Category` |
 | Assignment | `CategoryProduct` |
-| Module namespace after integration | `EwaysVNext.Modules.Catalog` |
-| Contracts project | `EwaysVNext.Modules.Catalog.Contracts` |
-| Contracts namespace | `EwaysVNext.Modules.Catalog.Contracts` |
+| Module namespace after integration | `Mkbj.Modules.Catalog` |
+| Contracts project | `Mkbj.Modules.Catalog.Contracts` |
+| Contracts namespace | `Mkbj.Modules.Catalog.Contracts` |
 | Database schema | `catalog` |
 | Database tables | `Category`, `CategoryProduct` |
 | REST collection | `/api/v1/categories` |
@@ -37,7 +37,7 @@ incorrect spelling `Categorys` is eliminated.
 
 Stage 1 changes terminology without changing ownership, project boundaries, folder organization,
 or behavior. The temporary standalone module path becomes `src/Modules/Category`, and the
-temporary contract project becomes `EwaysVNext.Modules.Category.Contracts`. All types,
+temporary contract project becomes `Mkbj.Modules.Category.Contracts`. All types,
 namespaces, project names, DI methods,
 GraphQL fields/server name, REST routes, endpoint tags, error codes, DbSets, configurations,
 tests, and active documentation use Category terminology.
@@ -86,7 +86,7 @@ Catalog
 
 | Current location after Stage 1 | Final location |
 |---|---|
-| `EwaysVNext.Modules.Category.Contracts/Categories/CategoryDtos.cs` | `EwaysVNext.Modules.Catalog.Contracts/Categories/CategoryDtos.cs` |
+| `Mkbj.Modules.Category.Contracts/Categories/CategoryDtos.cs` | `Mkbj.Modules.Catalog.Contracts/Categories/CategoryDtos.cs` |
 | `src/Modules/Category/Application/Commands/*` | `src/Modules/Catalog/Application/Categories/Commands/*` |
 | `src/Modules/Category/Application/Domain/*` | `src/Modules/Catalog/Application/Categories/Domain/*` |
 | `src/Modules/Category/Application/Ports/*` | `src/Modules/Catalog/Application/Categories/Ports/*` |
@@ -106,7 +106,7 @@ Catalog
 | `src/Modules/Catalog/Adapter/Outbound/ReservationExpirationService.cs` | `src/Modules/Catalog/Adapter/Outbound/Persistence/Products/ReservationExpirationService.cs` |
 | `src/Database/Catalog/Configurations/ProductConfiguration.cs` | `src/Database/Catalog/Configurations/Products/ProductConfiguration.cs` |
 
-`Catalog/QueryApplication/Products` and `EwaysVNext.Modules.Catalog.Contracts/Products` already follow the target
+`Catalog/QueryApplication/Products` and `Mkbj.Modules.Catalog.Contracts/Products` already follow the target
 concept grouping and stay in place. No Attribute implementation exists on this branch, so no
 placeholder types or empty tracked directories are invented; future Attribute files must enter
 the corresponding `Attributes` concept folders.
@@ -118,8 +118,8 @@ the corresponding `Attributes` concept folders.
 - Catalog.Adapter.Outbound absorbs Category repositories and persistence unit of work.
 - Catalog.Adapter.Inbound.Rest absorbs Category REST endpoints.
 - Category GraphQL becomes Catalog.Adapter.Inbound.GraphQL under Catalog.
-- The `EwaysVNext.Modules.Catalog.Contracts` project absorbs Category DTOs; its root namespace is
-  also `EwaysVNext.Modules.Catalog.Contracts`, and no singular `Catalog.Contract` name remains.
+- The `Mkbj.Modules.Catalog.Contracts` project absorbs Category DTOs; its root namespace is
+  also `Mkbj.Modules.Catalog.Contracts`, and no singular `Catalog.Contract` name remains.
 - Catalog.Contracts remains the only public cross-module contract; consumers do not reference
   Catalog.Application, Catalog.QueryApplication, or Catalog.Adapter.
 - Catalog.Installer registers all Product and Category services/adapters and GraphQL.

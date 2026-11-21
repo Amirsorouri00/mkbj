@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
 using FluentValidation;
 
-namespace EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Validation;
+namespace Mkbj.Modules.Catalog.Application.AttributeBlueprints.Validation;
 
 public sealed class CreateAttributeBlueprintValidator
     : AbstractValidator<(string Name, AttributeBlueprintDataType DataType)>

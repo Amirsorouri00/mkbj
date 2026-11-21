@@ -20,7 +20,7 @@ one thing to roll back.
 | Migrator | `--migrate` | Applies EF migrations, then every repeatable `Scripts/*.sql`. Run it before the new API starts. |
 | Probe | `--probe <url>` | Exit 0 healthy, 1 not, 64 misused. The image has no curl, so this is the health check. |
 
-Two Postgres roles. `eways_app` reads and writes rows and **owns nothing**; `eways_migrator`
+Two Postgres roles. `mkbj_app` reads and writes rows and **owns nothing**; `mkbj_migrator`
 owns the schema. The API never connects as the migrator.
 
 ---
@@ -33,10 +33,10 @@ step.
 
 ```bash
 # 1. Build and push the image.
-docker build -f build/docker/api.Dockerfile -t eways-api:$TAG .
+docker build -f build/docker/api.Dockerfile -t mkbj-api:$TAG .
 
 # 2. Migrate, on its own, and watch it finish.
-docker run --rm -e ConnectionStrings__Default="$MIGRATOR_CONNECTION" eways-api:$TAG --migrate
+docker run --rm -e ConnectionStrings__Default="$MIGRATOR_CONNECTION" mkbj-api:$TAG --migrate
 
 # 3. Roll the API and the worker onto the new image.
 ```
@@ -150,8 +150,8 @@ is not a staff-level conversation. Preserve the database before doing anything e
 Before tagging a release:
 
 ```bash
-dotnet build EwaysVNext.slnx -c Release     # 0 warnings; TreatWarningsAsErrors is Release-only
-dotnet test EwaysVNext.slnx                 # needs Docker
+dotnet build Mkbj.slnx -c Release     # 0 warnings; TreatWarningsAsErrors is Release-only
+dotnet test Mkbj.slnx                 # needs Docker
 tools/smoke/smoke.sh                        # the real image, the real compose file
 ```
 

@@ -1,11 +1,11 @@
 using System.Net;
 using System.Text;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Pricing.Adapter.Outbound.Fx.Ecb;
+using Mkbj.Modules.Pricing.Adapter.Outbound.Fx.Ecb;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Pricing;
+namespace Mkbj.UnitTests.Pricing;
 
 /// <summary>
 /// Reading the ECB's daily file. No test here touches the network: the fixture is a copy of the
@@ -34,9 +34,9 @@ public sealed class EcbFxRateProviderTests
             "a rate belongs to the day it was published for, not the day we asked");
         batch.Rates.Should().HaveCount(4);
         batch.Rates.Should().ContainEquivalentOf(
-            new EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound.FxQuote("USD", 1.0812m));
+            new Mkbj.Modules.Pricing.Application.Fx.Ports.Inbound.FxQuote("USD", 1.0812m));
         batch.Rates.Should().ContainEquivalentOf(
-            new EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound.FxQuote("GBP", 0.84215m));
+            new Mkbj.Modules.Pricing.Application.Fx.Ports.Inbound.FxQuote("GBP", 0.84215m));
     }
 
     [Fact]

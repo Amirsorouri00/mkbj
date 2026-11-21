@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Pricing.QueryApplication;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
+using Mkbj.Modules.Pricing.QueryApplication;
+using Mkbj.Presentation.Endpoint.GraphQL;
 using HotChocolate.Authorization;
 
-namespace EwaysVNext.Modules.Pricing.Adapter.Inbound.GraphQL;
+namespace Mkbj.Modules.Pricing.Adapter.Inbound.GraphQL;
 
 [ExtendObjectType(typeof(Query))]
 public sealed class CurrencyGraphQLQueries

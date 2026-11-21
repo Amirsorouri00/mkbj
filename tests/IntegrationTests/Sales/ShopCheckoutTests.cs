@@ -3,14 +3,14 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.IntegrationTests.Support;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Core.Application;
+using Mkbj.IntegrationTests.Support;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sales;
+namespace Mkbj.IntegrationTests.Sales;
 
 /// <summary>
 /// Checkout: an order at the price the customer was shown, or no order at all.

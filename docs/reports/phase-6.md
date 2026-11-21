@@ -6,8 +6,8 @@ endpoint bounded.
 
 Verified at `1ea745d` on `feature/ecommerce-mvp`:
 
-- `dotnet build EwaysVNext.slnx -c Release` — 0 errors, 0 warnings.
-- `dotnet test EwaysVNext.slnx` — **2013 tests, 0 failures**, Docker up (1 skipped: an
+- `dotnet build Mkbj.slnx -c Release` — 0 errors, 0 warnings.
+- `dotnet test Mkbj.slnx` — **2013 tests, 0 failures**, Docker up (1 skipped: an
   Identity assertion parked since phase 1).
 
 ## What works
@@ -91,9 +91,9 @@ GraphQL mirrors all four: `adminDashboard`, `adminCustomer360`, `adminOrder360`,
 
 ```bash
 docker compose -f build/compose/docker-compose.dev.yml up -d
-dotnet build EwaysVNext.slnx -c Release
-dotnet run --project src/Host/EwaysVNext.Host -- --migrate
-dotnet test EwaysVNext.slnx
-dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter-class "*.AdminArchitectureTests"
-dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.EndpointAuthorizationTests"
+dotnet build Mkbj.slnx -c Release
+dotnet run --project src/Host/Mkbj.Host -- --migrate
+dotnet test Mkbj.slnx
+dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter-class "*.AdminArchitectureTests"
+dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.EndpointAuthorizationTests"
 ```

@@ -1,8 +1,8 @@
-using EwaysVNext.Audit.Implementation;
+using Mkbj.Audit.Implementation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EwaysVNext.Database.Audit.Configurations;
+namespace Mkbj.Database.Audit.Configurations;
 
 internal sealed class AuditEventConfiguration : IEntityTypeConfiguration<AuditEvent>
 {

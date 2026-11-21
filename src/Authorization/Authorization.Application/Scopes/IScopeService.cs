@@ -1,6 +1,6 @@
 using AuthorizationService.Application.Scopes.Requests;
 using AuthorizationService.Application.Scopes.Responses;
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
 namespace AuthorizationService.Application.Scopes;
 

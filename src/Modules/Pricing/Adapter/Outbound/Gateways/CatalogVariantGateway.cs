@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Outbound;
 
-namespace EwaysVNext.Modules.Pricing.Adapter.Outbound.Gateways;
+namespace Mkbj.Modules.Pricing.Adapter.Outbound.Gateways;
 
 /// <summary>
 /// Anti-corruption layer: Pricing learns one fact from Catalog, not Catalog's shape.

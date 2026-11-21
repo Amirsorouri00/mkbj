@@ -1,13 +1,13 @@
-﻿using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Storefront.Ports.Inbound;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Storefront.Ports.Inbound;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound.Storefront;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound.Storefront;
 
 internal sealed class CatalogChangeNotifier(
-    EwaysVNextDbContext db,
+    MkbjDbContext db,
     IStorefrontRefreshTrigger refresh,
     ILogger<CatalogChangeNotifier> logger) : ICatalogChangeNotifier
 {

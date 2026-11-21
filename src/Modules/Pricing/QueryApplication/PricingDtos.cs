@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Pricing.QueryApplication;
+namespace Mkbj.Modules.Pricing.QueryApplication;
 
 /// <remarks>
 /// <c>MinorUnits</c> travels with the code so a client can format an amount without a table of

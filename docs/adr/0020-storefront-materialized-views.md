@@ -61,12 +61,12 @@ boundary. But the coupling is real and has two consequences nobody should discov
 ### Ownership, and the role that refreshes
 
 `REFRESH MATERIALIZED VIEW` requires **ownership** of the view. The migrator role owns everything
-the migrations create, and the application role `eways_app` owns nothing (ADR-0017 D6) — so the
+the migrations create, and the application role `mkbj_app` owns nothing (ADR-0017 D6) — so the
 refresh job cannot run as the application role.
 
 Phase 3 chose the second of the two options it was given: `catalog.refresh_storefront_view(
-view_name text, use_concurrently boolean)`, `SECURITY DEFINER`, owned by `eways_migrator`, with
-`EXECUTE` revoked from `PUBLIC` and granted to `eways_app` in a repeatable script. The name is
+view_name text, use_concurrently boolean)`, `SECURITY DEFINER`, owned by `mkbj_migrator`, with
+`EXECUTE` revoked from `PUBLIC` and granted to `mkbj_app` in a repeatable script. The name is
 checked against the four known views inside the function rather than interpolated — a
 `SECURITY DEFINER` function that trusts an identifier from its caller is a privilege escalation,
 since the caller owns nothing and the function owns the schema. `search_path` is pinned for the

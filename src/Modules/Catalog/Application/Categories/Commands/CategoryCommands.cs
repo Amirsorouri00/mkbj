@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
+using Mkbj.Modules.Catalog.Contracts.Categories;
 
-namespace EwaysVNext.Modules.Catalog.Application.Categories.Commands;
+namespace Mkbj.Modules.Catalog.Application.Categories.Commands;
 
 public sealed record CreateCategoryCommand(
     string Name, string Slug, string? Description, long? ParentId, int DisplayOrder);

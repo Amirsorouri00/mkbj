@@ -1,17 +1,18 @@
 using System.Security.Claims;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Sales.Application;
-using EwaysVNext.Modules.Sales.Application.Money;
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Modules.Sales.QueryApplication.Partner;
-using EwaysVNext.Modules.Sales.QueryApplication.Shop;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Sales.Application;
+using Mkbj.Modules.Sales.Application.Money;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Modules.Sales.QueryApplication.Partner;
+using Mkbj.Modules.Sales.QueryApplication.Shop;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
+using HotChocolate.Types;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Inbound.GraphQL.Shop;
+namespace Mkbj.Modules.Sales.Adapter.Inbound.GraphQL.Shop;
 
 public sealed record CheckoutInput(MoneyGraph ExpectedTotal);
 
@@ -32,7 +33,7 @@ public sealed class ShopOrderQueriesGraph
         ClaimsPrincipal user,
         [Service] IShopOrderQueries queries,
         [Service] IShopCustomerResolver customers,
-        long? cursor = null,
+        [GraphQLType(typeof(IdType))] long? cursor = null,
         int limit = 20,
         CancellationToken ct = default)
     {
@@ -43,7 +44,7 @@ public sealed class ShopOrderQueriesGraph
 
     [Authorize(Policy = AuthPolicies.ShopCustomer)]
     public async Task<ShopOrderDto> OrderAsync(
-        long id,
+        [GraphQLType(typeof(NonNullType<IdType>))] long id,
         ClaimsPrincipal user,
         [Service] IShopOrderQueries queries,
         [Service] IShopCustomerResolver customers,
@@ -56,7 +57,7 @@ public sealed class ShopOrderQueriesGraph
 
     [Authorize(Policy = AuthPolicies.ShopCustomer)]
     public async Task<string> DocumentPdfUrlAsync(
-        long documentId,
+        [GraphQLType(typeof(NonNullType<IdType>))] long documentId,
         ClaimsPrincipal user,
         [Service] IInvoiceService invoices,
         [Service] IShopCustomerResolver customers,

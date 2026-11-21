@@ -1,22 +1,22 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 using AwesomeAssertions;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Services;
-using EwaysVNext.Modules.Catalog.QueryApplication.Abstractions.AttributeBlueprints;
-using EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
+using Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL;
+using Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
+using Mkbj.Modules.Catalog.Adapter.Outbound;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Services;
+using Mkbj.Modules.Catalog.QueryApplication.Abstractions.AttributeBlueprints;
+using Mkbj.Modules.Catalog.QueryApplication.AttributeBlueprints;
 using HotChocolate.Execution;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public sealed class AttributeBlueprintFilteringTests
 {
@@ -135,7 +135,7 @@ public sealed class AttributeBlueprintFilteringTests
     public async Task Detail_And_List_Include_Predefined_Options()
     {
         await using var services = CreateServices();
-        var db = services.GetRequiredService<EwaysVNextDbContext>();
+        var db = services.GetRequiredService<MkbjDbContext>();
         var blueprint = AttributeBlueprint.Create(42, "Color", Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprintDataType.Text, Now);
         blueprint.AddOption(4202, "Blue", null, Now);
         blueprint.AddOption(4201, "Red", null, Now);
@@ -158,7 +158,7 @@ public sealed class AttributeBlueprintFilteringTests
     public async Task Write_Repository_Loads_Options_And_Unit_Query_Returns_Central_Units()
     {
         await using var services = CreateServices();
-        var db = services.GetRequiredService<EwaysVNextDbContext>();
+        var db = services.GetRequiredService<MkbjDbContext>();
         db.MeasurementUnits.Add(MeasurementUnit.Create(7, "Kilogram", "kg"));
         var blueprint = AttributeBlueprint.Create(42, "Weight", Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprintDataType.Number, Now);
         blueprint.AddOption(4201, "5", 7, Now);
@@ -195,7 +195,7 @@ public sealed class AttributeBlueprintFilteringTests
     public async Task Full_Update_Keeps_Option_Id_When_Data_Type_Changes()
     {
         await using var services = CreateServices();
-        var db = services.GetRequiredService<EwaysVNextDbContext>();
+        var db = services.GetRequiredService<MkbjDbContext>();
         db.MeasurementUnits.Add(MeasurementUnit.Create(7, "Kilogram", "kg"));
         var blueprint = AttributeBlueprint.Create(42, "Weight", AttributeBlueprintDataType.Text, Now);
         blueprint.AddOption(4201, "Five", null, Now);
@@ -316,7 +316,7 @@ public sealed class AttributeBlueprintFilteringTests
     public async Task Archived_Blueprint_Reloads_And_Restores_Previous_Status(bool inactive)
     {
         await using var services = CreateServices();
-        var db = services.GetRequiredService<EwaysVNextDbContext>();
+        var db = services.GetRequiredService<MkbjDbContext>();
         var blueprint = AttributeBlueprint.Create(42, "Color", Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprintDataType.Text, Now);
         if (inactive) blueprint.Deactivate(Now);
         var expectedStatus = blueprint.Status;
@@ -396,7 +396,7 @@ public sealed class AttributeBlueprintFilteringTests
     {
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddDbContext<EwaysVNextDbContext>(options =>
+        services.AddDbContext<MkbjDbContext>(options =>
         {
             if (sqlServer)
                 options.UseNpgsql("Host=127.0.0.1;Port=1;Database=translation_only;Username=probe;Password=probe;Timeout=1").UseSnakeCaseNamingConvention()
@@ -413,7 +413,7 @@ public sealed class AttributeBlueprintFilteringTests
 
     private static async Task SeedAsync(ServiceProvider services)
     {
-        var db = services.GetRequiredService<EwaysVNextDbContext>();
+        var db = services.GetRequiredService<MkbjDbContext>();
         var inactive = AttributeBlueprint.Create(30, "Color inactive", Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprintDataType.Text, Now);
         inactive.Deactivate(Now);
         var archived = AttributeBlueprint.Create(50, "Date", Modules.Catalog.Application.AttributeBlueprints.Domain.AttributeBlueprintDataType.Date, Now);

@@ -1,13 +1,13 @@
 using System.Text.Json;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies;
-using EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
-using EwaysVNext.Modules.Sourcing.Application.Matching;
-using EwaysVNext.Modules.Sourcing.Application.Normalization;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
-using EwaysVNext.Modules.Sourcing.Application.Validation;
+using Mkbj.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Domain.SourcePolicies;
+using Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
+using Mkbj.Modules.Sourcing.Application.Matching;
+using Mkbj.Modules.Sourcing.Application.Normalization;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Modules.Sourcing.Application.Validation;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Pipeline;
+namespace Mkbj.Modules.Sourcing.Application.Pipeline;
 
 /// <summary>
 /// Everything that happens to one staged record between being found and being publishable.

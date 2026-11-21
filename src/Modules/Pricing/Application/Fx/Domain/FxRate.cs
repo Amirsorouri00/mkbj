@@ -1,7 +1,7 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Pricing.Application.Currencies.Domain;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Pricing.Application.Currencies.Domain;
 
-namespace EwaysVNext.Modules.Pricing.Application.Fx.Domain;
+namespace Mkbj.Modules.Pricing.Application.Fx.Domain;
 
 /// <summary>
 /// One exchange rate as one provider published it on one day.

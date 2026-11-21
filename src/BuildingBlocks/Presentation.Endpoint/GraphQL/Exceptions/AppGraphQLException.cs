@@ -1,6 +1,6 @@
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Presentation.Endpoint.GraphQL.Exceptions;
+namespace Mkbj.Presentation.Endpoint.GraphQL.Exceptions;
 
 public abstract class AppGraphQLException(Error error) : Exception(error.Message)
 {

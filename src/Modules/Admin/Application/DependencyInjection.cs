@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Admin.Application.Ports.Inbound;
-using EwaysVNext.Modules.Admin.Application.Services;
+using Mkbj.Modules.Admin.Application.Ports.Inbound;
+using Mkbj.Modules.Admin.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Admin.Application;
+namespace Mkbj.Modules.Admin.Application;
 
 public static class DependencyInjection
 {

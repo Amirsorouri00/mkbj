@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 
-namespace EwaysVNext.Modules.Sourcing.Adapter.Outbound.Crawling;
+namespace Mkbj.Modules.Sourcing.Adapter.Outbound.Crawling;
 
 /// <summary>Where the crawler may and may not go, and how fast.</summary>
 public sealed class CrawlerOptions
@@ -15,10 +15,10 @@ public sealed class CrawlerOptions
     /// Honest on purpose. A crawler that disguises itself as a browser is one a site cannot
     /// block by asking, which leaves blocking by force as the only option.
     /// </remarks>
-    public string UserAgent { get; set; } = "EwaysVNextBot/1.0";
+    public string UserAgent { get; set; } = "MkbjBot/1.0";
 
     /// <summary>The robots.txt product token, which is the agent without its version.</summary>
-    public string ProductToken { get; set; } = "EwaysVNextBot";
+    public string ProductToken { get; set; } = "MkbjBot";
 
     public int PolitenessDelayMs { get; set; } = 1_000;
 

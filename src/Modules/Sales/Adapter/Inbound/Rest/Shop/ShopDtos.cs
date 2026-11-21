@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Partner;
-using EwaysVNext.Modules.Sales.Application.Money;
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Modules.Sales.Adapter.Inbound.Rest.Partner;
+using Mkbj.Modules.Sales.Application.Money;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Shop;
+namespace Mkbj.Modules.Sales.Adapter.Inbound.Rest.Shop;
 
 public sealed record AddCartLineRequest(long VariantId, int Quantity);
 

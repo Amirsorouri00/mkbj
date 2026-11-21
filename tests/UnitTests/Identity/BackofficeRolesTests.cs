@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using AwesomeAssertions;
-using EwaysVNext.Core.Application.Security;
+using Mkbj.Core.Application.Security;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Identity;
+namespace Mkbj.UnitTests.Identity;
 
 /// <summary>
 /// The one decision both enforcement paths rely on: the REST permission handler and the GraphQL
@@ -19,14 +19,14 @@ public sealed class BackofficeRolesTests
     [Fact]
     public void Backoffice_Roles_Are_Forwarded() =>
         BackofficeRoles.From(Principal(
-                (EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm),
+                (MkbjClaimTypes.Tenant, AdminRoles.BackofficeRealm),
                 (ClaimTypes.Role, AdminRoles.Staff)))
             .Should().BeEquivalentTo([AdminRoles.Staff]);
 
     [Fact]
     public void Shop_Roles_Are_Not() =>
         BackofficeRoles.From(Principal(
-                (EwaysClaimTypes.Tenant, AdminRoles.ShopRealm),
+                (MkbjClaimTypes.Tenant, AdminRoles.ShopRealm),
                 (ClaimTypes.Role, AdminRoles.SuperAdmin)))
             .Should().BeNull("self-service registration must not be a route to administration");
 
@@ -37,7 +37,7 @@ public sealed class BackofficeRolesTests
 
     [Fact]
     public void A_Backoffice_Token_With_No_Roles_Yields_Null() =>
-        BackofficeRoles.From(Principal((EwaysClaimTypes.Tenant, AdminRoles.BackofficeRealm)))
+        BackofficeRoles.From(Principal((MkbjClaimTypes.Tenant, AdminRoles.BackofficeRealm)))
             .Should().BeNull("null and empty mean the same thing to the check service; say it once");
 
     [Fact]

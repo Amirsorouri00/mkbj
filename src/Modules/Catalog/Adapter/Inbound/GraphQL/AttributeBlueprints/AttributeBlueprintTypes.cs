@@ -1,6 +1,6 @@
-﻿using EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
+using Mkbj.Modules.Catalog.QueryApplication.AttributeBlueprints;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
 
 public sealed class AttributeBlueprintType : ObjectType<AttributeBlueprintSnapshot>
 {

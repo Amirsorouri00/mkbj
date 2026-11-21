@@ -1,4 +1,4 @@
-namespace EwaysVNext.Presentation.Endpoint;
+namespace Mkbj.Presentation.Endpoint;
 
 internal static class EndpointResultMessages
 {

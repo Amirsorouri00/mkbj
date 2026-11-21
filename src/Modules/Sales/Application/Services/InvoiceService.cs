@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sales.Application.Services;
+namespace Mkbj.Modules.Sales.Application.Services;
 
 /// <summary>
 /// Renders a document's PDF the first time it is asked for, and serves it from storage after.
@@ -23,6 +23,20 @@ internal sealed class InvoiceService(
     IDocumentPdfRenderer renderer,
     IDocumentStore store) : IInvoiceService
 {
+    public async Task<Result<InvoicePdf>> GetPdfAsync(
+        DocumentAccess access, long documentId, CancellationToken ct = default)
+    {
+        var document = await orders.FindDocumentAsync(documentId, access, ct);
+        if (document is null) return Result.Failure<InvoicePdf>(SalesErrors.NotFound);
+        var pdf = await store.ReadPdfAsync(document.PdfObjectKey, ct);
+        if (pdf is null)
+        {
+            pdf = renderer.Render(document.Content);
+            await store.PutPdfAsync(document.PdfObjectKey, pdf, ct);
+        }
+        return Result.Success(new InvoicePdf(pdf, $"{document.Content.DocumentNumber}.pdf"));
+    }
+
     public async Task<Result<Uri>> GetPdfUrlAsync(
         DocumentAccess access, long documentId, CancellationToken ct = default)
     {

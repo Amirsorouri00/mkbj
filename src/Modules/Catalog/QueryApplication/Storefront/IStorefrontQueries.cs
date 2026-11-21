@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Catalog.Contracts.Categories;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Catalog.QueryApplication.Storefront;
+namespace Mkbj.Modules.Catalog.QueryApplication.Storefront;
 
 /// <summary>
 /// What a browsing visitor is shown. Read-only, and read from the materialized views.

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Mkbj.Modules.Catalog.Application</RootNamespace>
+    <Description>Catalog write hexagon: domain, ports, and application services. References Mkbj.Persistence for the shared IUnitOfWork without using EF Core types directly.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Mkbj.Modules.Catalog.Contracts\Mkbj.Modules.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Core\Application\Mkbj.Core.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Domain\Mkbj.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Outcomes\Mkbj.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\Mkbj.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Queries\Application\Mkbj.Queries.Application.csproj" />
+  </ItemGroup>
+</Project>

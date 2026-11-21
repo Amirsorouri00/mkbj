@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Modules.Catalog.QueryApplication.AttributeBlueprints;
+using Mkbj.Outcomes;
+using Mkbj.Queries.Application.Paginations;
 
-namespace EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
+namespace Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
 
 public interface IAttributeBlueprintQueryService
 {

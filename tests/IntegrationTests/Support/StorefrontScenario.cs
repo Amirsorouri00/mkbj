@@ -1,23 +1,23 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Database;
+using Mkbj.Core.Application;
+using Mkbj.Database;
 using Microsoft.EntityFrameworkCore;
-using EwaysVNext.Host.Seeding;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound.Storefront;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Categories.Commands;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Inbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Domain;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.Host.Seeding;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Adapter.Outbound.Storefront;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Categories.Commands;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Catalog.Contracts.Categories;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Inbound;
+using Mkbj.Modules.Pricing.Application.Prices.Domain;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.IntegrationTests.Support;
+namespace Mkbj.IntegrationTests.Support;
 
 /// <summary>
 /// A small shop, built through the real admin services, that every storefront test shares.
@@ -134,7 +134,7 @@ public sealed record StorefrontScenario(
     private static async Task<long> ColourBlueprintAsync(
         IServiceProvider services, IAttributeBlueprintService attributes, CancellationToken ct)
     {
-        var db = services.GetRequiredService<EwaysVNextDbContext>();
+        var db = services.GetRequiredService<MkbjDbContext>();
         var existing = await db.AttributeBlueprints
             .FirstOrDefaultAsync(blueprint => blueprint.CanonicalKey == "colour", ct);
 
@@ -187,15 +187,15 @@ public sealed record StorefrontScenario(
             new PriceProvenance(null, "test:storefront", DateTimeOffset.UtcNow, null, null, null),
             ct));
 
-    private static long Value(EwaysVNext.Outcomes.Result<long> result) =>
+    private static long Value(Mkbj.Outcomes.Result<long> result) =>
         result.IsSuccess ? result.Value : throw new InvalidOperationException(result.Error!.Message);
 
-    private static void Succeeded(EwaysVNext.Outcomes.Result result)
+    private static void Succeeded(Mkbj.Outcomes.Result result)
     {
         if (result.IsFailure) throw new InvalidOperationException(result.Error!.Message);
     }
 
-    private static void Succeeded<T>(EwaysVNext.Outcomes.Result<T> result)
+    private static void Succeeded<T>(Mkbj.Outcomes.Result<T> result)
     {
         if (result.IsFailure) throw new InvalidOperationException(result.Error!.Message);
     }

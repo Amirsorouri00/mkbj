@@ -1,9 +1,9 @@
-﻿
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
-using EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
-using EwaysVNext.Queries.Application.Paginations;
 
-namespace EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Modules.Catalog.QueryApplication.AttributeBlueprints;
+using Mkbj.Queries.Application.Paginations;
+
+namespace Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
 
 public interface IAttributeBlueprintRepository
 {

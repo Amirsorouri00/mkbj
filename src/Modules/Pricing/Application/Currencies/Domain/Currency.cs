@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Pricing.Application.Currencies.Domain;
+namespace Mkbj.Modules.Pricing.Application.Currencies.Domain;
 
 /// <summary>
 /// A currency the seller may price in.

@@ -1,12 +1,13 @@
 using AwesomeAssertions;
-using EwaysVNext.IntegrationTests.Support;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound.Storefront;
-using EwaysVNext.Modules.Catalog.QueryApplication.Storefront;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Inbound;
+using Mkbj.IntegrationTests.Support;
+using Mkbj.Modules.Catalog.Adapter.Outbound.Storefront;
+using Mkbj.Modules.Catalog.QueryApplication.Storefront;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Inbound;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Storefront;
+namespace Mkbj.IntegrationTests.Storefront;
 
 /// <summary>
 /// The browse API's read side, over the materialized views.
@@ -56,6 +57,10 @@ public sealed class StorefrontQueryTests(PostgresFixture fixture)
             "a tile nobody can click through to anything is worse than no tile");
 
         home.FeaturedCategories.Select(tile => tile.CategoryId).Should().OnlyHaveUniqueItems();
+        home.CategorySections.Should().HaveCountLessThanOrEqualTo(3);
+        home.CategorySections.Should().OnlyContain(section => section.Products.Count > 0 && section.Products.Count <= 10,
+            "a configured home department line must be useful without becoming an unbounded product dump");
+        home.CategorySections.Select(section => section.CategoryId).Should().OnlyHaveUniqueItems();
 
         // Not asserted: that this scenario's root is among them. The suite shares a database and
         // the section keeps the eight largest, so that would be a claim about every other test's
@@ -87,7 +92,11 @@ public sealed class StorefrontQueryTests(PostgresFixture fixture)
                 config => config.WithStrictOrdering(), "a breadcrumb reads root to leaf");
 
         product.ImageUrls.Should().NotBeEmpty();
-        product.ImageUrls.Should().OnlyContain(url => url.StartsWith("/media/products/"));
+        var mediaBaseUrl = scope.ServiceProvider.GetRequiredService<IOptions<StorefrontOptions>>()
+            .Value.MediaBaseUrl.TrimEnd('/');
+        product.ImageUrls.Should().OnlyContain(
+            url => url.StartsWith($"{mediaBaseUrl}/products/", StringComparison.Ordinal),
+            "storefront media must use the configured browser-facing object-storage base URL");
     }
 
     [Fact]
@@ -376,10 +385,10 @@ public sealed class StorefrontQueryTests(PostgresFixture fixture)
         }
     }
 
-    private static void Succeeded(EwaysVNext.Outcomes.Result result) =>
+    private static void Succeeded(Mkbj.Outcomes.Result result) =>
         result.IsSuccess.Should().BeTrue(result.Error?.Message);
 
-    private static void Succeeded<T>(EwaysVNext.Outcomes.Result<T> result) =>
+    private static void Succeeded<T>(Mkbj.Outcomes.Result<T> result) =>
         result.IsSuccess.Should().BeTrue(result.Error?.Message);
 
     private static IStorefrontQueries Queries(IServiceScope scope) =>
@@ -387,14 +396,14 @@ public sealed class StorefrontQueryTests(PostgresFixture fixture)
 
     private static async Task<string> SlugOfAsync(IServiceScope scope, long productId)
     {
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNext.Database.EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<Mkbj.Database.MkbjDbContext>();
         var product = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
             .FirstAsync(db.Products.Where(candidate => candidate.Id == productId), Ct);
 
         return product.Slug;
     }
 
-    private static T Value<T>(EwaysVNext.Outcomes.Result<T> result)
+    private static T Value<T>(Mkbj.Outcomes.Result<T> result)
     {
         result.IsSuccess.Should().BeTrue(result.Error?.Message);
         return result.Value!;

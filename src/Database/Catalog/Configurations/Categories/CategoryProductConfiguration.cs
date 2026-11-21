@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EwaysVNext.Database.Catalog.Configurations.Categories;
+namespace Mkbj.Database.Catalog.Configurations.Categories;
 
 internal sealed class CategoryProductConfiguration : IEntityTypeConfiguration<CategoryProduct>
 {

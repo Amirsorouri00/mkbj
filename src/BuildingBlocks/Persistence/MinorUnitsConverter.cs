@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace EwaysVNext.Persistence;
+namespace Mkbj.Persistence;
 
 /// <summary>
 /// Maps a decimal money amount to the <c>bigint</c> minor-unit column it is stored in.

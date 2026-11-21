@@ -6,9 +6,9 @@ That path is complete and gated here.
 
 Verified at `1b37444` on `feature/ecommerce-mvp`:
 
-- `dotnet build EwaysVNext.slnx -c Release` — 0 errors, 0 warnings (`TreatWarningsAsErrors` is on
+- `dotnet build Mkbj.slnx -c Release` — 0 errors, 0 warnings (`TreatWarningsAsErrors` is on
   in Release only, so this is the build that counts).
-- `dotnet test EwaysVNext.slnx` — **1927 tests, 0 failures**, Docker up.
+- `dotnet test Mkbj.slnx` — **1927 tests, 0 failures**, Docker up.
 
 ## What works
 
@@ -91,8 +91,8 @@ PRD acceptance 1–7 and 14 pass by name in `tests/IntegrationTests/Sales/`.
 
 ```bash
 docker compose -f build/compose/docker-compose.dev.yml up -d
-dotnet build EwaysVNext.slnx -c Release
-dotnet run --project src/Host/EwaysVNext.Host -- --migrate
-dotnet test EwaysVNext.slnx
-dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.StorefrontPopularityTests"
+dotnet build Mkbj.slnx -c Release
+dotnet run --project src/Host/Mkbj.Host -- --migrate
+dotnet test Mkbj.slnx
+dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.StorefrontPopularityTests"
 ```

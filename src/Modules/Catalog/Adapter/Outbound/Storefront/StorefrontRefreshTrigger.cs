@@ -1,8 +1,8 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Jobs;
-using EwaysVNext.Modules.Catalog.Application.Storefront.Ports.Inbound;
+using Mkbj.Domain.Common;
+using Mkbj.Jobs;
+using Mkbj.Modules.Catalog.Application.Storefront.Ports.Inbound;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound.Storefront;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound.Storefront;
 
 public sealed class StorefrontRefreshTrigger(IJobQueue jobs, IClock clock) : IStorefrontRefreshTrigger
 {

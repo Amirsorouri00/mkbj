@@ -1,0 +1,75 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <HotChocolateImplicitUsings>disable</HotChocolateImplicitUsings>
+    <!-- xUnit.net v3 test projects MUST be executables; the package errors out otherwise. -->
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\tools\CompositionSimulator\SeedLikeCatalog.cs" Link="Sales\Composition\SeedLikeCatalog.cs" />
+
+
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+      <ProjectReference Include="..\..\src\Modules\Partners\Adapter\Inbound\GraphQL\Mkbj.Modules.Partners.Adapter.Inbound.GraphQL.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Settings\Adapter\Inbound\GraphQL\Mkbj.Modules.Settings.Adapter.Inbound.GraphQL.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
+    <PackageReference Include="AwesomeAssertions" />
+    <PackageReference Include="PdfPig" />
+    <PackageReference Include="FsCheck" />
+    <PackageReference Include="FsCheck.Xunit.v3" />
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="HotChocolate.AspNetCore" />
+    <PackageReference Include="HotChocolate.AspNetCore.Authorization" />
+    <PackageReference Include="ClosedXML" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Remove="GreenDonut" />
+    <Using Remove="HotChocolate" />
+    <Using Remove="HotChocolate.Types" />
+    <Using Remove="HotChocolate.Types.Composite" />
+    <Using Remove="HotChocolate.Types.Relay" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BuildingBlocks\Domain\Mkbj.Domain.csproj" />
+    <ProjectReference Include="..\..\src\BuildingBlocks\Outcomes\Mkbj.Outcomes.csproj" />
+    <ProjectReference Include="..\..\src\BuildingBlocks\Core\Implementation\Mkbj.Core.Implementation.csproj" />
+    <ProjectReference Include="..\..\src\BuildingBlocks\Events\Application\Mkbj.Events.Application.csproj" />
+    <ProjectReference Include="..\..\src\BuildingBlocks\Events\Implementation\Mkbj.Events.Implementation.csproj" />
+    <ProjectReference Include="..\..\src\BuildingBlocks\Persistence\Mkbj.Persistence.csproj" />
+    <ProjectReference Include="..\..\src\BuildingBlocks\Storage\Implementation\Mkbj.Storage.Implementation.csproj" />
+    <ProjectReference Include="..\..\src\Database\Mkbj.Database.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sourcing\Application\Mkbj.Modules.Sourcing.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sourcing\Adapter\Outbound\Mkbj.Modules.Sourcing.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Admin\Application\Mkbj.Modules.Admin.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Admin\Adapter\Outbound\Mkbj.Modules.Admin.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Catalog\Application\Mkbj.Modules.Catalog.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Catalog\QueryApplication\Mkbj.Modules.Catalog.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Customer\Application\Mkbj.Modules.Customer.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Partners\Application\Mkbj.Modules.Partners.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Settings\Application\Mkbj.Modules.Settings.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Partners\Adapter\Outbound\Mkbj.Modules.Partners.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Customer\Adapter\Outbound\Mkbj.Modules.Customer.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Customer\Adapter\Inbound\GraphQL\Mkbj.Modules.Customer.Adapter.Inbound.GraphQL.csproj" />
+    <ProjectReference Include="..\..\src\Database\Mkbj.Database.csproj" />
+    <ProjectReference Include="..\..\src\Authorization\Authorization.Endpoints\Authorization.Endpoints.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Catalog\Adapter\Outbound\Mkbj.Modules.Catalog.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Catalog\Adapter\Inbound\GraphQL\Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Catalog\Installer\Mkbj.Modules.Catalog.Installer.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Catalog\Adapter\Inbound\Rest\Mkbj.Modules.Catalog.Adapter.Inbound.Rest.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Pricing\Installer\Mkbj.Modules.Pricing.Installer.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Pricing\Application\Mkbj.Modules.Pricing.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sales\Installer\Mkbj.Modules.Sales.Installer.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sales\Application\Mkbj.Modules.Sales.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sales\Adapter\Outbound\Mkbj.Modules.Sales.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Sales\QueryApplication\Mkbj.Modules.Sales.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\src\Host\Mkbj.Host\Mkbj.Host.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Pricing\Fixtures\*.xml" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

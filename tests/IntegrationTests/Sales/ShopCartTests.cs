@@ -3,12 +3,12 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.IntegrationTests.Support;
+using Mkbj.IntegrationTests.Support;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sales;
+namespace Mkbj.IntegrationTests.Sales;
 
 /// <summary>
 /// The website cart over HTTP, on both surfaces.
@@ -141,7 +141,7 @@ public sealed class ShopCartTests(PostgresFixture fixture)
             .Should().Be(fromRest.GetProperty("currency").GetString());
         fromGraph.GetProperty("total").GetProperty("amount").GetString()
             .Should().Be(fromRest.GetProperty("total").GetProperty("amount").GetString());
-        fromGraph.GetProperty("lines")[0].GetProperty("variantId").GetInt64()
+        fromGraph.GetProperty("lines")[0].GetProperty("variantId").ReadId()
             .Should().Be(Line(fromRest, 0).GetProperty("variantId").GetInt64());
     }
 

@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Catalog.QueryApplication.Storefront;
+namespace Mkbj.Modules.Catalog.QueryApplication.Storefront;
 
 /// <summary>
 /// The storefront's read queries, as SQL.

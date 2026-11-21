@@ -16,8 +16,8 @@ keys, §6.3 (`INSUFFICIENT_SCOPE`, `RATE_LIMITED`, `CUSTOMER_CONTACT_REQUIRED`),
 (written in phase 0; this phase implements it), PRD §3, §7, §12 acceptance 13.
 
 **Assumes phase 0 is done:** Npgsql + snake_case; Payment/Location/Notification deleted; Customer
-module is an empty compiling shell; `EwaysVNext.Storage`, `EwaysVNext.Jobs`, `EwaysVNext.Audit`;
-`AdminActor`, `PartnerPrincipal`, `PartnerScopes` in `EwaysVNext.Core.Application`;
+module is an empty compiling shell; `Mkbj.Storage`, `Mkbj.Jobs`, `Mkbj.Audit`;
+`AdminActor`, `PartnerPrincipal`, `PartnerScopes` in `Mkbj.Core.Application`;
 `Error(Code, Message, HttpStatus, Retryable)`; `X-Correlation-Id` middleware; `[Snowflake]`;
 `tests/IntegrationTests/PostgresFixture.cs` (Testcontainers, applies migrations) and its xUnit
 collection; `tests/ArchitectureTests/HexagonalBoundaryTests.cs` with `ModuleNames` and the
@@ -35,21 +35,21 @@ convention used by earlier plans in this repo). If the xUnit v3 runner rejects `
 ### Building blocks and cross-cutting
 | Path | Responsibility |
 |---|---|
-| `src/BuildingBlocks/Core/Application/Security/EwaysClaimTypes.cs` (new) | Claim-name constants: `tenant`, `sub`, `email`, `email_verified`, `partner_id`, `api_key_id`, `scope`, `rate_limit_per_minute`, `bulk_max_items` |
+| `src/BuildingBlocks/Core/Application/Security/MkbjClaimTypes.cs` (new) | Claim-name constants: `tenant`, `sub`, `email`, `email_verified`, `partner_id`, `api_key_id`, `scope`, `rate_limit_per_minute`, `bulk_max_items` |
 | `src/BuildingBlocks/Core/Application/Security/AdminRoles.cs` (new) | `super_admin`, `staff`, realm names `Shop`, `Backoffice` |
 | phase 0's `AdminActor.cs` (modify) | add `TryFrom(ClaimsPrincipal, out AdminActor)` |
 | phase 0's `PartnerScopes.cs` (modify) | add `All` list if absent |
 | `src/BuildingBlocks/Presentation.Endpoint/Security/AuthPolicies.cs` (new) | Policy-name constants and `Partner(scope)` |
 | `src/BuildingBlocks/Presentation.Endpoint/Security/AuthSchemes.cs` (new) | `PartnerApiKey` scheme name, `pk_` prefix, `IsPartnerKey(HttpRequest)` |
-| `src/BuildingBlocks/Presentation.Endpoint/Security/AuthorizationPolicyRegistration.cs` (new) | `AddEwaysAuthorizationPolicies()` registers every policy |
+| `src/BuildingBlocks/Presentation.Endpoint/Security/AuthorizationPolicyRegistration.cs` (new) | `AddMkbjAuthorizationPolicies()` registers every policy |
 | `src/BuildingBlocks/Presentation.Endpoint/Security/PartnerScopeRequirement.cs` (new) | Requirement + handler; fails with the `INSUFFICIENT_SCOPE` reason |
-| `src/BuildingBlocks/Presentation.Endpoint/Security/EwaysAuthorizationResultHandler.cs` (new) | Writes the standard error body for 401, 403 and `INSUFFICIENT_SCOPE` |
+| `src/BuildingBlocks/Presentation.Endpoint/Security/MkbjAuthorizationResultHandler.cs` (new) | Writes the standard error body for 401, 403 and `INSUFFICIENT_SCOPE` |
 | `src/Authorization/Authorization.Abstractions/Policies/AdminPermissions.cs` (new) | Permission codes of the spec §6.1 matrix |
 | `src/Authorization/Authorization.Implementation/Seeding/AdminPermissionMatrix.cs` (new) | Matrix rows (code, role, fixed GUIDs) used by `HasData` |
 | `src/Authorization/**` (modify) | Roles `staff`/`super_admin`, token-role mapping in the check service, gate the RBAC GraphQL |
-| `src/Host/EwaysVNext.Host/Program.cs` (modify) | Policies, Partners/Settings modules, middleware order, Serilog `ReadFrom.Services` |
-| `src/Host/EwaysVNext.Host/RateLimiting/RateLimitingSetup.cs` (new) | Global limiter: partner partition at the partner's limit, else IP |
-| `src/Host/EwaysVNext.Host/Authentication/Extensions/KeycloakAuthenticationExtensions.cs` (modify) | Route `Bearer pk_…` to `PartnerApiKey` before JWT parsing |
+| `src/Host/Mkbj.Host/Program.cs` (modify) | Policies, Partners/Settings modules, middleware order, Serilog `ReadFrom.Services` |
+| `src/Host/Mkbj.Host/RateLimiting/RateLimitingSetup.cs` (new) | Global limiter: partner partition at the partner's limit, else IP |
+| `src/Host/Mkbj.Host/Authentication/Extensions/KeycloakAuthenticationExtensions.cs` (modify) | Route `Bearer pk_…` to `PartnerApiKey` before JWT parsing |
 | `build/keycloak/shop-realm.json`, `build/keycloak/backoffice-realm.json` | Full realm exports (production configuration) |
 | `build/compose/docker-compose.yml`, `docker-compose.dev.yml`, `.env.example` (modify) | Keycloak SMTP `${VAR:?}` fail-fast; mailpit in dev |
 
@@ -109,17 +109,17 @@ convention used by earlier plans in this repo). If the xUnit v3 runner rejects `
 ## Task 1: Admin roles, permission matrix, policies and `AdminActor`
 
 **Files:**
-- Create: `src/BuildingBlocks/Core/Application/Security/EwaysClaimTypes.cs`, `src/BuildingBlocks/Core/Application/Security/AdminRoles.cs`
+- Create: `src/BuildingBlocks/Core/Application/Security/MkbjClaimTypes.cs`, `src/BuildingBlocks/Core/Application/Security/AdminRoles.cs`
 - Modify: phase 0's `AdminActor.cs` and `PartnerScopes.cs` (in `src/BuildingBlocks/Core/Application`)
 - Create: `src/BuildingBlocks/Presentation.Endpoint/Security/AuthPolicies.cs`, `AuthSchemes.cs`, `AuthorizationPolicyRegistration.cs`
-- Modify: `src/BuildingBlocks/Presentation.Endpoint/EwaysVNext.Presentation.Endpoint.csproj` (reference `Core/Application`)
+- Modify: `src/BuildingBlocks/Presentation.Endpoint/Mkbj.Presentation.Endpoint.csproj` (reference `Core/Application`)
 - Create: `src/Authorization/Authorization.Abstractions/Policies/AdminPermissions.cs`, `src/Authorization/Authorization.Implementation/Seeding/AdminPermissionMatrix.cs`
 - Modify: `src/Authorization/Authorization.Implementation/Persistence/Configurations/{RoleConfiguration,PermissionConfiguration,PermissionRuleConfiguration}.cs`
 - Modify: `src/Authorization/Authorization.Abstractions/Authorization/Requests/CheckAuthorizationRequest.cs`, `src/Authorization/Authorization.Implementation/Services/AuthorizationCheckService.cs`, `src/Authorization/Authorization.Implementation/Handlers/PermissionAuthorizationHandler.cs`
 - Modify: every resolver class in `src/Authorization/Authorization.Endpoints/{Permissions,Roles,Scopes,UserRoleScopes}/*Mutations.cs` and `*Queries.cs`
 - Modify: `src/Authorization/README.md` (role mapping, matrix, gates; delete the "temporary state" and "Open gap" notes this closes)
 - Create migration: `src/Authorization/Authorization.Implementation/Persistence/Migrations/<ts>_AdminPermissionMatrix.cs`
-- Modify: `src/Host/EwaysVNext.Host/Program.cs`, `src/Host/EwaysVNext.Host/Authentication/KeycloakClaimTypes.cs`
+- Modify: `src/Host/Mkbj.Host/Program.cs`, `src/Host/Mkbj.Host/Authentication/KeycloakClaimTypes.cs`
 - Modify: `tests/IntegrationTests/AdminJwtFactory.cs`; `tests/IntegrationTests/PostgresFixture.cs` (only if it does not already migrate `AuthorizationDbContext`)
 - Test: `tests/UnitTests/Identity/AdminActorTests.cs`, `tests/UnitTests/Identity/AdminPermissionMatrixTests.cs`
 
@@ -127,8 +127,8 @@ convention used by earlier plans in this repo). If the xUnit v3 runner rejects `
 - Consumes: `AdminActor(Guid UserId, bool IsSuperAdmin)`, `PartnerScopes` (phase 0).
 - Produces:
 ```csharp
-// EwaysVNext.Core.Application.Security
-public static class EwaysClaimTypes { Tenant="tenant"; Subject="sub"; Email="email"; EmailVerified="email_verified";
+// Mkbj.Core.Application.Security
+public static class MkbjClaimTypes { Tenant="tenant"; Subject="sub"; Email="email"; EmailVerified="email_verified";
   PartnerId="partner_id"; ApiKeyId="api_key_id"; Scope="scope"; RateLimitPerMinute="rate_limit_per_minute"; BulkMaxItems="bulk_max_items"; }
 public static class AdminRoles { SuperAdmin="super_admin"; Staff="staff"; ShopRealm="Shop"; BackofficeRealm="Backoffice"; }
 // AdminActor (extend)
@@ -136,7 +136,7 @@ public static bool TryFrom(ClaimsPrincipal user, out AdminActor actor); // tenan
 // PartnerScopes (extend if absent)
 public static readonly IReadOnlyList<string> All;
 
-// EwaysVNext.Presentation.Endpoint.Security
+// Mkbj.Presentation.Endpoint.Security
 public static class AuthPolicies {
   public const string AdminStaff = "admin:staff";   // Backoffice tenant + role staff OR super_admin
   public const string AdminSuper = "admin:super";   // Backoffice tenant + role super_admin
@@ -146,7 +146,7 @@ public static class AuthPolicies {
 }
 public static class AuthSchemes { public const string PartnerApiKey = "PartnerApiKey"; public const string PartnerKeyPrefix = "pk_";
   public static bool IsPartnerKey(HttpRequest request); } // "Bearer pk_…" (scheme word case-insensitive, prefix ordinal)
-public static class AuthorizationPolicyRegistration { public static AuthorizationOptions AddEwaysAuthorizationPolicies(this AuthorizationOptions o); }
+public static class AuthorizationPolicyRegistration { public static AuthorizationOptions AddMkbjAuthorizationPolicies(this AuthorizationOptions o); }
 
 // AuthorizationService.Abstractions.Policies
 public static class AdminPermissions {
@@ -214,21 +214,21 @@ public void Matrix_Covers_Every_AdminPermissions_Constant()
     => AdminPermissionMatrix.Rows.Select(r => r.Code).Should().BeEquivalentTo(
         typeof(AdminPermissions).GetFields().Select(f => (string)f.GetRawConstantValue()!));
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter "FullyQualifiedName~Identity"`. Expected: FAIL (does not compile: `TryFrom`, `AdminPermissions`, `AdminPermissionMatrix` missing).
+- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter "FullyQualifiedName~Identity"`. Expected: FAIL (does not compile: `TryFrom`, `AdminPermissions`, `AdminPermissionMatrix` missing).
 - [ ] **Step 3: Implement.**
-  - `EwaysClaimTypes`, `AdminRoles`, `AdminActor.TryFrom` (role read from `ClaimTypes.Role`, which `KeycloakAuthenticationExtensions.ValidateKeycloakAccessToken` adds). If phase 0's `PartnerPrincipal.TryFrom` uses string literals, switch it to `EwaysClaimTypes` (same values). `KeycloakClaimTypes.Tenant => EwaysClaimTypes.Tenant`.
+  - `MkbjClaimTypes`, `AdminRoles`, `AdminActor.TryFrom` (role read from `ClaimTypes.Role`, which `KeycloakAuthenticationExtensions.ValidateKeycloakAccessToken` adds). If phase 0's `PartnerPrincipal.TryFrom` uses string literals, switch it to `MkbjClaimTypes` (same values). `KeycloakClaimTypes.Tenant => MkbjClaimTypes.Tenant`.
   - `AdminPermissionMatrix.Rows`: `sealed record MatrixRow(string Code, string Name, string RoleCode, Guid PermissionId, Guid RuleId)`. One row per `AdminPermissions` constant; the five staff-area rows use `RoleCode = "staff"`, the six others `"super_admin"`. GUIDs are hard-coded literals (generate once, commit; never compute at runtime).
   - `RoleConfiguration.HasData`: add `staff` (Rank 10) and `super_admin` (Rank 20) with fixed GUIDs. The existing rank rule (`assigned.Rank >= rule.Rank`) makes `super_admin` satisfy every staff rule. Keep the existing `User/Manager/Admin` rows.
   - `PermissionConfiguration`/`PermissionRuleConfiguration.HasData` from `AdminPermissionMatrix.Rows` (anonymous objects, `SeedTimestamp` constant, no rule scopes).
   - `PermissionAuthorizationHandler`: pass `TokenRoleCodes` = the `ClaimTypes.Role` values **only when** the `tenant` claim is `Backoffice`; otherwise `null`.
   - `AuthorizationCheckService.CheckAsync`: resolve `TokenRoleCodes` to ranks via `db.Roles.Where(r => codes.Contains(r.Code))`. Treat each as an assignment with no scope; it satisfies a rule when `rank >= rule.RoleRank` and the rule has no scopes. Union with the existing `UserRoleScopes` assignments.
-  - `AddEwaysAuthorizationPolicies`: `AdminStaff`, `AdminSuper`, `ShopCustomer` as described above (all `RequireAuthenticatedUser()`). Partner policies are added in Task 6.
-  - `Program.cs`: replace the inline `"Admin"`/`"Customer"` policies with `opts.AddEwaysAuthorizationPolicies()`. Keep the two legacy names as aliases (`"Admin"` = same requirements as `AdminStaff`, `"Customer"` = `ShopCustomer` or `AdminStaff`) with a `// removed in phase 2–3` comment, because Catalog endpoints still reference `"Admin"`.
+  - `AddMkbjAuthorizationPolicies`: `AdminStaff`, `AdminSuper`, `ShopCustomer` as described above (all `RequireAuthenticatedUser()`). Partner policies are added in Task 6.
+  - `Program.cs`: replace the inline `"Admin"`/`"Customer"` policies with `opts.AddMkbjAuthorizationPolicies()`. Keep the two legacy names as aliases (`"Admin"` = same requirements as `AdminStaff`, `"Customer"` = `ShopCustomer` or `AdminStaff`) with a `// removed in phase 2–3` comment, because Catalog endpoints still reference `"Admin"`.
   - Authorization GraphQL: add `[Authorize(Policy = AuthPolicies.AdminSuper)]` to every mutation and `[Authorize(Policy = AuthPolicies.AdminStaff)]` to every query field. The RBAC mutations are otherwise ungated, which would let staff grant themselves `partners.manage`.
-  - Migration: `dotnet ef migrations add AdminPermissionMatrix -p src/Authorization/Authorization.Implementation/Authorization.Implementation.csproj -s src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj -c AuthorizationDbContext -o Persistence/Migrations`.
+  - Migration: `dotnet ef migrations add AdminPermissionMatrix -p src/Authorization/Authorization.Implementation/Authorization.Implementation.csproj -s src/Host/Mkbj.Host/Mkbj.Host.csproj -c AuthorizationDbContext -o Persistence/Migrations`.
   - `AdminJwtFactory`: `CreateToken(tenant, role, Guid? sub = null, IEnumerable<Claim>? extra = null)`; add `CreateSuperAdminToken()`, `CreateStaffToken()`, `CreateShopToken(Guid sub, string email, bool emailVerified)`; `CreateAdminToken()` now mints `super_admin`.
   - `PostgresFixture.InitializeAsync`: also `MigrateAsync()` the `AuthorizationDbContext` if it does not already.
-- [ ] **Step 4: Run** the Step 2 command, then `dotnet build EwaysVNext.slnx`. Expected: PASS, build clean.
+- [ ] **Step 4: Run** the Step 2 command, then `dotnet build Mkbj.slnx`. Expected: PASS, build clean.
 - [ ] **Step 5: Mutation check.** Change `staff` to `super_admin` on one staff row → `Backoffice_Role_Claim_Maps_To_Seeded_Matrix` fails. Remove the tenant check in the handler → `Roles_From_A_Shop_Token_Are_Ignored` fails. Restore both.
 - [ ] **Step 6: Commit.**
 ```bash
@@ -246,7 +246,7 @@ git commit -m "feat(identity): map Backoffice roles to seeded permission matrix;
 - Test: `tests/UnitTests/Identity/KeycloakRealmExportTests.cs`
 
 **Interfaces:**
-- Consumes: `src/Host/EwaysVNext.Host/appsettings.json` `Keycloak:Realms` client ids (`modular-monolith` for Shop, `backoffice-console` for Backoffice). They stay unchanged, because `ValidateKeycloakAccessToken` checks `azp`.
+- Consumes: `src/Host/Mkbj.Host/appsettings.json` `Keycloak:Realms` client ids (`modular-monolith` for Shop, `backoffice-console` for Backoffice). They stay unchanged, because `ValidateKeycloakAccessToken` checks `azp`.
 - Produces: env vars `KC_SMTP_HOST`, `KC_SMTP_PORT`, `KC_SMTP_FROM`, `KC_SMTP_FROM_DISPLAY_NAME`, `KC_SMTP_USER`, `KC_SMTP_PASSWORD`, `KC_SMTP_STARTTLS`, `KC_SHOP_WEB_ORIGIN`, `KC_ADMIN_WEB_ORIGIN`, `KC_API_PUBLIC_URL`.
 
 **Realm content.** Keycloak substitutes `${VAR}` placeholders at `--import-realm`.
@@ -298,7 +298,7 @@ public class KeycloakRealmExportTests
     }
 }
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter "FullyQualifiedName~KeycloakRealmExportTests"`. Expected: FAIL (stubs lack the content).
+- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter "FullyQualifiedName~KeycloakRealmExportTests"`. Expected: FAIL (stubs lack the content).
 - [ ] **Step 3: Implement** both realm exports per the table. In production compose, the keycloak service passes every `KC_SMTP_*` as `${KC_SMTP_X:?KC_SMTP_X is required}`, so `docker compose up` refuses to start without them. That is the spec's "startup fails fast in Production". Dev compose uses `${KC_SMTP_HOST:-mailpit}`, port `1025`, `KC_SMTP_STARTTLS=false`, and adds `mailpit` (`axllent/mailpit:v1.21`, UI on 8025). `.env.example` lists every new variable with empty values for secrets.
 - [ ] **Step 4: Run** the Step 2 command. Expected: PASS. Also `docker compose -f build/compose/docker-compose.yml config` with `KC_SMTP_HOST` unset must exit non-zero (manual check; record the result in the phase report).
 - [ ] **Step 5: Commit.**
@@ -312,15 +312,15 @@ git commit -m "feat(keycloak): production realm exports for Shop and Backoffice;
 ## Task 3: Partners module scaffold, key format and peppered hashing
 
 **Files:**
-- Run: `./New-EwaysModule.ps1 -ModuleName Partners` (creates Application, Adapter/Outbound, Adapter/Inbound/Rest, QueryApplication, Installer and adds them to `EwaysVNext.slnx`). Then create `src/Modules/Partners/Adapter/Inbound/GraphQL/EwaysVNext.Modules.Partners.Adapter.Inbound.GraphQL.csproj` by copying the package and project references of Catalog's GraphQL csproj, and add it to the slnx and the Installer.
-- Modify: `src/Database/EwaysVNext.Database.csproj` (reference Partners.Application), `tests/UnitTests/EwaysVNext.UnitTests.csproj`, `tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj` (reference Partners.Installer), `tests/ArchitectureTests/HexagonalBoundaryTests.cs` (`ModuleNames` += `"Partners"`)
+- Run: `./New-MkbjModule.ps1 -ModuleName Partners` (creates Application, Adapter/Outbound, Adapter/Inbound/Rest, QueryApplication, Installer and adds them to `Mkbj.slnx`). Then create `src/Modules/Partners/Adapter/Inbound/GraphQL/Mkbj.Modules.Partners.Adapter.Inbound.GraphQL.csproj` by copying the package and project references of Catalog's GraphQL csproj, and add it to the slnx and the Installer.
+- Modify: `src/Database/Mkbj.Database.csproj` (reference Partners.Application), `tests/UnitTests/Mkbj.UnitTests.csproj`, `tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj` (reference Partners.Installer), `tests/ArchitectureTests/HexagonalBoundaryTests.cs` (`ModuleNames` += `"Partners"`)
 - Create: `src/Modules/Partners/Application/Partners/Keys/{ApiKeyFormat,ApiKeyHasher,ApiKeyPepper,ApiKeyOptions}.cs`
-- Create: `src/Host/EwaysVNext.Host/ModuleAppSetting/Partners/modules.partners.json`, `modules.partners.Development.json`
+- Create: `src/Host/Mkbj.Host/ModuleAppSetting/Partners/modules.partners.json`, `modules.partners.Development.json`
 - Test: `tests/UnitTests/Partners/ApiKeyFormatTests.cs`, `tests/UnitTests/Partners/ApiKeyHasherTests.cs`
 
 **Interfaces:**
 ```csharp
-namespace EwaysVNext.Modules.Partners.Application.Partners.Keys;
+namespace Mkbj.Modules.Partners.Application.Partners.Keys;
 public sealed record GeneratedApiKey(string Prefix, string Secret, string Plaintext); // Plaintext = "pk_" + Prefix + "_" + Secret
 public static class ApiKeyFormat {
   public const int PrefixLength = 8;   // base62
@@ -372,12 +372,12 @@ public void TryParse_Rejects_Malformed(string presented) => ApiKeyFormat.TryPars
 public void Pepper_Shorter_Than_32_Chars_Is_Refused(string? raw)
     => FluentActions.Invoking(() => ApiKeyPepper.FromConfiguration(raw)).Should().Throw<InvalidOperationException>();
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter "FullyQualifiedName~Partners.ApiKey"`. Expected: FAIL (types missing).
+- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter "FullyQualifiedName~Partners.ApiKey"`. Expected: FAIL (types missing).
 - [ ] **Step 3: Implement** the four types above. Base62 alphabet `0-9A-Za-z`. The secret is `BigInteger(bytes, isUnsigned: true, isBigEndian: true)` converted to base62 and left-padded to 43. The prefix is 8 × `RandomNumberGenerator.GetInt32(62)`. `TryParse` checks exact lengths, the alphabet, and exactly two `_` separators.
-- [ ] **Step 4: Run** the Step 2 command and `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj`. Expected: PASS (the empty Partners projects satisfy the boundary rules).
+- [ ] **Step 4: Run** the Step 2 command and `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj`. Expected: PASS (the empty Partners projects satisfy the boundary rules).
 - [ ] **Step 5: Commit.**
 ```bash
-git add src/Modules/Partners src/Database/EwaysVNext.Database.csproj src/Host/EwaysVNext.Host/ModuleAppSetting/Partners EwaysVNext.slnx tests build/compose/.env.example
+git add src/Modules/Partners src/Database/Mkbj.Database.csproj src/Host/Mkbj.Host/ModuleAppSetting/Partners Mkbj.slnx tests build/compose/.env.example
 git commit -m "feat(partners): scaffold module; API key format and HMAC-SHA256 pepper hashing" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
@@ -439,7 +439,7 @@ public void Create_Enforces_Limit_Bounds(int rate, int bulk) { /* throws VALIDAT
 [Fact] public void Key_Is_Not_Usable_At_Its_Exact_Expiry()
 { /* ExpiresAt = Now+1h: IsUsableAt(Now+1h-1tick) true, IsUsableAt(Now+1h) false */ }
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter "FullyQualifiedName~PartnerDomainTests"`. Expected: FAIL (types missing).
+- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter "FullyQualifiedName~PartnerDomainTests"`. Expected: FAIL (types missing).
 - [ ] **Step 3: Implement** the aggregate. Scopes are validated against `PartnerScopes.All`. The name is trimmed, non-empty and ≤ 200 characters. `RotateKey` sets `old.ExpiresAt = Min(old.ExpiresAt ?? ∞, now + overlap)`.
 - [ ] **Step 4: Run** the Step 2 command. Expected: PASS.
 - [ ] **Step 5: Commit.**
@@ -455,9 +455,9 @@ git commit -m "feat(partners): Partner aggregate with key issue, rotate-with-ove
 **Files:**
 - Create: `src/Modules/Partners/Application/Partners/Ports/Inbound/{IPartnerAdminService,IApiKeyAuthenticator,PartnerCommands}.cs`, `Ports/Outbound/{IPartnerRepository,IApiKeyLookup}.cs`, `Services/{PartnerAdminService,ApiKeyAuthenticator}.cs`, `Application/DependencyInjection.cs`
 - Create: `src/Modules/Partners/Adapter/Outbound/Persistence/{PartnerRepository,ApiKeyLookup}.cs`, `Adapter/Outbound/DependencyInjection.cs`
-- Create: `src/Database/Partners/Configurations/PartnerConfiguration.cs`; modify `src/Database/EwaysVNextDbContext.cs` (`DbSet<Partner> Partners`)
-- Modify: `src/Modules/Partners/Installer/ModuleInstaller.cs` (`AddPartnersModule(IConfiguration)`), `src/Host/EwaysVNext.Host/Program.cs` (call it; add `"partners"` to `AddModuleConfiguration`), Host csproj reference
-- Create migration: `dotnet ef migrations add Partners -p src/Database -s src/Host/EwaysVNext.Host`
+- Create: `src/Database/Partners/Configurations/PartnerConfiguration.cs`; modify `src/Database/MkbjDbContext.cs` (`DbSet<Partner> Partners`)
+- Modify: `src/Modules/Partners/Installer/ModuleInstaller.cs` (`AddPartnersModule(IConfiguration)`), `src/Host/Mkbj.Host/Program.cs` (call it; add `"partners"` to `AddModuleConfiguration`), Host csproj reference
+- Create migration: `dotnet ef migrations add Partners -p src/Database -s src/Host/Mkbj.Host`
 - Test: `tests/UnitTests/Partners/ApiKeyAuthenticatorTests.cs`, `tests/UnitTests/Partners/PartnerAdminServiceTests.cs`
 
 **Interfaces:**
@@ -526,9 +526,9 @@ key payloads are `{ keyId, prefix, scopes, expiresAt }`, never the plaintext or 
 [Fact] public async Task Rotate_Rejects_Overlap_Above_Max() { /* 31 days → VALIDATION_FAILED */ }
 [Fact] public async Task Unknown_Partner_Is_Not_Found() { /* HttpStatus 404, code NOT_FOUND */ }
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter "FullyQualifiedName~Partners"`. Expected: FAIL (types missing).
+- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter "FullyQualifiedName~Partners"`. Expected: FAIL (types missing).
 - [ ] **Step 3: Implement.** The services are `sealed` and follow `load → mutate → audit.Record → one SaveChangesAsync`. A `DomainException` becomes `Result.Failure(new Error(ex.Code, ex.Message))`. `ApiKeyAuthenticator` runs `TryParse` → `FindByPrefixAsync` → `hasher.Matches` → usable at `clock.UtcNow` → `PartnerActive`. Any failure returns `null`, and the reason is logged at Information as one of `malformed|unknown_prefix|bad_secret|revoked|expired|suspended` together with the **prefix only** (only after a successful parse). The Installer binds `ApiKeyOptions` from `ApiKeys`, registers `ApiKeyPepper.FromConfiguration(config["ApiKeys:Pepper"])` as a singleton, and registers `ApiKeyHasher`. Migration as listed.
-- [ ] **Step 4: Run** the Step 2 command, then `dotnet build EwaysVNext.slnx`. Expected: PASS.
+- [ ] **Step 4: Run** the Step 2 command, then `dotnet build Mkbj.slnx`. Expected: PASS.
 - [ ] **Step 5: Commit.**
 ```bash
 git add src/Modules/Partners src/Database src/Host tests/UnitTests/Partners
@@ -541,9 +541,9 @@ git commit -m "feat(partners): admin service, key authenticator, persistence and
 
 **Files:**
 - Create: `src/Modules/Partners/Adapter/Inbound/Rest/Authentication/PartnerApiKeyAuthenticationHandler.cs`; modify `Adapter/Inbound/Rest/DependencyInjection.cs` (`AddPartnersRestAdapter` registers the scheme with `services.AddAuthentication().AddScheme<AuthenticationSchemeOptions, PartnerApiKeyAuthenticationHandler>(AuthSchemes.PartnerApiKey, _ => { })`)
-- Create: `src/BuildingBlocks/Presentation.Endpoint/Security/PartnerScopeRequirement.cs`, `EwaysAuthorizationResultHandler.cs`; modify `AuthorizationPolicyRegistration.cs`
-- Modify: `src/Host/EwaysVNext.Host/Authentication/Extensions/KeycloakAuthenticationExtensions.cs` (`SelectTenantScheme`)
-- Create: `src/Host/EwaysVNext.Host/RateLimiting/RateLimitingSetup.cs`; modify `Program.cs` (replace inline `AddRateLimiter`; order `UseAuthentication()` → `UseRateLimiter()` → `UseAuthorization()`; register `EwaysAuthorizationResultHandler` as `IAuthorizationMiddlewareResultHandler` and `PartnerScopeAuthorizationHandler` as `IAuthorizationHandler`)
+- Create: `src/BuildingBlocks/Presentation.Endpoint/Security/PartnerScopeRequirement.cs`, `MkbjAuthorizationResultHandler.cs`; modify `AuthorizationPolicyRegistration.cs`
+- Modify: `src/Host/Mkbj.Host/Authentication/Extensions/KeycloakAuthenticationExtensions.cs` (`SelectTenantScheme`)
+- Create: `src/Host/Mkbj.Host/RateLimiting/RateLimitingSetup.cs`; modify `Program.cs` (replace inline `AddRateLimiter`; order `UseAuthentication()` → `UseRateLimiter()` → `UseAuthorization()`; register `MkbjAuthorizationResultHandler` as `IAuthorizationMiddlewareResultHandler` and `PartnerScopeAuthorizationHandler` as `IAuthorizationHandler`)
 - Modify: `tests/IntegrationTests/PostgresFixture.cs` (`CreateFactory(Action<IServiceCollection>? configureServices = null, IDictionary<string,string?>? settings = null)`; the test auth default becomes a policy scheme `IntegrationTestRouter` that forwards to `AuthSchemes.PartnerApiKey` when `AuthSchemes.IsPartnerKey(request)` and otherwise to the test JWT scheme; settings `ApiKeys:Pepper` = 40-char test value and `RateLimiting:AnonymousPermitPerMinute = 100000`)
 - Create: `tests/IntegrationTests/Support/{MutableClock,PartnerSeeder,BearerClientExtensions}.cs`, `tests/IntegrationTests/Partners/PartnerProbeEndpoints.cs`
 - Test: `tests/IntegrationTests/Partners/PartnerApiKeyAuthenticationTests.cs`
@@ -558,11 +558,11 @@ public sealed class PartnerApiKeyAuthenticationHandler(IOptionsMonitor<Authentic
 public sealed record PartnerScopeRequirement(string Scope) : IAuthorizationRequirement;
 public sealed class PartnerScopeAuthorizationHandler : AuthorizationHandler<PartnerScopeRequirement>; // fails with reason message "INSUFFICIENT_SCOPE"
 // policy "partner:{scope}" for each of PartnerScopes.All: AddAuthenticationSchemes(AuthSchemes.PartnerApiKey), RequireAuthenticatedUser, PartnerScopeRequirement(scope)
-public sealed class EwaysAuthorizationResultHandler : IAuthorizationMiddlewareResultHandler;
+public sealed class MkbjAuthorizationResultHandler : IAuthorizationMiddlewareResultHandler;
 // Challenged → 401 body Error.Unauthorized + "WWW-Authenticate: Bearer"; Forbidden with reason INSUFFICIENT_SCOPE →
 // 403 Error("INSUFFICIENT_SCOPE", "The API key does not grant the scope this endpoint requires.", 403); other Forbidden → 403 Error.Forbidden;
 // bodies written via Result.Failure(error).ToHttpResult().ExecuteAsync(httpContext). Succeeded → next.
-public static class RateLimitingSetup { public static IServiceCollection AddEwaysRateLimiting(this IServiceCollection s, IConfiguration c); }
+public static class RateLimitingSetup { public static IServiceCollection AddMkbjRateLimiting(this IServiceCollection s, IConfiguration c); }
 // Partition: PartnerPrincipal present → key "partner:{id}:{limit}", FixedWindow(PermitLimit = rate_limit_per_minute claim, 1 min, QueueLimit 0);
 // else key = remote IP, PermitLimit = RateLimiting:AnonymousPermitPerMinute (default 100). Putting the limit in the key makes an admin
 // change apply immediately. OnRejected: 429, "Retry-After: 60", body Error("RATE_LIMITED", …, 429, Retryable: true).
@@ -610,7 +610,7 @@ It is registered in the factory with `services.AddScoped<IEndpoint, PartnerProbe
 [Fact] public async Task Partner_Rate_Limit_Returns_429_Rate_Limited()
 { /* rateLimit 2: requests 1–2 → 200, 3 → 429, code RATE_LIMITED, retryable true, Retry-After present */ }
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter "FullyQualifiedName~PartnerApiKeyAuthenticationTests"`. Expected: FAIL (scheme not registered, so `pk_` goes to the JWT path → 401 everywhere and the 200 cases fail).
+- [ ] **Step 2: Run** `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter "FullyQualifiedName~PartnerApiKeyAuthenticationTests"`. Expected: FAIL (scheme not registered, so `pk_` goes to the JWT path → 401 everywhere and the 200 cases fail).
 - [ ] **Step 3: Implement** as specified above.
 - [ ] **Step 4: Run** the Step 2 command, then the whole integration suite (the rate-limiter and middleware-order change touches every request). Expected: PASS.
 - [ ] **Step 5: Mutation check.** Make `IsUsableAt` use `<=` → `Rotated_Old_Key_Works_Until_Overlap_Expiry` fails. Drop the `INSUFFICIENT_SCOPE` reason → `Wrong_Scope_Returns_403_Insufficient_Scope` fails. Restore both.
@@ -628,7 +628,7 @@ git commit -m "feat(partners): PartnerApiKey auth scheme, partner:{scope} polici
 - Create: `src/Modules/Partners/Application/Usage/{ApiKeyUsage,ApiKeyUsageEntry}.cs`, `Application/Partners/Ports/Inbound/IApiKeyUsageRecorder.cs`
 - Create: `src/Modules/Partners/Adapter/Outbound/Usage/{ChannelApiKeyUsageRecorder,ApiKeyUsageFlushService,UsagePruneJobHandler,PartnerUsageOptions}.cs`
 - Create: `src/Modules/Partners/Adapter/Inbound/Rest/Usage/PartnerApiUsageMiddleware.cs`
-- Create: `src/Database/Partners/Configurations/ApiKeyUsageConfiguration.cs`; `DbSet<ApiKeyUsage> ApiKeyUsages`; migration `dotnet ef migrations add PartnerUsage -p src/Database -s src/Host/EwaysVNext.Host`
+- Create: `src/Database/Partners/Configurations/ApiKeyUsageConfiguration.cs`; `DbSet<ApiKeyUsage> ApiKeyUsages`; migration `dotnet ef migrations add PartnerUsage -p src/Database -s src/Host/Mkbj.Host`
 - Modify: `Installer/ModuleInstaller.cs` (`UsePartnersModule(this IApplicationBuilder app)` → `UseMiddleware<PartnerApiUsageMiddleware>()`; `AddJobHandler<UsagePruneJobHandler, UsagePrunePayload>()`; `AddRecurringJob(JobTypes.UsagePrune, TimeSpan.FromDays(1))`; `AddHostedService<ApiKeyUsageFlushService>()`)
 - Modify: `Program.cs` (`app.UsePartnersModule()` between `UseAuthentication()` and `UseRateLimiter()`, so 429s are logged too; Serilog: `UseSerilog((ctx, services, cfg) => cfg.ReadFrom.Configuration(ctx.Configuration).ReadFrom.Services(services).WriteTo.Console(…))`)
 - Create: `tests/IntegrationTests/Support/CapturingSink.cs`
@@ -682,7 +682,7 @@ characters; the query string is never included. The correlation id is the respon
     sink.AllText().Should().NotContain(secret).And.NotContain(key);   // rendered message + every property value + exception text
 }
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter "FullyQualifiedName~ChannelApiKeyUsageRecorderTests"` and `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter "FullyQualifiedName~PartnerUsageTests"`. Expected: FAIL (types missing).
+- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter "FullyQualifiedName~ChannelApiKeyUsageRecorderTests"` and `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter "FullyQualifiedName~PartnerUsageTests"`. Expected: FAIL (types missing).
 - [ ] **Step 3: Implement** as specified above.
 - [ ] **Step 4: Run** both commands. Expected: PASS.
 - [ ] **Step 5: Mutation check.** Add `Logger.LogInformation("auth {Key}", presented)` in the handler → `Api_Key_Never_Appears_In_Logs` fails. Restore.
@@ -751,9 +751,9 @@ return `IssuedApiKeyPayload { keyId, prefix, key, scopes, expiresAt }`.
 [Fact] public async Task GraphQL_IssuePartnerApiKey_Returns_The_Key_Once() { }
 [Fact] public async Task Unknown_Partner_Returns_404() { }
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter "FullyQualifiedName~PartnerAdminApiTests"`. Expected: FAIL (404 route not found).
+- [ ] **Step 2: Run** `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter "FullyQualifiedName~PartnerAdminApiTests"`. Expected: FAIL (404 route not found).
 - [ ] **Step 3: Implement.** `LastUsedAt` is a correlated `Max(u => u.At)` over `ApiKeyUsages` in the same projection.
-- [ ] **Step 4: Run** the Step 2 command and `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj`. Expected: PASS.
+- [ ] **Step 4: Run** the Step 2 command and `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj`. Expected: PASS.
 - [ ] **Step 5: Commit.**
 ```bash
 git add src/Modules/Partners tests/IntegrationTests/Partners
@@ -765,11 +765,11 @@ git commit -m "feat(partners): Super Admin REST and GraphQL for partners, keys a
 ## Task 9: Settings module — domain, seeded defaults, `ISettingsPort`
 
 **Files:**
-- Run: `./New-EwaysModule.ps1 -ModuleName Settings`; add the GraphQL adapter csproj as in Task 3; reference Settings.Application from `src/Database/EwaysVNext.Database.csproj`; `ModuleNames` += `"Settings"`; ArchitectureTests and UnitTests csproj references
+- Run: `./New-MkbjModule.ps1 -ModuleName Settings`; add the GraphQL adapter csproj as in Task 3; reference Settings.Application from `src/Database/Mkbj.Database.csproj`; `ModuleNames` += `"Settings"`; ArchitectureTests and UnitTests csproj references
 - Create: `src/Modules/Settings/Application/Settings/Domain/{SellerProfile,PaymentInstruction,PaymentInstructionVersion,CommerceLimits,BuyerFieldRules,SettingsDefaults}.cs`
 - Create: `src/Modules/Settings/Application/Settings/Ports/Inbound/ISettingsPort.cs`, `Ports/Outbound/ISettingsRepository.cs`, `Services/{SettingsPortService,FxAgeOptions}.cs`, `Application/DependencyInjection.cs`
 - Create: `src/Modules/Settings/Adapter/Outbound/Persistence/SettingsRepository.cs`, `Adapter/Outbound/DependencyInjection.cs`, `Installer/ModuleInstaller.cs` (`AddSettingsModule(IConfiguration)`)
-- Create: `src/Database/Settings/Configurations/{SellerProfileConfiguration,PaymentInstructionConfiguration,CommerceLimitsConfiguration}.cs`; three `DbSet`s; migration `dotnet ef migrations add Settings -p src/Database -s src/Host/EwaysVNext.Host`
+- Create: `src/Database/Settings/Configurations/{SellerProfileConfiguration,PaymentInstructionConfiguration,CommerceLimitsConfiguration}.cs`; three `DbSet`s; migration `dotnet ef migrations add Settings -p src/Database -s src/Host/Mkbj.Host`
 - Modify: `Program.cs` (`AddSettingsModule`)
 - Test: `tests/UnitTests/Settings/SettingsDomainTests.cs`, `tests/IntegrationTests/Settings/SettingsSeedTests.cs`
 
@@ -835,12 +835,12 @@ public void CommerceLimits_Bounds_Are_Enforced(long min, long max, int bulk = 10
 }
 [Fact] public async Task Second_Singleton_Row_Is_Rejected_By_Check_Constraint() { /* raw INSERT id=2 → PostgresException 23514 */ }
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter "FullyQualifiedName~Settings"` and `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter "FullyQualifiedName~SettingsSeedTests"`. Expected: FAIL.
+- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter "FullyQualifiedName~Settings"` and `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter "FullyQualifiedName~SettingsSeedTests"`. Expected: FAIL.
 - [ ] **Step 3: Implement** as specified above. `SettingsPortService` is `sealed`, reads through `ISettingsRepository` (no tracking), and maps to snapshots.
 - [ ] **Step 4: Run** both commands. Expected: PASS.
 - [ ] **Step 5: Commit.**
 ```bash
-git add src/Modules/Settings src/Database src/Host EwaysVNext.slnx tests
+git add src/Modules/Settings src/Database src/Host Mkbj.slnx tests
 git commit -m "feat(settings): seller profile, versioned payment instruction, commerce limits, ISettingsPort" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
@@ -889,7 +889,7 @@ GraphQL: `adminSettings { seller paymentInstructions commerceLimits }`; mutation
 public async Task Malformed_Usd_Amount_Is_400_Validation_Failed(string minUsd) { }
 [Fact] public async Task Gst_Registered_True_Is_Refused() { /* 400 VALIDATION_FAILED */ }
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter "FullyQualifiedName~SettingsAdminServiceTests"` and `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter "FullyQualifiedName~SettingsAdminApiTests"`. Expected: FAIL.
+- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter "FullyQualifiedName~SettingsAdminServiceTests"` and `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter "FullyQualifiedName~SettingsAdminApiTests"`. Expected: FAIL.
 - [ ] **Step 3: Implement** as specified above (load singleton → mutate → audit → one save).
 - [ ] **Step 4: Run** both commands. Expected: PASS.
 - [ ] **Step 5: Commit.**
@@ -960,8 +960,8 @@ public void PartnerLinked_Requires_Email_And_Phone(string? email, string? phone)
 [Fact] public void Profile_Update_On_Suspended_Customer_Is_Refused() { /* CUSTOMER_SUSPENDED */ }
 [Fact] public void Website_Only_Methods_Refuse_PartnerLinked() { }
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter "FullyQualifiedName~Customers"`. Expected: FAIL.
-- [ ] **Step 3: Implement** as specified above. Reuse `EwaysVNext.Domain.ValueObjects.Email`.
+- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter "FullyQualifiedName~Customers"`. Expected: FAIL.
+- [ ] **Step 3: Implement** as specified above. Reuse `Mkbj.Domain.ValueObjects.Email`.
 - [ ] **Step 4: Run** the Step 2 command. Expected: PASS.
 - [ ] **Step 5: Commit.**
 ```bash
@@ -977,12 +977,12 @@ git commit -m "feat(customer): Customer aggregate with contact-change audit, E.1
 - Consumes (phase 0 — do NOT redefine): `IUnitOfWork.TrySaveChangesAsync` → `SaveOutcome { Saved, UniqueViolation, ConcurrencyConflict }`
 - Create: `src/Modules/Customer/Application/Customers/Ports/Inbound/{ICustomerResolutionPort,IWebsiteCustomerPort,CustomerContracts}.cs`, `Ports/Outbound/ICustomerRepository.cs`, `Services/{CustomerResolutionService,WebsiteCustomerService}.cs`; rewrite `Application/DependencyInjection.cs`
 - Create: `src/Modules/Customer/Adapter/Outbound/Persistence/CustomerRepository.cs`; rewrite `Adapter/Outbound/DependencyInjection.cs` and `Installer/ModuleInstaller.cs`
-- Create/replace: `src/Database/Customer/Configurations/CustomerConfiguration.cs`; `DbSet<Customer> Customers`; migration `dotnet ef migrations add CustomerRebuild -p src/Database -s src/Host/EwaysVNext.Host`
+- Create/replace: `src/Database/Customer/Configurations/CustomerConfiguration.cs`; `DbSet<Customer> Customers`; migration `dotnet ef migrations add CustomerRebuild -p src/Database -s src/Host/Mkbj.Host`
 - Test: `tests/UnitTests/Customers/CustomerResolutionServiceTests.cs`, `tests/IntegrationTests/Customers/CustomerPersistenceTests.cs`
 
 **Interfaces** (contract names exact):
 ```csharp
-// EwaysVNext.Persistence — produced by phase 0, consumed here:
+// Mkbj.Persistence — produced by phase 0, consumed here:
 // enum SaveOutcome { Saved, UniqueViolation, ConcurrencyConflict }; IUnitOfWork.TrySaveChangesAsync(CancellationToken ct = default)
 
 public interface ICustomerResolutionPort {
@@ -1047,7 +1047,7 @@ b.ToTable(t => t.HasCheckConstraint("ck_customers_kind_keys",
 [Fact] public async Task Sync_Persists_Contact_History_With_Partner_And_Correlation() { }
 [Fact] public async Task Check_Constraint_Refuses_A_Website_Row_With_A_PartnerId() { /* raw SQL → 23514 */ }
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter "FullyQualifiedName~CustomerResolutionServiceTests"` and `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter "FullyQualifiedName~CustomerPersistenceTests"`. Expected: FAIL.
+- [ ] **Step 2: Run** `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter "FullyQualifiedName~CustomerResolutionServiceTests"` and `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter "FullyQualifiedName~CustomerPersistenceTests"`. Expected: FAIL.
 - [ ] **Step 3: Implement** as specified above. `GetInvoicePartyAsync` maps the aggregate (no tracking).
 - [ ] **Step 4: Run** both commands. Expected: PASS.
 - [ ] **Step 5: Mutation check.** Drop `.IsUnique()` from `ux_customers_partner_external` (regenerate the migration locally) → `Duplicate_External_Id_For_One_Partner…` fails. Remove the `UniqueViolation` reload → `Concurrent_Creates…` fails. Restore both and delete the scratch migration.
@@ -1096,7 +1096,7 @@ GraphQL: `me: CustomerProfile` and `updateProfile(input): CustomerProfile`, both
 [Fact] public async Task Backoffice_Token_Cannot_Call_Shop_Me() { /* 403 */ }
 [Fact] public async Task GraphQL_Me_And_UpdateProfile_Match_Rest() { }
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter "FullyQualifiedName~ShopProfileTests"`. Expected: FAIL (route not found).
+- [ ] **Step 2: Run** `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter "FullyQualifiedName~ShopProfileTests"`. Expected: FAIL (route not found).
 - [ ] **Step 3: Implement** as specified above.
 - [ ] **Step 4: Run** the Step 2 command. Expected: PASS.
 - [ ] **Step 5: Commit.**
@@ -1148,7 +1148,7 @@ prefix; Task 15's arch test relies on it.
 [Fact] public async Task Search_Matches_Phone_And_External_Id() { }
 [Fact] public async Task GraphQL_AdminCustomer_Returns_Contact_History() { }
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter "FullyQualifiedName~CustomerAdminApiTests"`. Expected: FAIL.
+- [ ] **Step 2: Run** `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter "FullyQualifiedName~CustomerAdminApiTests"`. Expected: FAIL.
 - [ ] **Step 3: Implement** as specified above.
 - [ ] **Step 4: Run** the Step 2 command. Expected: PASS.
 - [ ] **Step 5: Commit.**
@@ -1164,7 +1164,7 @@ git commit -m "feat(customer): admin list/detail with contact history; suspend/r
 **Files:**
 - Create: `tests/ArchitectureTests/PartnerTenancyArchitectureTests.cs`
 - Modify: `tests/ArchitectureTests/HexagonalBoundaryTests.cs` (confirm `ModuleNames` contains `"Partners"`, `"Settings"`, `"Customer"`; Partners/Settings/Customer add **no** exception rows — spec §3.6 says they reference no other module)
-- Modify: `tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj` (reference the Partners/Settings/Customer Installers if not already)
+- Modify: `tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj` (reference the Partners/Settings/Customer Installers if not already)
 
 **Interfaces:** consumes `HexagonalBoundaryTests.ModuleNames` (make it `internal static` if phase 0 left it private).
 
@@ -1190,16 +1190,16 @@ public class PartnerTenancyArchitectureTests
     [Fact]
     public void Every_Module_Inbound_Rest_Assembly_Is_Scanned()
         => InboundAssemblies().Select(a => a.GetName().Name).Should().Contain(HexagonalBoundaryTests.ModuleNames
-            .Select(m => $"EwaysVNext.Modules.{m}.Adapter.Inbound.Rest"));
+            .Select(m => $"Mkbj.Modules.{m}.Adapter.Inbound.Rest"));
 
     private static IEnumerable<Assembly> InboundAssemblies() =>
-        HexagonalBoundaryTests.ModuleNames.SelectMany(m => new[] { "Rest", "GraphQL" }.Select(k => $"EwaysVNext.Modules.{m}.Adapter.Inbound.{k}"))
+        HexagonalBoundaryTests.ModuleNames.SelectMany(m => new[] { "Rest", "GraphQL" }.Select(k => $"Mkbj.Modules.{m}.Adapter.Inbound.{k}"))
             .Select(TryLoad).OfType<Assembly>();
     private static Assembly? TryLoad(string name) { try { return Assembly.Load(name); } catch (FileNotFoundException) { return null; } }
 }
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --filter "FullyQualifiedName~PartnerTenancyArchitectureTests"`. Expected: PASS on the current code. Mutation check: add `public sealed record UpdateProfileRequestProbe(long PartnerId);` to `Customer.Adapter.Inbound.Rest` → `No_Inbound_Request_Dto_Has_A_PartnerId_Property` FAILS, naming it. Delete the probe → PASS.
-- [ ] **Step 3: Run** the full architecture suite `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj`. Expected: PASS.
+- [ ] **Step 2: Run** `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --filter "FullyQualifiedName~PartnerTenancyArchitectureTests"`. Expected: PASS on the current code. Mutation check: add `public sealed record UpdateProfileRequestProbe(long PartnerId);` to `Customer.Adapter.Inbound.Rest` → `No_Inbound_Request_Dto_Has_A_PartnerId_Property` FAILS, naming it. Delete the probe → PASS.
+- [ ] **Step 3: Run** the full architecture suite `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj`. Expected: PASS.
 - [ ] **Step 4: Commit.**
 ```bash
 git add tests/ArchitectureTests
@@ -1250,7 +1250,7 @@ public async Task Staff_Is_Forbidden_On_GraphQL(string query)
 [Fact] public async Task Staff_Can_Manage_Customers() { /* GET /api/v1/admin/customers → 200; suspend → 200 */ }
 [Fact] public async Task Shop_Token_With_A_Forged_super_admin_Role_Is_Forbidden() { /* CreateToken("Shop", "super_admin") on POST partners → 403 */ }
 ```
-- [ ] **Step 2: Run** `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter "FullyQualifiedName~Acceptance13StaffPermissionTests"`. Expected: PASS (the gates exist since Tasks 1, 8 and 10). Mutation check: replace `AuthPolicies.AdminSuper` with `AdminStaff` on the partners group **and** add the staff role to the `partners.manage` matrix row → `Staff_Is_Forbidden` fails for partner rows. Restore.
+- [ ] **Step 2: Run** `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter "FullyQualifiedName~Acceptance13StaffPermissionTests"`. Expected: PASS (the gates exist since Tasks 1, 8 and 10). Mutation check: replace `AuthPolicies.AdminSuper` with `AdminStaff` on the partners group **and** add the staff role to the `partners.manage` matrix row → `Staff_Is_Forbidden` fails for partner rows. Restore.
 - [ ] **Step 3: Commit.**
 ```bash
 git add tests/IntegrationTests/Identity
@@ -1265,9 +1265,9 @@ git commit -m "test(acceptance-13): staff cannot manage partners, keys, settings
 - Create: `docs/reports/phase-1.md`
 - Modify: `AGENTS.md` (modules list: Partners, Settings, Customer as rebuilt; the `PartnerApiKey` scheme; policy names; endpoints table rows for `/api/v1/admin/partners`, `/api/v1/admin/settings`, `/api/v1/admin/customers`, `/api/v1/shop/me`), `docs/TESTING-GUARANTEES.md` (new suites; what the probe endpoints do and do not prove), `src/Authorization/README.md` (if not completed in Task 1)
 
-- [ ] **Step 1:** `dotnet build EwaysVNext.slnx` → zero warnings-as-errors.
-- [ ] **Step 2:** `dotnet test EwaysVNext.slnx` (Docker running) → all green. Record the counts per suite.
-- [ ] **Step 3:** `dotnet run --project src/Host/EwaysVNext.Host -- --migrate` against the dev compose Postgres → applies `Partners`, `PartnerUsage`, `Settings`, `CustomerRebuild` and `AdminPermissionMatrix`. Then `docker compose -f build/compose/docker-compose.dev.yml up keycloak` imports both realms without errors (check the Keycloak log for `Realm 'Shop' imported`, `Realm 'Backoffice' imported`).
+- [ ] **Step 1:** `dotnet build Mkbj.slnx` → zero warnings-as-errors.
+- [ ] **Step 2:** `dotnet test Mkbj.slnx` (Docker running) → all green. Record the counts per suite.
+- [ ] **Step 3:** `dotnet run --project src/Host/Mkbj.Host -- --migrate` against the dev compose Postgres → applies `Partners`, `PartnerUsage`, `Settings`, `CustomerRebuild` and `AdminPermissionMatrix`. Then `docker compose -f build/compose/docker-compose.dev.yml up keycloak` imports both realms without errors (check the Keycloak log for `Realm 'Shop' imported`, `Realm 'Backoffice' imported`).
 - [ ] **Step 4:** Write `docs/reports/phase-1.md`:
   - **What works:** realms, matrix, partner keys end to end, usage log, settings, customer.
   - **Incomplete:** FX and refund rows of acceptance 13 land in phases 2–3 and 4–5; no Keycloak in automated tests (realms are checked structurally only).
@@ -1284,18 +1284,18 @@ git commit -m "docs: phase 1 report; AGENTS.md and testing guarantees for identi
 ## Additions to the cross-phase contracts (produced here, consumed later)
 
 ```csharp
-// EwaysVNext.Core.Application.Security
-EwaysClaimTypes { Tenant, Subject, Email, EmailVerified, PartnerId="partner_id", ApiKeyId="api_key_id", Scope="scope",
+// Mkbj.Core.Application.Security
+MkbjClaimTypes { Tenant, Subject, Email, EmailVerified, PartnerId="partner_id", ApiKeyId="api_key_id", Scope="scope",
                   RateLimitPerMinute="rate_limit_per_minute", BulkMaxItems="bulk_max_items" }   // Sales reads bulk_max_items for POST /orders/bulk
 AdminRoles { SuperAdmin="super_admin", Staff="staff" }
 AdminActor.TryFrom(ClaimsPrincipal user, out AdminActor actor)
-// EwaysVNext.Presentation.Endpoint.Security
+// Mkbj.Presentation.Endpoint.Security
 AuthPolicies { AdminStaff="admin:staff", AdminSuper="admin:super", ShopCustomer="shop:customer", Partner(scope) => "partner:{scope}" }
 AuthSchemes { PartnerApiKey="PartnerApiKey", PartnerKeyPrefix="pk_" }
 // AuthorizationService.Abstractions.Policies
 AdminPermissions { CatalogManage, ImportsManage, CustomersManage, OrdersManage, PaymentsConfirm,   // staff
                    PartnersManage, FxManage, CurrenciesManage, SettingsManage, RefundsManage, AdminAccountsManage } // super
-// EwaysVNext.Persistence
+// Mkbj.Persistence
 // (from phase 0) enum SaveOutcome { Saved, UniqueViolation, ConcurrencyConflict };  IUnitOfWork.TrySaveChangesAsync(CancellationToken ct = default)
 // Settings
 SellerSnapshot.RequiredBuyerFields entries are '|'-joined alternatives over

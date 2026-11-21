@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Sales.Application.Domain.Telemetry;
+namespace Mkbj.Modules.Sales.Application.Domain.Telemetry;
 
 /// <summary>What one run of the composition engine did.</summary>
 public sealed record CompositionAttemptRecord(

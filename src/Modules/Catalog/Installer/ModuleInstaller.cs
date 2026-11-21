@@ -1,19 +1,19 @@
-﻿using EwaysVNext.Database;
-using EwaysVNext.DependencyInjection;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL;
-using EwaysVNext.Modules.Catalog.Adapter.Inbound.Rest;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints;
-using EwaysVNext.Modules.Catalog.Application.Brands;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions;
-using EwaysVNext.Modules.Catalog.Application.Categories;
-using EwaysVNext.Modules.Catalog.Application.Products;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.QueryApplication;
+using Mkbj.Database;
+using Mkbj.DependencyInjection;
+using Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL;
+using Mkbj.Modules.Catalog.Adapter.Inbound.Rest;
+using Mkbj.Modules.Catalog.Adapter.Outbound;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints;
+using Mkbj.Modules.Catalog.Application.Brands;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions;
+using Mkbj.Modules.Catalog.Application.Categories;
+using Mkbj.Modules.Catalog.Application.Products;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.QueryApplication;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Catalog;
+namespace Mkbj.Modules.Catalog;
 
 public static class ModuleInstaller
 {
@@ -39,7 +39,7 @@ public static class ModuleInstaller
             .AddFileTypeDetection()
             .AddPersistenceInterceptors()
             .AddUserProfileService()
-            .AddUnitOfWork<EwaysVNextDbContext>()
+            .AddUnitOfWork<MkbjDbContext>()
             .AddEvents(applicationAssembly);
 
         return services;

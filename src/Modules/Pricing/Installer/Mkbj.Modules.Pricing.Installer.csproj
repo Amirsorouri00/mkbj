@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Pricing\Installer\Mkbj.Modules.Pricing.Installer</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Mkbj.Modules.Pricing.Application.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\Mkbj.Modules.Pricing.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\Rest\Mkbj.Modules.Pricing.Adapter.Inbound.Rest.csproj" />
+    <ProjectReference Include="..\QueryApplication\Mkbj.Modules.Pricing.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\DependencyInjection\Mkbj.DependencyInjection.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\GraphQL\Mkbj.Modules.Pricing.Adapter.Inbound.GraphQL.csproj" />
+  </ItemGroup>
+</Project>

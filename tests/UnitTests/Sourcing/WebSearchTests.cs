@@ -1,9 +1,9 @@
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sourcing.Adapter.Outbound.Search;
+using Mkbj.Modules.Sourcing.Adapter.Outbound.Search;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sourcing;
+namespace Mkbj.UnitTests.Sourcing;
 
 /// <summary>
 /// Reading a search engine's answer.

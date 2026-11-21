@@ -1,6 +1,6 @@
 using System.Net.Http.Headers;
 
-namespace EwaysVNext.IntegrationTests.Support;
+namespace Mkbj.IntegrationTests.Support;
 
 internal static class BearerClientExtensions
 {

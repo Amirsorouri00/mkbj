@@ -1,15 +1,15 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Pricing.Application.Currencies.Domain;
-using EwaysVNext.Modules.Pricing.Application.Fx.Domain;
-using EwaysVNext.Modules.Pricing.Application.Fx.Ports.Outbound;
-using EwaysVNext.Modules.Pricing.Application.Prices.Domain;
+using AwesomeAssertions;
+using Mkbj.Database;
+using Mkbj.Modules.Pricing.Application.Currencies.Domain;
+using Mkbj.Modules.Pricing.Application.Fx.Domain;
+using Mkbj.Modules.Pricing.Application.Fx.Ports.Outbound;
+using Mkbj.Modules.Pricing.Application.Prices.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Pricing;
+namespace Mkbj.IntegrationTests.Pricing;
 
 /// <summary>
 /// What the pricing tables guarantee on their own. These are the rules an FX refresh running
@@ -32,10 +32,10 @@ public sealed class PricingPersistenceTests(PostgresFixture fixture)
 
     private static async Task<T> InScopeAsync<T>(
         Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Program> factory,
-        Func<EwaysVNextDbContext, Task<T>> work)
+        Func<MkbjDbContext, Task<T>> work)
     {
         using var scope = factory.Services.CreateScope();
-        return await work(scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>());
+        return await work(scope.ServiceProvider.GetRequiredService<MkbjDbContext>());
     }
 
     private static async Task<PostgresException> ExpectUniqueViolationAsync(Func<Task> act)
@@ -158,7 +158,7 @@ public sealed class PricingPersistenceTests(PostgresFixture fixture)
         var quote = NewCode();
 
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         // Written past the aggregate, the way a fix-up script would.
         var act = async () => await db.Database.ExecuteSqlAsync($"""
@@ -299,7 +299,7 @@ public sealed class PricingPersistenceTests(PostgresFixture fixture)
         // Written as raw SQL, which is the only way this can happen: the aggregate upserts, so
         // a second row for one currency cannot come from a path that goes through it.
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
         var overrideId = NextId();
         var priceList = CurrencyOverride.DefaultPriceList;
 
@@ -357,7 +357,7 @@ public sealed class PricingPersistenceTests(PostgresFixture fixture)
 
         using var factory = fixture.CreateFactory();
         using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         var fromSql = await db.Database
             .SqlQuery<decimal>($"SELECT pricing.round_half_even({value}) AS \"Value\"")

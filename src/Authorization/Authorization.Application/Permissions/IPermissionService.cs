@@ -1,6 +1,6 @@
 using AuthorizationService.Application.Permissions.Requests;
 using AuthorizationService.Application.Permissions.Responses;
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
 namespace AuthorizationService.Application.Permissions;
 

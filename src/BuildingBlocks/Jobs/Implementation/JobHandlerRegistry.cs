@@ -1,8 +1,8 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.ExceptionServices;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Jobs.Implementation;
+namespace Mkbj.Jobs.Implementation;
 
 /// <summary>Declares that <see cref="HandlerType"/> handles jobs carrying <see cref="PayloadType"/>.</summary>
 public sealed record JobHandlerRegistration(Type HandlerType, Type PayloadType);

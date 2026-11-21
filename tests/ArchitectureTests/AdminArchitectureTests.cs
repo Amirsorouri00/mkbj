@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using NetArchTest.Rules;
 using Xunit;
 
-namespace EwaysVNext.ArchitectureTests;
+namespace Mkbj.ArchitectureTests;
 
 /// <summary>
 /// Admin composes; it does not own.
@@ -22,18 +22,18 @@ public sealed class AdminArchitectureTests
     {
         var result = Types.InAssemblies(
             [
-                Load("EwaysVNext.Modules.Admin.Application"),
-                Load("EwaysVNext.Modules.Admin.Adapter.Inbound.Rest"),
-                Load("EwaysVNext.Modules.Admin.Adapter.Inbound.GraphQL"),
+                Load("Mkbj.Modules.Admin.Application"),
+                Load("Mkbj.Modules.Admin.Adapter.Inbound.Rest"),
+                Load("Mkbj.Modules.Admin.Adapter.Inbound.GraphQL"),
             ])
             .ShouldNot()
             .HaveDependencyOnAny(
-                "EwaysVNext.Domain.Common.AggregateRoot",
-                "EwaysVNext.Domain.Common.Entity",
-                "EwaysVNext.Domain.Common.ValueObject",
+                "Mkbj.Domain.Common.AggregateRoot",
+                "Mkbj.Domain.Common.Entity",
+                "Mkbj.Domain.Common.ValueObject",
                 "Microsoft.EntityFrameworkCore",
-                "EwaysVNext.Persistence",
-                "EwaysVNext.Database")
+                "Mkbj.Persistence",
+                "Mkbj.Database")
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue(
@@ -64,7 +64,7 @@ public sealed class AdminArchitectureTests
     /// </remarks>
     [Fact]
     public void Admin_Application_References_No_Other_Module() =>
-        ModuleReferences("EwaysVNext.Modules.Admin.Application").Should().BeEmpty();
+        ModuleReferences("Mkbj.Modules.Admin.Application").Should().BeEmpty();
 
     /// <summary>
     /// The composition layer reads read sides, not write services.
@@ -77,13 +77,13 @@ public sealed class AdminArchitectureTests
     [Fact]
     public void Admin_Uses_No_Other_Modules_Services()
     {
-        var offenders = Load("EwaysVNext.Modules.Admin.Adapter.Outbound")
+        var offenders = Load("Mkbj.Modules.Admin.Adapter.Outbound")
             .GetTypes()
             .SelectMany(type => type.GetConstructors())
             .SelectMany(constructor => constructor.GetParameters())
             .Select(parameter => parameter.ParameterType.FullName ?? string.Empty)
-            .Where(name => name.StartsWith("EwaysVNext.Modules.", StringComparison.Ordinal))
-            .Where(name => !name.StartsWith("EwaysVNext.Modules.Admin.", StringComparison.Ordinal))
+            .Where(name => name.StartsWith("Mkbj.Modules.", StringComparison.Ordinal))
+            .Where(name => !name.StartsWith("Mkbj.Modules.Admin.", StringComparison.Ordinal))
             .Where(name => !name.Contains(".QueryApplication.", StringComparison.Ordinal))
             .ToList();
 
@@ -92,14 +92,14 @@ public sealed class AdminArchitectureTests
     }
 
     private static IEnumerable<Assembly> AdminAssemblies() =>
-        Directory.EnumerateFiles(AppContext.BaseDirectory, "EwaysVNext.Modules.Admin.*.dll")
+        Directory.EnumerateFiles(AppContext.BaseDirectory, "Mkbj.Modules.Admin.*.dll")
             .Select(Assembly.LoadFrom);
 
     private static List<string> ModuleReferences(string assemblyName) =>
         [.. Load(assemblyName).GetReferencedAssemblies()
             .Select(reference => reference.Name ?? string.Empty)
-            .Where(name => name.StartsWith("EwaysVNext.Modules.", StringComparison.Ordinal))
-            .Where(name => !name.StartsWith("EwaysVNext.Modules.Admin.", StringComparison.Ordinal))];
+            .Where(name => name.StartsWith("Mkbj.Modules.", StringComparison.Ordinal))
+            .Where(name => !name.StartsWith("Mkbj.Modules.Admin.", StringComparison.Ordinal))];
 
     private static Assembly Load(string name) =>
         Assembly.LoadFrom(Path.Combine(AppContext.BaseDirectory, $"{name}.dll"));

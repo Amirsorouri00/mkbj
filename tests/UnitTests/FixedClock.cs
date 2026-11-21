@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 internal sealed class FixedClock(DateTimeOffset? now = null) : IClock
 {

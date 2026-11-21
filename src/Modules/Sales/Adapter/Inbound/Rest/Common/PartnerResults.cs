@@ -1,9 +1,9 @@
 using System.Text.Json;
-using EwaysVNext.Modules.Sales.Application;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Sales.Application;
+using Mkbj.Outcomes;
 using Microsoft.AspNetCore.Http;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Common;
+namespace Mkbj.Modules.Sales.Adapter.Inbound.Rest.Common;
 
 /// <summary>
 /// Reads and writes the partner surface's bodies in its own format.

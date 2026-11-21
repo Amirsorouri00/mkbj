@@ -1,12 +1,12 @@
 using System.Reflection;
 using AwesomeAssertions;
-using EwaysVNext.Modules.Catalog;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 /// <summary>
 /// PRD §2.1: the MVP has no stock and no reservations — every active variant is always available —
@@ -16,7 +16,7 @@ namespace EwaysVNext.UnitTests.Catalog;
 public sealed class ProductShapeTests
 {
     private static readonly Assembly CatalogOutboundAdapter =
-        typeof(EwaysVNext.Modules.Catalog.Adapter.Outbound.DependencyInjection).Assembly;
+        typeof(Mkbj.Modules.Catalog.Adapter.Outbound.DependencyInjection).Assembly;
 
     [Fact]
     public void Product_Exposes_No_Stock_Or_Reservations() =>

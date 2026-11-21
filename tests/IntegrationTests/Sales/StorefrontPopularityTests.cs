@@ -1,13 +1,13 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.IntegrationTests.Support;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound.Storefront;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using AwesomeAssertions;
+using Mkbj.IntegrationTests.Support;
+using Mkbj.Modules.Catalog.Adapter.Outbound.Storefront;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sales;
+namespace Mkbj.IntegrationTests.Sales;
 
 /// <summary>
 /// Best sellers, now that there are sales to count.

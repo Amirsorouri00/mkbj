@@ -1,11 +1,12 @@
+using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.IntegrationTests.Support;
+using Mkbj.IntegrationTests.Support;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Storefront;
+namespace Mkbj.IntegrationTests.Storefront;
 
 /// <summary>
 /// The storefront over GraphQL, which must answer exactly what REST answers.
@@ -29,7 +30,7 @@ public sealed class ShopGraphQLTests(PostgresFixture fixture)
         var scenario = await StorefrontScenario.CreateAsync(scope.ServiceProvider, Ct);
 
         const string Query = """
-            query ($currency: String!, $categoryId: Long) {
+            query ($currency: String!, $categoryId: ID) {
               shopProducts(
                 currency: $currency
                 filter: { categoryId: $categoryId }
@@ -44,7 +45,8 @@ public sealed class ShopGraphQLTests(PostgresFixture fixture)
         response.Errors.Should().BeNull();
 
         var graphQl = response.Data!.GetProperty("shopProducts").GetProperty("items")
-            .EnumerateArray().Select(item => item.GetProperty("productId").GetInt64()).ToList();
+            .EnumerateArray().Select(item => long.Parse(
+                item.GetProperty("productId").GetString()!, CultureInfo.InvariantCulture)).ToList();
 
         using var rest = await client.GetAsync(
             $"/api/v1/shop/products?currency=USD&categoryId={scenario.RootCategoryId}&sort=priceAsc", Ct);
@@ -67,7 +69,7 @@ public sealed class ShopGraphQLTests(PostgresFixture fixture)
 
         var scenario = await StorefrontScenario.CreateAsync(scope.ServiceProvider, Ct);
 
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNext.Database.EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<Mkbj.Database.MkbjDbContext>();
         var draft = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
             .FirstAsync(db.Products.Where(product => product.Id == scenario.P3), Ct);
 
@@ -108,7 +110,8 @@ public sealed class ShopGraphQLTests(PostgresFixture fixture)
         // What is this scenario's to claim is that its own products, which nobody bought, are
         // not among the best sellers.
         home.GetProperty("bestSellers").EnumerateArray()
-            .Select(card => card.GetProperty("productId").GetInt64())
+            .Select(card => long.Parse(
+                card.GetProperty("productId").GetString()!, CultureInfo.InvariantCulture))
             .Should().NotContain([scenario.P1, scenario.P2],
                 "a product with no sales is not a best seller");
     }

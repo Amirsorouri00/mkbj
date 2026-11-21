@@ -34,7 +34,7 @@
 ### Task 1: Canonical contract and aggregate state
 
 **Files:**
-- Modify: `EwaysVNext.Modules.Catalog.Contracts/Categories/CategoryDtos.cs`
+- Modify: `Mkbj.Modules.Catalog.Contracts/Categories/CategoryDtos.cs`
 - Modify: `src/Modules/Catalog/Application/Categories/Domain/Category.cs`
 - Modify: `tests/UnitTests/CategoryDomainTests.cs`
 
@@ -49,7 +49,7 @@ Assert initial `Inactive`; valid activation; inactive-parent refusal; active-to-
 
 - [ ] **Step 2: Prove the focused tests fail**
 
-Run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter FullyQualifiedName~CategoryDomainTests`
+Run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter FullyQualifiedName~CategoryDomainTests`
 
 Expected: FAIL because the enum, property, and transition method do not exist.
 
@@ -87,7 +87,7 @@ Cover update details+status in one save, parent validation, subtree deactivation
 
 - [ ] **Step 2: Prove service tests fail**
 
-Run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter FullyQualifiedName~CategoryServiceTests`
+Run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter FullyQualifiedName~CategoryServiceTests`
 
 Expected: FAIL on missing command/service members and old flags.
 
@@ -105,7 +105,7 @@ Refactor bulk deactivation to target `Inactive` while retaining all-or-nothing s
 
 - [ ] **Step 6: Verify Tasks 1-2**
 
-Run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter "FullyQualifiedName~CategoryDomainTests|FullyQualifiedName~CategoryServiceTests"`
+Run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter "FullyQualifiedName~CategoryDomainTests|FullyQualifiedName~CategoryServiceTests"`
 
 Expected: PASS.
 
@@ -140,7 +140,7 @@ Assert direct enum filtering for all states, status-only DTO/tree projections, a
 
 - [ ] **Step 3: Prove model/query tests fail**
 
-Run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter "FullyQualifiedName~CategoryPersistenceModelTests|FullyQualifiedName~CategoryQueryTests"`
+Run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter "FullyQualifiedName~CategoryPersistenceModelTests|FullyQualifiedName~CategoryQueryTests"`
 
 Expected: FAIL on old columns, predicates, and projections.
 
@@ -154,7 +154,7 @@ Carry `CategoryStatus` in category/ancestor projections, compare directly for ad
 
 - [ ] **Step 6: Verify the category read slice**
 
-Run the command from Step 3, then run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter FullyQualifiedName~Category`
+Run the command from Step 3, then run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter FullyQualifiedName~Category`
 
 Expected: PASS except the already-explicit Identity-dependent skip.
 
@@ -169,7 +169,7 @@ Stage Task 3 files, show `git diff --cached`, wait for approval, then commit: `r
 **Files:**
 - Create: `src/Database/Migrations/<EF-generated timestamp>_UnifyCategoryStatus.cs`
 - Create: `src/Database/Migrations/<EF-generated timestamp>_UnifyCategoryStatus.Designer.cs`
-- Modify: `src/Database/Migrations/EwaysVNextDbContextModelSnapshot.cs`
+- Modify: `src/Database/Migrations/MkbjDbContextModelSnapshot.cs`
 - Modify: `tests/UnitTests/CategoryPersistenceModelTests.cs`
 
 **Interfaces:**
@@ -181,7 +181,7 @@ Instantiate `UnifyCategoryStatus` and invoke `Up`/`Down` through reflection. Ass
 
 - [ ] **Step 2: Generate the migration**
 
-Run: `dotnet ef migrations add UnifyCategoryStatus --project src/Database/EwaysVNext.Database.csproj --startup-project src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj`
+Run: `dotnet ef migrations add UnifyCategoryStatus --project src/Database/Mkbj.Database.csproj --startup-project src/Host/Mkbj.Host/Mkbj.Host.csproj`
 
 Expected: two new files and snapshot update; the historical category migration is unchanged.
 
@@ -191,9 +191,9 @@ Add explicit up/down backfill SQL, drop old indexes before columns, and create t
 
 - [ ] **Step 4: Verify migration metadata and SQL**
 
-Run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter FullyQualifiedName~CategoryPersistenceModelTests`
+Run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter FullyQualifiedName~CategoryPersistenceModelTests`
 
-Then run: `dotnet ef migrations script 20260923121245_category UnifyCategoryStatus --project src/Database/EwaysVNext.Database.csproj --startup-project src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj --no-build`
+Then run: `dotnet ef migrations script 20260923121245_category UnifyCategoryStatus --project src/Database/Mkbj.Database.csproj --startup-project src/Host/Mkbj.Host/Mkbj.Host.csproj --no-build`
 
 Expected: tests pass and generated SQL orders add/backfill/drop/recreate safely. Do not save the script.
 
@@ -230,7 +230,7 @@ Assert `setCategoryStatus` preserves `CATEGORY_PARENT_INACTIVE`, `CATEGORY_HAS_C
 
 - [ ] **Step 3: Prove adapter tests fail**
 
-Run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter FullyQualifiedName~CategoryApiAdapterTests`
+Run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter FullyQualifiedName~CategoryApiAdapterTests`
 
 Expected: FAIL on the old schema and missing mutation.
 
@@ -240,7 +240,7 @@ Pass status through update, add `SetCategoryStatusAsync` returning `ValueOrThrow
 
 - [ ] **Step 5: Verify adapter and complete category slice**
 
-Run the command from Step 3, then: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter FullyQualifiedName~Category`
+Run the command from Step 3, then: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter FullyQualifiedName~Category`
 
 Expected: PASS except the explicit Identity skip; native paging tests remain green.
 
@@ -260,25 +260,25 @@ Stage Task 5 files, show `git diff --cached`, wait for approval, then commit: `f
 
 - [ ] **Step 1: Scan for stale lifecycle symbols**
 
-Run: `rg -n "CategoryAdminStatus|category\.IsActive|category\.IsDeleted|ActivateCategoryCommand|DeactivateCategoryCommand|activateCategory|deactivateCategory" EwaysVNext.Modules.Catalog.Contracts src/Modules/Catalog src/Database tests/UnitTests`
+Run: `rg -n "CategoryAdminStatus|category\.IsActive|category\.IsDeleted|ActivateCategoryCommand|DeactivateCategoryCommand|activateCategory|deactivateCategory" Mkbj.Modules.Catalog.Contracts src/Modules/Catalog src/Database tests/UnitTests`
 
 Expected: no category-lifecycle matches. Product/location `IsActive` remains out of scope.
 
 - [ ] **Step 2: Build**
 
-Run: `dotnet build EwaysVNext.slnx --no-restore`
+Run: `dotnet build Mkbj.slnx --no-restore`
 
 Expected: zero errors.
 
 - [ ] **Step 3: Run active unit tests**
 
-Run: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --no-build`
+Run: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --no-build`
 
 Expected: zero failures; the existing Identity-dependent test remains skipped.
 
 - [ ] **Step 4: Run architecture tests**
 
-Run: `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj --no-build`
+Run: `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj --no-build`
 
 Expected: category architecture tests pass. Report the previously observed unrelated Customer `DateTime.Now` failure separately if it remains.
 

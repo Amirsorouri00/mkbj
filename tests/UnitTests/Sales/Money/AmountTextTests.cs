@@ -1,8 +1,8 @@
 using AwesomeAssertions;
-using EwaysVNext.Modules.Sales.Application.Money;
+using Mkbj.Modules.Sales.Application.Money;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sales.Money;
+namespace Mkbj.UnitTests.Sales.Money;
 
 /// <summary>
 /// The one amount format Sales accepts on the wire.

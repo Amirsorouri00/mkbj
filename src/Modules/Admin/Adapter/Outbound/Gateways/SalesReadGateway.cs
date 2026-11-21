@@ -1,11 +1,11 @@
 using System.Globalization;
-using EwaysVNext.Modules.Admin.Application.Ports.Outbound;
-using EwaysVNext.Modules.Admin.Application.Views;
-using EwaysVNext.Modules.Sales.QueryApplication.Admin;
-using EwaysVNext.Modules.Sales.QueryApplication.Partner;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Admin.Application.Ports.Outbound;
+using Mkbj.Modules.Admin.Application.Views;
+using Mkbj.Modules.Sales.QueryApplication.Admin;
+using Mkbj.Modules.Sales.QueryApplication.Partner;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Admin.Adapter.Outbound.Gateways;
+namespace Mkbj.Modules.Admin.Adapter.Outbound.Gateways;
 
 /// <summary>
 /// Sales' admin read side, mapped into Admin's own views.

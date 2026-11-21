@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Database.Sales.Configurations;
+namespace Mkbj.Database.Sales.Configurations;
 
 /// <summary>
 /// The gapless number sequences orders and documents draw from.

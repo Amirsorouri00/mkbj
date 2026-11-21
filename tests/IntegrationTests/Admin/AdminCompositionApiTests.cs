@@ -3,13 +3,13 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.IntegrationTests.Sales;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.IntegrationTests.Sales;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Admin;
+namespace Mkbj.IntegrationTests.Admin;
 
 /// <summary>
 /// The backoffice's composed views, over both surfaces.
@@ -53,7 +53,7 @@ public sealed class AdminCompositionApiTests(PostgresFixture fixture)
         var data = await DataOf(await staff.GetAsync($"/api/v1/admin/orders/{orderId}/360", Ct));
 
         var order = data.GetProperty("order");
-        order.GetProperty("summary").GetProperty("id").GetInt64().Should().Be(orderId);
+        order.GetProperty("summary").GetProperty("id").ReadId().Should().Be(orderId);
         order.GetProperty("lineCount").GetInt32().Should().BeGreaterThan(0);
 
         order.GetProperty("documents").EnumerateArray()
@@ -63,7 +63,7 @@ public sealed class AdminCompositionApiTests(PostgresFixture fixture)
         // The customer half may be absent — a partner order's customer can outlive nothing —
         // but when it is there it is the right one.
         if (data.GetProperty("customer").ValueKind != JsonValueKind.Null)
-            data.GetProperty("customer").GetProperty("id").GetInt64().Should().Be(customerId);
+            data.GetProperty("customer").GetProperty("id").ReadId().Should().Be(customerId);
     }
 
     [Fact]
@@ -80,9 +80,9 @@ public sealed class AdminCompositionApiTests(PostgresFixture fixture)
         if (response.StatusCode == HttpStatusCode.NotFound) return;
 
         var data = await DataOf(response);
-        data.GetProperty("customer").GetProperty("id").GetInt64().Should().Be(customerId);
+        data.GetProperty("customer").GetProperty("id").ReadId().Should().Be(customerId);
         data.GetProperty("recentOrders").EnumerateArray()
-            .Select(order => order.GetProperty("id").GetInt64())
+            .Select(order => order.GetProperty("id").ReadId())
             .Should().Contain(orderId);
     }
 

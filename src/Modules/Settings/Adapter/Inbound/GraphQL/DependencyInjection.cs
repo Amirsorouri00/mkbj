@@ -1,7 +1,7 @@
-using EwaysVNext.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Settings.Adapter.Inbound.GraphQL;
+namespace Mkbj.Modules.Settings.Adapter.Inbound.GraphQL;
 
 public static class DependencyInjection
 {

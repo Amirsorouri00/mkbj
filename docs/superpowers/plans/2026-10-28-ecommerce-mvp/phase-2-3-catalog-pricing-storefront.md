@@ -31,10 +31,10 @@ with `ModuleNames` and the sanctioned-exception `[Theory]`; `AdminJwtFactory.Cre
 reachable from tests (make it `internal static` if phase 1 left it `private`).
 
 **Conventions used by every task:**
-- Unit test command: `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "*.<Class>"`.
-- Integration: `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "*.<Class>"` (Docker running).
-- Architecture: `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj`.
-- Migration: `dotnet ef migrations add <Name> -p src/Database -s src/Host/EwaysVNext.Host`.
+- Unit test command: `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "*.<Class>"`.
+- Integration: `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "*.<Class>"` (Docker running).
+- Architecture: `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj`.
+- Migration: `dotnet ef migrations add <Name> -p src/Database -s src/Host/Mkbj.Host`.
 - Every new table gets an explicit snake_case `ToTable("<name>")`, so the raw SQL in phase 3
   never depends on how the naming convention treats explicit names.
 - Enums that raw SQL reads (`ProductStatus`, `MediaUsageRights`, `ProductIdentifierType`,
@@ -44,7 +44,7 @@ reachable from tests (make it `internal static` if phase 1 left it `private`).
   before their single `SaveChangesAsync`.
 - Phase 0/1 names used verbatim: `IUnitOfWork.TrySaveChangesAsync()` → `SaveOutcome { Saved, UniqueViolation }`
   (every "maps `23505` to …" below means: call `TrySaveChangesAsync` and map `UniqueViolation`);
-  Storage/Jobs/Audit abstractions live in `EwaysVNext.{Storage,Jobs,Audit}.Application` — Application
+  Storage/Jobs/Audit abstractions live in `Mkbj.{Storage,Jobs,Audit}.Application` — Application
   projects reference only those, adapters/installers reference `.Implementation`; policies are referenced as
   `AuthPolicies.AdminStaff` (`"admin:staff"`) and `AuthPolicies.AdminSuper` (`"admin:super"`), never as literals.
 - Room left for phase 7: it adds `ICatalogImportLookupPort` and `ICatalogMatchPort` to
@@ -88,9 +88,9 @@ src/Modules/Catalog/
                       Storefront/IStorefrontQueries.cs, Storefront/StorefrontQueries.cs, Storefront/StorefrontSql.cs,
                       Storefront/StorefrontCursor.cs, Storefront/StorefrontDtos.cs}
     (delete) QueryApplication/Products/{IProductQueryService,ProductQueryService}.cs,
-             EwaysVNext.Modules.Catalog.Contracts/Products/*
+             Mkbj.Modules.Catalog.Contracts/Products/*
 
-src/Modules/Pricing/                                            (new module, scaffolded by New-EwaysModule.ps1)
+src/Modules/Pricing/                                            (new module, scaffolded by New-MkbjModule.ps1)
 ├── Application/
 │   ├── Bands/PriceBand.cs
 │   ├── Currencies/{Domain/Currency.cs, Ports/Outbound/ICurrencyRepository.cs}
@@ -112,7 +112,7 @@ src/Modules/Pricing/                                            (new module, sca
 └── Installer/ModuleInstaller.cs  (AddPricingModule)
 
 src/Database/
-├── EwaysVNextDbContext.cs                                       (modify) DbSets
+├── MkbjDbContext.cs                                       (modify) DbSets
 ├── Catalog/Configurations/{BrandConfiguration.cs, Products/{ProductConfiguration.cs (rewrite), VariantConfiguration.cs,
 │                           ProductMediaConfiguration.cs, ProductIdentifierConfiguration.cs}}
 ├── Catalog/Views/StorefrontViewSql.cs                           (new) V1 view SQL constants
@@ -122,8 +122,8 @@ src/Database/
                             PricingInit, PricingPrices, StorefrontViewsV1}.cs
 
 src/BuildingBlocks/Presentation.Endpoint/Money/MoneyText.cs     (new) "^\d+\.\d{2}$" <-> minor units
-src/Host/EwaysVNext.Host/Seeding/{DemoSeedGuard.cs, DemoCatalogData.cs, PlaceholderPng.cs, DemoCatalogSeeder.cs}
-src/Host/EwaysVNext.Host/Program.cs                              (modify) --seed, AddPricingModule
+src/Host/Mkbj.Host/Seeding/{DemoSeedGuard.cs, DemoCatalogData.cs, PlaceholderPng.cs, DemoCatalogSeeder.cs}
+src/Host/Mkbj.Host/Program.cs                              (modify) --seed, AddPricingModule
 
 tests/UnitTests/Catalog/{CanonicalKeyTests, CategoryCanonicalKeyTests, AttributeBlueprintCanonicalTests, BrandTests,
                          ProductIdentifierTests, AttributeSignatureTests, ProductLifecycleTests, CatalogAdminServiceTests,
@@ -192,9 +192,9 @@ public sealed class CanonicalKeyTests
   `Normalize(FormC)`; empty → `CANONICAL_KEY_EMPTY`; length > 120 → `CANONICAL_KEY_TOO_LONG`.
 - [ ] **Step 4: Rename tables.** Add the explicit `builder.ToTable("<snake>")` calls listed above and
   rewrite every `HasFilter("[Status] <> 2")` to `HasFilter("status <> 2")`. Run
-  `dotnet ef migrations add CatalogSnakeTableNames -p src/Database -s src/Host/EwaysVNext.Host`
+  `dotnet ef migrations add CatalogSnakeTableNames -p src/Database -s src/Host/Mkbj.Host`
   (empty diff is acceptable if phase 0 already produced these names; then delete the empty migration).
-- [ ] **Step 5: Run** the Step 2 command and `dotnet build EwaysVNext.slnx`. Expected: PASS.
+- [ ] **Step 5: Run** the Step 2 command and `dotnet build Mkbj.slnx`. Expected: PASS.
 - [ ] **Step 6: Commit** `git commit -m "feat(catalog): canonical key normalizer and snake_case catalog tables" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"`
 
 ---
@@ -246,7 +246,7 @@ Integration (`CatalogConstraintTests`, `[Collection(PostgresSuite.Name)]`):
 [Fact]
 public async Task Root_Categories_With_Same_CanonicalKey_Are_Rejected()
 {
-    // two root categories "Garden Tools" / "garden  tools" inserted directly through EwaysVNextDbContext
+    // two root categories "Garden Tools" / "garden  tools" inserted directly through MkbjDbContext
     var ex = await act.Should().ThrowAsync<DbUpdateException>();
     ex.Which.InnerException.Should().BeOfType<PostgresException>()
         .Which.SqlState.Should().Be("23505");
@@ -270,7 +270,7 @@ public async Task Root_Categories_With_Same_CanonicalKey_Are_Rejected()
 - Modify: `src/Modules/Catalog/Application/AttributeBlueprints/Domain/AttributeBlueprint.cs`,
   `.../Ports/Inbound/IAttributeBlueprintService.cs`, `.../Services/AttributeBlueprintService.cs`,
   `.../Validation/AttributeBlueprintValidators.cs`, `src/Database/Catalog/Configurations/AttributeBlueprintConfiguration.cs`,
-  `EwaysVNext.Modules.Catalog.Contracts/AttributeBlueprints/AttributeBlueprintSnapshot.cs`,
+  `Mkbj.Modules.Catalog.Contracts/AttributeBlueprints/AttributeBlueprintSnapshot.cs`,
   `src/Modules/Catalog/Adapter/Inbound/GraphQL/AttributeBlueprints/{AttributeBlueprintInputs,AttributeBlueprintTypes}.cs`
 - Test: `tests/UnitTests/Catalog/AttributeBlueprintCanonicalTests.cs`
 
@@ -321,7 +321,7 @@ public void Category_Scope_Requires_Category_Id() =>
   `src/Modules/Catalog/Application/Brands/Ports/Outbound/IBrandRepository.cs`,
   `src/Modules/Catalog/Adapter/Outbound/Persistence/Brands/BrandRepository.cs`,
   `src/Database/Catalog/Configurations/BrandConfiguration.cs`
-- Modify: `src/Database/EwaysVNextDbContext.cs` (`DbSet<Brand> Brands`)
+- Modify: `src/Database/MkbjDbContext.cs` (`DbSet<Brand> Brands`)
 - Test: `tests/UnitTests/Catalog/BrandTests.cs`, `tests/IntegrationTests/Catalog/CatalogConstraintTests.cs`
 
 **Interfaces:**
@@ -425,7 +425,7 @@ public void SourceId_Requires_Domain() =>
 **Interfaces:**
 - Produces: `public sealed record AttributeSignature(string Text, string Hash, IReadOnlyDictionary<string, string> Values) { public static AttributeSignature From(IReadOnlyDictionary<string, string> attributes); public static readonly AttributeSignature Empty; }`
   — `Values` keyed by canonical key, values trimmed display text (used for `attribute_values` jsonb).
-- Produces (cross-phase, used by phase 7 Sourcing to compute the identical hash): `public static string Hash(IReadOnlyDictionary<string, string> attributes) => From(attributes).Hash;` on the same public record in `EwaysVNext.Modules.Catalog.Application.Products.Domain`.
+- Produces (cross-phase, used by phase 7 Sourcing to compute the identical hash): `public static string Hash(IReadOnlyDictionary<string, string> attributes) => From(attributes).Hash;` on the same public record in `Mkbj.Modules.Catalog.Application.Products.Domain`.
 
 - [ ] **Step 1: Write failing tests**
 
@@ -472,7 +472,7 @@ public void Keys_Colliding_After_Canonicalization_Are_Rejected() =>
 - Delete: `ProductMessages.cs`, `Ports/Inbound/{IProductService.cs, ReservationSnapshot.cs}`, `Services/ProductService.cs`,
   `Validation/{ChangePriceValidator,CreateProductValidator,ReserveStockValidator}.cs`,
   `Adapter/Inbound/Rest/{Dtos,Endpoints,Products}/*`, `QueryApplication/Products/{IProductQueryService,ProductQueryService}.cs`,
-  `EwaysVNext.Modules.Catalog.Contracts/Products/*`, `Categories/Ports/Outbound/ICatalogProductLookup.cs` keeps its
+  `Mkbj.Modules.Catalog.Contracts/Products/*`, `Categories/Ports/Outbound/ICatalogProductLookup.cs` keeps its
   signature (re-implemented in Task 8), and every test that only covered the deleted code
   (`tests/UnitTests/CategoryProductionCompositionTests.cs` product parts, `SnowflakeIdJsonTests` product-DTO cases).
 - Test: `tests/UnitTests/Catalog/ProductLifecycleTests.cs`
@@ -582,7 +582,7 @@ public void Merged_Product_Is_Admin_Deactivated_And_Points_To_Survivor()
   - `MarkMergedInto(id)`: `id == Id` or `MergedIntoProductId` already set → `PRODUCT_MERGE_INVALID`.
   - Same SKU twice in one product → `VARIANT_SKU_DUPLICATE`; unknown variant/media id → `VARIANT_NOT_FOUND`/`PRODUCT_MEDIA_NOT_FOUND`.
 - [ ] **Step 4: Delete** the files listed above and fix compile errors (Catalog `ModuleInstaller` drops `AddProductApplication()` registrations of deleted services; `ProductEndpoints` removed).
-- [ ] **Step 5: Run** Step 2 and `dotnet build EwaysVNext.slnx`. Expected: PASS.
+- [ ] **Step 5: Run** Step 2 and `dotnet build Mkbj.slnx`. Expected: PASS.
 - [ ] **Step 6: Commit** `git commit -m "feat(catalog): rewrite product aggregate with variants, media and admin deactivation" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"`
 
 ---
@@ -784,7 +784,7 @@ public sealed record BulkEditResult(IReadOnlyList<BulkItemOutcome> Items);
 
 **Files:**
 - Create: `src/Modules/Catalog/Application/Products/Ports/Outbound/ICatalogMediaStore.cs`, `src/Modules/Catalog/Adapter/Outbound/Media/ObjectStorageCatalogMediaStore.cs`
-- Modify: `CatalogAdminService.cs`, `CatalogAdminCommands.cs`, `src/Modules/Catalog/Application/EwaysVNext.Modules.Catalog.Application.csproj` (reference `EwaysVNext.Core.Application` for `IFileTypeDetector`)
+- Modify: `CatalogAdminService.cs`, `CatalogAdminCommands.cs`, `src/Modules/Catalog/Application/Mkbj.Modules.Catalog.Application.csproj` (reference `Mkbj.Core.Application` for `IFileTypeDetector`)
 - Test: `tests/UnitTests/Catalog/CatalogMediaUploadTests.cs`
 
 **Interfaces:**
@@ -974,9 +974,9 @@ public async Task Publish_Updates_But_Never_Reactivates_Admin_Deactivated_Produc
 ### Task 18: Pricing module scaffold and architecture rows
 
 **Files:**
-- Create via `./New-EwaysModule.ps1 -ModuleName Pricing` (Application, Adapter/Outbound, Adapter/Inbound/Rest, QueryApplication, Installer); add `src/Modules/Pricing/Adapter/Inbound/GraphQL/EwaysVNext.Modules.Pricing.Adapter.Inbound.GraphQL.csproj` by hand (copy Catalog's GraphQL csproj references) and its `.slnx` entry.
+- Create via `./New-MkbjModule.ps1 -ModuleName Pricing` (Application, Adapter/Outbound, Adapter/Inbound/Rest, QueryApplication, Installer); add `src/Modules/Pricing/Adapter/Inbound/GraphQL/Mkbj.Modules.Pricing.Adapter.Inbound.GraphQL.csproj` by hand (copy Catalog's GraphQL csproj references) and its `.slnx` entry.
 - Create: `src/Modules/Pricing/Installer/ModuleInstaller.cs` (`AddPricingModule(this IServiceCollection, IConfiguration)`), `src/Modules/Pricing/Application/PricingErrors.cs`
-- Modify: `src/Database/EwaysVNext.Database.csproj` (reference Pricing.Application), `src/Host/EwaysVNext.Host/{EwaysVNext.Host.csproj, Program.cs}`, `tests/ArchitectureTests/HexagonalBoundaryTests.cs`, `tests/UnitTests/EwaysVNext.UnitTests.csproj`
+- Modify: `src/Database/Mkbj.Database.csproj` (reference Pricing.Application), `src/Host/Mkbj.Host/{Mkbj.Host.csproj, Program.cs}`, `tests/ArchitectureTests/HexagonalBoundaryTests.cs`, `tests/UnitTests/Mkbj.UnitTests.csproj`
 - Test: `tests/ArchitectureTests/HexagonalBoundaryTests.cs`
 
 **Interfaces:**
@@ -987,7 +987,7 @@ public async Task Publish_Updates_But_Never_Reactivates_Admin_Deactivated_Produc
 - [ ] **Step 1: Write failing test rows:** add `"Pricing"` to `ModuleNames`; add rows `{ "Pricing", "Catalog" }` and `{ "Pricing", "Settings" }` to phase 0's `SanctionedReferences` (`TheoryData<string,string>`); add a `[Fact] Pricing_Application_References_No_Other_Module`.
 - [ ] **Step 2: Run** the architecture command. Expected: FAIL (assemblies missing).
 - [ ] **Step 3: Scaffold**, add the project references above, empty `AddPricingModule` that calls each layer's `AddPricing*()` plus `AddEvents(typeof(PricingErrors).Assembly)`, and call it from `Program.cs` after `AddCatalogModule()`.
-- [ ] **Step 4: Run** the architecture command and `dotnet build EwaysVNext.slnx`. Expected: PASS.
+- [ ] **Step 4: Run** the architecture command and `dotnet build Mkbj.slnx`. Expected: PASS.
 - [ ] **Step 5: Commit** `git commit -m "feat(pricing): scaffold pricing module and sanctioned references" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"`
 
 ---
@@ -1031,7 +1031,7 @@ public void For_Uses_Integer_Ceil_And_Floor(long r, long lo, long hi) => PriceBa
   `src/Modules/Pricing/Application/Fx/Domain/{FxRate.cs, FxRateOverride.cs}`, `src/Modules/Pricing/Application/Fx/Ports/Outbound/{IFxRateRepository.cs, IFxRateOverrideRepository.cs}`,
   `src/Modules/Pricing/Adapter/Outbound/Persistence/{CurrencyRepository.cs, FxRateRepository.cs, FxRateOverrideRepository.cs}`,
   `src/Database/Pricing/Configurations/{CurrencyConfiguration.cs, FxRateConfiguration.cs, FxRateOverrideConfiguration.cs}`
-- Modify: `src/Database/EwaysVNextDbContext.cs`
+- Modify: `src/Database/MkbjDbContext.cs`
 - Test: `tests/UnitTests/Pricing/CurrencyAndFxDomainTests.cs`, `tests/IntegrationTests/Pricing/PricingPersistenceTests.cs`
 
 **Interfaces:**
@@ -1295,7 +1295,7 @@ public interface IPricingAdminService {
 - Create: `src/Modules/Pricing/Application/Fx/Ports/Outbound/IFxRateProvider.cs`, `src/Modules/Pricing/Application/Fx/Ports/Inbound/{IFxRefreshService.cs, FxProviderBatch.cs, FxRefreshPayload.cs}`, `src/Modules/Pricing/Application/Fx/Services/FxRefreshService.cs`,
   `src/Modules/Pricing/Adapter/Outbound/Fx/Ecb/EcbFxRateProvider.cs`, `src/Modules/Pricing/Adapter/Outbound/Fx/FxRefreshJobHandler.cs`,
   `tests/UnitTests/Pricing/Fixtures/eurofxref-daily-2026-10-27.xml` (copied to output)
-- Modify: `src/Modules/Pricing/Adapter/Outbound/DependencyInjection.cs`, `src/Host/EwaysVNext.Host/appsettings.json` (`"Fx": { "RefreshInterval": "06:00:00", "Ecb": { "BaseUrl": "https://www.ecb.europa.eu/stats/eurofxref/" } }`)
+- Modify: `src/Modules/Pricing/Adapter/Outbound/DependencyInjection.cs`, `src/Host/Mkbj.Host/appsettings.json` (`"Fx": { "RefreshInterval": "06:00:00", "Ecb": { "BaseUrl": "https://www.ecb.europa.eu/stats/eurofxref/" } }`)
 - Test: `tests/UnitTests/Pricing/{EcbFxRateProviderTests.cs, FxRefreshServiceTests.cs}`
 
 **Interfaces:**
@@ -1373,8 +1373,8 @@ public async Task Acceptance08_Base_Conversion_And_Override_Give_Exact_Minor_Uni
 ### Task 28: Demo seed catalog (`--seed`, refused in Production)
 
 **Files:**
-- Create: `src/Host/EwaysVNext.Host/Seeding/{DemoSeedGuard.cs, PlaceholderPng.cs, DemoCatalogData.cs, DemoCatalogSeeder.cs}`
-- Modify: `src/Host/EwaysVNext.Host/Program.cs` (after the `--migrate` block), `src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj` (`System.IO.Hashing` for CRC-32)
+- Create: `src/Host/Mkbj.Host/Seeding/{DemoSeedGuard.cs, PlaceholderPng.cs, DemoCatalogData.cs, DemoCatalogSeeder.cs}`
+- Modify: `src/Host/Mkbj.Host/Program.cs` (after the `--migrate` block), `src/Host/Mkbj.Host/Mkbj.Host.csproj` (`System.IO.Hashing` for CRC-32)
 - Test: `tests/UnitTests/Seeding/{DemoSeedGuardTests.cs, PlaceholderPngTests.cs, DemoCatalogDataTests.cs}`, `tests/IntegrationTests/Seeding/DemoSeedTests.cs`
 
 **Interfaces:**
@@ -1434,8 +1434,8 @@ public void Demo_Data_Has_400_Variants_In_12_Categories_Spanning_50_To_5000000_M
 - Create: `docs/reports/phase-2.md`
 - Modify: `AGENTS.md` (module list gains Pricing, Catalog Brand; the Pricing→Settings row), `docs/TESTING-GUARANTEES.md` (new suites)
 
-- [ ] **Step 1: Build** `dotnet build EwaysVNext.slnx`. Expected: 0 errors, 0 warnings-as-errors.
-- [ ] **Step 2: Test** `dotnet test EwaysVNext.slnx` (Docker running). Expected: all green, including `Rate_Age_Boundary_Is_Inclusive` and `Aed_Without_Usd_Rate_Is_Unavailable`.
+- [ ] **Step 1: Build** `dotnet build Mkbj.slnx`. Expected: 0 errors, 0 warnings-as-errors.
+- [ ] **Step 2: Test** `dotnet test Mkbj.slnx` (Docker running). Expected: all green, including `Rate_Age_Boundary_Is_Inclusive` and `Aed_Without_Usd_Rate_Is_Unavailable`.
 - [ ] **Step 3: Mutation-check two guards** (AGENTS.md "mutation-test every guard"): change `<=` to `<` in the resolver's age check → `Rate_Age_Boundary_Is_Inclusive` fails; remove the `DeactivatedByAdmin` check from `Product.Activate` → `Publish_Updates_But_Never_Reactivates_Admin_Deactivated_Product` fails; restore both.
 - [ ] **Step 4: Write** `docs/reports/phase-2.md`: what works (per task), incomplete items, risks (ECB availability and the 72h window; merge redirect chains), reproduction commands (`--migrate`, `--seed`, the test commands above).
 - [ ] **Step 5: Commit** `git commit -m "docs: phase 2 report" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"`
@@ -1851,8 +1851,8 @@ LIMIT @limit_plus_one;
 - Create: `docs/reports/phase-3.md`
 - Modify: `docs/adr/0020-*.md` (record `pricing.resolved_fx_rates`, the read-time `fx_valid_until` filter, V1→V2 view versioning and the phase 4 popularity obligation), `AGENTS.md` (API table: `/api/v1/shop/*`, `/api/v1/admin/catalog/*`, `/api/v1/admin/pricing/*`)
 
-- [ ] **Step 1: Build** `dotnet build EwaysVNext.slnx`. Expected: 0 errors.
-- [ ] **Step 2: Test** `dotnet test EwaysVNext.slnx` (Docker running). Expected: all green.
+- [ ] **Step 1: Build** `dotnet build Mkbj.slnx`. Expected: 0 errors.
+- [ ] **Step 2: Test** `dotnet test Mkbj.slnx` (Docker running). Expected: all green.
 - [ ] **Step 3: Mutation-check:** temporarily remove `AND p.status = 'Active'` from `VariantV1` (fresh container) → `Plp_Never_Shows_Draft_Or_Deactivated` and `Plp_Views_Never_Contain_Draft_Or_Deactivated_Products` fail; restore.
 - [ ] **Step 4: Write** `docs/reports/phase-3.md`: what works; incomplete (best sellers empty until phase 4; facets ignore attribute exclusions and the current filter selection); risks (refresh duration on large catalogs; the 24 h backstop is an interval, not a wall-clock time; the views depend on `pricing` column names); reproduction (`--migrate`, `--seed`, `curl "http://localhost:5000/api/v1/shop/products?currency=USD&q=demo"`).
 - [ ] **Step 5: Commit** `git commit -m "docs: phase 3 report" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"`

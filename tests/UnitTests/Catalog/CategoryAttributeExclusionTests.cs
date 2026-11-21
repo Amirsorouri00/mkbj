@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 public class CategoryAttributeExclusionTests
 {

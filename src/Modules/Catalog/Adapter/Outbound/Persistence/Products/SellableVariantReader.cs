@@ -1,12 +1,12 @@
-﻿using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound.Persistence.Products;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound.Persistence.Products;
 
-internal sealed class SellableVariantReader(EwaysVNextDbContext db) : ISellableVariantReader
+internal sealed class SellableVariantReader(MkbjDbContext db) : ISellableVariantReader
 {
     public async Task<IReadOnlyList<SellableVariant>> ReadSellableAsync(
         IReadOnlyCollection<long>? variantIds, CancellationToken ct = default)

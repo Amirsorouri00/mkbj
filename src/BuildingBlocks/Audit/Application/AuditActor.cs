@@ -1,4 +1,4 @@
-namespace EwaysVNext.Audit;
+namespace Mkbj.Audit;
 
 /// <summary>
 /// Who performed an audited action. <paramref name="Role"/> is recorded alongside the id because

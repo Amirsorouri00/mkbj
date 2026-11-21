@@ -1,14 +1,14 @@
 using AwesomeAssertions;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Customer.Application.Customers.Domain;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
+using Mkbj.Database;
+using Mkbj.Modules.Customer.Application.Customers.Domain;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Customers;
+namespace Mkbj.IntegrationTests.Customers;
 
 /// <summary>
 /// What the database guarantees about customers, which is mostly about races: two partners may
@@ -66,10 +66,10 @@ public sealed class CustomerPersistenceTests(PostgresFixture fixture)
         // being tested rather than the retry around it.
         var act = async () => await Scoped(factory, async services =>
         {
-            var db = services.GetRequiredService<EwaysVNextDbContext>();
+            var db = services.GetRequiredService<MkbjDbContext>();
 
             db.Customers.Add(Customer.CreatePartnerLinked(
-                9_000_001, 703, external, EwaysVNext.Domain.ValueObjects.Email.Create("b@x.com"),
+                9_000_001, 703, external, Mkbj.Domain.ValueObjects.Email.Create("b@x.com"),
                 null, null, DateTimeOffset.UtcNow));
 
             return await db.SaveChangesAsync();
@@ -119,7 +119,7 @@ public sealed class CustomerPersistenceTests(PostgresFixture fixture)
         attempts.Select(result => result.Value!.CustomerId).Distinct().Should().ContainSingle();
 
         var rows = await Scoped(factory, services =>
-            services.GetRequiredService<EwaysVNextDbContext>().Customers.AsNoTracking()
+            services.GetRequiredService<MkbjDbContext>().Customers.AsNoTracking()
                 .CountAsync(customer => customer.PartnerId == 705 && customer.ExternalCustomerId == external));
 
         rows.Should().Be(1);
@@ -161,7 +161,7 @@ public sealed class CustomerPersistenceTests(PostgresFixture fixture)
         synced.IsSuccess.Should().BeTrue();
 
         var changes = await Scoped(factory, services =>
-            services.GetRequiredService<EwaysVNextDbContext>().Customers.AsNoTracking()
+            services.GetRequiredService<MkbjDbContext>().Customers.AsNoTracking()
                 .Where(customer => customer.Id == customerId)
                 .SelectMany(customer => customer.ContactChanges)
                 .ToListAsync());

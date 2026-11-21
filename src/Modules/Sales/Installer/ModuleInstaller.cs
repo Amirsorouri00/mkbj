@@ -1,15 +1,15 @@
-using EwaysVNext.Database;
-using EwaysVNext.DependencyInjection;
-using EwaysVNext.Modules.Sales.Adapter.Inbound.GraphQL;
-using EwaysVNext.Modules.Sales.Adapter.Inbound.Rest;
-using EwaysVNext.Modules.Sales.Adapter.Outbound;
-using EwaysVNext.Modules.Sales.Application;
-using EwaysVNext.Modules.Sales.Application.Composition;
-using EwaysVNext.Modules.Sales.QueryApplication;
+using Mkbj.Database;
+using Mkbj.DependencyInjection;
+using Mkbj.Modules.Sales.Adapter.Inbound.GraphQL;
+using Mkbj.Modules.Sales.Adapter.Inbound.Rest;
+using Mkbj.Modules.Sales.Adapter.Outbound;
+using Mkbj.Modules.Sales.Application;
+using Mkbj.Modules.Sales.Application.Composition;
+using Mkbj.Modules.Sales.QueryApplication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EwaysVNext.Modules.Sales;
+namespace Mkbj.Modules.Sales;
 
 public static class ModuleInstaller
 {
@@ -32,7 +32,7 @@ public static class ModuleInstaller
         services
             .AddPersistenceInterceptors()
             .AddUserProfileService()
-            .AddUnitOfWork<EwaysVNextDbContext>()
+            .AddUnitOfWork<MkbjDbContext>()
             .AddEvents(typeof(CompositionEngine).Assembly);
 
         return services;

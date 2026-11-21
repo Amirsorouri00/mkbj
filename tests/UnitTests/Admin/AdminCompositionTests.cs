@@ -1,13 +1,13 @@
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Admin.Application.Ports.Outbound;
-using EwaysVNext.Modules.Admin.Application.Services;
-using EwaysVNext.Modules.Admin.Application.Views;
-using EwaysVNext.Outcomes;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Admin.Application.Ports.Outbound;
+using Mkbj.Modules.Admin.Application.Services;
+using Mkbj.Modules.Admin.Application.Views;
+using Mkbj.Outcomes;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Admin;
+namespace Mkbj.UnitTests.Admin;
 
 /// <summary>
 /// What Admin itself decides, as opposed to what it copies.

@@ -1,19 +1,19 @@
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Database;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.IntegrationTests.Support;
-using EwaysVNext.Jobs;
-using EwaysVNext.Modules.Partners.Adapter.Outbound.Usage;
-using EwaysVNext.Modules.Partners.Application.Usage;
-using EwaysVNext.Presentation.Endpoint;
+using Mkbj.Core.Application;
+using Mkbj.Database;
+using Mkbj.Domain.Common;
+using Mkbj.IntegrationTests.Support;
+using Mkbj.Jobs;
+using Mkbj.Modules.Partners.Adapter.Outbound.Usage;
+using Mkbj.Modules.Partners.Application.Usage;
+using Mkbj.Presentation.Endpoint;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog.Core;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Partners;
+namespace Mkbj.IntegrationTests.Partners;
 
 [Collection(PostgresSuite.Name)]
 public sealed class PartnerUsageTests(PostgresFixture fixture)
@@ -45,7 +45,7 @@ public sealed class PartnerUsageTests(PostgresFixture fixture)
         while (DateTime.UtcNow < deadline)
         {
             using var scope = factory.Services.CreateScope();
-            var rows = await scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>()
+            var rows = await scope.ServiceProvider.GetRequiredService<MkbjDbContext>()
                 .ApiKeyUsages.AsNoTracking()
                 .Where(usage => usage.PartnerId == partnerId)
                 .ToListAsync();
@@ -108,7 +108,7 @@ public sealed class PartnerUsageTests(PostgresFixture fixture)
 
         using (var scope = factory.Services.CreateScope())
         {
-            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
             db.ApiKeyUsages.AddRange(
                 Row(partnerId, 1, clock.UtcNow.AddDays(-91)),
                 Row(partnerId, 2, clock.UtcNow.AddDays(-89)));
@@ -130,7 +130,7 @@ public sealed class PartnerUsageTests(PostgresFixture fixture)
 
         using (var scope = factory.Services.CreateScope())
         {
-            var remaining = await scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>()
+            var remaining = await scope.ServiceProvider.GetRequiredService<MkbjDbContext>()
                 .ApiKeyUsages.AsNoTracking()
                 .Where(usage => usage.PartnerId == partnerId)
                 .ToListAsync();

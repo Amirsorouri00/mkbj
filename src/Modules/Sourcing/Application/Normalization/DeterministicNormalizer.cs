@@ -1,8 +1,8 @@
 using System.Text;
 using System.Text.Json.Nodes;
-using EwaysVNext.Modules.Sourcing.Application.Discovery;
+using Mkbj.Modules.Sourcing.Application.Discovery;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Normalization;
+namespace Mkbj.Modules.Sourcing.Application.Normalization;
 
 /// <summary>
 /// What a listing turned out to be, in this system's own terms.

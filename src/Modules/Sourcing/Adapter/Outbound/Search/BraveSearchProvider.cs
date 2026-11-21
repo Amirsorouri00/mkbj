@@ -1,10 +1,10 @@
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace EwaysVNext.Modules.Sourcing.Adapter.Outbound.Search;
+namespace Mkbj.Modules.Sourcing.Adapter.Outbound.Search;
 
 public sealed class BraveOptions
 {

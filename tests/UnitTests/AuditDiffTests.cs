@@ -1,8 +1,8 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Audit.Implementation;
+using AwesomeAssertions;
+using Mkbj.Audit.Implementation;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 /// <summary>
 /// An audit row records what changed, not the whole object. Storing every field on every write

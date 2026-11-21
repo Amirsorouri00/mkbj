@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sourcing.Application.Domain.SourcePolicies;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sourcing.Application.Domain.SourcePolicies;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Sourcing;
+namespace Mkbj.UnitTests.Sourcing;
 
 /// <summary>
 /// Whose material may be republished, and on whose authority.

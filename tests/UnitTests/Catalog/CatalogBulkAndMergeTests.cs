@@ -1,25 +1,27 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Audit;
-using EwaysVNext.Core.Application.FileTypeDetection;
-using EwaysVNext.Core.Implementation.FileTypeDetection;
-using EwaysVNext.Modules.Catalog.Application.Products;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Services;
-using EwaysVNext.Persistence;
+using AwesomeAssertions;
+using Mkbj.Audit;
+using Mkbj.Core.Application.FileTypeDetection;
+using Mkbj.Core.Implementation.FileTypeDetection;
+using Mkbj.Modules.Catalog.Application.Products;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Products.Services;
+using Mkbj.Persistence;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 /// <summary>
 /// Bulk edits and merges. A bulk edit is a batch of independent aggregates in one save — allowed
@@ -38,6 +40,8 @@ public sealed class CatalogBulkAndMergeTests
     private readonly ILogger<CatalogAdminService> _logger = NullLogger<CatalogAdminService>.Instance;
     private readonly IBrandRepository _brands = Substitute.For<IBrandRepository>();
     private readonly ICategoryRepository _categories = Substitute.For<ICategoryRepository>();
+    private readonly ICategoryAttributeExclusionQueryService _categoryAttributes = Substitute.For<ICategoryAttributeExclusionQueryService>();
+    private readonly IAttributeBlueprintRepository _attributeBlueprints = Substitute.For<IAttributeBlueprintRepository>();
     private readonly ICategoryProductRepository _categoryProducts = Substitute.For<ICategoryProductRepository>();
     private readonly IAuditTrail _audit = Substitute.For<IAuditTrail>();
     private readonly ICatalogChangeNotifier _notifier = Substitute.For<ICatalogChangeNotifier>();
@@ -55,10 +59,12 @@ public sealed class CatalogBulkAndMergeTests
             .Returns(call => Category.Create(
                 call.Arg<long>(), "Kettles", $"kettles-{call.Arg<long>()}", null, null, 0, _clock.UtcNow));
         _ids.Generate().Returns(_ => Random.Shared.NextInt64(1_000, long.MaxValue));
+        _categoryAttributes.GetEffectiveAttributesAsync(Arg.Any<long>(), Arg.Any<CancellationToken>()).Returns([]);
+        _attributeBlueprints.GetSnapshotsByIdsAsync(Arg.Any<IReadOnlyCollection<long>>(), Arg.Any<CancellationToken>()).Returns([]);
     }
 
     private CatalogAdminService CreateService() => new(
-        _products, _media, _fileTypes, _mediaOptions, _logger, _brands, _categories, _categoryProducts, _audit, _notifier, _unitOfWork, _ids, _clock);
+        _products, _media, _fileTypes, _mediaOptions, _logger, _brands, _categories, _categoryAttributes, _attributeBlueprints, _categoryProducts, _audit, _notifier, _unitOfWork, _ids, _clock);
 
     private Product Draft(long id) =>
         Product.CreateDraft(id, BrandId, CategoryId, $"Product {id}", $"product-{id}", null, null, _clock.UtcNow);

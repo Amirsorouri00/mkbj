@@ -1,18 +1,18 @@
 using System.Text.Json;
 using AwesomeAssertions;
-using EwaysVNext.Audit;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Settings.Application.Settings.Domain;
-using EwaysVNext.Modules.Settings.Application.Settings.Ports.Inbound;
-using EwaysVNext.Modules.Settings.Application.Settings.Ports.Outbound;
-using EwaysVNext.Modules.Settings.Application.Settings.Services;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using Mkbj.Audit;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Settings.Application.Settings.Domain;
+using Mkbj.Modules.Settings.Application.Settings.Ports.Inbound;
+using Mkbj.Modules.Settings.Application.Settings.Ports.Outbound;
+using Mkbj.Modules.Settings.Application.Settings.Services;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Settings;
+namespace Mkbj.UnitTests.Settings;
 
 public sealed class SettingsAdminServiceTests
 {

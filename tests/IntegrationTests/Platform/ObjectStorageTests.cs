@@ -1,11 +1,11 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 using AwesomeAssertions;
-using EwaysVNext.Storage;
+using Mkbj.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Platform;
+namespace Mkbj.IntegrationTests.Platform;
 
 /// <summary>
 /// The object-storage adapter against a real S3 server. Presigned-URL expiry is exercised for real

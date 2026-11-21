@@ -1,9 +1,9 @@
-﻿using EwaysVNext.Database.Catalog.Views;
+using Mkbj.Database.Catalog.Views;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace EwaysVNext.Database.Migrations
+namespace Mkbj.Database.Migrations
 {
     /// <summary>
     /// Gives the storefront a real popularity column, now that there are sales to count.

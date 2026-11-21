@@ -1,8 +1,8 @@
-using EwaysVNext.Modules.Settings.Application.Settings.Domain;
+using Mkbj.Modules.Settings.Application.Settings.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EwaysVNext.Database.Settings.Configurations;
+namespace Mkbj.Database.Settings.Configurations;
 
 /// <summary>
 /// Every settings table is a singleton, enforced by <c>CHECK (id = 1)</c> rather than by

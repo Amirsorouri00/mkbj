@@ -1,10 +1,10 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Partners.Application.Partners.Keys;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Inbound;
-using EwaysVNext.Modules.Partners.Application.Partners.Ports.Outbound;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Partners.Application.Partners.Keys;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Inbound;
+using Mkbj.Modules.Partners.Application.Partners.Ports.Outbound;
 using Microsoft.Extensions.Logging;
 
-namespace EwaysVNext.Modules.Partners.Application.Partners.Services;
+namespace Mkbj.Modules.Partners.Application.Partners.Services;
 
 /// <summary>
 /// Verifies a presented key: parse, look up by prefix, compare the hash, check the key is live

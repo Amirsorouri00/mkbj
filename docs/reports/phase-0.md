@@ -11,7 +11,7 @@ audit log nobody can rewrite, and a deployment artefact that has actually been b
 | Area | What was built | Where |
 |---|---|---|
 | Database | PostgreSQL via Npgsql: snake_case throughout, `xmin` as the concurrency token, schema per module from the CLR namespace, `pg_trgm`/`unaccent`, money as `amount_minor bigint` + `char(3)` | `src/Database`, `src/BuildingBlocks/Persistence` |
-| Role split | `eways_migrator` owns the schema; `eways_app` writes rows and owns nothing — the same script in dev, CI and production | `build/postgres/init/01-roles.sql` |
+| Role split | `mkbj_migrator` owns the schema; `mkbj_app` writes rows and owns nothing — the same script in dev, CI and production | `build/postgres/init/01-roles.sql` |
 | Outcomes | One `Result`/`Error` type across the whole system, carrying `Retryable`; `TrySaveChangesAsync` reports a lost race as `UniqueViolation`/`ConcurrencyConflict` instead of throwing | `src/BuildingBlocks/Outcomes`, `Persistence` |
 | Object storage | `IObjectStorage` over the S3 API, presigned URLs, three buckets | `src/BuildingBlocks/Storage` |
 | Jobs | Postgres queue claimed with `FOR UPDATE SKIP LOCKED`: leases, heartbeats, dedupe-while-queued, exponential backoff, three modes | `src/BuildingBlocks/Jobs` |
@@ -23,10 +23,10 @@ audit log nobody can rewrite, and a deployment artefact that has actually been b
 
 The dev stack was brought up and driven end to end on 2026-10-28:
 
-- Migrations apply as `eways_migrator`; 19 tables across `catalog`, `audit`, `jobs`,
+- Migrations apply as `mkbj_migrator`; 19 tables across `catalog`, `audit`, `jobs`,
   `authorization` and `public`.
-- `eways_app` selects rows and is **refused** `CREATE TABLE`.
-- Audit grants for `eways_app` are `INSERT, SELECT` and nothing else, on both audit tables.
+- `mkbj_app` selects rows and is **refused** `CREATE TABLE`.
+- Audit grants for `mkbj_app` are `INSERT, SELECT` and nothing else, on both audit tables.
 - `--seed` runs; `--probe` returns non-zero against a dead endpoint.
 - Both Keycloak realms import and serve `.well-known/openid-configuration`.
 - `/health` 200, `/health/live` 200, `/health/ready` 200, GraphQL answers `{__typename}`.

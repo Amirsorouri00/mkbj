@@ -1,14 +1,14 @@
-﻿using System.Globalization;
+using System.Globalization;
 using AwesomeAssertions;
-using EwaysVNext.Audit;
-using EwaysVNext.Audit.Implementation;
-using EwaysVNext.Database;
+using Mkbj.Audit;
+using Mkbj.Audit.Implementation;
+using Mkbj.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Platform;
+namespace Mkbj.IntegrationTests.Platform;
 
 /// <summary>
 /// Two guarantees: an audit row commits with the change it describes, and the application role
@@ -23,7 +23,7 @@ public sealed class AuditTrailTests(PostgresFixture fixture)
     {
         using var factory = fixture.CreateFactory();
         await using var scope = factory.Services.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
         var trail = scope.ServiceProvider.GetRequiredService<IAuditTrail>();
         var targetId = Random.Shared.NextInt64(1, long.MaxValue).ToString(CultureInfo.InvariantCulture);
 
@@ -60,7 +60,7 @@ public sealed class AuditTrailTests(PostgresFixture fixture)
     {
         using var factory = fixture.CreateFactory();
         await using var scope = factory.Services.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         db.AuditEvents.Add(new AuditEvent
         {
@@ -79,7 +79,7 @@ public sealed class AuditTrailTests(PostgresFixture fixture)
         await act.Should().NotThrowAsync();
     }
 
-    private static Task<int> Count(EwaysVNextDbContext db, string targetId) =>
+    private static Task<int> Count(MkbjDbContext db, string targetId) =>
         db.AuditEvents.AsNoTracking().CountAsync(e => e.TargetId == targetId);
 
     private static async Task ExecuteAsync(string connectionString, string sql)

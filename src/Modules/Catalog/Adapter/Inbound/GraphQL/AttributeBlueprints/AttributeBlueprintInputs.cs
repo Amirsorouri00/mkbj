@@ -1,6 +1,6 @@
-﻿using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.AttributeBlueprints;
 
 public sealed record CreateAttributeBlueprintInput(
     string Name,

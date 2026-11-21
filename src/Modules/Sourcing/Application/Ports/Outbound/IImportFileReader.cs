@@ -1,7 +1,7 @@
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Outcomes;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
+namespace Mkbj.Modules.Sourcing.Application.Ports.Outbound;
 
 /// <summary>One row of an uploaded file, as column heading to cell text.</summary>
 public sealed record ImportFileRow(int Number, IReadOnlyDictionary<string, string?> Cells);
@@ -31,4 +31,13 @@ public interface IImportFileReader
     /// </remarks>
     Task<Result<ImportFileContents>> ReadAsync(
         Stream content, int maxRows, CancellationToken ct = default);
+}
+
+public sealed record ImportTemplateFile(
+    byte[] Content, string ContentType, string FileName);
+
+/// <summary>Produces the exact files accepted by the file-import reader.</summary>
+public interface IImportTemplateProvider
+{
+    Task<ImportTemplateFile> GetAsync(string format, CancellationToken ct = default);
 }

@@ -1,7 +1,7 @@
 using System.Globalization;
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sales.Application.Composition;
+namespace Mkbj.Modules.Sales.Application.Composition;
 
 /// <summary>
 /// Checks a composed basket against the rules, from scratch.

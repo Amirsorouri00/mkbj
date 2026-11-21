@@ -16,10 +16,10 @@ public sealed class AuthorizationDbContextDesignTimeFactory
             .AddEnvironmentVariables()
             .Build();
 
-        // See EwaysVNextDbContextDesignTimeFactory: `migrations add` never connects.
+        // See MkbjDbContextDesignTimeFactory: `migrations add` never connects.
         var connectionString = configuration.GetConnectionString("Default") is { Length: > 0 } configured
             ? configured
-            : "Host=localhost;Database=eways_design;Username=design;Password=design";
+            : "Host=localhost;Database=mkbj_design;Username=design;Password=design";
 
         var options = new DbContextOptionsBuilder<AuthorizationDbContext>()
             .UseNpgsql(

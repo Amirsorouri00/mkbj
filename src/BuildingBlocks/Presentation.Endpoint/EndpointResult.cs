@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using EwaysVNext.Outcomes;
+using Microsoft.AspNetCore.Http;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Presentation.Endpoint;
+namespace Mkbj.Presentation.Endpoint;
 
 public static class EndpointResult
 {
@@ -38,6 +38,19 @@ public static class EndpointResult
         ArgumentNullException.ThrowIfNull(location);
 
         return Results.Redirect(location.ToString(), permanent: false);
+    }
+
+    /// <summary>
+    /// Returns a downloadable file while keeping framework response construction at the shared
+    /// presentation boundary.
+    /// </summary>
+    public static IResult File(byte[] content, string contentType, string fileName)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+        ArgumentException.ThrowIfNullOrWhiteSpace(contentType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+
+        return Results.File(content, contentType, fileName);
     }
 
     public static IResult Unauthorized(string? message = null) =>

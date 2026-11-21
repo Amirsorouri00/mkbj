@@ -1,18 +1,18 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 
 using AuthorizationService.Abstractions.Attributes;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.QueryApplication.Products;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Catalog.QueryApplication.Products;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Inbound.GraphQL.Products;
+namespace Mkbj.Modules.Catalog.Adapter.Inbound.GraphQL.Products;
 
 public sealed record CreateProductInput(
     [property: GraphQLType(typeof(NonNullType<IdType>))] long BrandId,
@@ -284,7 +284,7 @@ public sealed class ProductAdminMutations
     }
 
     private static async Task<ProductAdminDetailDto> ReloadAsync(
-        EwaysVNext.Outcomes.Result<long> created, ICatalogAdminQueries queries, CancellationToken ct)
+        Mkbj.Outcomes.Result<long> created, ICatalogAdminQueries queries, CancellationToken ct)
     {
         var productId = ResultGraphQLExtensions.ValueOrThrow(created);
         return ResultGraphQLExtensions.ValueOrThrow(await queries.GetProductAsync(productId, ct));

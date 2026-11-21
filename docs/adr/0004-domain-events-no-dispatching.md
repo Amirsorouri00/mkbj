@@ -1,4 +1,4 @@
-﻿# ADR-0004: Pluggable Event Dispatching (Currently NoOp)
+# ADR-0004: Pluggable Event Dispatching (Currently NoOp)
 
 ## Status
 Accepted - 2026-08-08 | **Amended (2026-08-24): pluggable seam introduced, NoOp chosen.**
@@ -75,7 +75,7 @@ every aggregate would need re-touching. This amendment installs the *abstraction
 without installing any delivery mechanism.
 
 ### What was added
-- `EwaysVNext.DDD.Events.IEventDispatcher` — the seam. Application services may
+- `Mkbj.DDD.Events.IEventDispatcher` — the seam. Application services may
   now `await` dispatch; the core has no idea what happens behind it.
 - `NoOpEventDispatcher` — the current implementation: completes, delivers nothing,
   zero dependencies. Registered in the Host as singleton; swapping implementations is

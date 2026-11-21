@@ -1,11 +1,11 @@
-using EwaysVNext.Database;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Sales.Application.Domain.Telemetry;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Sales.Application.Domain.Telemetry;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Outbound.Persistence;
+namespace Mkbj.Modules.Sales.Adapter.Outbound.Persistence;
 
 /// <summary>
 /// Writes one composition-attempt row, in its own scope, on a best-effort basis.
@@ -37,7 +37,7 @@ internal sealed class CompositionAttemptRecorder(
         try
         {
             using var scope = scopes.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
             db.CompositionAttempts.Add(CompositionAttempt.Record(ids.Generate(), record));
 

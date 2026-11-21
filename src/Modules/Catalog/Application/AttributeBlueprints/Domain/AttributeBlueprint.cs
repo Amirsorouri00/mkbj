@@ -1,7 +1,7 @@
-﻿using System.Globalization;
-using EwaysVNext.Domain.Common;
+using System.Globalization;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Domain;
+namespace Mkbj.Modules.Catalog.Application.AttributeBlueprints.Domain;
 
 public sealed class AttributeBlueprint : AggregateRoot<long>
 {

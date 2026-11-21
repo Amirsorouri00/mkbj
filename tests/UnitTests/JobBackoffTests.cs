@@ -1,8 +1,8 @@
 using AwesomeAssertions;
-using EwaysVNext.Jobs.Implementation;
+using Mkbj.Jobs.Implementation;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public sealed class JobBackoffTests
 {

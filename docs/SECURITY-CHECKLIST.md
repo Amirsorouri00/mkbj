@@ -18,7 +18,7 @@ can act on.
 - [ ] `OpenApi:Expose` is deliberate. True publishes the partner contract — usually right, since
       partners generate clients from it. Scalar, the browsable UI, is Development-only and
       should not be reachable.
-- [ ] The database roles exist and `eways_app` owns nothing. The smoke script checks this by
+- [ ] The database roles exist and `mkbj_app` owns nothing. The smoke script checks this by
       trying to create a table as that role and expecting permission denied.
 - [ ] Exactly one worker. More is safe for the job store, which uses `SKIP LOCKED`, but the rate
       limiter and candidate cache are per process (ADR-0010), so a second doubles effective

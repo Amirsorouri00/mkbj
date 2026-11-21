@@ -1,12 +1,12 @@
 using AwesomeAssertions;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Sales.Application.Domain.Telemetry;
-using EwaysVNext.Modules.Sales.Application.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Sales.Application.Domain.Telemetry;
+using Mkbj.Modules.Sales.Application.Ports.Outbound;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Sales;
+namespace Mkbj.IntegrationTests.Sales;
 
 /// <summary>
 /// The only trace a failed composition leaves.
@@ -65,7 +65,7 @@ public sealed class CompositionAttemptRecorderTests(PostgresFixture fixture)
         using var factory = fixture.CreateFactory();
         using var scope = factory.Services.CreateScope();
 
-        var db = scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MkbjDbContext>();
 
         await scope.ServiceProvider.GetRequiredService<ICompositionAttemptRecorder>()
             .RecordAsync(Attempt(DateTimeOffset.UtcNow.Ticks + 2, succeeded: true), Ct);
@@ -117,7 +117,7 @@ public sealed class CompositionAttemptRecorderTests(PostgresFixture fixture)
     {
         using var scope = factory.Services.CreateScope();
 
-        return await scope.ServiceProvider.GetRequiredService<EwaysVNextDbContext>()
+        return await scope.ServiceProvider.GetRequiredService<MkbjDbContext>()
             .CompositionAttempts.AsNoTracking()
             .Where(attempt => attempt.Seed == seed)
             .ToListAsync(Ct);

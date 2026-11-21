@@ -1,19 +1,19 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Domain.Events;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Modules.Catalog.Application.Categories.Commands;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Categories.Services;
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
+using AwesomeAssertions;
+using Mkbj.Domain.Common;
+using Mkbj.Domain.Events;
+using Mkbj.Outcomes;
+using Mkbj.Modules.Catalog.Application.Categories.Commands;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Categories.Services;
+using Mkbj.Modules.Catalog.Contracts.Categories;
 using Microsoft.Extensions.DependencyInjection;
-using EwaysVNext.Modules.Catalog.Application.Categories;
+using Mkbj.Modules.Catalog.Application.Categories;
 using Xunit;
-using EwaysVNext.Persistence;
+using Mkbj.Persistence;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public sealed class CategoryServiceTests
 {

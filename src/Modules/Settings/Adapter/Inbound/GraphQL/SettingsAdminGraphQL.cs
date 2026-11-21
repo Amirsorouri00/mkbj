@@ -3,17 +3,17 @@ using System.Security.Claims;
 
 using AuthorizationService.Abstractions.Attributes;
 using AuthorizationService.Abstractions.Policies;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Settings.Application.Settings.Ports.Inbound;
-using EwaysVNext.Modules.Settings.QueryApplication;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Settings.Application.Settings.Ports.Inbound;
+using Mkbj.Modules.Settings.QueryApplication;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
 
-namespace EwaysVNext.Modules.Settings.Adapter.Inbound.GraphQL;
+namespace Mkbj.Modules.Settings.Adapter.Inbound.GraphQL;
 
 [ExtendObjectType(typeof(Query))]
 public sealed class SettingsAdminGraphQLQueries
@@ -86,7 +86,7 @@ public sealed class SettingsAdminGraphQLMutations
                 value ?? string.Empty, @"^\d+\.\d{2}$",
                 System.Text.RegularExpressions.RegexOptions.None, TimeSpan.FromMilliseconds(100)))
         {
-            throw new EwaysVNext.Outcomes.Error("VALIDATION_FAILED",
+            throw new Mkbj.Outcomes.Error("VALIDATION_FAILED",
                 $"'{value}' is not a USD amount. Use exactly two decimal places, for example \"25.00\".")
                 .ToGraphQLException();
         }

@@ -1,0 +1,9 @@
+{
+  "name": "@mkbj/design-tokens",
+  "private": true,
+  "version": "0.0.0",
+  "exports": {
+    "./admin.css": "./src/admin.css",
+    "./shop.css": "./src/shop.css"
+  }
+}

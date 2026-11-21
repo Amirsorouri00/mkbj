@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Events;
+using Mkbj.Domain.Events;
 
-namespace EwaysVNext.Modules.Catalog.Application.Categories.Domain;
+namespace Mkbj.Modules.Catalog.Application.Categories.Domain;
 
 public sealed record CategoryCreatedDomainEvent(string Name, string Slug) : DomainEvent;
 public sealed record CategoryUpdatedDomainEvent(long CategoryId, string Name, string Slug) : DomainEvent;

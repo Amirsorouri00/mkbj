@@ -1,8 +1,8 @@
 using System.Text.RegularExpressions;
 
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Customer.Application.Customers.Domain;
+namespace Mkbj.Modules.Customer.Application.Customers.Domain;
 
 /// <summary>
 /// A billing address. Deliberately unopinionated about everything except the country code:

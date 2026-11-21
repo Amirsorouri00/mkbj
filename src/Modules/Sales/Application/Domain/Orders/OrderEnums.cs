@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Sales.Application.Domain.Orders;
+namespace Mkbj.Modules.Sales.Application.Domain.Orders;
 
 /// <summary>Which of the two sales paths an order came down.</summary>
 /// <remarks>

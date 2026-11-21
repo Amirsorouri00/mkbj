@@ -24,12 +24,12 @@
 
 ### Task 1: Scaffold and defend the module dependency graph
 
-**Files:** create the six projects under `src/Modules/SecondaryCatalog/{Application,Adapter/Outbound,QueryApplication,Adapter/Inbound/Rest,Adapter/Inbound/GraphQL,Installer}`; modify `EwaysVNext.slnx`, `tests/ArchitectureTests/ArchitectureTests.csproj`; create `tests/ArchitectureTests/SecondaryCatalogArchitectureTests.cs`.
+**Files:** create the six projects under `src/Modules/SecondaryCatalog/{Application,Adapter/Outbound,QueryApplication,Adapter/Inbound/Rest,Adapter/Inbound/GraphQL,Installer}`; modify `Mkbj.slnx`, `tests/ArchitectureTests/ArchitectureTests.csproj`; create `tests/ArchitectureTests/SecondaryCatalogArchitectureTests.cs`.
 
 - [ ] Add failing architecture tests asserting the approved dependency direction and that no SecondaryCatalog project references Catalog except `Adapter.Outbound`.
 - [ ] Run `dotnet test tests/ArchitectureTests/ArchitectureTests.csproj --no-restore --filter SecondaryCatalogArchitectureTests`; expect compilation failure because the projects do not exist.
 - [ ] Add minimal `.csproj` files and solution entries. Use existing central package versions unchanged.
-- [ ] Re-run the focused test, then inspect references with `dotnet sln EwaysVNext.slnx list` and `rg -n "ProjectReference" src/Modules/SecondaryCatalog`.
+- [ ] Re-run the focused test, then inspect references with `dotnet sln Mkbj.slnx list` and `rg -n "ProjectReference" src/Modules/SecondaryCatalog`.
 - [ ] Commit: `build: scaffold secondary catalog module`.
 
 Approved references: Application -> DDD, Framework, Contracts; Outbound -> Application, Persistence, Catalog.Application; QueryApplication -> Outbound, Contracts, Framework; REST -> QueryApplication, Contracts, Framework; GraphQL -> Application, QueryApplication, Contracts, Framework; Installer -> all five module projects.
@@ -68,7 +68,7 @@ The aggregate uses `long` identity and row version. The product association is a
 - [ ] Generate the migration:
 
 ```powershell
-dotnet ef migrations add InitialSecondaryCatalog --project src/Modules/SecondaryCatalog/Adapter/Outbound/EwaysVNext.Modules.SecondaryCatalog.Adapter.Outbound.csproj --startup-project src/Host/EwaysVNext.Host.csproj --context SecondaryCatalogDbContext --output-dir Persistence/Migrations
+dotnet ef migrations add InitialSecondaryCatalog --project src/Modules/SecondaryCatalog/Adapter/Outbound/Mkbj.Modules.SecondaryCatalog.Adapter.Outbound.csproj --startup-project src/Host/Mkbj.Host.csproj --context SecondaryCatalogDbContext --output-dir Persistence/Migrations
 ```
 
 - [ ] Re-run persistence, Catalog, and architecture tests; inspect migration SQL for `bigint`, `uniqueidentifier`, the filtered slug index, and no Catalog FK.
@@ -97,7 +97,7 @@ dotnet ef migrations add InitialSecondaryCatalog --project src/Modules/Secondary
 
 ### Task 7: Integrate through the installer and host
 
-**Files:** create `Installer/SecondaryCatalogModuleInstaller.cs`; modify `src/Host/EwaysVNext.Host.csproj`, `src/Host/Program.cs`, health checks, and integration tests.
+**Files:** create `Installer/SecondaryCatalogModuleInstaller.cs`; modify `src/Host/Mkbj.Host.csproj`, `src/Host/Program.cs`, health checks, and integration tests.
 
 - [ ] Write failing integration tests for service/route registration and admin authorization metadata.
 - [ ] Add one module installer, its DbContext/health check, and both inbound adapters.
@@ -118,7 +118,7 @@ rg -n "ICollection<SecondaryCategoryProduct>|List<SecondaryCategoryProduct>" src
 ```
 
 - [ ] Run `git diff main...HEAD --check` and review `git diff --stat main...HEAD` for scope.
-- [ ] Retry `dotnet restore EwaysVNext.slnx`, then `dotnet build EwaysVNext.slnx --no-restore` and `dotnet test EwaysVNext.slnx --no-build --no-restore`.
+- [ ] Retry `dotnet restore Mkbj.slnx`, then `dotnet build Mkbj.slnx --no-restore` and `dotnet test Mkbj.slnx --no-build --no-restore`.
 - [ ] Record NuGet/Windows TLS credential failures separately as external environment failures. Do not change packages or configuration to bypass them.
 - [ ] If restore remains blocked, run every available static check and report refactor failures separately from the baseline blocker.
 - [ ] Commit: `docs: document secondary catalog module`.

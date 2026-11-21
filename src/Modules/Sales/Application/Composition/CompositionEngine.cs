@@ -1,7 +1,7 @@
 using System.Globalization;
-using EwaysVNext.Outcomes;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sales.Application.Composition;
+namespace Mkbj.Modules.Sales.Application.Composition;
 
 /// <summary>
 /// Composes a basket of real SKUs totalling a partner's requested amount exactly.

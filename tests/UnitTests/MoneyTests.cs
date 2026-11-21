@@ -1,9 +1,9 @@
 using AwesomeAssertions;
 using Xunit;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Domain.ValueObjects;
+using Mkbj.Domain.Common;
+using Mkbj.Domain.ValueObjects;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public class MoneyTests
 {

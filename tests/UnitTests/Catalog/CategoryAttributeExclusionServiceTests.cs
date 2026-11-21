@@ -1,17 +1,17 @@
-﻿using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Services;
-using EwaysVNext.Modules.Catalog.Application.CategoryAttributeExclusions.Validation;
-using EwaysVNext.Persistence;
+using AwesomeAssertions;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Domain;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeAssignments.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Domain;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Services;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Validation;
+using Mkbj.Persistence;
 using NSubstitute;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 public class CategoryAttributeExclusionServiceTests
 {

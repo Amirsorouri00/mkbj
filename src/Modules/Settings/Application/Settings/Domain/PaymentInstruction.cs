@@ -1,6 +1,6 @@
-using EwaysVNext.Domain.Common;
+using Mkbj.Domain.Common;
 
-namespace EwaysVNext.Modules.Settings.Application.Settings.Domain;
+namespace Mkbj.Modules.Settings.Application.Settings.Domain;
 
 /// <summary>
 /// How a customer is told to pay, and every wording it has ever had.

@@ -1,6 +1,6 @@
-using EwaysVNext.Modules.Sales.Application.Composition;
+using Mkbj.Modules.Sales.Application.Composition;
 
-namespace EwaysVNext.Tools.CompositionSimulator;
+namespace Mkbj.Tools.CompositionSimulator;
 
 /// <summary>
 /// A catalogue shaped like the demo seed, built the same way every time.

@@ -1,11 +1,11 @@
 using System.Reflection;
 using AuthorizationService.Endpoints.Permissions;
 using AwesomeAssertions;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Identity;
+namespace Mkbj.UnitTests.Identity;
 
 /// <summary>
 /// The RBAC GraphQL edits the permission matrix itself, so it is the one surface where a missing

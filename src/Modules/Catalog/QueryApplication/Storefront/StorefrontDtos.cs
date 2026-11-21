@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Catalog.QueryApplication.Storefront;
+namespace Mkbj.Modules.Catalog.QueryApplication.Storefront;
 
 /// <summary>
 /// An amount as a two-decimal string, never a number.
@@ -24,6 +24,14 @@ public sealed record ProductCardDto(
 
 public sealed record CategoryTileDto(long CategoryId, string Name, string Slug, long ProductCount);
 
+public sealed record HomeProductSectionDto(
+    string Key,
+    string Title,
+    string Subtitle,
+    long CategoryId,
+    string CategorySlug,
+    IReadOnlyList<ProductCardDto> Products);
+
 /// <remarks>
 /// <c>BestSellers</c> is empty until the sales tables exist in phase 4. An empty section is
 /// honest; a section ranked by a column that is always zero is not.
@@ -32,7 +40,8 @@ public sealed record HomeDto(
     string Currency,
     IReadOnlyList<ProductCardDto> NewArrivals,
     IReadOnlyList<ProductCardDto> BestSellers,
-    IReadOnlyList<CategoryTileDto> FeaturedCategories);
+    IReadOnlyList<CategoryTileDto> FeaturedCategories,
+    IReadOnlyList<HomeProductSectionDto> CategorySections);
 
 public sealed record CategoryCrumbDto(long CategoryId, string Name, string Slug);
 

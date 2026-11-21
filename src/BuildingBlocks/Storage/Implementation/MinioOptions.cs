@@ -1,4 +1,4 @@
-namespace EwaysVNext.Storage.Implementation;
+namespace Mkbj.Storage.Implementation;
 
 /// <summary>
 /// Connection settings for the S3-compatible object store (MinIO in production).

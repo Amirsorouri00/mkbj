@@ -1,20 +1,22 @@
-﻿using System.Globalization;
-using EwaysVNext.Core.Application.FileTypeDetection;
-using EwaysVNext.Audit;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using System.Globalization;
+using Mkbj.Core.Application.FileTypeDetection;
+using Mkbj.Audit;
+using Mkbj.Core.Application;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.CategoryAttributeExclusions.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace EwaysVNext.Modules.Catalog.Application.Products.Services;
+namespace Mkbj.Modules.Catalog.Application.Products.Services;
 
 public sealed class CatalogAdminService(
     IProductRepository products,
@@ -24,6 +26,8 @@ public sealed class CatalogAdminService(
     ILogger<CatalogAdminService> logger,
     IBrandRepository brands,
     ICategoryRepository categories,
+    ICategoryAttributeExclusionQueryService categoryAttributes,
+    IAttributeBlueprintRepository attributeBlueprints,
     ICategoryProductRepository categoryProducts,
     IAuditTrail audit,
     ICatalogChangeNotifier notifier,
@@ -169,6 +173,9 @@ public sealed class CatalogAdminService(
             ? $"SKU-{variantId.ToString(CultureInfo.InvariantCulture)}"
             : command.Sku;
 
+        if (await ValidateVariantAttributesAsync(product.PrimaryCategoryId, command.Attributes, ct) is { } attributeError)
+            return Result.Failure<long>(attributeError);
+
         // Pre-checked so the admin reads a conflict; still re-checked by the save below, because
         // another admin can claim the SKU in the gap between the two.
         if (await products.SkuExistsAsync(sku, ct))
@@ -260,6 +267,14 @@ public sealed class CatalogAdminService(
         if (product is null) return Result.Failure(ProductNotFound());
 
         var before = Snapshot(product);
+        if (active)
+        {
+            foreach (var variant in product.Variants)
+            {
+                if (await ValidateVariantAttributesAsync(product.PrimaryCategoryId, variant.AttributeValues, ct) is { } attributeError)
+                    return Result.Failure(attributeError);
+            }
+        }
         try
         {
             // byAdmin, always: this method is only reachable by an admin, and the flag is what
@@ -589,6 +604,56 @@ public sealed class CatalogAdminService(
         return null;
     }
 
+    private async Task<Error?> ValidateVariantAttributesAsync(
+        long categoryId,
+        IReadOnlyDictionary<string, string> values,
+        CancellationToken ct)
+    {
+        var rules = (await categoryAttributes.GetEffectiveAttributesAsync(categoryId, ct))
+            .Where(rule => rule.IsVariantGenerating && !rule.IsExcluded)
+            .ToArray();
+        var snapshots = await attributeBlueprints.GetSnapshotsByIdsAsync(
+            rules.Select(rule => rule.AttributeBlueprintId).Distinct().ToArray(), ct);
+        var byId = snapshots.ToDictionary(snapshot => snapshot.Id);
+        var supplied = values.ToDictionary(
+            pair => pair.Key.Trim(), pair => pair.Value.Trim(), StringComparer.OrdinalIgnoreCase);
+        var allowedKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var rule in rules)
+        {
+            if (!byId.TryGetValue(rule.AttributeBlueprintId, out var blueprint)) continue;
+            allowedKeys.Add(blueprint.CanonicalKey);
+            if (!supplied.TryGetValue(blueprint.CanonicalKey, out var value) || string.IsNullOrWhiteSpace(value))
+            {
+                if (rule.IsRequired)
+                    return AttributeInvalid(blueprint.CanonicalKey, $"{blueprint.Name} is required for this category.");
+                continue;
+            }
+
+            if (blueprint.Options.Count > 0 && !blueprint.Options.Any(option =>
+                    string.Equals(option.Value, value, StringComparison.OrdinalIgnoreCase)))
+                return AttributeInvalid(blueprint.CanonicalKey,
+                    $"'{value}' is not an allowed value for {blueprint.Name}.");
+
+            var shapeValid = blueprint.DataType switch
+            {
+                "Number" => decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out _),
+                "Boolean" => bool.TryParse(value, out _) || value is "Yes" or "No",
+                "Date" => DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture,
+                    DateTimeStyles.None, out _),
+                _ => true,
+            };
+            if (!shapeValid)
+                return AttributeInvalid(blueprint.CanonicalKey,
+                    $"{blueprint.Name} must be a valid {blueprint.DataType.ToLowerInvariant()} value.");
+        }
+
+        var unknown = supplied.Keys.FirstOrDefault(key => !allowedKeys.Contains(key));
+        return unknown is null
+            ? null
+            : AttributeInvalid(unknown, $"'{unknown}' is not a variant-generating attribute for this category.");
+    }
+
     private static string Key(long productId) => productId.ToString(CultureInfo.InvariantCulture);
 
     private static object Snapshot(Product product) => new
@@ -606,6 +671,9 @@ public sealed class CatalogAdminService(
     };
 
     private static Error Domain(DomainException exception) => new(exception.Code, exception.Message);
+
+    private static Error AttributeInvalid(string field, string message) => new(
+        "PRODUCT_ATTRIBUTE_INVALID", $"attributes.{field}: {message}");
 
     private static Error ProductNotFound() => new("PRODUCT_NOT_FOUND", "Product was not found.", 404);
 

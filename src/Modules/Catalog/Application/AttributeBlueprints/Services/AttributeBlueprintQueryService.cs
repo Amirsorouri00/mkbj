@@ -1,10 +1,10 @@
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.QueryApplication.AttributeBlueprints;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Inbound;
+using Mkbj.Modules.Catalog.QueryApplication.AttributeBlueprints;
+using Mkbj.Outcomes;
+using Mkbj.Queries.Application.Paginations;
 
-namespace EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Services;
+namespace Mkbj.Modules.Catalog.Application.AttributeBlueprints.Services;
 
 public sealed class AttributeBlueprintQueryService(IAttributeBlueprintRepository repository, IAttributeBlueprintDependencyGateway dependencyGateway) : IAttributeBlueprintQueryService
 {

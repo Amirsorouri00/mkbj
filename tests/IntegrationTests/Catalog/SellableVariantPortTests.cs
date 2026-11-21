@@ -1,16 +1,16 @@
 using AwesomeAssertions;
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Catalog.Application.Brands.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Categories.Commands;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Inbound;
-using EwaysVNext.Modules.Catalog.Application.Products.Ports.Outbound;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Catalog.Application.Brands.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Categories.Commands;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Inbound;
+using Mkbj.Modules.Catalog.Application.Products.Ports.Outbound;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EwaysVNext.IntegrationTests.Catalog;
+namespace Mkbj.IntegrationTests.Catalog;
 
 /// <summary>
 /// What the catalogue tells the rest of the system is buyable.
@@ -262,7 +262,7 @@ public sealed class SellableVariantPortTests(PostgresFixture fixture)
     [Fact]
     public async Task The_Application_Role_May_Advance_The_Sequence()
     {
-        // Tests connect as eways_app, which owns nothing. If the default privileges in
+        // Tests connect as mkbj_app, which owns nothing. If the default privileges in
         // 01-roles.sql ever stop covering sequences, this is where it shows.
         using var factory = fixture.CreateFactory();
         using var scope = factory.Services.CreateScope();

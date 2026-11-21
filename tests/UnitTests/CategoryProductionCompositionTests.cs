@@ -1,7 +1,7 @@
-﻿using AwesomeAssertions;
+using AwesomeAssertions;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 public sealed class CategoryProductionCompositionTests
 {
@@ -10,7 +10,7 @@ public sealed class CategoryProductionCompositionTests
     {
         var root = FindSolutionDirectory();
         var program = File.ReadAllText(Path.Combine(
-            root, "src", "Host", "EwaysVNext.Host", "Program.cs"));
+            root, "src", "Host", "Mkbj.Host", "Program.cs"));
         var outbound = File.ReadAllText(Path.Combine(root, "src", "Modules", "Catalog",
             "Adapter", "Outbound", "DependencyInjection.cs"));
 
@@ -24,7 +24,7 @@ public sealed class CategoryProductionCompositionTests
     {
         var root = FindSolutionDirectory();
         var program = File.ReadAllText(Path.Combine(
-            root, "src", "Host", "EwaysVNext.Host", "Program.cs"));
+            root, "src", "Host", "Mkbj.Host", "Program.cs"));
 
         program.Should().Contain("AddCatalogModule");
         program.Should().NotContain("AddCategoryModule");
@@ -33,7 +33,7 @@ public sealed class CategoryProductionCompositionTests
     private static string FindSolutionDirectory()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "EwaysVNext.slnx")))
+        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "Mkbj.slnx")))
             directory = directory.Parent;
         return directory?.FullName
             ?? throw new DirectoryNotFoundException("Could not locate the solution directory.");

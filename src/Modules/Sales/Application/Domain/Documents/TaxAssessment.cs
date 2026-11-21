@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Sales.Application.Domain.Documents;
+namespace Mkbj.Modules.Sales.Application.Domain.Documents;
 
 /// <summary>
 /// How much tax is due on a document, and what it says about why.

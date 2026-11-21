@@ -1,21 +1,21 @@
-using EwaysVNext.Database;
-using EwaysVNext.DependencyInjection;
-using EwaysVNext.Jobs;
-using EwaysVNext.Jobs.Implementation;
-using EwaysVNext.Modules.Partners.Adapter.Inbound.GraphQL;
-using EwaysVNext.Modules.Partners.Adapter.Inbound.Rest;
-using EwaysVNext.Modules.Partners.Adapter.Inbound.Rest.Usage;
-using EwaysVNext.Modules.Partners.Adapter.Outbound;
-using EwaysVNext.Modules.Partners.Adapter.Outbound.Usage;
-using EwaysVNext.Modules.Partners.Application;
-using EwaysVNext.Modules.Partners.QueryApplication;
-using EwaysVNext.Modules.Partners.Application.Partners.Domain;
+using Mkbj.Database;
+using Mkbj.DependencyInjection;
+using Mkbj.Jobs;
+using Mkbj.Jobs.Implementation;
+using Mkbj.Modules.Partners.Adapter.Inbound.GraphQL;
+using Mkbj.Modules.Partners.Adapter.Inbound.Rest;
+using Mkbj.Modules.Partners.Adapter.Inbound.Rest.Usage;
+using Mkbj.Modules.Partners.Adapter.Outbound;
+using Mkbj.Modules.Partners.Adapter.Outbound.Usage;
+using Mkbj.Modules.Partners.Application;
+using Mkbj.Modules.Partners.QueryApplication;
+using Mkbj.Modules.Partners.Application.Partners.Domain;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace EwaysVNext.Modules.Partners;
+namespace Mkbj.Modules.Partners;
 
 public static class ModuleInstaller
 {
@@ -36,7 +36,7 @@ public static class ModuleInstaller
         services
             .AddPersistenceInterceptors()
             .AddUserProfileService()
-            .AddUnitOfWork<EwaysVNextDbContext>()
+            .AddUnitOfWork<MkbjDbContext>()
             .AddEvents(applicationAssembly);
 
         return services;

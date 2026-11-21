@@ -1,13 +1,13 @@
-﻿using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Categories.Commands;
-using EwaysVNext.Modules.Catalog.Application.Categories.Domain;
-using EwaysVNext.Modules.Catalog.Application.Categories.Ports.Outbound;
-using EwaysVNext.Modules.Catalog.Contracts.Categories;
-using CategoryEntity = EwaysVNext.Modules.Catalog.Application.Categories.Domain.Category;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Persistence;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Categories.Commands;
+using Mkbj.Modules.Catalog.Application.Categories.Domain;
+using Mkbj.Modules.Catalog.Application.Categories.Ports.Outbound;
+using Mkbj.Modules.Catalog.Contracts.Categories;
+using CategoryEntity = Mkbj.Modules.Catalog.Application.Categories.Domain.Category;
+using Mkbj.Outcomes;
+using Mkbj.Persistence;
 
-namespace EwaysVNext.Modules.Catalog.Application.Categories.Services;
+namespace Mkbj.Modules.Catalog.Application.Categories.Services;
 
 public sealed class CategoryService : Ports.Inbound.ICategoryService
 {

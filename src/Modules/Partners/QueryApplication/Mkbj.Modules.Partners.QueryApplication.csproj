@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Outcomes\Mkbj.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Queries\Application\Mkbj.Queries.Application.csproj" />
+    <ProjectReference Include="..\..\..\Database\Mkbj.Database.csproj" />
+    <ProjectReference Include="..\Application\Mkbj.Modules.Partners.Application.csproj" />
+  </ItemGroup>
+</Project>

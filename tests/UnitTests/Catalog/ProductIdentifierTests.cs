@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Modules.Catalog.Application.Products.Domain;
+using Mkbj.Domain.Common;
+using Mkbj.Modules.Catalog.Application.Products.Domain;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 /// <summary>
 /// Identifiers are how a product arriving from two feeds is recognised as one product, so a

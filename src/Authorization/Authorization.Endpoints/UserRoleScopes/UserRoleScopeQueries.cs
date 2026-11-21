@@ -1,9 +1,9 @@
 using AuthorizationService.Application.UserRoleScopes;
 using AuthorizationService.Application.UserRoleScopes.Responses;
-using EwaysVNext.Presentation.Endpoint.GraphQL;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Presentation.Endpoint.GraphQL;
+using Mkbj.Presentation.Endpoint.Security;
 using HotChocolate.Authorization;
-using EwaysVNext.Presentation.Endpoint.GraphQL.Extensions;
+using Mkbj.Presentation.Endpoint.GraphQL.Extensions;
 
 namespace AuthorizationService.Endpoints.UserRoleScopes;
 

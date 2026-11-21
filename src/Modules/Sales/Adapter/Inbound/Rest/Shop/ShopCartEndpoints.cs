@@ -1,15 +1,15 @@
 using System.Security.Claims;
-using EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Common;
-using EwaysVNext.Modules.Sales.Application;
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
-using EwaysVNext.Outcomes;
-using EwaysVNext.Presentation.Endpoint;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Modules.Sales.Adapter.Inbound.Rest.Common;
+using Mkbj.Modules.Sales.Application;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Outcomes;
+using Mkbj.Presentation.Endpoint;
+using Mkbj.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Shop;
+namespace Mkbj.Modules.Sales.Adapter.Inbound.Rest.Shop;
 
 /// <summary>
 /// The website cart, over HTTP.

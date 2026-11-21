@@ -1,9 +1,9 @@
-using EwaysVNext.Core.Application;
-using EwaysVNext.Modules.Sourcing.Application.Domain.ImportJobs;
-using EwaysVNext.Modules.Sourcing.Application.Ports.Outbound;
-using EwaysVNext.Outcomes;
+using Mkbj.Core.Application;
+using Mkbj.Modules.Sourcing.Application.Domain.ImportJobs;
+using Mkbj.Modules.Sourcing.Application.Ports.Outbound;
+using Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Sourcing.Application.Ports.Inbound;
+namespace Mkbj.Modules.Sourcing.Application.Ports.Inbound;
 
 /// <summary>What an administrator may do to an import job.</summary>
 public interface IImportJobService
@@ -42,6 +42,9 @@ public interface IImportFileService
         ImportFileFormat format,
         AdminActor actor,
         CancellationToken ct = default);
+
+    Task<Result<ImportFilePreview>> PreviewAsync(
+        long jobId, CancellationToken ct = default);
 
     Task<Result> SetMappingAsync(
         long jobId,

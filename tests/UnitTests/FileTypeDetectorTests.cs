@@ -1,11 +1,11 @@
 using System.Buffers.Binary;
 using System.Text;
 using AwesomeAssertions;
-using EwaysVNext.Core.Application.FileTypeDetection;
-using EwaysVNext.Core.Implementation.FileTypeDetection;
+using Mkbj.Core.Application.FileTypeDetection;
+using Mkbj.Core.Implementation.FileTypeDetection;
 using Xunit;
 
-namespace EwaysVNext.UnitTests;
+namespace Mkbj.UnitTests;
 
 /// <summary>
 /// The shared signature-based detector in BuildingBlocks. Everything here is content-only: the

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Pricing\QueryApplication\Mkbj.Modules.Pricing.QueryApplication</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Outcomes\Mkbj.Outcomes.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Queries\Application\Mkbj.Queries.Application.csproj" />
+    <ProjectReference Include="..\..\..\Database\Mkbj.Database.csproj" />
+    <ProjectReference Include="..\Application\Mkbj.Modules.Pricing.Application.csproj" />
+  </ItemGroup>
+</Project>

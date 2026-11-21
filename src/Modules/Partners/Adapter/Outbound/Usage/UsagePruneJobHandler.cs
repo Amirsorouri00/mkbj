@@ -1,11 +1,11 @@
-using EwaysVNext.Database;
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Jobs;
+using Mkbj.Database;
+using Mkbj.Domain.Common;
+using Mkbj.Jobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace EwaysVNext.Modules.Partners.Adapter.Outbound.Usage;
+namespace Mkbj.Modules.Partners.Adapter.Outbound.Usage;
 
 public sealed record UsagePrunePayload;
 
@@ -22,7 +22,7 @@ public sealed record UsagePrunePayload;
 /// </para>
 /// </summary>
 public sealed class UsagePruneJobHandler(
-    EwaysVNextDbContext db,
+    MkbjDbContext db,
     IClock clock,
     IOptions<PartnerUsageOptions> options,
     ILogger<UsagePruneJobHandler> logger) : IJobHandler<UsagePrunePayload>

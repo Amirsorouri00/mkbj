@@ -1,11 +1,11 @@
 using System.Security.Claims;
-using EwaysVNext.Core.Application.Security;
-using EwaysVNext.Modules.Sales.Application.Ports.Inbound;
+using Mkbj.Core.Application.Security;
+using Mkbj.Modules.Sales.Application.Ports.Inbound;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 
-namespace EwaysVNext.Modules.Sales.Adapter.Inbound.Rest.Common;
+namespace Mkbj.Modules.Sales.Adapter.Inbound.Rest.Common;
 
 /// <summary>
 /// The partner API's wire format: snake_case, and only here.

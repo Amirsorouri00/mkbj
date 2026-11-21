@@ -1,8 +1,8 @@
-using EwaysVNext.Domain.Common;
-using EwaysVNext.Domain.Events;
-using EwaysVNext.Modules.Sales.Application.Domain.Documents;
+using Mkbj.Domain.Common;
+using Mkbj.Domain.Events;
+using Mkbj.Modules.Sales.Application.Domain.Documents;
 
-namespace EwaysVNext.Modules.Sales.Application.Domain.Orders;
+namespace Mkbj.Modules.Sales.Application.Domain.Orders;
 
 /// <summary>
 /// One sold line, with everything needed to explain it years later.

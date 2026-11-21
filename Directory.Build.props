@@ -4,8 +4,8 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Product>EwaysVNext</Product>
-    <Authors>EwaysVNext Template v3</Authors>
+    <Product>MKBJ</Product>
+    <Authors>MKBJ Template v3</Authors>
     <Copyright>Copyright © 2026</Copyright>
     <Version>3.0.0</Version>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

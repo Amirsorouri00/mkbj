@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Catalog.Application.AttributeBlueprints.Ports.Outbound;
 
-namespace EwaysVNext.Modules.Catalog.Adapter.Outbound.Dependencies.AttributeBlueprints;
+namespace Mkbj.Modules.Catalog.Adapter.Outbound.Dependencies.AttributeBlueprints;
 
-internal sealed class UnavailableAttributeBlueprintDependencyGateway(EwaysVNextDbContext db) : IAttributeBlueprintDependencyGateway
+internal sealed class UnavailableAttributeBlueprintDependencyGateway(MkbjDbContext db) : IAttributeBlueprintDependencyGateway
 {
     public Task<AttributeBlueprintDependencies> GetDependenciesAsync(long attributeBlueprintId, CancellationToken ct = default)
         => throw new NotImplementedException("Product attribute values and category attribute mappings are not available yet.");

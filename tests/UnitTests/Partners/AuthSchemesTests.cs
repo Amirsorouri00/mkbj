@@ -1,9 +1,9 @@
 using AwesomeAssertions;
-using EwaysVNext.Presentation.Endpoint.Security;
+using Mkbj.Presentation.Endpoint.Security;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Partners;
+namespace Mkbj.UnitTests.Partners;
 
 /// <summary>
 /// The single decision that keeps a partner key away from the JWT reader.

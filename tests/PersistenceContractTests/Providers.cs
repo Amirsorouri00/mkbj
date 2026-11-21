@@ -1,10 +1,10 @@
 using AuthorizationService.Implementation.Persistence;
-using EwaysVNext.Database;
+using Mkbj.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace EwaysVNext.PersistenceContractTests;
+namespace Mkbj.PersistenceContractTests;
 
 /// <summary>
 /// Two providers, because neither alone sees the whole mapping contract:
@@ -37,7 +37,7 @@ public static class Providers
         context.GetService<IDesignTimeModel>().Model;
 
     private static TContext Create<TContext>(DbContextOptions<TContext> options) where TContext : DbContext =>
-        typeof(TContext) == typeof(EwaysVNextDbContext)
-            ? (TContext)(object)new EwaysVNextDbContext((DbContextOptions<EwaysVNextDbContext>)(object)options)
+        typeof(TContext) == typeof(MkbjDbContext)
+            ? (TContext)(object)new MkbjDbContext((DbContextOptions<MkbjDbContext>)(object)options)
             : (TContext)(object)new AuthorizationDbContext((DbContextOptions<AuthorizationDbContext>)(object)options);
 }

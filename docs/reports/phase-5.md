@@ -6,8 +6,8 @@ invoice is issued. Both channels can then be refunded. That closes the PRD's two
 
 Verified at `d9dad9b` on `feature/ecommerce-mvp`:
 
-- `dotnet build EwaysVNext.slnx -c Release` — 0 errors, 0 warnings.
-- `dotnet test EwaysVNext.slnx` — **1976 tests, 0 failures**, Docker up (1 skipped: an
+- `dotnet build Mkbj.slnx -c Release` — 0 errors, 0 warnings.
+- `dotnet test Mkbj.slnx` — **1976 tests, 0 failures**, Docker up (1 skipped: an
   Identity assertion parked since phase 1).
 
 ## What works
@@ -99,8 +99,8 @@ GraphQL mirrors all of it: `cart`, `myOrders`, `order`, `documentPdfUrl`, `admin
 
 ```bash
 docker compose -f build/compose/docker-compose.dev.yml up -d
-dotnet build EwaysVNext.slnx -c Release
-dotnet run --project src/Host/EwaysVNext.Host -- --migrate
-dotnet test EwaysVNext.slnx
-dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "EwaysVNext.IntegrationTests.Sales.WebsiteOrderAcceptanceTests"
+dotnet build Mkbj.slnx -c Release
+dotnet run --project src/Host/Mkbj.Host -- --migrate
+dotnet test Mkbj.slnx
+dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "Mkbj.IntegrationTests.Sales.WebsiteOrderAcceptanceTests"
 ```

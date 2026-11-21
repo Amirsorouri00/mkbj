@@ -1,11 +1,11 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Pricing.Application.Prices.Domain;
-using EwaysVNext.Modules.Pricing.Application.Prices.Ports.Outbound;
+using Mkbj.Database;
+using Mkbj.Modules.Pricing.Application.Prices.Domain;
+using Mkbj.Modules.Pricing.Application.Prices.Ports.Outbound;
 using Microsoft.EntityFrameworkCore;
 
-namespace EwaysVNext.Modules.Pricing.Adapter.Outbound.Persistence;
+namespace Mkbj.Modules.Pricing.Adapter.Outbound.Persistence;
 
-internal sealed class VariantPriceRepository(EwaysVNextDbContext db) : IVariantPriceRepository
+internal sealed class VariantPriceRepository(MkbjDbContext db) : IVariantPriceRepository
 {
     /// <summary>
     /// Overrides are always included: every write path needs to know which currencies are pinned,

@@ -31,9 +31,9 @@ today's `LocalDbFixture`, collection `PostgresSuite.Name`), `AdminJwtFactory.Cre
 / `CreateSuperAdminToken()`, and `HexagonalBoundaryTests` (`ModuleNames` + exception `[Theory]`).
 
 **Command shorthands used below:**
-- `UT <Class>` = `dotnet test --project tests/UnitTests/EwaysVNext.UnitTests.csproj --filter-class "EwaysVNext.UnitTests.Sourcing.<Class>"`
-- `IT <Class>` = `dotnet test --project tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj --filter-class "EwaysVNext.IntegrationTests.Sourcing.<Class>"` (Docker running)
-- `AT` = `dotnet test --project tests/ArchitectureTests/EwaysVNext.ArchitectureTests.csproj`
+- `UT <Class>` = `dotnet test --project tests/UnitTests/Mkbj.UnitTests.csproj --filter-class "Mkbj.UnitTests.Sourcing.<Class>"`
+- `IT <Class>` = `dotnet test --project tests/IntegrationTests/Mkbj.IntegrationTests.csproj --filter-class "Mkbj.IntegrationTests.Sourcing.<Class>"` (Docker running)
+- `AT` = `dotnet test --project tests/ArchitectureTests/Mkbj.ArchitectureTests.csproj`
 - Every commit is `git commit -m "<subject>" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"`.
   Only the subject is written in the steps.
 
@@ -43,7 +43,7 @@ today's `LocalDbFixture`, collection `PostgresSuite.Name`), `AdminJwtFactory.Cre
 |---|---|---|
 | `Sourcing:Limits:MaxPages` / `MaxDepth` / `MaxRecords` | 200 / 2 / 1000 | Job defaults. Hard caps 5000 / 5 / 10000 |
 | `Sourcing:BatchSize` | 50 | Records per pipeline step (spec §5.5) |
-| `Sourcing:Crawler:UserAgent` | `EwaysVNextBot/1.0` | robots.txt product token is `EwaysVNextBot` |
+| `Sourcing:Crawler:UserAgent` | `MkbjBot/1.0` | robots.txt product token is `MkbjBot` |
 | `Sourcing:Crawler:PolitenessDelayMs` | 1000 | Per-host minimum gap; robots `Crawl-delay` wins when larger |
 | `Sourcing:Crawler:MaxHtmlBytes` / `MaxImageBytes` | 2 MiB / 10 MiB | Response caps |
 | `Sourcing:Crawler:AllowPrivateNetworks` | `false` | SSRF guard; integration tests set `true` |
@@ -58,7 +58,7 @@ today's `LocalDbFixture`, collection `PostgresSuite.Name`), `AdminJwtFactory.Cre
 
 ```
 src/Modules/Sourcing/
-├── Application/EwaysVNext.Modules.Sourcing.Application.csproj   (refs: Domain, Outcomes, Persistence[IUnitOfWork], Core.Application, Audit, Core)
+├── Application/Mkbj.Modules.Sourcing.Application.csproj   (refs: Domain, Outcomes, Persistence[IUnitOfWork], Core.Application, Audit, Core)
 │   ├── DependencyInjection.cs                       AddSourcingApplication()
 │   ├── Domain/
 │   │   ├── SourcePolicies/  SourcePolicy.cs, SourceDomain.cs, RightsDecision.cs
@@ -155,8 +155,8 @@ the crawler, Brave and Anthropic tests need, and it adds no package.
 ### Task 1: Scaffold the Sourcing module and its sanctioned references
 
 **Files:**
-- Create: the six `src/Modules/Sourcing/**/EwaysVNext.Modules.Sourcing.*.csproj`, `Installer/ModuleInstaller.cs`, each layer's `DependencyInjection.cs`
-- Modify: `EwaysVNext.slnx`, `Directory.Packages.props`, `src/Host/EwaysVNext.Host/Program.cs`, `src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj`, `tests/ArchitectureTests/HexagonalBoundaryTests.cs`, `tests/UnitTests/EwaysVNext.UnitTests.csproj`, `tests/IntegrationTests/EwaysVNext.IntegrationTests.csproj`
+- Create: the six `src/Modules/Sourcing/**/Mkbj.Modules.Sourcing.*.csproj`, `Installer/ModuleInstaller.cs`, each layer's `DependencyInjection.cs`
+- Modify: `Mkbj.slnx`, `Directory.Packages.props`, `src/Host/Mkbj.Host/Program.cs`, `src/Host/Mkbj.Host/Mkbj.Host.csproj`, `tests/ArchitectureTests/HexagonalBoundaryTests.cs`, `tests/UnitTests/Mkbj.UnitTests.csproj`, `tests/IntegrationTests/Mkbj.IntegrationTests.csproj`
 
 **Interfaces:**
 - Produces: `public static IServiceCollection AddSourcingModule(this IServiceCollection services, IConfiguration configuration)`
@@ -174,15 +174,15 @@ public void Only_Sourcing_Outbound_May_Reference_Catalog_Or_Pricing_From_Sourcin
 {
     foreach (var asm in SourcingAssemblies().Where(a => !a.GetName().Name!.EndsWith(".Adapter.Outbound")))
         Types.InAssembly(asm).Should()
-            .NotHaveDependencyOnAny("EwaysVNext.Modules.Catalog", "EwaysVNext.Modules.Pricing")
+            .NotHaveDependencyOnAny("Mkbj.Modules.Catalog", "Mkbj.Modules.Pricing")
             .GetResult().IsSuccessful.Should().BeTrue(asm.GetName().Name);
 }
 ```
 - [ ] **Step 2: Run** `AT`. Expected: FAIL (the Sourcing assemblies do not exist, so the build fails).
-- [ ] **Step 3: Scaffold the projects.** Run `./New-EwaysModule.ps1 -ModuleName Sourcing -SkipReferences`. The script's `$bb` table points at building blocks that no longer exist, so wire the references by hand as listed in File Structure. Then:
+- [ ] **Step 3: Scaffold the projects.** Run `./New-MkbjModule.ps1 -ModuleName Sourcing -SkipReferences`. The script's `$bb` table points at building blocks that no longer exist, so wire the references by hand as listed in File Structure. Then:
   - Add `Adapter/Inbound/GraphQL` (same csproj shape as Catalog's GraphQL project).
   - Add package versions to `Directory.Packages.props`: `AngleSharp 1.3.0`, `CsvHelper 33.1.0`, `ClosedXML 0.105.0`, `Npgsql.EntityFrameworkCore.PostgreSQL.Trigrams` at the same version as the Npgsql EF provider, and `Anthropic` at the version printed by `dotnet package search Anthropic --exact-match` (latest stable).
-  - Write `AddSourcingModule` to call `AddSourcingApplication()`, `AddSourcingOutboundAdapters(configuration)`, `AddSourcingQueryApplication()`, `AddSourcingRestAdapter()`, `AddSourcingGraphQL()`, then `.AddPersistenceInterceptors().AddUserProfileService().AddUnitOfWork<EwaysVNextDbContext>().AddEvents(typeof(SourcingApplicationMarker).Assembly)`, the same as Catalog.
+  - Write `AddSourcingModule` to call `AddSourcingApplication()`, `AddSourcingOutboundAdapters(configuration)`, `AddSourcingQueryApplication()`, `AddSourcingRestAdapter()`, `AddSourcingGraphQL()`, then `.AddPersistenceInterceptors().AddUserProfileService().AddUnitOfWork<MkbjDbContext>().AddEvents(typeof(SourcingApplicationMarker).Assembly)`, the same as Catalog.
   - Call it from `Program.cs`.
 - [ ] **Step 4: Run** `AT`. Expected: PASS.
 - [ ] **Step 5: Commit.** Subject: `feat(sourcing): scaffold Sourcing module and sanctioned Catalog/Pricing references`
@@ -340,11 +340,11 @@ public void Limits_Are_Bounded(int pages, int depth, int records) =>
 **Interfaces:**
 - Produces (the `RawListing` definition every adapter must honour):
 ```csharp
-namespace EwaysVNext.Modules.Sourcing.Application.Discovery;
+namespace Mkbj.Modules.Sourcing.Application.Discovery;
 public enum ExtractionMethod { JsonLd, Microdata, OpenGraph, Csv, Xlsx, Json, None }
 /// <summary>One product-shaped record as found at the source, before any normalization.</summary>
 public sealed record RawListing(
-    string SourceUrl,                 // absolute http(s) URL; file rows: "urn:eways:import:{jobId}:row:{n}" (provenance only, never fingerprinted)
+    string SourceUrl,                 // absolute http(s) URL; file rows: "urn:mkbj:import:{jobId}:row:{n}" (provenance only, never fingerprinted)
     string? SourceDomain,             // SourceDomain.Normalize(host) for web; file: normalized source_domain cell or null
     string? SourceId,                 // schema.org sku/productID; file: source_id cell
     DateTimeOffset CollectedAt,
@@ -451,7 +451,7 @@ public sealed class SourceListing : AggregateRoot<long> {
 }
 public sealed class PriceObservation : Entity<long> { long SourceListingId; string VariantKey; long AmountMinor; string Currency; bool? TaxIncluded; DateTimeOffset CollectedAt; }
 ```
-`VariantKey` is the variant signature hash (Task 12). File rows use `Url = "urn:eways:import:{fingerprint}"` and `Domain = source_domain ?? "file"`.
+`VariantKey` is the variant signature hash (Task 12). File rows use `Url = "urn:mkbj:import:{fingerprint}"` and `Domain = source_domain ?? "file"`.
 
 - [ ] **Step 1: Write the failing tests.**
 ```csharp
@@ -476,8 +476,8 @@ public sealed class PriceObservation : Entity<long> { long SourceListingId; stri
 
 **Files:**
 - Create: `src/Database/Sourcing/Configurations/*.cs`, `Adapter/Outbound/Persistence/*.cs`, `Application/Ports/Outbound/{IImportJobRepository,IStagedRecordRepository,ISourceListingRepository,ISourcePolicyRepository,ISourcingPersistence}.cs`
-- Modify: `src/Database/EwaysVNextDbContext.cs` (four `DbSet`s), `src/Database/PersistenceDependencyInjection.cs` (`o.UseTrigrams()` on the Npgsql options builder)
-- Create: migration `dotnet ef migrations add AddSourcing -p src/Database -s src/Host/EwaysVNext.Host`
+- Modify: `src/Database/MkbjDbContext.cs` (four `DbSet`s), `src/Database/PersistenceDependencyInjection.cs` (`o.UseTrigrams()` on the Npgsql options builder)
+- Create: migration `dotnet ef migrations add AddSourcing -p src/Database -s src/Host/Mkbj.Host`
 - Test: `tests/IntegrationTests/Sourcing/SourcingPersistenceTests.cs`
 
 **Interfaces:**
@@ -626,12 +626,12 @@ The connect-time IP check runs against the address actually dialled, so DNS rebi
 ```csharp
 [Fact] public void Specific_Group_Beats_Star()
 {
-    var r = RobotsTxt.Parse("User-agent: *\nDisallow: /\n\nUser-agent: EwaysVNextBot\nDisallow: /private/\nCrawl-delay: 3", "EwaysVNextBot");
+    var r = RobotsTxt.Parse("User-agent: *\nDisallow: /\n\nUser-agent: MkbjBot\nDisallow: /private/\nCrawl-delay: 3", "MkbjBot");
     r.IsAllowed("/p/1").Should().BeTrue(); r.IsAllowed("/private/x").Should().BeFalse(); r.CrawlDelay.Should().Be(TimeSpan.FromSeconds(3));
 }
 [Fact] public void Longest_Match_Wins_And_Allow_Wins_Ties()
 {
-    var r = RobotsTxt.Parse("User-agent: *\nDisallow: /shop\nAllow: /shop/products\nDisallow: /*.pdf$", "EwaysVNextBot");
+    var r = RobotsTxt.Parse("User-agent: *\nDisallow: /shop\nAllow: /shop/products\nDisallow: /*.pdf$", "MkbjBot");
     r.IsAllowed("/shop/products/1").Should().BeTrue(); r.IsAllowed("/shop/cart").Should().BeFalse();
     r.IsAllowed("/a/b.pdf").Should().BeFalse(); r.IsAllowed("/a/b.pdf?x=1").Should().BeTrue();
 }
@@ -781,7 +781,7 @@ public sealed class WebSearchSourceAdapter : ISourceAdapter { } // Supports: Web
 [Fact] public async Task Combined_Seeds_Sources_With_Link_Following() { /* sources → FollowLinks true; hits → false */ }
 ```
 - [ ] **Step 2: Run** `UT BraveSearchProviderTests`, `UT WebSearchSourceAdapterTests`. Expected: FAIL.
-- [ ] **Step 3: Implement.** To test the search adapter without the network, `WebsiteCrawlerAdapter.CrawlAsync` is `internal virtual`; add `InternalsVisibleTo("EwaysVNext.UnitTests")`.
+- [ ] **Step 3: Implement.** To test the search adapter without the network, `WebsiteCrawlerAdapter.CrawlAsync` is `internal virtual`; add `InternalsVisibleTo("Mkbj.UnitTests")`.
 - [ ] **Step 4: Run** both. Expected: PASS.
 - [ ] **Step 5: Commit.** Subject: `feat(sourcing): Brave search provider and web-search/combined source adapter`
 
@@ -834,7 +834,7 @@ public static class ImportTemplates { public static byte[] Csv(); public static 
     var l = ImportRowMapper.ToListing(9, [Row(1, title: "Acme Drill", brand: "ACME", price: "129.90", currency: "SGD", images: "https://i.example/a.png|https://i.example/b.png", attrs: ("attr:voltage", "18 V"))], IdentityMapping, ImportFileFormat.Csv, Now, "1");
     l.Document["offers"]!["price"]!.GetValue<string>().Should().Be("129.90");
     l.Document["additionalProperty"]![0]!["name"]!.GetValue<string>().Should().Be("voltage");
-    l.ImageUrls.Should().HaveCount(2); l.SourceUrl.Should().Be("urn:eways:import:9:row:1"); l.Method.Should().Be(ExtractionMethod.Csv);
+    l.ImageUrls.Should().HaveCount(2); l.SourceUrl.Should().Be("urn:mkbj:import:9:row:1"); l.Method.Should().Be(ExtractionMethod.Csv);
 }
 [Fact] public void Contiguous_Group_Key_Becomes_ProductGroup() => ImportRowMapper.ToListing(9, [Row(1, group: "G1", attrs: ("attr:color","Red")), Row(2, group: "G1", attrs: ("attr:color","Blue"))], IdentityMapping, ImportFileFormat.Csv, Now, "2").Document["hasVariant"]!.AsArray().Should().HaveCount(2);
 [Fact] public void Ignored_Columns_Do_Not_Reach_Document() { /* mapping "Internal Notes"→"ignore" */ }
@@ -868,7 +868,7 @@ public static class ImportTemplates { public static byte[] Csv(); public static 
 **Interfaces:**
 - Produces (Catalog, consumed only by the Sourcing gateway):
 ```csharp
-namespace EwaysVNext.Modules.Catalog.Application.Sourcing;
+namespace Mkbj.Modules.Catalog.Application.Sourcing;
 public interface ICatalogImportLookupPort {
   Task<IReadOnlyList<BrandRef>> FindBrandsAsync(IReadOnlyCollection<string> nameKeys, CancellationToken ct = default); // canonical name or alias
   Task<CategoryRef?> GetCategoryAsync(long categoryId, CancellationToken ct = default);
@@ -1821,8 +1821,8 @@ public async Task Reimport_Never_Reactivates_Admin_Deactivated_Product()
 - Create: `docs/reports/phase-7.md`
 - Modify: `AGENTS.md` (Sourcing module row, exception rows, `Brave:*`/`Anthropic:*`/`Sourcing:*` in the env table, `/api/v1/admin/imports` in the endpoint table), `docs/TESTING-GUARANTEES.md` (what the Sourcing suites cannot see: live sites, live Brave/Anthropic, JS-rendered pages), `.env.example` (`Brave__ApiKey=`, `Anthropic__ApiKey=` blank), and add the `docs/api/` Bruno requests for the import endpoints if phase 8 has not already created the collection.
 
-- [ ] **Step 1: Build.** Run `dotnet build EwaysVNext.slnx`. Expected: 0 errors, 0 warnings-as-errors.
-- [ ] **Step 2: Test.** Run `dotnet test EwaysVNext.slnx` (Docker running). Expected: all green, including `AT`.
+- [ ] **Step 1: Build.** Run `dotnet build Mkbj.slnx`. Expected: 0 errors, 0 warnings-as-errors.
+- [ ] **Step 2: Test.** Run `dotnet test Mkbj.slnx` (Docker running). Expected: all green, including `AT`.
 - [ ] **Step 3: Check boundaries and safety.**
   - `grep -rn "BeginTransaction\|UseTransaction" src/Modules/Sourcing` must be empty.
   - `grep -rn "Guid.NewGuid" src/Modules/Sourcing` must be empty.

@@ -1,11 +1,11 @@
 using AwesomeAssertions;
-using EwaysVNext.Jobs;
-using EwaysVNext.Modules.Catalog.Adapter.Outbound.Storefront;
-using EwaysVNext.Modules.Catalog.Application.Storefront.Ports.Inbound;
+using Mkbj.Jobs;
+using Mkbj.Modules.Catalog.Adapter.Outbound.Storefront;
+using Mkbj.Modules.Catalog.Application.Storefront.Ports.Inbound;
 using Npgsql;
 using Xunit;
 
-namespace EwaysVNext.UnitTests.Catalog;
+namespace Mkbj.UnitTests.Catalog;
 
 /// <summary>
 /// The storefront refresh job's two outcomes.

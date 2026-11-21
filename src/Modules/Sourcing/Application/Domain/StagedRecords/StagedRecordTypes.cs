@@ -1,4 +1,4 @@
-namespace EwaysVNext.Modules.Sourcing.Application.Domain.StagedRecords;
+namespace Mkbj.Modules.Sourcing.Application.Domain.StagedRecords;
 
 public enum StagedRecordStatus
 {

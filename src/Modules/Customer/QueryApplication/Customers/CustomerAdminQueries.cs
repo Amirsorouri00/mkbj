@@ -1,13 +1,13 @@
-using EwaysVNext.Database;
-using EwaysVNext.Modules.Customer.Application.Customers.Domain;
-using EwaysVNext.Modules.Customer.Application.Customers.Ports.Inbound;
-using EwaysVNext.Queries.Application.Paginations;
+using Mkbj.Database;
+using Mkbj.Modules.Customer.Application.Customers.Domain;
+using Mkbj.Modules.Customer.Application.Customers.Ports.Inbound;
+using Mkbj.Queries.Application.Paginations;
 using Microsoft.EntityFrameworkCore;
 
-using CustomerAggregate = EwaysVNext.Modules.Customer.Application.Customers.Domain.Customer;
-using Outcomes = EwaysVNext.Outcomes;
+using CustomerAggregate = Mkbj.Modules.Customer.Application.Customers.Domain.Customer;
+using Outcomes = Mkbj.Outcomes;
 
-namespace EwaysVNext.Modules.Customer.QueryApplication.Customers;
+namespace Mkbj.Modules.Customer.QueryApplication.Customers;
 
 public interface ICustomerAdminQueries
 {
@@ -17,7 +17,7 @@ public interface ICustomerAdminQueries
     Task<Outcomes.Result<CustomerAdminDetail>> GetAsync(long customerId, CancellationToken ct = default);
 }
 
-public sealed class CustomerAdminQueries(EwaysVNextDbContext db) : ICustomerAdminQueries
+public sealed class CustomerAdminQueries(MkbjDbContext db) : ICustomerAdminQueries
 {
     public const int MaxPageSize = 100;
 
