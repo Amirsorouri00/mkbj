@@ -59,6 +59,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Mirror Docker Hub runtime images to GHCR
+        env:
+          RELEASE_SHA: ${{ steps.release.outputs.sha }}
+        run: |
+          set -euo pipefail
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          mirror() {
+            local source="$1"
+            local name="$2"
+            local target="ghcr.io/$owner/mkbj-runtime-$name:$RELEASE_SHA"
+            docker pull "$source"
+            docker tag "$source" "$target"
+            docker push "$target"
+          }
+          mirror postgres:17-alpine postgres
+          mirror bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c minio
+          mirror bitnamilegacy/minio-client:latest minio-client
+          mirror caddy:2.10-alpine caddy
+
       - name: Build and push API
         uses: docker/build-push-action@v6
         with:
@@ -152,6 +171,10 @@ jobs:
           MKBJ_API_IMAGE=$IMAGE_PREFIX-api:$RELEASE_SHA
           MKBJ_ADMIN_IMAGE=$IMAGE_PREFIX-admin:$RELEASE_SHA
           MKBJ_SHOP_IMAGE=$IMAGE_PREFIX-shop:$RELEASE_SHA
+          POSTGRES_IMAGE=$IMAGE_PREFIX-runtime-postgres:$RELEASE_SHA
+          MINIO_IMAGE=$IMAGE_PREFIX-runtime-minio:$RELEASE_SHA
+          MINIO_MC_IMAGE=$IMAGE_PREFIX-runtime-minio-client:$RELEASE_SHA
+          CADDY_IMAGE=$IMAGE_PREFIX-runtime-caddy:$RELEASE_SHA
           EOF
           chmod 0600 bootstrap.env .release.env
           tar -czf deployment.tgz build/compose build/keycloak build/postgres tools/deploy

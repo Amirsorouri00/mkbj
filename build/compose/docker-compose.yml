@@ -6,7 +6,7 @@ name: mkbj
 
 services:
   postgres:
-    image: postgres:17-alpine
+    image: ${POSTGRES_IMAGE:-postgres:17-alpine}
     restart: unless-stopped
     environment:
       POSTGRES_DB: mkbj
@@ -235,7 +235,7 @@ services:
       start_period: 30s
 
   keycloak-db:
-    image: postgres:17-alpine
+    image: ${POSTGRES_IMAGE:-postgres:17-alpine}
     restart: unless-stopped
     environment:
       POSTGRES_DB: keycloak
@@ -376,7 +376,7 @@ services:
       MKBJ_API_GRAPHQL_URL: http://api:8080/graphql
 
   caddy:
-    image: caddy:2.10-alpine
+    image: ${CADDY_IMAGE:-caddy:2.10-alpine}
     restart: unless-stopped
     depends_on:
       api:
