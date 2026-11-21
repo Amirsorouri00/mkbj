@@ -1,0 +1,16 @@
+**/node_modules/
+**/dist/
+**/.next/
+**/bin/
+**/obj/
+.git/
+.github/
+.turbo/
+graphify-out/
+output/
+tmp/
+tests/
+docs/
+**/.env
+**/.env.*
+

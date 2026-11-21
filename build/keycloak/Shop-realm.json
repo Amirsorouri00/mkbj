@@ -1,6 +1,6 @@
 {
   "realm": "Shop",
-  "displayName": "Eways Shop",
+  "displayName": "MKBJ Shop",
   "enabled": true,
 
   "registrationAllowed": true,
@@ -101,7 +101,7 @@
     "port": "${KC_SMTP_PORT}",
     "from": "${KC_SMTP_FROM}",
     "fromDisplayName": "${KC_SMTP_FROM_DISPLAY_NAME}",
-    "auth": "true",
+    "auth": "${KC_SMTP_AUTH}",
     "user": "${KC_SMTP_USER}",
     "password": "${KC_SMTP_PASSWORD}",
     "starttls": "${KC_SMTP_STARTTLS}"

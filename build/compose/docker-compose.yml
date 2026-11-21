@@ -2,14 +2,14 @@
 #
 # Every secret is ${VAR:?...}: compose refuses to start rather than silently defaulting, because a
 # default password that reaches production is worse than an outage.
-name: eways
+name: mkbj
 
 services:
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: eways
+      POSTGRES_DB: mkbj
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
       # Read by 01-roles.sql through psql's \getenv, so no password is written into the script.
@@ -20,7 +20,7 @@ services:
       # Runs once, when the data directory is first initialised.
       - ../postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d eways"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mkbj"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -86,6 +86,7 @@ services:
 
   # Runs to completion before api and worker start. The host never migrates on startup.
   migrations:
+    image: ${MKBJ_API_IMAGE:-mkbj-api:local}
     build:
       context: ../..
       dockerfile: build/docker/api.Dockerfile
@@ -95,8 +96,8 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__Default: Host=postgres;Port=5432;Database=eways;Username=eways_migrator;Password=${MIGRATOR_DB_PASSWORD:?set MIGRATOR_DB_PASSWORD in .env}
+      ASPNETCORE_ENVIRONMENT: ${APP_ENVIRONMENT:-Production}
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=mkbj;Username=mkbj_migrator;Password=${MIGRATOR_DB_PASSWORD:?set MIGRATOR_DB_PASSWORD in .env}
       # Everything below this line is configuration the migrator never reads.
       #
       # One image, four roles (ADR): `--migrate` is a flag on the same host, and the host builds
@@ -115,6 +116,7 @@ services:
       ApiKeys__Pepper: ${API_KEYS_PEPPER:?set API_KEYS_PEPPER in .env}
       Minio__Endpoint: http://minio:9000
       Minio__PublicEndpoint: https://${STORAGE_HOST:?set STORAGE_HOST in .env}
+      Storefront__MediaBaseUrl: https://${STORAGE_HOST:?set STORAGE_HOST in .env}/catalog-media/
       Minio__AccessKey: ${MINIO_APP_ACCESS_KEY:?set MINIO_APP_ACCESS_KEY in .env}
       Minio__SecretKey: ${MINIO_APP_SECRET_KEY:?set MINIO_APP_SECRET_KEY in .env}
       Brave__ApiKey: ${BRAVE_API_KEY:-}
@@ -123,6 +125,7 @@ services:
       Keycloak__ExternalUrl: https://${AUTH_HOST:?set AUTH_HOST in .env}
 
   api:
+    image: ${MKBJ_API_IMAGE:-mkbj-api:local}
     build:
       context: ../..
       dockerfile: build/docker/api.Dockerfile
@@ -135,14 +138,15 @@ services:
       keycloak:
         condition: service_healthy
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: ${APP_ENVIRONMENT:-Production}
       # The API connects as the role that owns nothing and cannot change the schema.
-      ConnectionStrings__Default: Host=postgres;Port=5432;Database=eways;Username=eways_app;Password=${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=mkbj;Username=mkbj_app;Password=${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}
       # Background work belongs to the worker; see ADR-0019 D8.
       Jobs__Mode: Disabled
       Minio__Endpoint: http://minio:9000
       # Presigned URLs are signed for the host the customer's browser will use, not the internal one.
       Minio__PublicEndpoint: https://${STORAGE_HOST:?set STORAGE_HOST in .env}
+      Storefront__MediaBaseUrl: https://${STORAGE_HOST:?set STORAGE_HOST in .env}/catalog-media/
       Minio__AccessKey: ${MINIO_APP_ACCESS_KEY:?set MINIO_APP_ACCESS_KEY in .env}
       Minio__SecretKey: ${MINIO_APP_SECRET_KEY:?set MINIO_APP_SECRET_KEY in .env}
       ApiKeys__Pepper: ${API_KEYS_PEPPER:?set API_KEYS_PEPPER in .env}
@@ -153,15 +157,18 @@ services:
       Anthropic__ApiKey: ${ANTHROPIC_API_KEY:-}
       Keycloak__InternalUrl: http://keycloak:8080
       Keycloak__ExternalUrl: https://${AUTH_HOST:?set AUTH_HOST in .env}
+      Host__AllowedCorsOrigins__0: https://${ADMIN_HOST:?set ADMIN_HOST in .env}
+      Host__AllowedCorsOrigins__1: https://${SHOP_HOST:?set SHOP_HOST in .env}
     healthcheck:
       # The image is chiselled: no curl, no shell. The host implements --probe for this.
-      test: ["CMD", "dotnet", "EwaysVNext.Host.dll", "--probe", "http://localhost:8080/health/ready"]
+      test: ["CMD", "dotnet", "Mkbj.Host.dll", "--probe", "http://localhost:8080/health/ready"]
       interval: 15s
       timeout: 5s
       retries: 5
       start_period: 30s
 
   worker:
+    image: ${MKBJ_API_IMAGE:-mkbj-api:local}
     build:
       context: ../..
       dockerfile: build/docker/api.Dockerfile
@@ -173,8 +180,8 @@ services:
       minio-init:
         condition: service_completed_successfully
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__Default: Host=postgres;Port=5432;Database=eways;Username=eways_app;Password=${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}
+      ASPNETCORE_ENVIRONMENT: ${APP_ENVIRONMENT:-Production}
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=mkbj;Username=mkbj_app;Password=${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}
       Minio__Endpoint: http://minio:9000
       Minio__PublicEndpoint: https://${STORAGE_HOST:?set STORAGE_HOST in .env}
       Minio__AccessKey: ${MINIO_APP_ACCESS_KEY:?set MINIO_APP_ACCESS_KEY in .env}
@@ -187,9 +194,41 @@ services:
       Anthropic__ApiKey: ${ANTHROPIC_API_KEY:-}
       Keycloak__InternalUrl: http://keycloak:8080
       Keycloak__ExternalUrl: https://${AUTH_HOST:?set AUTH_HOST in .env}
+
+  # The demo seed is deliberately opt-in. It remains impossible to run in Production; the demo
+  # deployment sets APP_ENVIRONMENT=Staging and invokes this profile after every migration. The
+  # seeder is idempotent, so a rebuilt empty volume is populated while an existing demo keeps its
+  # stable identities and data.
+  seed:
+    profiles: ["demo-seed"]
+    image: ${MKBJ_API_IMAGE:-mkbj-api:local}
+    build:
+      context: ../..
+      dockerfile: build/docker/api.Dockerfile
+    restart: "no"
+    command: ["--seed"]
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+      minio-init:
+        condition: service_completed_successfully
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${APP_ENVIRONMENT:-Production}
+      Jobs__Mode: Disabled
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=mkbj;Username=mkbj_app;Password=${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}
+      Minio__Endpoint: http://minio:9000
+      Minio__PublicEndpoint: https://${STORAGE_HOST:?set STORAGE_HOST in .env}
+      Storefront__MediaBaseUrl: https://${STORAGE_HOST:?set STORAGE_HOST in .env}/catalog-media/
+      Minio__AccessKey: ${MINIO_APP_ACCESS_KEY:?set MINIO_APP_ACCESS_KEY in .env}
+      Minio__SecretKey: ${MINIO_APP_SECRET_KEY:?set MINIO_APP_SECRET_KEY in .env}
+      ApiKeys__Pepper: ${API_KEYS_PEPPER:?set API_KEYS_PEPPER in .env}
+      Brave__ApiKey: ${BRAVE_API_KEY:-}
+      Anthropic__ApiKey: ${ANTHROPIC_API_KEY:-}
+      Keycloak__InternalUrl: http://keycloak:8080
+      Keycloak__ExternalUrl: https://${AUTH_HOST:?set AUTH_HOST in .env}
     healthcheck:
       # A worker maps only the health endpoints; /health/ready would pull in checks it does not serve.
-      test: ["CMD", "dotnet", "EwaysVNext.Host.dll", "--probe", "http://localhost:8080/health/live"]
+      test: ["CMD", "dotnet", "Mkbj.Host.dll", "--probe", "http://localhost:8080/health/live"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -240,6 +279,7 @@ services:
       KC_SMTP_USER: ${KC_SMTP_USER:-}
       KC_SMTP_PASSWORD: ${KC_SMTP_PASSWORD:-}
       KC_SMTP_FROM_DISPLAY_NAME: ${KC_SMTP_FROM_DISPLAY_NAME:?set KC_SMTP_FROM_DISPLAY_NAME in .env}
+      KC_SMTP_AUTH: ${KC_SMTP_AUTH:?set KC_SMTP_AUTH in .env}
       # "true" for a submission relay on 587. A relay on 465 is implicit TLS, not STARTTLS.
       KC_SMTP_STARTTLS: ${KC_SMTP_STARTTLS:?set KC_SMTP_STARTTLS in .env}
       # Where each front end and the API are reachable from a browser. These become the clients'
@@ -262,17 +302,96 @@ services:
       retries: 20
       start_period: 60s
 
+  # Accounts stay out of the committed realm exports. This one-shot demo profile creates each
+  # user only when absent, then assigns roles and the initial password. Existing users are left
+  # untouched, so a release cannot reset a password.
+  keycloak-demo-users:
+    profiles: ["demo-seed"]
+    image: quay.io/keycloak/keycloak:26.4
+    restart: "no"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:?set KC_BOOTSTRAP_ADMIN_USERNAME in .env}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:?set KC_BOOTSTRAP_ADMIN_PASSWORD in .env}
+      MKBJ_DEMO_ADMIN_USERNAME: ${MKBJ_DEMO_ADMIN_USERNAME:?set MKBJ_DEMO_ADMIN_USERNAME in .env}
+      MKBJ_DEMO_ADMIN_EMAIL: ${MKBJ_DEMO_ADMIN_EMAIL:?set MKBJ_DEMO_ADMIN_EMAIL in .env}
+      MKBJ_DEMO_ADMIN_PASSWORD: ${MKBJ_DEMO_ADMIN_PASSWORD:?set MKBJ_DEMO_ADMIN_PASSWORD in .env}
+      MKBJ_DEMO_SHOP_USERNAME: ${MKBJ_DEMO_SHOP_USERNAME:?set MKBJ_DEMO_SHOP_USERNAME in .env}
+      MKBJ_DEMO_SHOP_EMAIL: ${MKBJ_DEMO_SHOP_EMAIL:?set MKBJ_DEMO_SHOP_EMAIL in .env}
+      MKBJ_DEMO_SHOP_PASSWORD: ${MKBJ_DEMO_SHOP_PASSWORD:?set MKBJ_DEMO_SHOP_PASSWORD in .env}
+    entrypoint:
+      - /bin/bash
+      - -ec
+      - |
+        KCADM=/opt/keycloak/bin/kcadm.sh
+        "$$KCADM" config credentials --server http://keycloak:8080 --realm master \
+          --user "$$KC_BOOTSTRAP_ADMIN_USERNAME" --password "$$KC_BOOTSTRAP_ADMIN_PASSWORD"
+
+        ensure_user() {
+          realm="$$1"; username="$$2"; email="$$3"; password="$$4"
+          if "$$KCADM" get users -r "$$realm" -q exact=true -q username="$$username" --fields username \
+              | grep -Fq "\"username\" : \"$$username\""; then
+            echo "Preserving existing $$realm user $$username"
+            return
+          fi
+          "$$KCADM" create users -r "$$realm" -s username="$$username" -s email="$$email" \
+            -s firstName=MKBJ -s lastName=Demo -s enabled=true -s emailVerified=true
+          "$$KCADM" set-password -r "$$realm" --username "$$username" \
+            --new-password "$$password" --temporary=false
+          echo "Created $$realm user $$username"
+        }
+
+        ensure_user Backoffice "$$MKBJ_DEMO_ADMIN_USERNAME" "$$MKBJ_DEMO_ADMIN_EMAIL" "$$MKBJ_DEMO_ADMIN_PASSWORD"
+        "$$KCADM" add-roles -r Backoffice --uusername "$$MKBJ_DEMO_ADMIN_USERNAME" --rolename staff --rolename super_admin
+        ensure_user Shop "$$MKBJ_DEMO_SHOP_USERNAME" "$$MKBJ_DEMO_SHOP_EMAIL" "$$MKBJ_DEMO_SHOP_PASSWORD"
+
+  admin-web:
+    image: ${MKBJ_ADMIN_IMAGE:-mkbj-admin:local}
+    build:
+      context: ../..
+      dockerfile: build/docker/admin-web.Dockerfile
+      args:
+        VITE_API_BASE_URL: https://${PUBLIC_HOST:?set PUBLIC_HOST in .env}
+        VITE_GRAPHQL_URL: https://${PUBLIC_HOST:?set PUBLIC_HOST in .env}/graphql
+        VITE_KEYCLOAK_URL: https://${AUTH_HOST:?set AUTH_HOST in .env}
+        VITE_KEYCLOAK_REALM: Backoffice
+        VITE_KEYCLOAK_CLIENT_ID: backoffice-console
+    restart: unless-stopped
+
+  shop-web:
+    image: ${MKBJ_SHOP_IMAGE:-mkbj-shop:local}
+    build:
+      context: ../..
+      dockerfile: build/docker/shop-web.Dockerfile
+      args:
+        NEXT_PUBLIC_MKBJ_API_GRAPHQL_URL: https://${PUBLIC_HOST:?set PUBLIC_HOST in .env}/graphql
+        NEXT_PUBLIC_KEYCLOAK_URL: https://${AUTH_HOST:?set AUTH_HOST in .env}
+        NEXT_PUBLIC_KEYCLOAK_REALM: Shop
+        NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: modular-monolith
+        NEXT_PUBLIC_MKBJ_MEDIA_BASE_URL: https://${STORAGE_HOST:?set STORAGE_HOST in .env}/catalog-media/
+    restart: unless-stopped
+    environment:
+      MKBJ_API_GRAPHQL_URL: http://api:8080/graphql
+
   caddy:
     image: caddy:2.10-alpine
     restart: unless-stopped
     depends_on:
       api:
         condition: service_healthy
+      admin-web:
+        condition: service_healthy
+      shop-web:
+        condition: service_healthy
     ports:
       - "80:80"
       - "443:443"
     environment:
       PUBLIC_HOST: ${PUBLIC_HOST:?set PUBLIC_HOST in .env}
+      ADMIN_HOST: ${ADMIN_HOST:?set ADMIN_HOST in .env}
+      SHOP_HOST: ${SHOP_HOST:?set SHOP_HOST in .env}
       AUTH_HOST: ${AUTH_HOST:?set AUTH_HOST in .env}
       STORAGE_HOST: ${STORAGE_HOST:?set STORAGE_HOST in .env}
       ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}

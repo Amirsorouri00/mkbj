@@ -1,0 +1,183 @@
+name: Deploy demo
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main, master]
+
+concurrency:
+  group: mkbj-demo
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment: demo
+
+    steps:
+      - name: Resolve release
+        id: release
+        env:
+          EVENT_SHA: ${{ github.event.workflow_run.head_sha }}
+          MANUAL_SHA: ${{ github.sha }}
+          PUBLIC_IP: ${{ vars.DEMO_PUBLIC_IP }}
+          CONFIGURED_BASE_DOMAIN: ${{ vars.DEMO_BASE_DOMAIN }}
+          CONFIGURED_PLATFORMS: ${{ vars.DEMO_DOCKER_PLATFORMS }}
+          CONFIGURED_DEMO_TIER: ${{ vars.DEMO_TIER }}
+        run: |
+          set -euo pipefail
+          sha="${EVENT_SHA:-$MANUAL_SHA}"
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          base_domain="$CONFIGURED_BASE_DOMAIN"
+          platforms="${CONFIGURED_PLATFORMS:-linux/amd64}"
+          if [[ -z "$base_domain" ]]; then
+            [[ -n "$PUBLIC_IP" ]] || { echo 'Set demo environment variable DEMO_PUBLIC_IP.' >&2; exit 64; }
+            base_domain="${PUBLIC_IP//./-}.sslip.io"
+          fi
+          {
+            echo "sha=$sha"
+            echo "base_domain=$base_domain"
+            echo "platforms=$platforms"
+            echo "demo_tier=${CONFIGURED_DEMO_TIER:-standard}"
+            echo "image_prefix=ghcr.io/$owner/mkbj"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.release.outputs.sha }}
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Sign in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push API
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: build/docker/api.Dockerfile
+          platforms: ${{ steps.release.outputs.platforms }}
+          push: true
+          tags: |
+            ${{ steps.release.outputs.image_prefix }}-api:${{ steps.release.outputs.sha }}
+            ${{ steps.release.outputs.image_prefix }}-api:demo
+          cache-from: type=gha,scope=api-demo
+          cache-to: type=gha,mode=max,scope=api-demo
+
+      - name: Build and push Backoffice
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: build/docker/admin-web.Dockerfile
+          platforms: ${{ steps.release.outputs.platforms }}
+          push: true
+          build-args: |
+            VITE_API_BASE_URL=https://api.${{ steps.release.outputs.base_domain }}
+            VITE_GRAPHQL_URL=https://api.${{ steps.release.outputs.base_domain }}/graphql
+            VITE_KEYCLOAK_URL=https://auth.${{ steps.release.outputs.base_domain }}
+            VITE_KEYCLOAK_REALM=Backoffice
+            VITE_KEYCLOAK_CLIENT_ID=backoffice-console
+          tags: |
+            ${{ steps.release.outputs.image_prefix }}-admin:${{ steps.release.outputs.sha }}
+            ${{ steps.release.outputs.image_prefix }}-admin:demo
+          cache-from: type=gha,scope=admin-demo
+          cache-to: type=gha,mode=max,scope=admin-demo
+
+      - name: Build and push shop
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: build/docker/shop-web.Dockerfile
+          platforms: ${{ steps.release.outputs.platforms }}
+          push: true
+          build-args: |
+            NEXT_PUBLIC_MKBJ_API_GRAPHQL_URL=https://api.${{ steps.release.outputs.base_domain }}/graphql
+            NEXT_PUBLIC_KEYCLOAK_URL=https://auth.${{ steps.release.outputs.base_domain }}
+            NEXT_PUBLIC_KEYCLOAK_REALM=Shop
+            NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=modular-monolith
+            NEXT_PUBLIC_MKBJ_MEDIA_BASE_URL=https://storage.${{ steps.release.outputs.base_domain }}/catalog-media/
+          tags: |
+            ${{ steps.release.outputs.image_prefix }}-shop:${{ steps.release.outputs.sha }}
+            ${{ steps.release.outputs.image_prefix }}-shop:demo
+          cache-from: type=gha,scope=shop-demo
+          cache-to: type=gha,mode=max,scope=shop-demo
+
+      - name: Prepare deployment bundle
+        env:
+          PUBLIC_IP: ${{ vars.DEMO_PUBLIC_IP }}
+          ACME_EMAIL: ${{ vars.DEMO_ACME_EMAIL }}
+          BASE_DOMAIN: ${{ vars.DEMO_BASE_DOMAIN }}
+          ADMIN_USERNAME: ${{ secrets.DEMO_ADMIN_USERNAME }}
+          ADMIN_EMAIL: ${{ secrets.DEMO_ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.DEMO_ADMIN_PASSWORD }}
+          SHOP_USERNAME: ${{ secrets.DEMO_SHOP_USERNAME }}
+          SHOP_EMAIL: ${{ secrets.DEMO_SHOP_EMAIL }}
+          SHOP_PASSWORD: ${{ secrets.DEMO_SHOP_PASSWORD }}
+          GHCR_USERNAME: ${{ secrets.GHCR_DEPLOY_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_DEPLOY_TOKEN }}
+          IMAGE_PREFIX: ${{ steps.release.outputs.image_prefix }}
+          RELEASE_SHA: ${{ steps.release.outputs.sha }}
+          DEMO_TIER: ${{ steps.release.outputs.demo_tier }}
+        run: |
+          set -euo pipefail
+          b64() { printf '%s' "$1" | base64 -w0; }
+          [[ -n "$PUBLIC_IP" && -n "$ACME_EMAIL" ]] || { echo 'Missing DEMO_PUBLIC_IP or DEMO_ACME_EMAIL.' >&2; exit 64; }
+          [[ -n "$ADMIN_USERNAME" && -n "$ADMIN_EMAIL" && -n "$ADMIN_PASSWORD" ]] || { echo 'Missing Backoffice demo identity secrets.' >&2; exit 64; }
+          [[ -n "$SHOP_USERNAME" && -n "$SHOP_EMAIL" && -n "$SHOP_PASSWORD" ]] || { echo 'Missing shop demo identity secrets.' >&2; exit 64; }
+          [[ -n "$GHCR_USERNAME" && -n "$GHCR_TOKEN" ]] || { echo 'Missing GHCR deployment credentials.' >&2; exit 64; }
+
+          cat > bootstrap.env <<EOF
+          DEMO_PUBLIC_IP=$PUBLIC_IP
+          DEMO_BASE_DOMAIN=$BASE_DOMAIN
+          MKBJ_DEMO_TIER=$DEMO_TIER
+          ACME_EMAIL=$ACME_EMAIL
+          MKBJ_DEMO_ADMIN_USERNAME_B64=$(b64 "$ADMIN_USERNAME")
+          MKBJ_DEMO_ADMIN_EMAIL_B64=$(b64 "$ADMIN_EMAIL")
+          MKBJ_DEMO_ADMIN_PASSWORD_B64=$(b64 "$ADMIN_PASSWORD")
+          MKBJ_DEMO_SHOP_USERNAME_B64=$(b64 "$SHOP_USERNAME")
+          MKBJ_DEMO_SHOP_EMAIL_B64=$(b64 "$SHOP_EMAIL")
+          MKBJ_DEMO_SHOP_PASSWORD_B64=$(b64 "$SHOP_PASSWORD")
+          GHCR_USERNAME_B64=$(b64 "$GHCR_USERNAME")
+          GHCR_TOKEN_B64=$(b64 "$GHCR_TOKEN")
+          EOF
+          cat > .release.env <<EOF
+          MKBJ_API_IMAGE=$IMAGE_PREFIX-api:$RELEASE_SHA
+          MKBJ_ADMIN_IMAGE=$IMAGE_PREFIX-admin:$RELEASE_SHA
+          MKBJ_SHOP_IMAGE=$IMAGE_PREFIX-shop:$RELEASE_SHA
+          EOF
+          chmod 0600 bootstrap.env .release.env
+          tar -czf deployment.tgz build/compose build/keycloak build/postgres tools/deploy
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEMO_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.DEMO_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          install -m 0700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 0600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+
+      - name: Deploy to Ubuntu VM
+        env:
+          SSH_HOST: ${{ vars.DEMO_PUBLIC_IP }}
+          SSH_USER: ${{ vars.DEMO_SSH_USER }}
+        run: |
+          set -euo pipefail
+          SSH_USER=${SSH_USER:-ubuntu}
+          scp -p deployment.tgz bootstrap.env .release.env "$SSH_USER@$SSH_HOST:/tmp/"
+          ssh "$SSH_USER@$SSH_HOST" 'sudo rm -rf /opt/mkbj.new && sudo mkdir -p /opt/mkbj.new && sudo tar -xzf /tmp/deployment.tgz -C /opt/mkbj.new && if [ -f /opt/mkbj/build/compose/.env ]; then sudo cp /opt/mkbj/build/compose/.env /opt/mkbj.new/build/compose/.env; fi && sudo rm -rf /opt/mkbj.previous && if [ -d /opt/mkbj ]; then sudo mv /opt/mkbj /opt/mkbj.previous; fi && sudo mv /opt/mkbj.new /opt/mkbj && sudo mv /tmp/.release.env /opt/mkbj/build/compose/.release.env && sudo chmod 600 /tmp/bootstrap.env /opt/mkbj/build/compose/.release.env'
+          ssh "$SSH_USER@$SSH_HOST" 'sudo BOOTSTRAP_ENV_FILE=/tmp/bootstrap.env bash /opt/mkbj/tools/deploy/bootstrap-ubuntu-vm.sh && sudo rm -f /tmp/bootstrap.env /tmp/deployment.tgz && sudo bash /opt/mkbj/tools/deploy/deploy-demo.sh'

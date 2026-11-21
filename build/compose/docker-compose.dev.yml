@@ -2,7 +2,7 @@
 #
 # Unlike production these carry defaults, because nothing here is reachable from outside the
 # machine and a developer should not need a .env to start.
-name: eways-dev
+name: mkbj-dev
 
 services:
   postgres:
@@ -13,7 +13,7 @@ services:
       # connects to the wrong server. Set POSTGRES_PORT if 5432 is taken.
       - "${POSTGRES_PORT:-5432}:5432"
     environment:
-      POSTGRES_DB: eways
+      POSTGRES_DB: mkbj
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev-postgres}
       APP_DB_PASSWORD: ${APP_DB_PASSWORD:-dev-app-password}
@@ -23,7 +23,7 @@ services:
       # The same roles script production uses, so the app/migrator split is exercised in dev too.
       - ../postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d eways"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mkbj"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -92,12 +92,19 @@ services:
       KC_SMTP_FROM: ${KC_SMTP_FROM:-no-reply@localhost}
       KC_SMTP_USER: ${KC_SMTP_USER:-dev}
       KC_SMTP_PASSWORD: ${KC_SMTP_PASSWORD:-dev}
-      KC_SMTP_FROM_DISPLAY_NAME: ${KC_SMTP_FROM_DISPLAY_NAME:-Eways (dev)}
+      KC_SMTP_FROM_DISPLAY_NAME: ${KC_SMTP_FROM_DISPLAY_NAME:-MKBJ (dev)}
       # mailpit accepts plaintext on 1025 and never forwards anything.
       KC_SMTP_STARTTLS: ${KC_SMTP_STARTTLS:-false}
+      KC_SMTP_AUTH: ${KC_SMTP_AUTH:-false}
       KC_SHOP_WEB_ORIGIN: ${KC_SHOP_WEB_ORIGIN:-http://localhost:3000}
       KC_ADMIN_WEB_ORIGIN: ${KC_ADMIN_WEB_ORIGIN:-http://localhost:5173}
       KC_API_PUBLIC_URL: ${KC_API_PUBLIC_URL:-http://localhost:8080}
+      MKBJ_DEMO_ADMIN_USERNAME: ${MKBJ_DEMO_ADMIN_USERNAME:-admin}
+      MKBJ_DEMO_ADMIN_EMAIL: ${MKBJ_DEMO_ADMIN_EMAIL:-admin@mkbj.local}
+      MKBJ_DEMO_ADMIN_PASSWORD: ${MKBJ_DEMO_ADMIN_PASSWORD:-MkbjAdminDemo123!}
+      MKBJ_DEMO_SHOP_USERNAME: ${MKBJ_DEMO_SHOP_USERNAME:-shopper@mkbj.local}
+      MKBJ_DEMO_SHOP_EMAIL: ${MKBJ_DEMO_SHOP_EMAIL:-shopper@mkbj.local}
+      MKBJ_DEMO_SHOP_PASSWORD: ${MKBJ_DEMO_SHOP_PASSWORD:-MkbjShop123!}
     volumes:
       - ../keycloak:/opt/keycloak/data/import:ro
     healthcheck:

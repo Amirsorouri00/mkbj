@@ -10,12 +10,12 @@ WORKDIR /src
 # .editorconfig carries the analyzer severities, and TreatWarningsAsErrors is on in Release —
 # leave it out and the image build enforces a different rule set than `dotnet build -c Release`
 # does locally, so the image fails on code that passed CI.
-COPY global.json nuget.config .editorconfig Directory.Build.props Directory.Build.targets Directory.Packages.props EwaysVNext.slnx ./
-COPY EwaysVNext.Modules.Catalog.Contracts/ EwaysVNext.Modules.Catalog.Contracts/
+COPY global.json nuget.config .editorconfig Directory.Build.props Directory.Build.targets Directory.Packages.props Mkbj.slnx ./
+COPY Mkbj.Modules.Catalog.Contracts/ Mkbj.Modules.Catalog.Contracts/
 COPY src/ src/
 
-RUN dotnet restore src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj
-RUN dotnet publish src/Host/EwaysVNext.Host/EwaysVNext.Host.csproj \
+RUN dotnet restore src/Host/Mkbj.Host/Mkbj.Host.csproj
+RUN dotnet publish src/Host/Mkbj.Host/Mkbj.Host.csproj \
     -c Release --no-restore -o /app /p:UseAppHost=false
 
 # -extra keeps ICU and tzdata: the invoice and FX code formats dates and money, and a culture-less
@@ -34,4 +34,4 @@ ENV ASPNETCORE_HTTP_PORTS=8080 \
 EXPOSE 8080
 
 # Chiseled has no curl or wget, which is why the host implements --probe itself.
-ENTRYPOINT ["dotnet", "EwaysVNext.Host.dll"]
+ENTRYPOINT ["dotnet", "Mkbj.Host.dll"]
