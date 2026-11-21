@@ -1,0 +1,72 @@
+# Demo-only override for a 1 vCPU / 2 GB VM. Swap is mandatory. This trades throughput and
+# background-job isolation for a usable evaluation environment; never use it for production.
+services:
+  postgres:
+    mem_limit: 192m
+    command:
+      - postgres
+      - -c
+      - shared_buffers=32MB
+      - -c
+      - work_mem=2MB
+      - -c
+      - maintenance_work_mem=32MB
+      - -c
+      - max_connections=40
+
+  keycloak-db:
+    mem_limit: 128m
+    command:
+      - postgres
+      - -c
+      - shared_buffers=24MB
+      - -c
+      - work_mem=1MB
+      - -c
+      - maintenance_work_mem=24MB
+      - -c
+      - max_connections=30
+
+  minio:
+    mem_limit: 192m
+
+  migrations:
+    mem_limit: 448m
+    environment:
+      DOTNET_GCServer: "0"
+      DOTNET_GCConserveMemory: "9"
+
+  seed:
+    mem_limit: 448m
+    environment:
+      DOTNET_GCServer: "0"
+      DOTNET_GCConserveMemory: "9"
+
+  api:
+    mem_limit: 384m
+    environment:
+      # Avoid a second .NET process. Jobs run in the API for this demo tier only.
+      Jobs__Mode: InProcess
+      DOTNET_GCServer: "0"
+      DOTNET_GCConserveMemory: "9"
+
+  keycloak:
+    mem_limit: 384m
+    environment:
+      JAVA_OPTS_KC_HEAP: -Xms64m -Xmx256m
+
+  keycloak-demo-users:
+    mem_limit: 256m
+    environment:
+      JAVA_OPTS_KC_HEAP: -Xms32m -Xmx160m
+
+  admin-web:
+    mem_limit: 64m
+
+  shop-web:
+    mem_limit: 256m
+    environment:
+      NODE_OPTIONS: --max-old-space-size=160
+
+  caddy:
+    mem_limit: 64m

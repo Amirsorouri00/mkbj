@@ -18,6 +18,16 @@
 	}
 }
 
+{$SHOP_HOST} {
+	encode zstd gzip
+	reverse_proxy shop-web:3000
+}
+
+{$ADMIN_HOST} {
+	encode zstd gzip
+	reverse_proxy admin-web:8080
+}
+
 {$AUTH_HOST} {
 	reverse_proxy keycloak:8080
 }
