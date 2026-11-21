@@ -2,9 +2,7 @@ name: Deploy demo
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
+  push:
     branches: [main, master]
 
 concurrency:
@@ -17,7 +15,6 @@ permissions:
 
 jobs:
   deploy:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment: demo
 
@@ -25,15 +22,14 @@ jobs:
       - name: Resolve release
         id: release
         env:
-          EVENT_SHA: ${{ github.event.workflow_run.head_sha }}
-          MANUAL_SHA: ${{ github.sha }}
+          RELEASE_SHA: ${{ github.sha }}
           PUBLIC_IP: ${{ vars.DEMO_PUBLIC_IP }}
           CONFIGURED_BASE_DOMAIN: ${{ vars.DEMO_BASE_DOMAIN }}
           CONFIGURED_PLATFORMS: ${{ vars.DEMO_DOCKER_PLATFORMS }}
           CONFIGURED_DEMO_TIER: ${{ vars.DEMO_TIER }}
         run: |
           set -euo pipefail
-          sha="${EVENT_SHA:-$MANUAL_SHA}"
+          sha="$RELEASE_SHA"
           owner="${GITHUB_REPOSITORY_OWNER,,}"
           base_domain="$CONFIGURED_BASE_DOMAIN"
           platforms="${CONFIGURED_PLATFORMS:-linux/amd64}"

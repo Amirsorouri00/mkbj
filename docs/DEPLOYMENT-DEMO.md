@@ -127,9 +127,13 @@ database is usable on its first deployment while existing demo data is not dupli
 
 ## 6. Continuous delivery
 
-`.github/workflows/ci.yml` gates .NET and frontend builds and tests. After CI succeeds on `main` or
-`master`, `.github/workflows/deploy-demo.yml` deploys that exact commit. It can also be run manually.
+For the temporary demo phase, a push to `main` or `master` starts
+`.github/workflows/deploy-demo.yml` directly. The deployment's container builds are the only gate;
+the automated test workflow is intentionally disabled. The workflow can also be run manually.
 Deployments are serialized, and images are addressed by commit SHA rather than a mutable tag.
+
+The test projects and local test commands remain in the repository. Restore an automated CI gate
+before treating this demo topology as a production release process.
 
 To roll back, rerun **Deploy demo** from the desired earlier commit. Schema migrations are designed
 to be expand-only; do not automatically roll a database migration backward.
