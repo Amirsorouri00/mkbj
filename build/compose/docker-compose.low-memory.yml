@@ -28,7 +28,11 @@ services:
       - max_connections=30
 
   minio:
-    mem_limit: 192m
+    # The demo catalogue import briefly takes MinIO above 192 MiB. Keep the Go heap below the
+    # container ceiling so native allocations and the health-check client still have headroom.
+    mem_limit: 320m
+    environment:
+      GOMEMLIMIT: 256MiB
 
   migrations:
     mem_limit: 448m
@@ -49,6 +53,12 @@ services:
       Jobs__Mode: InProcess
       DOTNET_GCServer: "0"
       DOTNET_GCConserveMemory: "9"
+    healthcheck:
+      # Compose stops waiting as soon as a service becomes unhealthy. The constrained VM can
+      # briefly delay dependency checks while the catalogue import settles, so allow recovery
+      # within the deploy script's six-minute wait instead of failing after five probes.
+      retries: 12
+      start_period: 60s
 
   keycloak:
     mem_limit: 384m
