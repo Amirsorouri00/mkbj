@@ -332,7 +332,9 @@ services:
         ensure_user() {
           realm="$$1"; username="$$2"; email="$$3"; password="$$4"
           if "$$KCADM" get users -r "$$realm" -q exact=true -q username="$$username" --fields username \
-              | grep -Fq "\"username\" : \"$$username\""; then
+              | grep -Fq "\"username\" : \"$$username\"" \
+              || "$$KCADM" get users -r "$$realm" -q exact=true -q email="$$email" --fields email \
+              | grep -Fq "\"email\" : \"$$email\""; then
             echo "Preserving existing $$realm user $$username"
             return
           fi
