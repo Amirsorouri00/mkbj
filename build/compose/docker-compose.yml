@@ -402,7 +402,7 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:2019/config/"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:2019/config/"]
       interval: 15s
       timeout: 5s
       retries: 5
