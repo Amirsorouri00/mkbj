@@ -198,5 +198,24 @@ jobs:
           set -euo pipefail
           SSH_USER=${SSH_USER:-ubuntu}
           scp -p deployment.tgz bootstrap.env .release.env "$SSH_USER@$SSH_HOST:/tmp/"
-          ssh "$SSH_USER@$SSH_HOST" 'sudo rm -rf /opt/mkbj.new && sudo mkdir -p /opt/mkbj.new && sudo tar -xzf /tmp/deployment.tgz -C /opt/mkbj.new && if [ -f /opt/mkbj/build/compose/.env ]; then sudo cp /opt/mkbj/build/compose/.env /opt/mkbj.new/build/compose/.env; fi && sudo rm -rf /opt/mkbj.previous && if [ -d /opt/mkbj ]; then sudo mv /opt/mkbj /opt/mkbj.previous; fi && sudo mv /opt/mkbj.new /opt/mkbj && sudo mv /tmp/.release.env /opt/mkbj/build/compose/.release.env && sudo chmod 600 /tmp/bootstrap.env /opt/mkbj/build/compose/.release.env'
+          ssh "$SSH_USER@$SSH_HOST" 'sudo bash -s' <<'REMOTE'
+          set -euo pipefail
+          install -d -m 0700 /var/lib/mkbj
+          if [[ -f /opt/mkbj/build/compose/.env ]]; then
+            install -m 0600 /opt/mkbj/build/compose/.env /var/lib/mkbj/demo.env
+          fi
+          rm -rf /opt/mkbj.new
+          mkdir -p /opt/mkbj.new
+          tar -xzf /tmp/deployment.tgz -C /opt/mkbj.new
+          if [[ -f /var/lib/mkbj/demo.env ]]; then
+            install -m 0600 /var/lib/mkbj/demo.env /opt/mkbj.new/build/compose/.env
+          fi
+          rm -rf /opt/mkbj.previous
+          if [[ -d /opt/mkbj ]]; then
+            mv /opt/mkbj /opt/mkbj.previous
+          fi
+          mv /opt/mkbj.new /opt/mkbj
+          mv /tmp/.release.env /opt/mkbj/build/compose/.release.env
+          chmod 600 /tmp/bootstrap.env /opt/mkbj/build/compose/.release.env
+          REMOTE
           ssh "$SSH_USER@$SSH_HOST" 'sudo BOOTSTRAP_ENV_FILE=/tmp/bootstrap.env bash /opt/mkbj/tools/deploy/bootstrap-ubuntu-vm.sh && sudo rm -f /tmp/bootstrap.env /tmp/deployment.tgz && sudo bash /opt/mkbj/tools/deploy/deploy-demo.sh'

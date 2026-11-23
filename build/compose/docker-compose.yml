@@ -336,9 +336,9 @@ services:
             echo "Preserving existing $$realm user $$username"
             return
           fi
-          "$$KCADM" create users -r "$$realm" -s username="$$username" -s email="$$email" \
-            -s firstName=MKBJ -s lastName=Demo -s enabled=true -s emailVerified=true
-          "$$KCADM" set-password -r "$$realm" --username "$$username" \
+          user_id=$$("$$KCADM" create users -r "$$realm" -s username="$$username" -s email="$$email" \
+            -s firstName=MKBJ -s lastName=Demo -s enabled=true -s emailVerified=true -i)
+          "$$KCADM" set-password -r "$$realm" --userid "$$user_id" \
             --new-password "$$password" --temporary=false
           echo "Created $$realm user $$username"
         }
