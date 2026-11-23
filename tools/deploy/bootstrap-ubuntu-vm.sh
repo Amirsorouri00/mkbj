@@ -77,6 +77,15 @@ fi
 
 install -d -m 0750 /opt/mkbj/build/compose
 env_file=/opt/mkbj/build/compose/.env
+state_dir=/var/lib/mkbj
+state_env_file=$state_dir/demo.env
+install -d -m 0700 "$state_dir"
+
+# Releases replace /opt/mkbj as one directory. Keep generated secrets outside that release tree
+# so a failed or interrupted swap cannot rotate database passwords while retaining their volumes.
+if [[ ! -f $env_file && -f $state_env_file ]]; then
+  install -m 0600 "$state_env_file" "$env_file"
+fi
 
 if [[ -n ${GHCR_USERNAME_B64:-} && -n ${GHCR_TOKEN_B64:-} ]]; then
   ghcr_username=$(decode "$GHCR_USERNAME_B64")
@@ -87,6 +96,7 @@ fi
 # and Keycloak itself skips realm import once the realm exists. A normal deploy therefore cannot
 # reset either demo user's password.
 if [[ -f $env_file ]]; then
+  install -m 0600 "$env_file" "$state_env_file"
   echo "Preserving existing $env_file"
   exit 0
 fi
@@ -145,5 +155,6 @@ ANTHROPIC_API_KEY=
 EOF
 
 chmod 0600 "$env_file"
+install -m 0600 "$env_file" "$state_env_file"
 echo "Created $env_file for $base_domain"
 
