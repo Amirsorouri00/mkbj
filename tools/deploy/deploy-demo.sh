@@ -47,8 +47,8 @@ set -a
 # shellcheck disable=SC1090
 source "$env_file"
 set +a
-curl --fail --silent --show-error --retry 12 --retry-delay 5 "https://$PUBLIC_HOST/health/ready" >/dev/null
-curl --fail --silent --show-error --retry 12 --retry-delay 5 "https://$ADMIN_HOST/" >/dev/null
-curl --fail --silent --show-error --retry 12 --retry-delay 5 "https://$SHOP_HOST/" >/dev/null
-echo "Demo deployment is healthy: https://$SHOP_HOST and https://$ADMIN_HOST"
+curl --fail --silent --show-error --retry 12 --retry-delay 5 "$PUBLIC_SCHEME://$PUBLIC_HOST/health/ready" >/dev/null
+curl --fail --silent --show-error --retry 12 --retry-delay 5 "$PUBLIC_SCHEME://$ADMIN_HOST/" >/dev/null
+curl --fail --silent --show-error --retry 12 --retry-delay 5 "$PUBLIC_SCHEME://$SHOP_HOST/" >/dev/null
+echo "Demo deployment is healthy: $PUBLIC_SCHEME://$SHOP_HOST and $PUBLIC_SCHEME://$ADMIN_HOST"
 

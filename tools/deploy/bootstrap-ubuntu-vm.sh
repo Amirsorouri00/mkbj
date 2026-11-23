@@ -17,7 +17,6 @@ if [[ ${EUID} -ne 0 ]]; then
 fi
 
 : "${DEMO_PUBLIC_IP:?DEMO_PUBLIC_IP is required}"
-: "${ACME_EMAIL:?ACME_EMAIL is required}"
 : "${MKBJ_DEMO_ADMIN_USERNAME_B64:?admin username is required}"
 : "${MKBJ_DEMO_ADMIN_EMAIL_B64:?admin email is required}"
 : "${MKBJ_DEMO_ADMIN_PASSWORD_B64:?admin password is required}"
@@ -32,6 +31,21 @@ admin_password=$(decode "$MKBJ_DEMO_ADMIN_PASSWORD_B64")
 shop_username=$(decode "$MKBJ_DEMO_SHOP_USERNAME_B64")
 shop_email=$(decode "$MKBJ_DEMO_SHOP_EMAIL_B64")
 shop_password=$(decode "$MKBJ_DEMO_SHOP_PASSWORD_B64")
+
+enable_https=${MKBJ_DEMO_ENABLE_HTTPS:-false}
+case "$enable_https" in
+  true)
+    : "${ACME_EMAIL:?ACME_EMAIL is required when HTTPS is enabled}"
+    public_scheme=https
+    ;;
+  false)
+    public_scheme=http
+    ;;
+  *)
+    echo 'MKBJ_DEMO_ENABLE_HTTPS must be true or false.' >&2
+    exit 64
+    ;;
+esac
 
 safe_value='^[A-Za-z0-9@._+!-]+$'
 for value in "$admin_username" "$admin_email" "$admin_password" "$shop_username" "$shop_email" "$shop_password"; do
@@ -81,6 +95,30 @@ state_dir=/var/lib/mkbj
 state_env_file=$state_dir/demo.env
 install -d -m 0700 "$state_dir"
 
+host_ip=${DEMO_PUBLIC_IP//./-}
+base_domain=${DEMO_BASE_DOMAIN:-$host_ip.sslip.io}
+
+upsert_env() {
+  local file="$1" key="$2" value="$3"
+  if grep -q "^${key}=" "$file"; then
+    sed -i "s|^${key}=.*$|${key}=${value}|" "$file"
+  else
+    printf '%s=%s\n' "$key" "$value" >> "$file"
+  fi
+}
+
+configure_public_transport() {
+  local file="$1"
+  upsert_env "$file" PUBLIC_SCHEME "$public_scheme"
+  upsert_env "$file" MKBJ_DEMO_ENABLE_HTTPS "$enable_https"
+  upsert_env "$file" ACME_EMAIL "${ACME_EMAIL:-}"
+  upsert_env "$file" KC_SHOP_WEB_ORIGIN "$public_scheme://shop.$base_domain"
+  upsert_env "$file" KC_ADMIN_WEB_ORIGIN "$public_scheme://admin.$base_domain"
+  upsert_env "$file" KC_API_PUBLIC_URL "$public_scheme://api.$base_domain"
+  upsert_env "$file" SHOP_REDIRECT_URI "$public_scheme://shop.$base_domain/*"
+  upsert_env "$file" BACKOFFICE_REDIRECT_URI "$public_scheme://admin.$base_domain/*"
+}
+
 # Releases replace /opt/mkbj as one directory. Keep generated secrets outside that release tree
 # so a failed or interrupted swap cannot rotate database passwords while retaining their volumes.
 if [[ ! -f $env_file && -f $state_env_file ]]; then
@@ -92,29 +130,29 @@ if [[ -n ${GHCR_USERNAME_B64:-} && -n ${GHCR_TOKEN_B64:-} ]]; then
   decode "$GHCR_TOKEN_B64" | docker login ghcr.io --username "$ghcr_username" --password-stdin
 fi
 
-# Never rewrite an existing environment. This preserves DB, object-storage and API-key secrets,
-# and Keycloak itself skips realm import once the realm exists. A normal deploy therefore cannot
-# reset either demo user's password.
+# Preserve generated credentials for persistent volumes and existing demo-user passwords. Only the
+# explicitly selected public transport and its derived browser URLs are reconciled on later releases.
 if [[ -f $env_file ]]; then
+  configure_public_transport "$env_file"
   install -m 0600 "$env_file" "$state_env_file"
-  echo "Preserving existing $env_file"
+  echo "Preserving existing $env_file and using $public_scheme for public endpoints"
   exit 0
 fi
 
 random_hex() { openssl rand -hex "$1"; }
-host_ip=${DEMO_PUBLIC_IP//./-}
-base_domain=${DEMO_BASE_DOMAIN:-$host_ip.sslip.io}
 
 umask 077
 cat > "$env_file" <<EOF
+PUBLIC_SCHEME=$public_scheme
 PUBLIC_HOST=api.$base_domain
 ADMIN_HOST=admin.$base_domain
 SHOP_HOST=shop.$base_domain
 AUTH_HOST=auth.$base_domain
 STORAGE_HOST=storage.$base_domain
-ACME_EMAIL=$ACME_EMAIL
+ACME_EMAIL=${ACME_EMAIL:-}
 APP_ENVIRONMENT=Staging
 MKBJ_DEMO_TIER=$demo_tier
+MKBJ_DEMO_ENABLE_HTTPS=$enable_https
 
 POSTGRES_PASSWORD=$(random_hex 24)
 APP_DB_PASSWORD=$(random_hex 24)
@@ -136,11 +174,11 @@ KC_SMTP_PASSWORD=
 KC_SMTP_FROM_DISPLAY_NAME=MKBJ-Demo
 KC_SMTP_STARTTLS=false
 KC_SMTP_AUTH=false
-KC_SHOP_WEB_ORIGIN=https://shop.$base_domain
-KC_ADMIN_WEB_ORIGIN=https://admin.$base_domain
-KC_API_PUBLIC_URL=https://api.$base_domain
-SHOP_REDIRECT_URI=https://shop.$base_domain/*
-BACKOFFICE_REDIRECT_URI=https://admin.$base_domain/*
+KC_SHOP_WEB_ORIGIN=$public_scheme://shop.$base_domain
+KC_ADMIN_WEB_ORIGIN=$public_scheme://admin.$base_domain
+KC_API_PUBLIC_URL=$public_scheme://api.$base_domain
+SHOP_REDIRECT_URI=$public_scheme://shop.$base_domain/*
+BACKOFFICE_REDIRECT_URI=$public_scheme://admin.$base_domain/*
 
 MKBJ_DEMO_ADMIN_USERNAME=$admin_username
 MKBJ_DEMO_ADMIN_EMAIL=$admin_email
