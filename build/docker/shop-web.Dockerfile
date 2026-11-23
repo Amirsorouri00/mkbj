@@ -36,7 +36,7 @@ COPY --from=build --chown=nextjs:nodejs /workspace/apps/shop-web/public ./apps/s
 USER nextjs
 EXPOSE 3000
 HEALTHCHECK --interval=15s --timeout=5s --retries=5 \
-  CMD wget -qO- http://localhost:3000/ >/dev/null || exit 1
+  CMD wget -qO- http://127.0.0.1:3000/health >/dev/null || exit 1
 
 CMD ["node", "apps/shop-web/server.js"]
 
