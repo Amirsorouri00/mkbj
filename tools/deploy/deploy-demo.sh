@@ -24,7 +24,10 @@ compose=(docker compose "${compose_files[@]}" --env-file "$env_file" --env-file 
 # changes, then seed the demo catalogue idempotently before either web application is exposed.
 "${compose[@]}" stop caddy api worker admin-web shop-web 2>/dev/null || true
 "${compose[@]}" pull
-"${compose[@]}" up -d --wait --wait-timeout 180 --no-build postgres keycloak-db keycloak minio
+# A fresh Keycloak database on the constrained 1-vCPU demo VM imports two realms and builds its
+# Quarkus configuration. It can legitimately take longer than three minutes before the first
+# readiness response, even though the steady-state service starts much faster.
+"${compose[@]}" up -d --wait --wait-timeout 360 --no-build postgres keycloak-db keycloak minio
 "${compose[@]}" run --rm --no-deps minio-init
 "${compose[@]}" --profile demo-seed run --rm --no-deps keycloak-demo-users
 "${compose[@]}" run --rm --no-deps migrations
