@@ -29,7 +29,8 @@ Create one Ubuntu 24.04 instance:
 - Shape: 4 vCPU, 8 GB RAM and 80 GB SSD minimum. OCI users may instead use
   `VM.Standard.A1.Flex`, 2 OCPUs and 12 GB RAM.
 - Assign a public IPv4 address and keep it reserved for this VM.
-- Add ingress rules for TCP 22, 80 and 443. Restrict port 22 to your own IP when practical.
+- Add ingress rules for TCP 22 and 80. Add 443 only when HTTPS is enabled. Restrict port 22 to
+  your own IP when practical.
 - Keep the generated SSH private key. Do not commit it.
 
 The workflow installs Docker on the first deployment. No manual application setup is needed on
@@ -37,18 +38,20 @@ the VM.
 
 ## 2. Choose hostnames
 
-The zero-cost default uses `sslip.io`. For public IP `203.0.113.10`, the deployment creates:
+The zero-cost default uses `sslip.io` over HTTP so certificate issuance cannot block a disposable
+demo. For public IP `203.0.113.10`, the default deployment creates:
 
-- `https://shop.203-0-113-10.sslip.io`
-- `https://admin.203-0-113-10.sslip.io`
-- `https://api.203-0-113-10.sslip.io`
-- `https://auth.203-0-113-10.sslip.io`
-- `https://storage.203-0-113-10.sslip.io`
+- `http://shop.203-0-113-10.sslip.io`
+- `http://admin.203-0-113-10.sslip.io`
+- `http://api.203-0-113-10.sslip.io`
+- `http://auth.203-0-113-10.sslip.io`
+- `http://storage.203-0-113-10.sslip.io`
 
-Caddy obtains and renews public TLS certificates automatically. Ports 80 and 443 must be reachable.
-For a durable demo, set `DEMO_BASE_DOMAIN` to a domain you control and point `api`, `admin`, `shop`,
-`auth` and `storage` beneath it to the VM. A free wildcard DNS service is convenient but is still a
-third-party availability dependency.
+Set `DEMO_ENABLE_HTTPS=true` to make Caddy obtain and renew public certificates. HTTPS mode requires
+ports 80 and 443 to be reachable from public certificate-authority validation servers. For a
+durable demo, use HTTPS, set `DEMO_BASE_DOMAIN` to a domain you control, and point `api`, `admin`,
+`shop`, `auth` and `storage` beneath it to the VM. HTTP mode sends credentials without transport
+encryption and is only suitable for a temporary evaluation environment on a trusted network.
 
 ## 3. Configure GitHub
 
@@ -61,7 +64,8 @@ Variables:
 |---|---|
 | `DEMO_PUBLIC_IP` | VM public IPv4 address |
 | `DEMO_SSH_USER` | `ubuntu` |
-| `DEMO_ACME_EMAIL` | Email used for certificate registration |
+| `DEMO_ENABLE_HTTPS` | `false` by default; set `true` only when ports 80/443 are internationally reachable |
+| `DEMO_ACME_EMAIL` | Required only when `DEMO_ENABLE_HTTPS=true`; email used for certificate registration |
 | `DEMO_BASE_DOMAIN` | Optional custom base domain; blank uses `sslip.io` |
 | `DEMO_DOCKER_PLATFORMS` | `linux/amd64` for Iranian VPS (default); `linux/arm64` for OCI Ampere |
 | `DEMO_TIER` | `standard` normally; `low-memory` only for a 1-vCPU/2-GB disposable demo VM |
@@ -101,7 +105,8 @@ Open **Actions → Deploy demo → Run workflow**. The workflow:
 1. builds API, Backoffice and shop images for `DEMO_DOCKER_PLATFORMS`;
 2. copies only the deployment manifests and scripts to `/opt/mkbj`;
 3. installs Docker if this is the first deployment;
-4. creates `/opt/mkbj/build/compose/.env` once with generated infrastructure secrets;
+4. creates `/opt/mkbj/build/compose/.env` once with generated infrastructure secrets and reconciles
+   the selected HTTP/HTTPS transport on later deployments;
 5. starts PostgreSQL, Keycloak and MinIO;
 6. applies migrations explicitly;
 7. runs the idempotent demo seed in `Staging`;

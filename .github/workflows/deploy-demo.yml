@@ -27,12 +27,20 @@ jobs:
           CONFIGURED_BASE_DOMAIN: ${{ vars.DEMO_BASE_DOMAIN }}
           CONFIGURED_PLATFORMS: ${{ vars.DEMO_DOCKER_PLATFORMS }}
           CONFIGURED_DEMO_TIER: ${{ vars.DEMO_TIER }}
+          CONFIGURED_ENABLE_HTTPS: ${{ vars.DEMO_ENABLE_HTTPS }}
         run: |
           set -euo pipefail
           sha="$RELEASE_SHA"
           owner="${GITHUB_REPOSITORY_OWNER,,}"
           base_domain="$CONFIGURED_BASE_DOMAIN"
           platforms="${CONFIGURED_PLATFORMS:-linux/amd64}"
+          enable_https="${CONFIGURED_ENABLE_HTTPS,,}"
+          enable_https="${enable_https:-false}"
+          case "$enable_https" in
+            true) public_scheme=https ;;
+            false) public_scheme=http ;;
+            *) echo 'DEMO_ENABLE_HTTPS must be true or false.' >&2; exit 64 ;;
+          esac
           if [[ -z "$base_domain" ]]; then
             [[ -n "$PUBLIC_IP" ]] || { echo 'Set demo environment variable DEMO_PUBLIC_IP.' >&2; exit 64; }
             base_domain="${PUBLIC_IP//./-}.sslip.io"
@@ -42,6 +50,8 @@ jobs:
             echo "base_domain=$base_domain"
             echo "platforms=$platforms"
             echo "demo_tier=${CONFIGURED_DEMO_TIER:-standard}"
+            echo "enable_https=$enable_https"
+            echo "public_scheme=$public_scheme"
             echo "image_prefix=ghcr.io/$owner/mkbj"
           } >> "$GITHUB_OUTPUT"
 
@@ -99,9 +109,9 @@ jobs:
           platforms: ${{ steps.release.outputs.platforms }}
           push: true
           build-args: |
-            VITE_API_BASE_URL=https://api.${{ steps.release.outputs.base_domain }}
-            VITE_GRAPHQL_URL=https://api.${{ steps.release.outputs.base_domain }}/graphql
-            VITE_KEYCLOAK_URL=https://auth.${{ steps.release.outputs.base_domain }}
+            VITE_API_BASE_URL=${{ steps.release.outputs.public_scheme }}://api.${{ steps.release.outputs.base_domain }}
+            VITE_GRAPHQL_URL=${{ steps.release.outputs.public_scheme }}://api.${{ steps.release.outputs.base_domain }}/graphql
+            VITE_KEYCLOAK_URL=${{ steps.release.outputs.public_scheme }}://auth.${{ steps.release.outputs.base_domain }}
             VITE_KEYCLOAK_REALM=Backoffice
             VITE_KEYCLOAK_CLIENT_ID=backoffice-console
           tags: |
@@ -118,11 +128,11 @@ jobs:
           platforms: ${{ steps.release.outputs.platforms }}
           push: true
           build-args: |
-            NEXT_PUBLIC_MKBJ_API_GRAPHQL_URL=https://api.${{ steps.release.outputs.base_domain }}/graphql
-            NEXT_PUBLIC_KEYCLOAK_URL=https://auth.${{ steps.release.outputs.base_domain }}
+            NEXT_PUBLIC_MKBJ_API_GRAPHQL_URL=${{ steps.release.outputs.public_scheme }}://api.${{ steps.release.outputs.base_domain }}/graphql
+            NEXT_PUBLIC_KEYCLOAK_URL=${{ steps.release.outputs.public_scheme }}://auth.${{ steps.release.outputs.base_domain }}
             NEXT_PUBLIC_KEYCLOAK_REALM=Shop
             NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=modular-monolith
-            NEXT_PUBLIC_MKBJ_MEDIA_BASE_URL=https://storage.${{ steps.release.outputs.base_domain }}/catalog-media/
+            NEXT_PUBLIC_MKBJ_MEDIA_BASE_URL=${{ steps.release.outputs.public_scheme }}://storage.${{ steps.release.outputs.base_domain }}/catalog-media/
           tags: |
             ${{ steps.release.outputs.image_prefix }}-shop:${{ steps.release.outputs.sha }}
             ${{ steps.release.outputs.image_prefix }}-shop:demo
@@ -145,10 +155,15 @@ jobs:
           IMAGE_PREFIX: ${{ steps.release.outputs.image_prefix }}
           RELEASE_SHA: ${{ steps.release.outputs.sha }}
           DEMO_TIER: ${{ steps.release.outputs.demo_tier }}
+          ENABLE_HTTPS: ${{ steps.release.outputs.enable_https }}
         run: |
           set -euo pipefail
           b64() { printf '%s' "$1" | base64 -w0; }
-          [[ -n "$PUBLIC_IP" && -n "$ACME_EMAIL" ]] || { echo 'Missing DEMO_PUBLIC_IP or DEMO_ACME_EMAIL.' >&2; exit 64; }
+          [[ -n "$PUBLIC_IP" ]] || { echo 'Missing DEMO_PUBLIC_IP.' >&2; exit 64; }
+          if [[ "$ENABLE_HTTPS" == true && -z "$ACME_EMAIL" ]]; then
+            echo 'DEMO_ACME_EMAIL is required when DEMO_ENABLE_HTTPS=true.' >&2
+            exit 64
+          fi
           [[ -n "$ADMIN_USERNAME" && -n "$ADMIN_EMAIL" && -n "$ADMIN_PASSWORD" ]] || { echo 'Missing Backoffice demo identity secrets.' >&2; exit 64; }
           [[ -n "$SHOP_USERNAME" && -n "$SHOP_EMAIL" && -n "$SHOP_PASSWORD" ]] || { echo 'Missing shop demo identity secrets.' >&2; exit 64; }
           [[ -n "$GHCR_USERNAME" && -n "$GHCR_TOKEN" ]] || { echo 'Missing GHCR deployment credentials.' >&2; exit 64; }
@@ -157,6 +172,7 @@ jobs:
           DEMO_PUBLIC_IP=$PUBLIC_IP
           DEMO_BASE_DOMAIN=$BASE_DOMAIN
           MKBJ_DEMO_TIER=$DEMO_TIER
+          MKBJ_DEMO_ENABLE_HTTPS=$ENABLE_HTTPS
           ACME_EMAIL=$ACME_EMAIL
           MKBJ_DEMO_ADMIN_USERNAME_B64=$(b64 "$ADMIN_USERNAME")
           MKBJ_DEMO_ADMIN_EMAIL_B64=$(b64 "$ADMIN_EMAIL")
